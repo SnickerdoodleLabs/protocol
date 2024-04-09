@@ -1,49 +1,43 @@
-import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
-import React, { useEffect, useMemo, useState } from "react";
-
-import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/PoapNFTs/PoapNFTs.style";
-import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 import { PoapNFTItem } from "@extension-onboarding/components/NFTItem";
+import Card from "@extension-onboarding/components/v2/Card";
+import CustomSizeGrid from "@extension-onboarding/components/v2/CustomSizeGrid";
+import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
+import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/PoapNFTs/PoapNFTs.style";
+import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
+import React from "react";
 
 export default () => {
   const classes = useStyles();
 
   const { isNFTsLoading, poapNFTs } = useDashboardContext();
+  const { linkedAccounts } = useAppContext();
+
+  if (!(linkedAccounts.length > 0)) {
+    return <UnauthScreen />;
+  }
 
   return (
-    <Box>
+    <Card>
       {isNFTsLoading ? (
-        <Box display="flex" alignItems="center" justifyContent="center" mt={10}>
+        <Box display="flex" alignItems="center" justifyContent="center" my={10}>
           <CircularProgress />
         </Box>
       ) : (
-        <Grid container spacing={3}>
+        <>
           {poapNFTs && poapNFTs.length ? (
-            poapNFTs.map((nftItem) => {
-              return <PoapNFTItem key={nftItem.tokenId} item={nftItem} />;
-            })
+            <CustomSizeGrid
+              items={poapNFTs.map((nftItem, index) => {
+                return <PoapNFTItem item={nftItem} />;
+              })}
+            />
           ) : (
-            <Box width="100%" display="flex">
-              <Box
-                justifyContent="center"
-                alignItems="center"
-                width="100%"
-                display="flex"
-                flexDirection="column"
-                pt={8}
-              >
-                <img style={{ width: 255, height: "auto" }} src={emptyNfts} />
-                <Box mt={2}>
-                  <Typography className={classes.description}>
-                    You don't have any POAPs.
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
+            <EmptyItem />
           )}
-        </Grid>
+        </>
       )}
-    </Box>
+    </Card>
   );
 };

@@ -1,12 +1,11 @@
 import {
-  CeramicStreamID,
   DataWalletBackupID,
-  EVMPrivateKey,
   DataWalletBackup,
   PersistenceError,
-  AjaxError,
-  EBackupPriority,
   BackupFileName,
+  StorageKey,
+  ECloudStorageType,
+  AuthenticatedStorageSettings,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -18,11 +17,22 @@ export class NullCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, DataWalletBackup>();
   protected _lastRestore = 0;
 
-  public pollByPriority(
+  public name(): ECloudStorageType {
+    console.log("null storage is local");
+    return ECloudStorageType.Local;
+  }
+
+  public pollByStorageType(
     restored: Set<DataWalletBackupID>,
-    priority: EBackupPriority,
+    recordKey: StorageKey,
   ): ResultAsync<DataWalletBackup[], PersistenceError> {
     return okAsync([]);
+  }
+
+  public getLatestBackup(
+    storageKey: StorageKey,
+  ): ResultAsync<DataWalletBackup | null, PersistenceError> {
+    return okAsync(null);
   }
 
   public putBackup(
@@ -40,9 +50,13 @@ export class NullCloudStorage implements ICloudStorage {
     return okAsync([]);
   }
 
-  public unlock(
-    derivedKey: EVMPrivateKey,
+  public saveCredentials(
+    credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
+    return okAsync(undefined);
+  }
+
+  public clearCredentials(): ResultAsync<void, PersistenceError> {
     return okAsync(undefined);
   }
 

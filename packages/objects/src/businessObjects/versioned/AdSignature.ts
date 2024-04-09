@@ -1,14 +1,15 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
+} from "@objects/businessObjects/versioned/VersionedObject.js";
 import {
   IpfsCID,
   AdKey,
   Signature,
   EVMContractAddress,
   JsonWebToken,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
+import { PropertiesOf } from "@objects/utilities/index.js";
 
 export class AdSignature extends VersionedObject {
   public static CURRENT_VERSION = 1;
@@ -32,12 +33,12 @@ export class AdSignatureMigrator extends VersionedObjectMigrator<AdSignature> {
     return AdSignature.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown>): AdSignature {
+  protected factory(data: PropertiesOf<AdSignature>): AdSignature {
     return new AdSignature(
-      data["consentContractAddress"] as EVMContractAddress,
-      data["queryCID"] as IpfsCID,
-      data["adKey"] as AdKey,
-      data["signature"] as Signature | JsonWebToken,
+      data.consentContractAddress,
+      data.queryCID,
+      data.adKey,
+      data.signature,
     );
   }
 

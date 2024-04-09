@@ -1,229 +1,382 @@
-import { EventEmitter } from "events";
-
 import { ResultAsync } from "neverthrow";
+import { FunctionKeys } from "utility-types";
 
 import {
-  DiscordGuildProfile,
-  DiscordProfile,
   EarnedReward,
-  TokenAndSecret,
-  LinkedAccount,
   MarketplaceListing,
   PagedResponse,
   PagingRequest,
-  PossibleReward,
   SiteVisit,
   TokenAddress,
   TokenBalance,
   TokenInfo,
   TokenMarketData,
-  TwitterProfile,
-  WalletNFT,
-} from "@objects/businessObjects";
-import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
-import { IConsentCapacity } from "@objects/interfaces//IConsentCapacity";
-import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
-import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences";
+  QueryStatus,
+  TransactionFilter,
+  ChainTransaction,
+  TransactionFlowInsight,
+  IDynamicRewardParameter,
+} from "@objects/businessObjects/index.js";
+import {
+  ECoreProxyType,
+  EInvitationStatus,
+  EQueryProcessingStatus,
+  EWalletDataType,
+} from "@objects/enum/index.js";
+import { ProxyError } from "@objects/errors/index.js";
+import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
+import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
+import {
+  IAccountMethods,
+  ICoreDiscordMethods,
+  ICoreIntegrationMethods,
+  ICoreTwitterMethods,
+  IMetricsMethods,
+  IStorageMethods,
+  INftMethods,
+  IQuestionnaireMethods,
+} from "@objects/interfaces/ISnickerdoodleCore.js";
+import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
+import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
 import {
   AccountAddress,
   Age,
-  OAuth1RequstToken,
   BigNumberString,
+  BlockNumber,
   ChainId,
   CountryCode,
-  DataWalletAddress,
-  DiscordID,
   EmailAddressString,
   EVMContractAddress,
   FamilyName,
   Gender,
   GivenName,
   IpfsCID,
+  JSONString,
   LanguageCode,
   MarketplaceTag,
-  OAuthAuthorizationCode,
-  OAuthVerifier,
   Signature,
-  TwitterID,
   UnixTimestamp,
   URLString,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
+import { GetResultAsyncValueType, PopTuple } from "@objects/types.js";
 
-type JsonRpcError = unknown;
-export interface ISdlDataWallet extends EventEmitter {
-  unlock(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode?: LanguageCode,
-  ): ResultAsync<void, JsonRpcError>;
-  addAccount: (
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode?: LanguageCode,
-  ) => ResultAsync<void, JsonRpcError>;
-  getUnlockMessage: (
-    languageCode?: LanguageCode,
-  ) => ResultAsync<string, JsonRpcError>;
-  getAge(): ResultAsync<Age | null, JsonRpcError>;
-  setGivenName(givenName: GivenName): ResultAsync<void, JsonRpcError>;
-  getGivenName(): ResultAsync<GivenName | null, JsonRpcError>;
-  setFamilyName(familyName: FamilyName): ResultAsync<void, JsonRpcError>;
-  getFamilyName(): ResultAsync<FamilyName | null, JsonRpcError>;
-  setBirthday(birthday: UnixTimestamp): ResultAsync<void, JsonRpcError>;
-  getBirthday(): ResultAsync<UnixTimestamp | null, JsonRpcError>;
-  setGender(gender: Gender): ResultAsync<void, JsonRpcError>;
-  getGender(): ResultAsync<Gender | null, JsonRpcError>;
-  setEmail(email: EmailAddressString): ResultAsync<void, JsonRpcError>;
-  getEmail(): ResultAsync<EmailAddressString | null, JsonRpcError>;
-  setLocation(location: CountryCode): ResultAsync<void, JsonRpcError>;
-  getLocation(): ResultAsync<CountryCode | null, JsonRpcError>;
-  getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError>;
+export type IProxyAccountMethods = {
+  [key in FunctionKeys<IAccountMethods>]: (
+    ...args: [...PopTuple<Parameters<IAccountMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<IAccountMethods[key]>>,
+    ProxyError
+  >;
+};
+
+// export type IProxyInvitationMethods = {
+//   [key in FunctionKeys<IInvitationMethods>]: (
+//     ...args: [...PopTuple<Parameters<IInvitationMethods[key]>>]
+//   ) => ResultAsync<
+//     GetResultAsyncValueType<ReturnType<IInvitationMethods[key]>>,
+//     ProxyError
+//   >;
+// };
+
+// export type IProxyMarketplaceMethods = {
+//   [key in FunctionKeys<ICoreMarketplaceMethods>]: (
+//     ...args: [
+//       ...Exclude<Parameters<ICoreMarketplaceMethods[key]>, "sourceDomain">,
+//     ]
+//   ) => ResultAsync<
+//     GetResultAsyncValueType<ReturnType<ICoreMarketplaceMethods[key]>>,
+//     ProxyError
+//   >;
+// };
+
+// export type IProxyIntegrationMethods = {
+//   [key in FunctionKeys<ICoreIntegrationMethods>]: (
+//     ...args: [
+//       ...Exclude<Parameters<ICoreIntegrationMethods[key]>, "sourceDomain">,
+//     ]
+//   ) => ResultAsync<
+//     GetResultAsyncValueType<ReturnType<ICoreIntegrationMethods[key]>>,
+//     ProxyError
+//   >;
+// };
+
+export type IProxyDiscordMethods = {
+  [key in FunctionKeys<ICoreDiscordMethods>]: (
+    ...args: [...PopTuple<Parameters<ICoreDiscordMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<ICoreDiscordMethods[key]>>,
+    ProxyError
+  >;
+};
+
+export type INftProxyMethods = {
+  [key in FunctionKeys<INftMethods>]: (
+    ...args: [...PopTuple<Parameters<INftMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<INftMethods[key]>>,
+    ProxyError
+  >;
+};
+
+export type IProxyQuestionnaireMethods = {
+  [key in Exclude<
+    FunctionKeys<IQuestionnaireMethods>,
+    "getAnsweredQuestionnaires"
+  >]: (
+    ...args: [...PopTuple<Parameters<IQuestionnaireMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<IQuestionnaireMethods[key]>>,
+    ProxyError
+  >;
+};
+
+export type IProxyIntegrationMethods = {
+  [key in Exclude<
+    FunctionKeys<ICoreIntegrationMethods>,
+    | "grantPermissions"
+    | "revokePermissions" // These methods should not exist on the proxy!
+    | "requestPermissions"
+    | "getPermissions" // These methods need special handling
+  >]: (
+    ...args: [...Parameters<ICoreIntegrationMethods[key]>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<ICoreIntegrationMethods[key]>>,
+    ProxyError
+  >;
+} & {
+  requestPermissions(
+    ...args: [
+      ...PopTuple<Parameters<ICoreIntegrationMethods["requestPermissions"]>>,
+    ]
+  ): ResultAsync<
+    GetResultAsyncValueType<
+      ReturnType<ICoreIntegrationMethods["requestPermissions"]>
+    >,
+    ProxyError
+  >;
+
+  getPermissions(
+    ...args: [
+      ...PopTuple<Parameters<ICoreIntegrationMethods["getPermissions"]>>,
+    ]
+  ): ResultAsync<
+    GetResultAsyncValueType<
+      ReturnType<ICoreIntegrationMethods["getPermissions"]>
+    >,
+    ProxyError
+  >;
+};
+
+export type IProxyMetricsMethods = {
+  [key in FunctionKeys<IMetricsMethods>]: (
+    ...args: [...PopTuple<Parameters<IMetricsMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<IMetricsMethods[key]>>,
+    ProxyError
+  >;
+};
+
+export type IProxyTwitterMethods = {
+  [key in FunctionKeys<ICoreTwitterMethods>]: (
+    ...args: [...PopTuple<Parameters<ICoreTwitterMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<ICoreTwitterMethods[key]>>,
+    ProxyError
+  >;
+};
+
+export type IProxyStorageMethods = {
+  [key in FunctionKeys<IStorageMethods>]: (
+    ...args: [...PopTuple<Parameters<IStorageMethods[key]>>]
+  ) => ResultAsync<
+    GetResultAsyncValueType<ReturnType<IStorageMethods[key]>>,
+    ProxyError
+  >;
+};
+
+// This stuff is left in for reference- I'm still working on improving these
+// methods and
+// type test = Parameters<ICoreIntegrationMethods["requestPermissions"]>;
+// type test2 = Exclude<test, "sourceDomain">;
+// type test3 = Omit<test, "sourceDomain">;
+// type test4 = PopTuple<test>;
+// type test5 = Parameters<
+//   ICoreDiscordMethods["initializeUserWithAuthorizationCode"]
+// >;
+// type test6 = PopTuple<
+//   Parameters<ICoreDiscordMethods["initializeUserWithAuthorizationCode"]>
+// >;
+
+// These types are how to put it all together when we're done
+// export type IBaseProxyMethods = {
+//   [key in FunctionKeys<ISnickerdoodleCore>]: (
+//     ...args: [...Exclude<Parameters<ISnickerdoodleCore[key]>, "sourceDomain">]
+//   ) => ResultAsync<
+//     GetResultAsyncValueType<ReturnType<ISnickerdoodleCore[key]>>,
+//     ProxyError
+//   >;
+// };
+
+// export type ISdlDataWallet = IBaseProxyMethods & {
+//   account: IProxyAccountMethods;
+//   invitation: IProxyInvitationMethods;
+//   marketplace: IProxyMarketplaceMethods;
+//   integration: IProxyIntegrationMethods;
+//   discord: IProxyDiscordMethods;
+//   twitter: IProxyTwitterMethods;
+//   metrics: IProxyMetricsMethods;
+
+//   events: ISnickerdoodleCoreEvents;
+// };
+
+export interface ISdlDataWallet {
+  getAge(): ResultAsync<Age | null, ProxyError>;
+  setGivenName(givenName: GivenName): ResultAsync<void, ProxyError>;
+  getGivenName(): ResultAsync<GivenName | null, ProxyError>;
+  setFamilyName(familyName: FamilyName): ResultAsync<void, ProxyError>;
+  getFamilyName(): ResultAsync<FamilyName | null, ProxyError>;
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, ProxyError>;
+  getBirthday(): ResultAsync<UnixTimestamp | null, ProxyError>;
+  setGender(gender: Gender): ResultAsync<void, ProxyError>;
+  getGender(): ResultAsync<Gender | null, ProxyError>;
+  setEmail(email: EmailAddressString): ResultAsync<void, ProxyError>;
+  getEmail(): ResultAsync<EmailAddressString | null, ProxyError>;
+  setLocation(location: CountryCode): ResultAsync<void, ProxyError>;
+  getLocation(): ResultAsync<CountryCode | null, ProxyError>;
+
   getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
-    timestamp?: UnixTimestamp,
-  ): ResultAsync<number, JsonRpcError>;
-  getTokenMarketData(
-    ids: string[],
-  ): ResultAsync<TokenMarketData[], JsonRpcError>;
+    timestamp: UnixTimestamp,
+  ): ResultAsync<number, ProxyError>;
+  getTokenMarketData(ids: string[]): ResultAsync<TokenMarketData[], ProxyError>;
 
   getTokenInfo(
     chainId: ChainId,
     contractAddress: TokenAddress | null,
-  ): ResultAsync<TokenInfo | null, JsonRpcError>;
-  getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError>;
-  getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError>;
-  closeTab(): ResultAsync<void, JsonRpcError>;
-  getDataWalletAddress(): ResultAsync<DataWalletAddress | null, JsonRpcError>;
+  ): ResultAsync<TokenInfo | null, ProxyError>;
+  getAccountBalances(): ResultAsync<TokenBalance[], ProxyError>;
+
+  getTransactionValueByChain(): ResultAsync<
+    TransactionFlowInsight[],
+    ProxyError
+  >;
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], ProxyError>;
+
   getAcceptedInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
-    JsonRpcError
+    Map<EVMContractAddress, IpfsCID>,
+    ProxyError
   >;
   getAvailableInvitationsCID(): ResultAsync<
-    Record<EVMContractAddress, IpfsCID>,
-    JsonRpcError
+    Map<EVMContractAddress, IpfsCID>,
+    ProxyError
   >;
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, JsonRpcError>;
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError>;
+  updateAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, ProxyError>;
   getAgreementPermissions(
     consentContractAddres: EVMContractAddress,
-  ): ResultAsync<EWalletDataType[], JsonRpcError>;
-  getApplyDefaultPermissionsOption(): ResultAsync<boolean, JsonRpcError>;
-  setApplyDefaultPermissionsOption(
-    option: boolean,
-  ): ResultAsync<void, JsonRpcError>;
-  getDefaultPermissions(): ResultAsync<EWalletDataType[], JsonRpcError>;
-  setDefaultPermissions(
-    dataTypes: EWalletDataType[],
-  ): ResultAsync<void, JsonRpcError>;
-  getScamFilterSettings(): ResultAsync<IScamFilterPreferences, JsonRpcError>;
-  setScamFilterSettings(
-    isScamFilterActive: boolean,
-    showMessageEveryTime: boolean,
-  ): ResultAsync<void, JsonRpcError>;
-  setDefaultPermissionsToAll(): ResultAsync<void, JsonRpcError>;
-  acceptInvitation(
-    dataTypes: EWalletDataType[] | null,
-    consentContractAddress: EVMContractAddress,
-    tokenId?: BigNumberString,
-    businessSignature?: Signature,
-  ): ResultAsync<void, JsonRpcError>;
+  ): ResultAsync<EWalletDataType[], ProxyError>;
   leaveCohort(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<void, JsonRpcError>;
-  unlinkAcccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    chain: EChain,
-    languageCode?: LanguageCode,
-  ): ResultAsync<void, JsonRpcError>;
+  ): ResultAsync<void, ProxyError>;
 
   checkInvitationStatus(
     consentAddress: EVMContractAddress,
     signature?: Signature,
     tokenId?: BigNumberString,
-  ): ResultAsync<EInvitationStatus, JsonRpcError>;
+  ): ResultAsync<EInvitationStatus, ProxyError>;
 
   getConsentContractCID(
     consentAddress: EVMContractAddress,
-  ): ResultAsync<IpfsCID, JsonRpcError>;
+  ): ResultAsync<IpfsCID, ProxyError>;
 
-  getEarnedRewards(): ResultAsync<EarnedReward[], JsonRpcError>;
+  getEarnedRewards(): ResultAsync<EarnedReward[], ProxyError>;
 
-  getSiteVisits(): ResultAsync<SiteVisit[], JsonRpcError>;
+  getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, ProxyError>;
 
-  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, JsonRpcError>;
+  getQueryStatuses(
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus[],
+    blockNumber?: BlockNumber,
+  ): ResultAsync<QueryStatus[], ProxyError>;
+
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<QueryStatus[], ProxyError>;
+
+  approveQuery(
+    queryCID: IpfsCID,
+    parameters: IDynamicRewardParameter[],
+  ): ResultAsync<void, ProxyError>;
+
+  getSiteVisits(): ResultAsync<SiteVisit[], ProxyError>;
+
+  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError>;
 
   getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
     tag: MarketplaceTag,
     filterActive?: boolean,
-  ): ResultAsync<PagedResponse<MarketplaceListing>, JsonRpcError>;
+  ): ResultAsync<PagedResponse<MarketplaceListing>, ProxyError>;
 
-  getListingsTotalByTag(tag: MarketplaceTag): ResultAsync<number, JsonRpcError>;
+  getListingsTotalByTag(tag: MarketplaceTag): ResultAsync<number, ProxyError>;
 
   setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
-  ): ResultAsync<void, JsonRpcError>;
+  ): ResultAsync<void, ProxyError>;
 
   setReceivingAddress(
     contractAddress: EVMContractAddress,
     receivingAddress: AccountAddress | null,
-  ): ResultAsync<void, JsonRpcError>;
+  ): ResultAsync<void, ProxyError>;
 
   getReceivingAddress(
     contractAddress?: EVMContractAddress,
-  ): ResultAsync<AccountAddress, JsonRpcError>;
+  ): ResultAsync<AccountAddress, ProxyError>;
+
+  getConsentContractURLs(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<URLString[], ProxyError>;
 
   getConsentCapacity(
     contractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, JsonRpcError>;
+  ): ResultAsync<IConsentCapacity, ProxyError>;
 
-  getPossibleRewards(
+  getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
-  ): ResultAsync<Record<EVMContractAddress, PossibleReward[]>, JsonRpcError>;
+  ): ResultAsync<
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
+    ProxyError
+  >;
+  // user requests
+  requestDashboardView: undefined | (() => ResultAsync<void, ProxyError>);
+  requestOptIn(
+    consentAddress?: EVMContractAddress,
+  ): ResultAsync<void, ProxyError>;
 
-  discord: ISdlDiscordMethods;
-  twitter: ISdlTwitterMethods;
+  setUIState(state: JSONString): ResultAsync<void, ProxyError>;
+  getUIState(): ResultAsync<JSONString | null, ProxyError>;
+
+  proxyType: ECoreProxyType;
+  account: IProxyAccountMethods;
+  discord: IProxyDiscordMethods;
+  integration: IProxyIntegrationMethods;
+  twitter: IProxyTwitterMethods;
+  metrics: IProxyMetricsMethods;
+  storage: IProxyStorageMethods;
+  nft: INftProxyMethods;
+  events: ISnickerdoodleCoreEvents;
+  questionnaire: IProxyQuestionnaireMethods;
 }
 
-export interface ISdlDiscordMethods {
-  /**
-   * This method will upsert a users discord profile and
-   * discord guild data given a token which will come from discord api
-   * @param authToken
-   */
-  initializeUserWithAuthorizationCode(
-    code: OAuthAuthorizationCode,
-  ): ResultAsync<void, JsonRpcError>;
-
-  /**
-   * This method will return url for the discord api
-   * call to be made. If user gives consent token can be used
-   * to initialize the user
-   */
-  installationUrl(): ResultAsync<URLString, JsonRpcError>;
-
-  getUserProfiles(): ResultAsync<DiscordProfile[], JsonRpcError>;
-  getGuildProfiles(): ResultAsync<DiscordGuildProfile[], JsonRpcError>;
-  /**
-   * This method will remove a users discord profile and
-   * discord guild data given their profile id
-   * @param discordProfileId
-   */
-  unlink(discordProfileId: DiscordID): ResultAsync<void, JsonRpcError>;
-}
-
-export interface ISdlTwitterMethods {
-  getOAuth1aRequestToken(): ResultAsync<TokenAndSecret, JsonRpcError>;
-  initTwitterProfile(
-    requestToken: OAuth1RequstToken,
-    oAuthVerifier: OAuthVerifier,
-  ): ResultAsync<TwitterProfile, JsonRpcError>;
-  unlinkProfile(id: TwitterID): ResultAsync<void, JsonRpcError>;
-  getUserProfiles(): ResultAsync<TwitterProfile[], JsonRpcError>;
-}
+export const defaultLanguageCode = LanguageCode("en");

@@ -1,10 +1,8 @@
 import { DomainName, URLString } from "@snickerdoodlelabs/objects";
 
-export enum EAPP_STATE {
-  INIT,
-  PERMISSION_SELECTION,
-  MANAGE_PERMISSIONS,
-  DISMISSED,
+export enum EAppState {
+  IDLE,
+  AUDIENCE_PREVIEW,
 }
 
 export interface IRewardItem {

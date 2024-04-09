@@ -1,5 +1,4 @@
-import sdAnimation from "@extension-onboarding/assets/images/sdAnimation.gif";
-import { Box, Typography } from "@material-ui/core";
+import { Box, CircularProgress, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React, { FC } from "react";
 
@@ -37,7 +36,7 @@ const AccountLinking: FC = () => {
       <Typography className={classes.title}>
         Your Account is Linking...
       </Typography>
-      <img className={classes.img} src={sdAnimation} />
+      <CircularProgress />
       <Typography className={classes.text}>Just a few seconds!</Typography>
     </Box>
   );

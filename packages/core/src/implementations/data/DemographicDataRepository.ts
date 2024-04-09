@@ -12,8 +12,9 @@ import {
   EFieldKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 
+import timezoneList from "@core/implementations/data/timezoneList.json" assert { type: "json" };
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
@@ -92,6 +93,23 @@ export class DemographicDataRepository implements IDemographicDataRepository {
   }
 
   public getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
-    return this.persistence.getField(EFieldKey.LOCATION);
+    return this.persistence
+      .getField<CountryCode | null>(EFieldKey.LOCATION)
+      .andThen((location) => {
+        if (location == null) {
+          const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          if (timezone === "" || !timezone) {
+            return okAsync(null);
+          }
+          const _country = timezoneList[timezone].c[0];
+          return this.setLocation(CountryCode(_country)).andThen(() => {
+            return okAsync(CountryCode(_country));
+          });
+        }
+        return okAsync(location);
+      })
+      .mapErr((error) => {
+        return error;
+      });
   }
 }

@@ -4,27 +4,26 @@ import {
   DiscordProfile,
   DiscordID,
   URLString,
+  ISdlDataWallet,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, ResultAsync } from "neverthrow";
 
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   IDiscordInitParams,
   IDiscordProvider,
 } from "@extension-onboarding/services/socialMediaProviders/interfaces";
 
-declare const window: IWindowWithSdlDataWallet;
-
 export class DiscordProvider implements IDiscordProvider {
-  constructor() {}
+  constructor(private sdlDataWallet: ISdlDataWallet) {}
+
   //SDL Connections
   public getUserProfiles(): ResultAsync<DiscordProfile[], unknown> {
-    return window.sdlDataWallet.discord
+    return this.sdlDataWallet.discord
       .getUserProfiles()
       .mapErr(() => new Error("Could not get discord user profiles!"));
   }
   public unlink(discordProfileId: DiscordID): ResultAsync<void, unknown> {
-    return window.sdlDataWallet.discord
+    return this.sdlDataWallet.discord
       .unlink(discordProfileId)
       .mapErr(() => new Error("Could not get unlink discord profile!"));
   }
@@ -38,7 +37,7 @@ export class DiscordProvider implements IDiscordProvider {
         "DiscordProvider: initializeUserWithAuthorizationCode with code",
         code,
       );
-      return window.sdlDataWallet.discord.initializeUserWithAuthorizationCode(
+      return this.sdlDataWallet.discord.initializeUserWithAuthorizationCode(
         code,
       );
     }
@@ -46,7 +45,10 @@ export class DiscordProvider implements IDiscordProvider {
   }
 
   public installationUrl(): ResultAsync<URLString, unknown> {
-    return window.sdlDataWallet.discord
+    // Since we can't determine our tab id here in the SPA, we pass
+    // any tab ID we like here, and the extension will replace it with
+    // with the correct one.
+    return this.sdlDataWallet.discord
       .installationUrl()
       .mapErr(
         () => new Error("Discord installation url can not be generated!"),
@@ -54,7 +56,7 @@ export class DiscordProvider implements IDiscordProvider {
   }
 
   public getGuildProfiles(): ResultAsync<DiscordGuildProfile[], unknown> {
-    return window.sdlDataWallet.discord
+    return this.sdlDataWallet.discord
       .getGuildProfiles()
       .mapErr(() => new Error("Could not get discord guild profiles!"));
   }

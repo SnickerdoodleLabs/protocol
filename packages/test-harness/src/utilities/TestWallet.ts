@@ -1,5 +1,5 @@
-import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
+import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   AccountAddress,
   chainConfig,
@@ -18,7 +18,7 @@ import {
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
 import * as solanaWeb3 from "@solana/web3.js";
-import { base58 } from "ethers/lib/utils.js";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 export class TestWallet {
@@ -37,7 +37,7 @@ export class TestWallet {
         );
     } else {
       const keypair = solanaWeb3.Keypair.fromSecretKey(
-        base58.decode(privateKey),
+        ethers.getBytes(ethers.toBeHex(ethers.decodeBase58(privateKey))),
       );
 
       this.accountAddress = SolanaAccountAddress(keypair.publicKey.toString());

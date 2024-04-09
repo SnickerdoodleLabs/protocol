@@ -1,20 +1,21 @@
 import {
-  TransactionPaymentCounter,
   PersistenceError,
-  ChainId,
+  EChain,
   AccountAddress,
   ChainTransaction,
   TransactionFilter,
+  TransactionFlowInsight,
+  UnixTimestamp,
+  ETimePeriods,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface ITransactionHistoryRepository {
-  getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
-    PersistenceError
-  >;
+  getTransactionByChain(
+    benchmarkTimestamp?: UnixTimestamp,
+  ): ResultAsync<TransactionFlowInsight[], PersistenceError>;
   getLatestTransactionForAccount(
-    chainId: ChainId,
+    chain: EChain,
     address: AccountAddress,
   ): ResultAsync<ChainTransaction | null, PersistenceError>;
   addTransactions(
@@ -23,6 +24,10 @@ export interface ITransactionHistoryRepository {
   getTransactions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError>;
+  determineTimePeriod(
+    transactionTime: number,
+    benchmarkTimestamp?: UnixTimestamp,
+  ): ETimePeriods | null;
 }
 
 export const ITransactionHistoryRepositoryType = Symbol.for(

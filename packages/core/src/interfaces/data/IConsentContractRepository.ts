@@ -15,10 +15,11 @@ import {
   URLString,
   IpfsCID,
   Signature,
-  OptInInfo,
   TokenUri,
   IConsentCapacity,
   BlockNumber,
+  BlockchainCommonErrors,
+  EWalletDataType,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -31,7 +32,30 @@ export interface IConsentContractRepository {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     URLString[],
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+  >;
+
+  getQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+  >;
+
+  getVirtualQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    EWalletDataType[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -43,7 +67,10 @@ export interface IConsentContractRepository {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IConsentCapacity,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   >;
 
   /**
@@ -54,14 +81,21 @@ export interface IConsentContractRepository {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IpfsCID,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   >;
 
   getConsentToken(
-    optInInfo: OptInInfo,
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
   ): ResultAsync<
     ConsentToken | null,
-    ConsentContractError | UninitializedError | BlockchainProviderError
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | BlockchainCommonErrors
   >;
 
   isAddressOptedIn(
@@ -73,13 +107,17 @@ export interface IConsentContractRepository {
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
+    | BlockchainCommonErrors
   >;
 
   getLatestConsentTokenId(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     TokenId | null,
-    ConsentContractError | UninitializedError | BlockchainProviderError
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | BlockchainCommonErrors
   >;
 
   getConsentContracts(
@@ -89,38 +127,63 @@ export interface IConsentContractRepository {
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
 
+  // #region Consent Contract Factory
   getDeployedConsentContractAddresses(): ResultAsync<
     EVMContractAddress[],
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
   >;
 
+  getDefaultQuestionnaires(): ResultAsync<
+    IpfsCID[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
+  >;
+  // #endregion Consent Contract Factory
+
   getSignerRoleMembers(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     EVMAccountAddress[],
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   >;
 
   isOpenOptInDisabled(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     boolean,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   >;
 
   getTokenURI(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
   ): ResultAsync<
     TokenUri | null,
-    ConsentContractError | UninitializedError | BlockchainProviderError
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | BlockchainCommonErrors
   >;
 
   getQueryHorizon(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     BlockNumber,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   >;
 
   // Encoders

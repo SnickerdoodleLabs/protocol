@@ -2,13 +2,8 @@ import { ExtensionUtils } from "@snickerdoodlelabs/synamint-extension-sdk/extens
 import { InternalCoreGateway } from "@snickerdoodlelabs/synamint-extension-sdk/gateways";
 import { BackgroundConnector } from "@snickerdoodlelabs/synamint-extension-sdk/port";
 import {
-  PORT_NOTIFICATION,
   EPortNames,
-  AccountInitializedNotification,
-  ENotificationTypes,
   IInternalState,
-  IConfigProvider,
-  configProvider,
 } from "@snickerdoodlelabs/synamint-extension-sdk/shared";
 import React, { FC, useContext, useState, useEffect } from "react";
 
@@ -23,7 +18,6 @@ const { coreGateway, notificationEmitter } = new BackgroundConnector(
 ).getConnectors();
 
 interface IAppContext {
-  config: IConfigProvider;
   appState: IInternalState | null | undefined;
   closeCurrentTab: () => void;
   coreGateway: InternalCoreGateway;
@@ -38,8 +32,6 @@ export const AppContextProvider: FC = ({ children }) => {
   const [appState, setAppState] = useState<IInternalState | null>();
   useEffect(() => {
     getInitialState();
-    subscribeNotifications();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -54,27 +46,9 @@ export const AppContextProvider: FC = ({ children }) => {
     });
   };
 
-  const subscribeNotifications = () => {
-    notificationEmitter.on(PORT_NOTIFICATION, handleNotification);
-  };
-
-  const handleNotification = (notification: AccountInitializedNotification) => {
-    switch (notification.type) {
-      case ENotificationTypes.ACCOUNT_INITIALIZED:
-        setAppState((prev) => ({
-          ...prev,
-          dataWalletAddress: notification.data.dataWalletAddress,
-        }));
-        break;
-      default:
-        console.log("notification", notification.data);
-    }
-  };
-
   return (
     <AppContext.Provider
       value={{
-        config: configProvider,
         closeCurrentTab:
           portName !== EPortNames.SD_POPUP
             ? ExtensionUtils.closeCurrenTab

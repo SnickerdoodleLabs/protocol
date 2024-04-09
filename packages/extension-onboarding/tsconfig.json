@@ -6,7 +6,7 @@
     "baseUrl": "./src",
     "jsx": "react",
     "target": "es5",
-    "module": "commonjs",
+    "module": "ESNext",
     "lib": [
       "es5",
       "es6",
@@ -29,10 +29,19 @@
       "path": "../contracts-sdk"
     },
     {
+      "path": "../node-utils"
+    },
+    {
       "path": "../objects"
     },
     {
       "path": "../signatureVerification"
+    },
+    {
+      "path": "../shared-components"
+    },
+    {
+      "path": "../web-integration"
     }
   ],
   "include": [

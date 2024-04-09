@@ -1,0 +1,14 @@
+export enum ENotificationTypes {
+  INCOMING_METATRANSACTION_SIGNATURE_REQUEST = "onMetatransactionSignatureRequested",
+  WALLET_INITIALIZED = "onInitialized",
+  ACCOUNT_ADDED = "onAccountAdded",
+  ACCOUNT_REMOVED = "onAccountRemoved",
+  EARNED_REWARDS_ADDED = "onEarnedRewardsAdded",
+  SOCIAL_PROFILE_LINKED = "onSocialProfileLinked",
+  COHORT_JOINED = "onCohortJoined",
+  COHORT_LEFT = "onCohortLeft",
+  PROFILE_FIELD_CHANGED = "onProfileFieldChanged",
+  CLOUD_STORAGE_ACTIVATED = "onCloudStorageActivated",
+  CLOUD_STORAGE_DEACTIVATED = "onCloudStorageDeactivated",
+  QUERY_POSTED = "onQueryPosted",
+}

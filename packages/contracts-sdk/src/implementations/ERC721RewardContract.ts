@@ -1,59 +1,55 @@
-import { ERewardRoles } from "@contracts-sdk/interfaces/enums/ERewardRoles.js";
-import { IERC721RewardContract } from "@contracts-sdk/interfaces/index.js";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import {
   EVMAccountAddress,
   EVMContractAddress,
   TokenUri,
   TokenId,
-  IBlockchainError,
   BaseURI,
   ERC721RewardContractError,
+  BlockchainCommonErrors,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber, ethers, EventFilter } from "ethers";
+import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { ok, err, okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync, errAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
+import { ERewardRoles } from "@contracts-sdk/interfaces/enums/ERewardRoles.js";
+import {
+  ContractOverrides,
+  IERC721RewardContract,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/index.js";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
+
 @injectable()
-export class ERC721RewardContract implements IERC721RewardContract {
-  protected contract: ethers.Contract;
-  protected contractFactory: ethers.ContractFactory;
+export class ERC721RewardContract
+  extends BaseContract<ERC721RewardContractError>
+  implements IERC721RewardContract
+{
   constructor(
-    protected providerOrSigner:
-      | ethers.providers.Provider
-      | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
-    public contractAddress: EVMContractAddress,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
+    protected contractAddress: EVMContractAddress,
   ) {
-    this.contract = new ethers.Contract(
-      contractAddress,
-      ContractsAbis.ERC721Reward.abi,
-      providerOrSigner,
-    );
-    this.contractFactory = new ethers.ContractFactory(
-      ContractsAbis.ERC721Reward.abi,
-      ContractsAbis.ERC721Reward.bytecode,
-      providerOrSigner as ethers.Wallet,
-    );
+    super(providerOrSigner, contractAddress, ContractsAbis.ERC721Reward.abi);
   }
 
   public getContractAddress(): EVMContractAddress {
-    return this.contractAddress as EVMContractAddress;
+    return this.contractAddress;
   }
 
-  public getOwner(): ResultAsync<EVMAccountAddress, ERC721RewardContractError> {
+  public getOwner(): ResultAsync<
+    EVMAccountAddress,
+    ERC721RewardContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMember(
         ERewardRoles.DEFAULT_ADMIN_ROLE,
         0,
       ) as Promise<EVMAccountAddress>,
       (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call getRoleMember()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call getRoleMember()");
       },
     );
   }
@@ -62,24 +58,23 @@ export class ERC721RewardContract implements IERC721RewardContract {
   // Note that the address on index 0 is the contract owner
   public getDefaultAdminRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ERC721RewardContractError
+    ERC721RewardContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
         ERewardRoles.DEFAULT_ADMIN_ROLE,
-      ) as Promise<BigNumber>,
+      ) as Promise<bigint>,
       (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call getDefaultAdminRoleMembers()",
-          (e as IBlockchainError).reason,
+        return this.generateError(
           e,
+          "Unable to call getDefaultAdminRoleMembers()",
         );
       },
     ).andThen((memberCount) => {
       // First get an array of index values so that it can be used with ResultUtils.combine
-      const memberIndexArray: number[] = [];
+      const memberIndexArray: bigint[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0n; i < memberCount; i++) {
         memberIndexArray.push(i);
       }
 
@@ -92,11 +87,7 @@ export class ERC721RewardContract implements IERC721RewardContract {
               index,
             ) as Promise<EVMAccountAddress>,
             (e) => {
-              return new ERC721RewardContractError(
-                "Unable to call getRoleMember()",
-                (e as IBlockchainError).reason,
-                e,
-              );
+              return this.generateError(e, "Unable to call getRoleMember()");
             },
           );
         }),
@@ -106,24 +97,20 @@ export class ERC721RewardContract implements IERC721RewardContract {
 
   public getMinterRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ERC721RewardContractError
+    ERC721RewardContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
         ERewardRoles.MINTER_ROLE,
-      ) as Promise<BigNumber>,
+      ) as Promise<bigint>,
       (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call getSignerRoleMembers()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call getSignerRoleMembers()");
       },
     ).andThen((memberCount) => {
       // First get an array of index values so that it can be used with ResultUtils.combine
-      const memberIndexArray: number[] = [];
+      const memberIndexArray: bigint[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0n; i < memberCount; i++) {
         memberIndexArray.push(i);
       }
 
@@ -136,10 +123,9 @@ export class ERC721RewardContract implements IERC721RewardContract {
               index,
             ) as Promise<EVMAccountAddress>,
             (e) => {
-              return new ERC721RewardContractError(
-                "Unable to call getRoleMember() for MINTER_ROLE",
-                (e as IBlockchainError).reason,
+              return this.generateError(
                 e,
+                "Unable to call getRoleMember() for MINTER_ROLE",
               );
             },
           );
@@ -148,111 +134,87 @@ export class ERC721RewardContract implements IERC721RewardContract {
     });
   }
 
-  public baseURI(): ResultAsync<BaseURI, ERC721RewardContractError> {
+  public baseURI(): ResultAsync<
+    BaseURI,
+    ERC721RewardContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.baseURI() as Promise<BaseURI>,
       (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call baseURI()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call baseURI()");
       },
     );
   }
 
   public setBaseURI(
     baseUri: BaseURI,
-  ): ResultAsync<void, ERC721RewardContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.setBaseURI(
-        baseUri,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call setBaseURI()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ERC721RewardContractError(
-            "Wait for setBaseURI() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return this.writeToContract("setBaseURI", [baseUri, overrides]);
   }
 
   public balanceOf(
     address: EVMAccountAddress,
-  ): ResultAsync<number, ERC721RewardContractError> {
+  ): ResultAsync<number, ERC721RewardContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.balanceOf(address) as Promise<BigNumber>,
+      this.contract.balanceOf(address) as Promise<bigint>,
       (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call balanceOf()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call balanceOf()");
       },
     ).map((numberOfTokens) => {
-      return numberOfTokens.toNumber();
+      // TODO: Not sure if we can always be sure that numberOfTokens is a valid number, but seems reasonable
+      return Number(numberOfTokens);
     });
   }
 
+  // NOTE: If a given token id does not exist, the read transaction will revert.
   public ownerOf(
     tokenId: TokenId,
-  ): ResultAsync<EVMAccountAddress, ERC721RewardContractError> {
+  ): ResultAsync<
+    EVMAccountAddress,
+    ERC721RewardContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.ownerOf(tokenId) as Promise<EVMAccountAddress>,
       (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call ownerOf()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call ownerOf()");
       },
     );
   }
 
   public tokenURI(
     tokenId: TokenId,
-  ): ResultAsync<TokenUri | null, ERC721RewardContractError> {
+  ): ResultAsync<
+    TokenUri | null,
+    ERC721RewardContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.tokenURI(tokenId) as Promise<TokenUri | null>,
       (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call tokenURI()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call tokenURI()");
       },
     ).orElse((error) => {
       // The contract reverts with this message if tokenId does not exist
-      if (error.reason === "ERC721: operator query for nonexistent token") {
-        return ok(null);
+      if (
+        (error as any).reason === "ERC721: operator query for nonexistent token"
+      ) {
+        return okAsync(null);
       }
-      return err(error);
+      return errAsync(error);
     });
   }
 
   public hasRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<boolean, ERC721RewardContractError> {
+  ): ResultAsync<boolean, ERC721RewardContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.hasRole(ERewardRoles[role], address) as Promise<boolean>,
       (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call hasRole()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call hasRole()");
       },
     );
   }
@@ -260,100 +222,151 @@ export class ERC721RewardContract implements IERC721RewardContract {
   public grantRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ERC721RewardContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.grantRole(
-        ERewardRoles[role],
-        address,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call grantRole()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ERC721RewardContractError(
-            "Wait for grantRole() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return this.writeToContract(
+      "grantRole",
+      [ERewardRoles[role], address],
+      overrides,
+    );
   }
 
   public revokeRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ERC721RewardContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.revokeRole(
-        ERewardRoles[role],
-        address,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call revokeRole()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ERC721RewardContractError(
-            "Wait for revokeRole() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return this.writeToContract(
+      "revokeRole",
+      [ERewardRoles[role], address],
+      overrides,
+    );
   }
 
   public renounceRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ERC721RewardContractError> {
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return this.writeToContract(
+      "renounceRole",
+      [ERewardRoles[role], address],
+      overrides,
+    );
+  }
+
+  public addDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return this.writeToContract("addDomain", [domain], overrides);
+  }
+
+  public removeDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return this.writeToContract("removeDomain", [domain], overrides);
+  }
+
+  public getDomains(): ResultAsync<
+    DomainName[],
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
     return ResultAsync.fromPromise(
-      this.contract.renounceRole(
-        ERewardRoles[role],
-        address,
-      ) as Promise<ethers.providers.TransactionResponse>,
+      // returns array of domains
+      this.contract.getDomains() as Promise<DomainName[]>,
       (e) => {
-        return new ERC721RewardContractError(
-          "Unable to call renounceRole()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call getDomains()");
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ERC721RewardContractError(
-            "Wait for renounceRole() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    );
+  }
+
+  // ===== Start: Functions to support testing pre-mint NFTs =====
+
+  // ERC1155 contracts also have the same setApproveForAll function
+  public isApprovedForAll(
+    tokenOwnerAddress: EVMAccountAddress,
+    operatorToApprove: EVMAccountAddress,
+  ): ResultAsync<boolean, ERC721RewardContractError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.contract.isApprovedForAll(
+        tokenOwnerAddress,
+        operatorToApprove,
+      ) as Promise<boolean>,
+      (e) => {
+        return this.generateError(e, "Unable to call isApprovedForAll()");
+      },
+    );
+  }
+
+  // NOTE: To support this, the user would need to connect their external wallet that owns the NFTs to sign the approval txs
+  public setApproveForAll(
+    addressToApprove: EVMAccountAddress,
+    approved: boolean,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return this.writeToContract(
+      "setApproveForAll",
+      [addressToApprove, approved],
+      overrides,
+    );
+  }
+
+  // Function that the escrow wallet will call to transfer NFTs from ERC721 rewards after they are approved
+  // Note: Unlike setApproveForAll, ERC721's ABI for safeTransferFrom only supports ERC721 as ERC1155's safeTransferFrom function takes additional parameters, refer to:
+  // ERC721 : https://docs.openzeppelin.com/contracts/5.x/api/token/erc721#IERC721-safeTransferFrom-address-address-uint256-
+  // ERC1155 : https://docs.openzeppelin.com/contracts/5.x/api/token/erc1155#IERC1155-safeTransferFrom-address-address-uint256-uint256-bytes-
+  public safeTransferFrom(
+    from: EVMAccountAddress,
+    to: EVMAccountAddress,
+    tokenId: TokenId,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC721RewardContractError
+  > {
+    return this.writeToContract(
+      "safeTransferFrom",
+      [from, to, tokenId],
+      overrides,
+    );
+  }
+
+  // ===== End: Functions to support pre-mint NFTs =====
+
+  protected generateContractSpecificError(
+    msg: string,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
+  ): ERC721RewardContractError {
+    return new ERC721RewardContractError(msg, e, transaction);
   }
 
   public filters = {
     Transfer: (
       fromAddress: EVMAccountAddress | null,
       toAddress: EVMAccountAddress | null,
-    ): EventFilter => {
+    ): ethers.DeferredTopicFilter => {
       return this.contract.filters.Transfer(fromAddress, toAddress);
     },
   };
-
-  public getContract(): ethers.Contract {
-    return this.contract;
-  }
 }

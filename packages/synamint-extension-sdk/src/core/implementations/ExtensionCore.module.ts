@@ -1,52 +1,51 @@
 import {
   AxiosAjaxUtils,
-  CryptoUtils,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
-  ICryptoUtils,
-  ICryptoUtilsType,
   ITimeUtils,
   ITimeUtilsType,
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
+import {
+  CryptoUtils,
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/node-utils";
 import { ContainerModule, interfaces } from "inversify";
 
 import {
   BrowserTabListener,
   CoreListener,
   ErrorListener,
-  ExtensionListener,
   PortConnectionListener,
   RpcCallHandler,
-} from "@synamint-extension-sdk/core/implementations/api/index.js";
+} from "@synamint-extension-sdk/core/implementations/api";
 import {
   AccountService,
   DiscordService,
+  IntegrationService,
   InvitationService,
+  MetricsService,
   PIIService,
   PortConnectionService,
-  ScamFilterService,
   TokenPriceService,
   TwitterService,
   UserSiteInteractionService,
-} from "@synamint-extension-sdk/core/implementations/business/index.js";
+} from "@synamint-extension-sdk/core/implementations/business";
 import {
   AccountRepository,
   InvitationRepository,
   PIIRepository,
   PortConnectionRepository,
-  ScamFilterRepository,
   TokenPriceRepository,
   UserSiteInteractionRepository,
-} from "@synamint-extension-sdk/core/implementations/data/index.js";
-import { RpcEngineFactory } from "@synamint-extension-sdk/core/implementations/utilities/factory/index.js";
+} from "@synamint-extension-sdk/core/implementations/data";
 import {
-  AccountCookieUtils,
   ContextProvider,
-  DataPermissionsUtils,
   ErrorUtils,
-  ScamFilterSettingsUtils,
-} from "@synamint-extension-sdk/core/implementations/utilities/index.js";
+  ConfigProvider,
+} from "@synamint-extension-sdk/core/implementations/utilities";
+import { RpcEngineFactory } from "@synamint-extension-sdk/core/implementations/utilities/factory";
 import {
   IBrowserTabListener,
   IBrowserTabListenerType,
@@ -54,33 +53,33 @@ import {
   ICoreListenerType,
   IErrorListener,
   IErrorListenerType,
-  IExtensionListener,
-  IExtensionListenerType,
   IPortConnectionListener,
   IPortConnectionListenerType,
   IRpcCallHandler,
   IRpcCallHandlerType,
-} from "@synamint-extension-sdk/core/interfaces/api/index.js";
+} from "@synamint-extension-sdk/core/interfaces/api";
 import {
   IAccountService,
   IAccountServiceType,
   IDiscordService,
   IDiscordServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
   IInvitationService,
   IInvitationServiceType,
+  IMetricsService,
+  IMetricsServiceType,
   IPIIService,
   IPIIServiceType,
   IPortConnectionService,
   IPortConnectionServiceType,
-  IScamFilterService,
-  IScamFilterServiceType,
   ITokenPriceService,
   ITokenPriceServiceType,
   ITwitterService,
   ITwitterServiceType,
   IUserSiteInteractionService,
   IUserSiteInteractionServiceType,
-} from "@synamint-extension-sdk/core/interfaces/business/index.js";
+} from "@synamint-extension-sdk/core/interfaces/business";
 import {
   IAccountRepository,
   IAccountRepositoryType,
@@ -90,34 +89,23 @@ import {
   IPIIRepositoryType,
   IPortConnectionRepository,
   IPortConnectionRepositoryType,
-  IScamFilterRepository,
-  IScamFilterRepositoryType,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
   IUserSiteInteractionRepository,
   IUserSiteInteractionRepositoryType,
-} from "@synamint-extension-sdk/core/interfaces/data/index.js";
-import {
-  IRpcEngineFactory,
-  IRpcEngineFactoryType,
-} from "@synamint-extension-sdk/core/interfaces/utilities/factory/index.js";
-import {
-  IAccountCookieUtils,
-  IAccountCookieUtilsType,
-  IContextProvider,
-  IContextProviderType,
-  IDataPermissionsUtils,
-  IDataPermissionsUtilsType,
-  IErrorUtils,
-  IErrorUtilsType,
-  IScamFilterSettingsUtils,
-  IScamFilterSettingsUtilsType,
-} from "@synamint-extension-sdk/core/interfaces/utilities/index.js";
+} from "@synamint-extension-sdk/core/interfaces/data";
 import {
   IConfigProvider,
   IConfigProviderType,
-} from "@synamint-extension-sdk/shared/interfaces/index.js";
-import { configProvider } from "@synamint-extension-sdk/shared/utils/index.js";
+  IContextProvider,
+  IContextProviderType,
+  IErrorUtils,
+  IErrorUtilsType,
+} from "@synamint-extension-sdk/core/interfaces/utilities";
+import {
+  IRpcEngineFactory,
+  IRpcEngineFactoryType,
+} from "@synamint-extension-sdk/core/interfaces/utilities/factory";
 
 export const extensionCoreModule = new ContainerModule(
   (
@@ -134,9 +122,6 @@ export const extensionCoreModule = new ContainerModule(
     bind<IErrorListener>(IErrorListenerType)
       .to(ErrorListener)
       .inSingletonScope();
-    bind<IExtensionListener>(IExtensionListenerType)
-      .to(ExtensionListener)
-      .inSingletonScope();
     bind<IPortConnectionListener>(IPortConnectionListenerType)
       .to(PortConnectionListener)
       .inSingletonScope();
@@ -148,11 +133,17 @@ export const extensionCoreModule = new ContainerModule(
     bind<IAccountService>(IAccountServiceType)
       .to(AccountService)
       .inSingletonScope();
+    bind<IIntegrationService>(IIntegrationServiceType)
+      .to(IntegrationService)
+      .inSingletonScope();
     bind<IInvitationService>(IInvitationServiceType)
       .to(InvitationService)
       .inSingletonScope();
     bind<IPortConnectionService>(IPortConnectionServiceType)
       .to(PortConnectionService)
+      .inSingletonScope();
+    bind<IMetricsService>(IMetricsServiceType)
+      .to(MetricsService)
       .inSingletonScope();
     bind<IPIIService>(IPIIServiceType).to(PIIService).inSingletonScope();
     bind<ITokenPriceService>(ITokenPriceServiceType)
@@ -160,9 +151,6 @@ export const extensionCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IUserSiteInteractionService>(IUserSiteInteractionServiceType)
       .to(UserSiteInteractionService)
-      .inSingletonScope();
-    bind<IScamFilterService>(IScamFilterServiceType)
-      .to(ScamFilterService)
       .inSingletonScope();
     bind<IDiscordService>(IDiscordServiceType)
       .to(DiscordService)
@@ -190,22 +178,12 @@ export const extensionCoreModule = new ContainerModule(
     bind<IUserSiteInteractionRepository>(IUserSiteInteractionRepositoryType)
       .to(UserSiteInteractionRepository)
       .inSingletonScope();
-    bind<IScamFilterRepository>(IScamFilterRepositoryType)
-      .to(ScamFilterRepository)
-      .inSingletonScope();
     // Utilities
     bind<IContextProvider>(IContextProviderType)
       .to(ContextProvider)
       .inSingletonScope();
-    bind<IConfigProvider>(IConfigProviderType).toConstantValue(configProvider);
-    bind<IAccountCookieUtils>(IAccountCookieUtilsType)
-      .to(AccountCookieUtils)
-      .inSingletonScope();
-    bind<IDataPermissionsUtils>(IDataPermissionsUtilsType)
-      .to(DataPermissionsUtils)
-      .inSingletonScope();
-    bind<IScamFilterSettingsUtils>(IScamFilterSettingsUtilsType)
-      .to(ScamFilterSettingsUtils)
+    bind<IConfigProvider>(IConfigProviderType)
+      .to(ConfigProvider)
       .inSingletonScope();
     bind<IErrorUtils>(IErrorUtilsType).to(ErrorUtils).inSingletonScope();
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)

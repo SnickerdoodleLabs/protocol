@@ -6,8 +6,10 @@ import {
   EVMContractAddress,
   EVMPrivateKey,
   ExternallyOwnedAccount,
+  PasswordString,
   Signature,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 export interface IDataWalletUtils {
@@ -16,10 +18,17 @@ export interface IDataWalletUtils {
     accountAddress: AccountAddress,
     signature: Signature,
   ): ResultAsync<AESKey, never>;
+  deriveEncryptionKeyFromPassword(
+    password: PasswordString,
+  ): ResultAsync<AESKey, never>;
 
   getDerivedEVMAccountFromSignature(
     accountAddress: AccountAddress,
     signature: Signature,
+  ): ResultAsync<ExternallyOwnedAccount, never>;
+
+  getDerivedEVMAccountFromPassword(
+    password: PasswordString,
   ): ResultAsync<ExternallyOwnedAccount, never>;
 
   /**
@@ -35,6 +44,15 @@ export interface IDataWalletUtils {
     accountAddress: AccountAddress,
     signature: Signature,
     message: string,
+  ): ResultAsync<boolean, never>;
+
+  verifyTypedDataSignature(
+    accountAddress: AccountAddress,
+    domain: ethers.TypedDataDomain,
+    types: Record<string, Array<ethers.TypedDataField>>,
+    value: Record<string, unknown>,
+    signature: Signature,
+    chain: EChain,
   ): ResultAsync<boolean, never>;
 
   /**

@@ -4,26 +4,26 @@ import {
   TokenAddress,
   TokenInfo,
   TokenMarketData,
-} from "@objects/businessObjects";
+} from "@objects/businessObjects/index.js";
+import { EChain } from "@objects/enum/index.js";
 import {
   AccountIndexingError,
   AjaxError,
   PersistenceError,
 } from "@objects/errors";
-import { ChainId, UnixTimestamp } from "@objects/primitives";
+import { ChainId, UnixTimestamp } from "@objects/primitives/index.js";
 
 export interface ITokenPriceRepository {
   getTokenInfo(
-    chainId: ChainId,
-    contractAddress: TokenAddress | null,
+    chain: EChain,
+    contractAddress: TokenAddress,
   ): ResultAsync<TokenInfo | null, AccountIndexingError>;
 
   addTokenInfo(info: TokenInfo): ResultAsync<void, PersistenceError>;
 
-  // null implies native token
   getTokenPrice(
-    chainId: ChainId,
-    contractAddress: TokenAddress | null,
+    chain: EChain,
+    contractAddress: TokenAddress,
     timestamp: UnixTimestamp,
   ): ResultAsync<number, AccountIndexingError>;
 

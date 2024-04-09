@@ -1,16 +1,20 @@
 import { useStyles } from "@extension-onboarding/components/AccountChainBar/AccountChainBar.style";
-import AccountIdentIcon from "@extension-onboarding/components/AccountIdentIcon";
-import Switch from "@extension-onboarding/components/Switch";
+import Switch from "@extension-onboarding/components/v2/Switch";
 import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { Box, MenuItem, Select, Typography } from "@material-ui/core";
+import { Box, Grid, MenuItem, Select } from "@material-ui/core";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import {
   AccountAddress,
   chainConfig,
   ChainId,
   EChainType,
 } from "@snickerdoodlelabs/objects";
+import {
+  AccountIdentIcon,
+  SDTypography,
+  abbreviateString,
+} from "@snickerdoodlelabs/shared-components";
 import clsx from "clsx";
 import React, { FC, useEffect, useMemo } from "react";
 
@@ -19,31 +23,31 @@ export enum EDisplayMode {
   TESTNET,
 }
 
-const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
-  chainConfig.values(),
-).reduce(
-  (acc, chainInfo) => {
-    if (chainInfo.type === EChainType.Mainnet) {
-      acc.mainnetSupportedChainIds = [
-        ...acc.mainnetSupportedChainIds,
-        chainInfo.chainId,
-      ];
-    } else if (chainInfo.type === EChainType.Testnet) {
-      acc.testnetSupportedChainIds = [
-        ...acc.testnetSupportedChainIds,
-        chainInfo.chainId,
-      ];
-    }
-    return acc;
-  },
-  { mainnetSupportedChainIds: [], testnetSupportedChainIds: [] } as {
-    mainnetSupportedChainIds: ChainId[];
-    testnetSupportedChainIds: ChainId[];
-  },
-);
+export const { mainnetSupportedChainIds, testnetSupportedChainIds } =
+  Array.from(chainConfig.values()).reduce(
+    (acc, chainInfo) => {
+      if (chainInfo.type === EChainType.Mainnet) {
+        acc.mainnetSupportedChainIds = [
+          ...acc.mainnetSupportedChainIds,
+          chainInfo.chainId,
+        ];
+      } else if (chainInfo.type === EChainType.Testnet) {
+        acc.testnetSupportedChainIds = [
+          ...acc.testnetSupportedChainIds,
+          chainInfo.chainId,
+        ];
+      }
+      return acc;
+    },
+    { mainnetSupportedChainIds: [], testnetSupportedChainIds: [] } as {
+      mainnetSupportedChainIds: ChainId[];
+      testnetSupportedChainIds: ChainId[];
+    },
+  );
 
-declare const window: IWindowWithSdlDataWallet;
 interface IAccountChainBarProps {
+  accountAdressesToRender?: AccountAddress[];
+  chainIdsToRender?: ChainId[];
   displayMode: EDisplayMode;
   accountSelect: AccountAddress | undefined;
   chainSelect: ChainId | undefined;
@@ -58,6 +62,8 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
   setAccountSelect,
   setChainSelect,
   chainSelect,
+  accountAdressesToRender,
+  chainIdsToRender,
 }: IAccountChainBarProps) => {
   useEffect(() => {
     setChainSelect(undefined);
@@ -88,129 +94,197 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
     setChainSelect(value);
   };
 
-  const chainIdsToRender = useMemo(() => {
+  const _chainIdsToRender = useMemo(() => {
     if (EDisplayMode.MAINNET === displayMode) {
+      if (chainIdsToRender && chainIdsToRender?.length > 0) {
+        return chainIdsToRender?.filter((chainId) =>
+          mainnetSupportedChainIds.includes(chainId),
+        );
+      }
+
       return mainnetSupportedChainIds;
     }
+    if (chainIdsToRender && chainIdsToRender?.length > 0) {
+      return chainIdsToRender?.filter((chainId) =>
+        testnetSupportedChainIds.includes(chainId),
+      );
+    }
     return testnetSupportedChainIds;
-  }, [displayMode]);
+  }, [displayMode, chainIdsToRender]);
+
+  const accountsToRender = useMemo(() => {
+    if (accountAdressesToRender) {
+      return accountAdressesToRender;
+    }
+    return linkedAccounts?.map((account) => account.sourceAccountAddress);
+  }, [linkedAccounts, accountAdressesToRender]);
 
   return (
-    <Box mt={5} display="flex" mb={2}>
-      <Box>
-        <Typography id="portfolio-test" className={classes.subTitle}>
-          Accounts
-        </Typography>
-        <Box mt={0.5} display="flex" justifyContent="space-between">
-          <Box>
+    <Box>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Box display="flex">
+            <Box display="flex" alignItems="center" ml="auto">
+              <SDTypography
+                variant="titleMd"
+                fontWeight="medium"
+                color="textHeading"
+                onClick={() => {
+                  setDisplayMode(EDisplayMode.TESTNET);
+                }}
+                className={clsx(classes.switchNetwork, {
+                  [classes.unfocused]: displayMode != EDisplayMode.TESTNET,
+                })}
+              >
+                Testnet
+              </SDTypography>
+              <Switch
+                checked={displayMode === EDisplayMode.MAINNET}
+                value={displayMode === EDisplayMode.MAINNET}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setDisplayMode(EDisplayMode.MAINNET);
+                  } else {
+                    setDisplayMode(EDisplayMode.TESTNET);
+                  }
+                }}
+              />
+              <Box ml={1} />
+              <SDTypography
+                variant="titleMd"
+                fontWeight="medium"
+                color="textHeading"
+                onClick={() => {
+                  setDisplayMode(EDisplayMode.MAINNET);
+                }}
+                className={clsx(classes.switchNetwork, {
+                  [classes.unfocused]: displayMode != EDisplayMode.MAINNET,
+                })}
+              >
+                Mainnet
+              </SDTypography>
+            </Box>
+          </Box>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <SDTypography variant="bodyLg" fontWeight="medium">
+            Accounts
+          </SDTypography>
+
+          <Box mt={0.5} display="flex" justifyContent="space-between">
             <Select
-              className={classes.selectAccount}
+              className={classes.select}
               fullWidth
+              IconComponent={ExpandMoreIcon}
               variant="outlined"
               name="accounts"
               value={accountSelect ?? "all"}
+              inputProps={{
+                classes: {
+                  icon: classes.selectIcon,
+                },
+              }}
               placeholder="All"
               onChange={handleAccountChange}
             >
-              <MenuItem value="all">All</MenuItem>
-              {linkedAccounts?.map((account) => {
+              <MenuItem
+                classes={{
+                  root: classes.menuItem,
+                  selected: classes.menuSelected,
+                }}
+                value="all"
+              >
+                All
+              </MenuItem>
+              {accountsToRender?.map((account) => {
                 return (
                   <MenuItem
-                    key={account.accountAddress}
-                    value={account.accountAddress}
+                    classes={{
+                      root: classes.menuItem,
+                      selected: classes.menuSelected,
+                    }}
+                    key={account}
+                    value={account}
                   >
                     <Box display="flex" alignItems="center">
-                      <Box>
-                        <AccountIdentIcon
-                          accountAddress={account.accountAddress}
-                        />
-                      </Box>
-                      <Typography className={classes.accountAddressText}>
-                        {account.accountAddress.slice(0, 5)} ................
-                        {account.accountAddress.slice(-4)}
-                      </Typography>
+                      <AccountIdentIcon size={32} accountAddress={account} />
+                      <Box ml={1} />
+                      <SDTypography
+                        variant="bodyLg"
+                        fontWeight="medium"
+                        color="textHeading"
+                      >
+                        {abbreviateString(account, 8, 3, 6)}
+                      </SDTypography>
                     </Box>
                   </MenuItem>
                 );
               })}
             </Select>
           </Box>
-        </Box>
-      </Box>
-      <Box display="flex" marginLeft="auto" alignItems="center">
-        <Box>
-          <Typography id="portfolio-test" className={classes.subTitle}>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <SDTypography variant="bodyLg" fontWeight="medium">
             Chain
-          </Typography>
+          </SDTypography>
+
           <Box mt={0.5} display="flex" justifyContent="space-between">
-            <Box>
-              <Select
-                className={classes.selectAccount}
-                fullWidth
-                variant="outlined"
-                name="chains"
-                value={chainSelect ?? "all"}
-                placeholder="All"
-                onChange={handleChainChange}
+            <Select
+              className={classes.select}
+              fullWidth
+              IconComponent={ExpandMoreIcon}
+              variant="outlined"
+              name="chains"
+              inputProps={{
+                classes: {
+                  icon: classes.selectIcon,
+                },
+              }}
+              value={chainSelect ?? "all"}
+              placeholder="All"
+              onChange={handleChainChange}
+            >
+              <MenuItem
+                classes={{
+                  root: classes.menuItem,
+                  selected: classes.menuSelected,
+                }}
+                value="all"
               >
-                <MenuItem value="all">All</MenuItem>
-                {chainIdsToRender.map((chainId) => {
-                  const iconSrc =
-                    tokenInfoObj[
-                      chainConfig.get(chainId)?.nativeCurrency?.symbol ?? ""
-                    ]?.iconSrc;
-                  return (
-                    <MenuItem key={chainId} value={chainId}>
-                      <Box display="flex" alignItems="center">
-                        <img
-                          src={iconSrc}
-                          style={{ width: 24, height: 24, marginRight: 8 }}
-                        />
-                        <Typography className={classes.accountAddressText}>
-                          {chainConfig.get(chainId)?.name}
-                        </Typography>
-                      </Box>
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </Box>
+                All
+              </MenuItem>
+              {_chainIdsToRender.map((chainId) => {
+                const iconSrc =
+                  tokenInfoObj[
+                    chainConfig.get(chainId)?.nativeCurrency?.symbol ?? ""
+                  ]?.iconSrc;
+                return (
+                  <MenuItem
+                    classes={{
+                      root: classes.menuItem,
+                      selected: classes.menuSelected,
+                    }}
+                    key={chainId}
+                    value={chainId}
+                  >
+                    <Box display="flex" alignItems="center">
+                      <img src={iconSrc} style={{ width: 24, height: 24 }} />
+                      <Box ml={1} />
+                      <SDTypography
+                        variant="bodyLg"
+                        fontWeight="medium"
+                        color="textHeading"
+                      >
+                        {chainConfig.get(chainId)?.name}
+                      </SDTypography>
+                    </Box>
+                  </MenuItem>
+                );
+              })}
+            </Select>
           </Box>
-        </Box>
-        <Box ml={2} mt={2} display="flex" alignItems="center">
-          <Typography
-            onClick={() => {
-              setDisplayMode(EDisplayMode.TESTNET);
-            }}
-            className={clsx(classes.switchNetwork, {
-              [classes.unfocused]: displayMode != EDisplayMode.TESTNET,
-            })}
-          >
-            Testnet
-          </Typography>
-          <Switch
-            checked={displayMode === EDisplayMode.MAINNET}
-            value={displayMode === EDisplayMode.MAINNET}
-            onChange={(e) => {
-              if (e.target.checked) {
-                setDisplayMode(EDisplayMode.MAINNET);
-              } else {
-                setDisplayMode(EDisplayMode.TESTNET);
-              }
-            }}
-          />
-          <Typography
-            onClick={() => {
-              setDisplayMode(EDisplayMode.MAINNET);
-            }}
-            className={clsx(classes.switchNetwork, {
-              [classes.unfocused]: displayMode != EDisplayMode.MAINNET,
-            })}
-          >
-            Mainnet
-          </Typography>
-        </Box>
-      </Box>
+        </Grid>
+      </Grid>
     </Box>
   );
 };

@@ -23,9 +23,17 @@ export class FieldSchemaProvider implements IFieldSchemaProvider {
     return this.configProvider.getConfig().map((config) => {
       return new Map([
         [
-          EFieldKey.ACCEPTED_INVITATIONS,
+          EFieldKey.AUTHENTICATED_STORAGE_SETTINGS,
           new FieldIndex(
-            EFieldKey.ACCEPTED_INVITATIONS,
+            EFieldKey.AUTHENTICATED_STORAGE_SETTINGS,
+            EBackupPriority.DISABLED,
+            0,
+          ),
+        ],
+        [
+          EFieldKey.DATA_WALLET_PRIVATE_KEY,
+          new FieldIndex(
+            EFieldKey.DATA_WALLET_PRIVATE_KEY,
             EBackupPriority.HIGH,
             0,
           ),
@@ -77,14 +85,6 @@ export class FieldSchemaProvider implements IFieldSchemaProvider {
         [
           EFieldKey.LOCATION,
           new FieldIndex(EFieldKey.LOCATION, EBackupPriority.HIGH, 0),
-        ],
-        [
-          EFieldKey.REJECTED_COHORTS,
-          new FieldIndex(
-            EFieldKey.REJECTED_COHORTS,
-            EBackupPriority.NORMAL,
-            config.dataWalletBackupIntervalMS,
-          ),
         ],
       ]);
     });

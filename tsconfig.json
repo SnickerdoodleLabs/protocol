@@ -3,6 +3,12 @@
   "files": [],
   "references": [
     {
+      "path": "packages/ai-scraper"
+    },
+    {
+      "path": "packages/ai-scraper/test"
+    },
+    {
       "path": "packages/browserExtension"
     },
     {
@@ -10,12 +16,6 @@
     },
     {
       "path": "packages/common-utils/test"
-    },
-    {
-      "path": "packages/extension-onboarding"
-    },
-    {
-      "path": "packages/extension-onboarding/test"
     },
     {
       "path": "packages/contracts-sdk"
@@ -30,6 +30,21 @@
       "path": "packages/core/test"
     },
     {
+      "path": "packages/erc7529"
+    },
+    {
+      "path": "packages/erc7529/test"
+    },
+    {
+      "path": "packages/extension-onboarding"
+    },
+    {
+      "path": "packages/extension-onboarding/test"
+    },
+    {
+      "path": "packages/iframe"
+    },
+    {
       "path": "packages/indexers"
     },
     {
@@ -40,6 +55,12 @@
     },
     {
       "path": "packages/insight-platform-api/test"
+    },
+    {
+      "path": "packages/node-utils"
+    },
+    {
+      "path": "packages/node-utils/test"
     },
     {
       "path": "packages/objects"
@@ -60,10 +81,16 @@
       "path": "packages/query-parser/test"
     },
     {
+      "path": "packages/shared-components"
+    },
+    {
       "path": "packages/signatureVerification"
     },
     {
       "path": "packages/signatureVerification/test"
+    },
+    {
+      "path": "packages/static-web-integration"
     },
     {
       "path": "packages/synamint-extension-sdk"
@@ -79,6 +106,12 @@
     },
     {
       "path": "packages/utils/test"
+    },
+    {
+      "path": "packages/web-integration"
+    },
+    {
+      "path": "packages/web-integration-test"
     }
   ]
 }

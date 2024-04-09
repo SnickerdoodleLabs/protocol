@@ -1,1 +1,6 @@
-export { default } from "@extension-onboarding/components/AccountChainBar/AccountChainBar";
+export {
+  default,
+  EDisplayMode,
+  testnetSupportedChainIds,
+  mainnetSupportedChainIds,
+} from "@extension-onboarding/components/AccountChainBar/AccountChainBar";

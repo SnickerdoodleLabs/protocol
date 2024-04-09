@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/synamint-extension-sdk",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "description": "",
   "keywords": [],
   "author": "okan@snickerdoodlelabs.io",
@@ -17,52 +17,51 @@
     "!package.dev.json",
     "!package.umd.json"
   ],
-  "main": "dist/core/index.js",
-  "types": "dist/core/index.d.ts",
+  "scripts": {
+    "alias": "tsc-alias",
+    "bundle:sdk": "yarn prebuild && npx webpack --config webpack.config.umd.js ",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "clean:build": "npx rimraf build",
+    "compile": "npx tsc --build && cd ../.. && yarn alias",
+    "pack:sdk": "yarn compile &&  yarn bundle:sdk && node scripts/generatePackageJson.mjs --umd && npm pack && node scripts/generatePackageJson.mjs",
+    "prebuild": "node scripts/precompile",
+    "publish:sdk": "yarn compile && yarn bundle:sdk && node scripts/generatePackageJson.mjs --umd && npm publish --access public && node scripts/generatePackageJson.mjs"
+  },
   "exports": {
     ".": "./dist/core/index.js",
-    "./core": "./dist/core/index.js",
-    "./gateways": "./dist/gateways/index.js",
     "./content": "./dist/content/index.js",
-    "./port": "./dist/port/index.js",
-    "./shared": "./dist/shared/index.js",
+    "./core": "./dist/core/index.js",
     "./extensionShared": "./dist/extensionShared/index.js",
-    "./injectables": "./dist/content/injectables/index.js"
+    "./gateways": "./dist/gateways/index.js",
+    "./injectables": "./dist/content/injectables/index.js",
+    "./port": "./dist/port/index.js",
+    "./shared": "./dist/shared/index.js"
   },
+  "types": "dist/core/index.d.ts",
   "typesVersions": {
     "*": {
-      "gateways": [
-        "./dist/gateways/index.d.ts"
+      "content": [
+        "./dist/content/index.d.ts"
       ],
       "core": [
         "./dist/core/index.d.ts"
       ],
-      "content": [
-        "./dist/content/index.d.ts"
-      ],
       "extensionShared": [
         "./dist/extensionShared/index.d.ts"
+      ],
+      "gateways": [
+        "./dist/gateways/index.d.ts"
+      ],
+      "injectables": [
+        "./dist/content/injectables/index.d.ts"
       ],
       "port": [
         "./dist/port/index.d.ts"
       ],
       "shared": [
         "./dist/shared/index.d.ts"
-      ],
-      "injectables": [
-        "./dist/content/injectables/index.d.ts"
       ]
     }
-  },
-  "scripts": {
-    "alias": "tsc-alias",
-    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
-    "compile": "npx tsc --build && cd ../.. && yarn alias",
-    "prebuild": "node scripts/precompile",
-    "clean:build": "npx rimraf build",
-    "bundle:sdk": "yarn prebuild && npx webpack --config webpack.config.umd.js ",
-    "pack:sdk": "yarn bundle:sdk && node scripts/generatePackageJson.mjs --umd && npm pack && node scripts/generatePackageJson.mjs",
-    "publish:sdk": "yarn bundle:sdk && node scripts/generatePackageJson.mjs --umd && npm publish --access public && node scripts/generatePackageJson.mjs"
   },
   "dependencies": {
     "@material-ui/core": "^4.12.4",
@@ -72,11 +71,14 @@
     "@snickerdoodlelabs/core": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/persistence": "workspace:^",
+    "@snickerdoodlelabs/shared-components": "workspace:^",
     "@webcomponents/custom-elements": "^1.5.0",
+    "deepmerge": "^4.3.1",
     "end-of-stream": "^1.4.4",
-    "ethers": "^5.6.6",
+    "ethers": "^6.10.0",
     "extension-port-stream": "^2.0.1",
-    "inversify": "^6.0.1",
+    "html-react-parser": "^4.2.2",
+    "inversify": "^6.0.2",
     "json-rpc-engine": "^6.1.0",
     "json-rpc-middleware-stream": "^3.0.0",
     "jss": "^10.9.0",

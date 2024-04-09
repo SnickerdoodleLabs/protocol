@@ -1,4 +1,4 @@
-import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   ConsentContractError,
   EVMAccountAddress,
@@ -9,7 +9,6 @@ import {
   TokenId,
   RequestForData,
   BlockNumber,
-  IBlockchainError,
   DomainName,
   BaseURI,
   HexString,
@@ -18,36 +17,35 @@ import {
   ConsentToken,
   DataPermissions,
   BigNumberString,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
-import { ethers, EventFilter, Event, BigNumber } from "ethers";
+import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
+import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
+import { ERC7529Contract } from "@contracts-sdk/implementations/ERC7529Contract.js";
+import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract.js";
 import {
   WrappedTransactionResponse,
-  ConsentRoles,
+  EConsentRoles,
   Tag,
-} from "@contracts-sdk/interfaces/objects";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+  ContractOverrides,
+  ContractsAbis,
+} from "@contracts-sdk/interfaces/index.js";
 
 @injectable()
-export class ConsentContract implements IConsentContract {
-  protected contract: ethers.Contract;
+export class ConsentContract
+  extends ERC7529Contract<ConsentContractError>
+  implements IConsentContract
+{
   constructor(
-    protected providerOrSigner:
-      | ethers.providers.Provider
-      | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
     protected cryptoUtils: ICryptoUtils,
   ) {
-    this.contract = new ethers.Contract(
-      contractAddress,
-      ContractsAbis.ConsentAbi.abi,
-      providerOrSigner,
-    );
+    super(providerOrSigner, contractAddress, ContractsAbis.ConsentAbi.abi);
   }
 
   public getContractAddress(): EVMContractAddress {
@@ -57,30 +55,12 @@ export class ConsentContract implements IConsentContract {
   public optIn(
     tokenId: TokenId,
     agreementFlags: HexString32,
-  ): ResultAsync<void, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.optIn(
-        tokenId,
-        agreementFlags,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call optIn()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for optIn() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("optIn", [tokenId, agreementFlags], overrides);
   }
 
   // TODO: add data permissions param
@@ -97,31 +77,16 @@ export class ConsentContract implements IConsentContract {
     tokenId: TokenId,
     agreementFlags: HexString32,
     signature: Signature,
-  ): ResultAsync<void, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.restrictedOptIn(
-        tokenId,
-        agreementFlags,
-        signature,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call restrictedOptIn()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for restrictedOptIn() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract(
+      "restrictedOptIn",
+      [tokenId, agreementFlags, signature],
+      overrides,
+    );
   }
 
   public encodeRestrictedOptIn(
@@ -142,31 +107,16 @@ export class ConsentContract implements IConsentContract {
     tokenId: TokenId,
     agreementFlags: HexString32,
     signature: Signature,
-  ): ResultAsync<void, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.anonymousRestrictedOptIn(
-        tokenId,
-        agreementFlags,
-        signature,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call anonymousRestrictedOptIn()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for anonymousRestrictedOptIn() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract(
+      "anonymousRestrictedOptIn",
+      [tokenId, agreementFlags, signature],
+      overrides,
+    );
   }
 
   public encodeAnonymousRestrictedOptIn(
@@ -183,29 +133,14 @@ export class ConsentContract implements IConsentContract {
     );
   }
 
-  public optOut(tokenId: TokenId): ResultAsync<void, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.optOut(
-        tokenId,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call optOut()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for optOut() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+  public optOut(
+    tokenId: TokenId,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("optOut", [tokenId], overrides);
   }
 
   public encodeOptOut(tokenId: TokenId): HexString {
@@ -216,88 +151,52 @@ export class ConsentContract implements IConsentContract {
 
   public agreementFlags(
     tokenId: TokenId,
-  ): ResultAsync<HexString32, ConsentContractError> {
+  ): ResultAsync<HexString32, ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.agreementFlagsArray(tokenId) as Promise<HexString32>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call agreementFlagsArray()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call agreementFlagsArray()");
       },
     );
   }
 
-  public getMaxCapacity(): ResultAsync<number, ConsentContractError> {
+  public getMaxCapacity(): ResultAsync<
+    number,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
-      this.contract.maxCapacity() as Promise<BigNumber>,
+      this.contract.maxCapacity() as Promise<bigint>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call maxCapacity()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call maxCapacity()");
       },
     ).map((bigCapacity) => {
-      return bigCapacity.toNumber();
+      return Number(bigCapacity);
     });
   }
 
   public updateMaxCapacity(
     maxCapacity: number,
-  ): ResultAsync<void, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.updateMaxCapacity(
-        maxCapacity,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call updateMaxCapacity()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for updateMaxCapacity() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("updateMaxCapacity", [maxCapacity], overrides);
   }
 
   public updateAgreementFlags(
     tokenId: TokenId,
     newAgreementFlags: HexString32,
-  ): ResultAsync<void, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.updateAgreementFlags(
-        tokenId,
-        newAgreementFlags,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call updateAgreementFlags()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for updateAgreementFlags() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract(
+      "updateAgreementFlags",
+      [tokenId, newAgreementFlags],
+      overrides,
+    );
   }
 
   public encodeUpdateAgreementFlags(
@@ -314,48 +213,27 @@ export class ConsentContract implements IConsentContract {
 
   public requestForData(
     ipfsCID: IpfsCID,
-  ): ResultAsync<void, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.requestForData(
-        ipfsCID,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call requestForData()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for requestForData() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("requestForData", [ipfsCID], overrides);
   }
 
   // Returns the address Consent contract contract's owner
   // Note that the address on index 0 of the DEFAULT_ADMIN_ROLE members is the contract owner
   public getConsentOwner(): ResultAsync<
     EVMAccountAddress,
-    ConsentContractError
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMember(
-        ConsentRoles.DEFAULT_ADMIN_ROLE,
+        EConsentRoles.DEFAULT_ADMIN_ROLE,
         0,
       ) as Promise<EVMAccountAddress>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call getRoleMember()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call getRoleMember()");
       },
     );
   }
@@ -364,24 +242,23 @@ export class ConsentContract implements IConsentContract {
   // Note that the address on index 0 is the contract owner
   public getDefaultAdminRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
-        ConsentRoles.DEFAULT_ADMIN_ROLE,
-      ) as Promise<BigNumber>,
+        EConsentRoles.DEFAULT_ADMIN_ROLE,
+      ) as Promise<bigint>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call getDefaultAdminRoleMembers()",
-          (e as IBlockchainError).reason,
+        return this.generateError(
           e,
+          "Unable to call getDefaultAdminRoleMembers()",
         );
       },
     ).andThen((memberCount) => {
       // First get an array of index values so that it can be used with ResultUtils.combine
       const memberIndexArray: number[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0; i < Number(memberCount); i++) {
         memberIndexArray.push(i);
       }
 
@@ -390,15 +267,11 @@ export class ConsentContract implements IConsentContract {
         memberIndexArray.map((index) => {
           return ResultAsync.fromPromise(
             this.contract.getRoleMember(
-              ConsentRoles.DEFAULT_ADMIN_ROLE,
+              EConsentRoles.DEFAULT_ADMIN_ROLE,
               index,
             ) as Promise<EVMAccountAddress>,
             (e) => {
-              return new ConsentContractError(
-                "Unable to call getRoleMember()",
-                (e as IBlockchainError).reason,
-                e,
-              );
+              return this.generateError(e, "Unable to call getRoleMember()");
             },
           );
         }),
@@ -408,24 +281,20 @@ export class ConsentContract implements IConsentContract {
 
   public getSignerRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
-        ConsentRoles.SIGNER_ROLE,
-      ) as Promise<BigNumber>,
+        EConsentRoles.SIGNER_ROLE,
+      ) as Promise<bigint>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call getSignerRoleMembers()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call getSignerRoleMembers()");
       },
     ).andThen((memberCount) => {
       // First get an array of index values so that it can be used with ResultUtils.combine
       const memberIndexArray: number[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0; i < Number(memberCount); i++) {
         memberIndexArray.push(i);
       }
 
@@ -434,14 +303,13 @@ export class ConsentContract implements IConsentContract {
         memberIndexArray.map((index) => {
           return ResultAsync.fromPromise(
             this.contract.getRoleMember(
-              ConsentRoles.PAUSER_ROLE,
+              EConsentRoles.PAUSER_ROLE,
               index,
             ) as Promise<EVMAccountAddress>,
             (e) => {
-              return new ConsentContractError(
-                "Unable to call getRoleMember() for SIGNER_ROLE",
-                (e as IBlockchainError).reason,
+              return this.generateError(
                 e,
+                "Unable to call getRoleMember() for SIGNER_ROLE",
               );
             },
           );
@@ -452,24 +320,20 @@ export class ConsentContract implements IConsentContract {
 
   public getPauserRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
-        ConsentRoles.PAUSER_ROLE,
-      ) as Promise<BigNumber>,
+        EConsentRoles.PAUSER_ROLE,
+      ) as Promise<bigint>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call getPauserRoleMembers()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call getPauserRoleMembers()");
       },
     ).andThen((memberCount) => {
       // First get an array of index values so that it can be used with ResultUtils.combine
       const memberIndexArray: number[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0; i < Number(memberCount); i++) {
         memberIndexArray.push(i);
       }
 
@@ -478,14 +342,13 @@ export class ConsentContract implements IConsentContract {
         memberIndexArray.map((index) => {
           return ResultAsync.fromPromise(
             this.contract.getRoleMember(
-              ConsentRoles.PAUSER_ROLE,
+              EConsentRoles.PAUSER_ROLE,
               index,
             ) as Promise<EVMAccountAddress>,
             (e) => {
-              return new ConsentContractError(
-                "Unable to call getRoleMember() for PAUSER_ROLE",
-                (e as IBlockchainError).reason,
+              return this.generateError(
                 e,
+                "Unable to call getRoleMember() for PAUSER_ROLE",
               );
             },
           );
@@ -496,24 +359,23 @@ export class ConsentContract implements IConsentContract {
 
   public getRequesterRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ConsentContractError
+    ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
-        ConsentRoles.REQUESTER_ROLE,
-      ) as Promise<BigNumber>,
+        EConsentRoles.REQUESTER_ROLE,
+      ) as Promise<bigint>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call getRequesterRoleMembers()",
-          (e as IBlockchainError).reason,
+        return this.generateError(
           e,
+          "Unable to call getRequesterRoleMembers()",
         );
       },
     ).andThen((memberCount) => {
       // First get an array of index values so that it can be used with ResultUtils.combine
       const memberIndexArray: number[] = [];
 
-      for (let i = 0; i < memberCount.toNumber(); i++) {
+      for (let i = 0; i < Number(memberCount); i++) {
         memberIndexArray.push(i);
       }
 
@@ -522,14 +384,13 @@ export class ConsentContract implements IConsentContract {
         memberIndexArray.map((index) => {
           return ResultAsync.fromPromise(
             this.contract.getRoleMember(
-              ConsentRoles.REQUESTER_ROLE,
+              EConsentRoles.REQUESTER_ROLE,
               index,
             ) as Promise<EVMAccountAddress>,
             (e) => {
-              return new ConsentContractError(
-                "Unable to call getRoleMember() for REQUESTER_ROLE",
-                (e as IBlockchainError).reason,
+              return this.generateError(
                 e,
+                "Unable to call getRoleMember() for REQUESTER_ROLE",
               );
             },
           );
@@ -540,51 +401,47 @@ export class ConsentContract implements IConsentContract {
 
   public balanceOf(
     address: EVMAccountAddress,
-  ): ResultAsync<number, ConsentContractError> {
+  ): ResultAsync<number, ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.balanceOf(address) as Promise<BigNumber>,
+      this.contract.balanceOf(address) as Promise<bigint>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call balanceOf()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call balanceOf()");
       },
     ).map((numberOfTokens) => {
-      return numberOfTokens.toNumber();
+      return Number(numberOfTokens);
     });
   }
 
   public ownerOf(
     tokenId: TokenId,
-  ): ResultAsync<EVMAccountAddress, ConsentContractError> {
+  ): ResultAsync<
+    EVMAccountAddress,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.ownerOf(tokenId) as Promise<EVMAccountAddress>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call ownerOf()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call ownerOf()");
       },
     );
   }
 
   public tokenURI(
     tokenId: TokenId,
-  ): ResultAsync<TokenUri | null, ConsentContractError> {
+  ): ResultAsync<
+    TokenUri | null,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.tokenURI(tokenId) as Promise<TokenUri | null>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call tokenURI()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call tokenURI()");
       },
     ).orElse((error) => {
       // The contract reverts with this message if tokenId does not exist
-      if (error.reason === "ERC721: operator query for nonexistent token") {
+      if (
+        (error as any).reason === "ERC721: operator query for nonexistent token"
+      ) {
         return ok(null);
       }
       return err(error);
@@ -592,27 +449,26 @@ export class ConsentContract implements IConsentContract {
   }
 
   public queryFilter(
-    eventFilter: EventFilter,
+    eventFilter: ethers.ContractEventName,
     fromBlock?: BlockNumber,
     toBlock?: BlockNumber,
-  ): ResultAsync<Event[], ConsentContractError> {
+  ): ResultAsync<
+    (ethers.EventLog | ethers.Log)[],
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.queryFilter(eventFilter, fromBlock, toBlock) as Promise<
-        Event[]
+        (ethers.EventLog | ethers.Log)[]
       >,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call queryFilter()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call queryFilter()");
       },
     );
   }
 
   public getConsentToken(
     tokenId: TokenId,
-  ): ResultAsync<ConsentToken, ConsentContractError> {
+  ): ResultAsync<ConsentToken, ConsentContractError | BlockchainCommonErrors> {
     // Get the agreement flags of the user's current consent token
     return ResultUtils.combine([
       this.ownerOf(tokenId),
@@ -629,66 +485,35 @@ export class ConsentContract implements IConsentContract {
     });
   }
 
-  public addDomain(domain: string): ResultAsync<void, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.addDomain(
-        domain,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call addDomain()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for addDomain() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+  public addDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("addDomain", [domain], overrides);
   }
 
-  public removeDomain(domain: string): ResultAsync<void, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.removeDomain(
-        domain,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call removeDomain()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for removeDomain() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+  public removeDomain(
+    domain: DomainName,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("removeDomain", [domain], overrides);
   }
 
-  public getDomains(): ResultAsync<DomainName[], ConsentContractError> {
+  public getDomains(): ResultAsync<
+    DomainName[],
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       // returns array of domains
       this.contract.getDomains() as Promise<DomainName[]>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call getDomains()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call getDomains()");
       },
     );
   }
@@ -697,30 +522,37 @@ export class ConsentContract implements IConsentContract {
     requesterAddress: EVMAccountAddress,
     fromBlock?: BlockNumber,
     toBlock?: BlockNumber,
-  ): ResultAsync<RequestForData[], ConsentContractError> {
+  ): ResultAsync<
+    RequestForData[],
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.queryFilter(
       this.filters.RequestForData(requesterAddress),
       fromBlock,
       toBlock,
-    ).andThen((logsEvents) => {
-      return ResultUtils.combine(
-        logsEvents.map((logEvent) => {
-          return okAsync(
+    ).map((logsEvents) => {
+      return logsEvents.reduce((acc, logEvent) => {
+        if (logEvent instanceof ethers.EventLog) {
+          acc.push(
             new RequestForData(
               this.getContractAddress(),
-              logEvent.args?.requester,
-              logEvent.args?.ipfsCID,
+              logEvent.args.requester,
+              logEvent.args.ipfsCID,
               BlockNumber(logEvent.blockNumber),
             ),
           );
-        }),
-      );
+        }
+        return acc;
+      }, new Array<RequestForData>());
     });
   }
 
   public getLatestTokenIdByOptInAddress(
     optInAddress: EVMAccountAddress,
-  ): ResultAsync<TokenId | null, ConsentContractError> {
+  ): ResultAsync<
+    TokenId | null,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return this.queryFilter(
       this.filters.Transfer(null, optInAddress),
       undefined,
@@ -738,308 +570,202 @@ export class ConsentContract implements IConsentContract {
         logsEvents[0],
       );
 
-      if (latestOptinEvent.args && latestOptinEvent.args.tokenId) {
-        return TokenId(latestOptinEvent.args.tokenId);
+      if (latestOptinEvent instanceof ethers.EventLog) {
+        if (latestOptinEvent.args.tokenId != null) {
+          return TokenId(latestOptinEvent.args.tokenId);
+        }
       }
 
       return null;
     });
   }
 
-  public disableOpenOptIn(): ResultAsync<void, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.disableOpenOptIn() as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call disableOpenOptIn()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for disableOpenOptIn() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+  public disableOpenOptIn(
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("disableOpenOptIn", [], overrides);
   }
 
-  public enableOpenOptIn(): ResultAsync<void, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.enableOpenOptIn() as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call enableOpenOptIn()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for enableOpenOptIn() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+  public enableOpenOptIn(
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("enableOpenOptIn", [], overrides);
   }
 
-  public baseURI(): ResultAsync<BaseURI, ConsentContractError> {
+  public baseURI(): ResultAsync<
+    BaseURI,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.baseURI() as Promise<BaseURI>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call baseURI()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call baseURI()");
       },
     );
   }
 
-  public setBaseURI(baseUri: BaseURI): ResultAsync<void, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.setBaseURI(
-        baseUri,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call setBaseURI()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for setBaseURI() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+  public setBaseURI(
+    baseUri: BaseURI,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("setBaseURI", [baseUri], overrides);
   }
 
   public hasRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<boolean, ConsentContractError> {
+  ): ResultAsync<boolean, ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.hasRole(ConsentRoles[role], address) as Promise<boolean>,
+      this.contract.hasRole(EConsentRoles[role], address) as Promise<boolean>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call hasRole()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call hasRole()");
       },
     );
   }
 
   public grantRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.grantRole(
-        ConsentRoles[role],
-        address,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call grantRole()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for grantRole() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("grantRole", [role, address], overrides);
   }
 
   public revokeRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.revokeRole(
-        ConsentRoles[role],
-        address,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call revokeRole()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for revokeRole() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("revokeRole", [role, address], overrides);
   }
 
   public renounceRole(
-    role: keyof typeof ConsentRoles,
+    role: EConsentRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<void, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.renounceRole(
-        ConsentRoles[role],
-        address,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call renounceRole()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for renounceRole() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("renounceRole", [role, address], overrides);
   }
 
-  public getQueryHorizon(): ResultAsync<BlockNumber, ConsentContractError> {
+  public getQueryHorizon(): ResultAsync<
+    BlockNumber,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
-      this.contract.queryHorizon() as Promise<BigNumber>,
+      this.contract.queryHorizon() as Promise<bigint>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call queryHorizon()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call queryHorizon()");
       },
-    ).map((queryHorizon) => BlockNumber(queryHorizon.toNumber()));
+    ).map((queryHorizon) => BlockNumber(Number(queryHorizon)));
   }
 
   public setQueryHorizon(
     blockNumber: BlockNumber,
-  ): ResultAsync<void, ConsentContractError> {
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("setQueryHorizon", [blockNumber], overrides);
+  }
+
+  public estimateGasLimitForSetQueryHorizon(
+    blockNumber: BlockNumber,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    BigNumberString,
+    BlockchainCommonErrors | ConsentContractError
+  > {
     return ResultAsync.fromPromise(
-      this.contract.setQueryHorizon(
-        blockNumber,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call setQueryHorizon()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentContractError(
-            "Wait for setQueryHorizon() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+      this.contract.estimateGas["setQueryHorizon"](blockNumber, {
+        overrides,
+      }) as Promise<bigint>,
+      (e) => this.generateError(e, `Failed to estimate gas with error: ${e}`),
+    ).map((bnGas) => {
+      return BigNumberString(bnGas.toString());
+    });
   }
 
   // Get the number of opted in addresses
-  public totalSupply(): ResultAsync<number, ConsentContractError> {
+  public totalSupply(): ResultAsync<
+    number,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
-      this.contract.totalSupply() as Promise<BigNumber>,
+      this.contract.totalSupply() as Promise<bigint>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call totalSupply()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call totalSupply()");
       },
-    ).map((totalSupply) => totalSupply.toNumber());
+    ).map((totalSupply) => Number(totalSupply));
   }
 
-  public openOptInDisabled(): ResultAsync<boolean, ConsentContractError> {
+  public openOptInDisabled(): ResultAsync<
+    boolean,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.openOptInDisabled() as Promise<boolean>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call openOptInDisabled()",
-          "Unknown",
-          e,
-        );
+        return this.generateError(e, "Unable to call openOptInDisabled()");
       },
     );
   }
 
   // Marketplace functions
-  public getMaxTags(): ResultAsync<number, ConsentContractError> {
+  public getMaxTags(): ResultAsync<
+    number,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
-      this.contract.maxTags() as Promise<BigNumber>,
+      this.contract.maxTags() as Promise<bigint>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call openOptInDisabled()",
-          "Unknown",
-          e,
-        );
+        return this.generateError(e, "Unable to call maxTags()");
       },
     ).map((num) => {
-      return num.toNumber();
+      return Number(num);
     });
   }
 
-  public getNumberOfStakedTags(): ResultAsync<number, ConsentContractError> {
+  public getNumberOfStakedTags(): ResultAsync<
+    number,
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
-      this.contract.getNumberOfStakedTags() as Promise<BigNumber>,
+      this.contract.getNumberOfStakedTags() as Promise<bigint>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call getNumberOfStakedTags()",
-          "Unknown",
-          e,
-        );
+        return this.generateError(e, "Unable to call getNumberOfStakedTags()");
       },
     ).map((num) => {
-      return num.toNumber();
+      return Number(num);
     });
   }
 
-  public getTagArray(): ResultAsync<Tag[], ConsentContractError> {
+  public getTagArray(): ResultAsync<
+    Tag[],
+    ConsentContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.getTagArray() as Promise<ITagStruct[]>,
       (e) => {
-        return new ConsentContractError(
-          "Unable to call getTagArray()",
-          "Unknown",
-          e,
-        );
+        return this.generateError(e, "Unable to call getTagArray()");
       },
     ).map((tags) => {
       return tags.map((tag) => {
@@ -1055,118 +781,85 @@ export class ConsentContract implements IConsentContract {
   public newGlobalTag(
     tag: string,
     newStakeAmount: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.newGlobalTag(
-        tag,
-        newStakeAmount,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call newGlobalTag()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract(
+      "newGlobalTag",
+      [tag, newStakeAmount],
+      overrides,
+    );
   }
 
   public newLocalTagUpstream(
     tag: string,
     newStakeAmount: BigNumberString,
     existingStakeAmount: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.newLocalTagUpstream(
-        tag,
-        newStakeAmount,
-        existingStakeAmount,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call newLocalTagUpstream()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract(
+      "newLocalTagUpstream",
+      [tag, newStakeAmount, existingStakeAmount],
+      overrides,
+    );
   }
 
   public newLocalTagDownstream(
     tag: string,
     existingStakeAmount: BigNumberString,
     newStakeAmount: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.newLocalTagDownstream(
-        tag,
-        existingStakeAmount,
-        newStakeAmount,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call newLocalTagDownstream()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract(
+      "newLocalTagDownstream",
+      [tag, existingStakeAmount, newStakeAmount],
+      overrides,
+    );
   }
 
   public replaceExpiredListing(
     tag: string,
     stakeAmount: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.replaceExpiredListing(
-        tag,
-        stakeAmount,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call replaceExpiredListing()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract(
+      "replaceExpiredListing",
+      [tag, stakeAmount],
+      overrides,
+    );
   }
 
   public removeListing(
     tag: string,
-  ): ResultAsync<WrappedTransactionResponse, ConsentContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.removeListing(
-        tag,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentContractError(
-          "Unable to call removeListing()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentContractError
+  > {
+    return this.writeToContract("removeListing", [tag], overrides);
   }
 
   public filters = {
     Transfer: (
       fromAddress: EVMAccountAddress | null,
       toAddress: EVMAccountAddress | null,
-    ): EventFilter => {
+    ): ethers.DeferredTopicFilter => {
       return this.contract.filters.Transfer(fromAddress, toAddress);
     },
-    RequestForData: (ownerAddress: EVMAccountAddress): EventFilter => {
+    RequestForData: (
+      ownerAddress: EVMAccountAddress,
+    ): ethers.DeferredTopicFilter => {
       return this.contract.filters.RequestForData(ownerAddress);
     },
   };
@@ -1175,22 +868,30 @@ export class ConsentContract implements IConsentContract {
     values: (
       | string
       | EVMAccountAddress
-      | ethers.BigNumber
+      | bigint
       | HexString
       | EVMContractAddress
     )[],
   ): ResultAsync<Signature, InvalidParametersError> {
     const types = ["address", "uint256"];
     return this.cryptoUtils.getSignature(
-      this.providerOrSigner as ethers.providers.JsonRpcSigner,
+      this.providerOrSigner as ethers.JsonRpcSigner,
       types,
       values,
     );
   }
+
+  protected generateContractSpecificError(
+    msg: string,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
+  ): ConsentContractError {
+    return new ConsentContractError(msg, e, transaction);
+  }
 }
 
 interface ITagStruct {
-  slot: BigNumber | null;
+  slot: bigint | null;
   tag: string | null;
   staker: EVMAccountAddress | null;
 }

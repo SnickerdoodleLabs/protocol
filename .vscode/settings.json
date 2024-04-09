@@ -1,3 +1,45 @@
 {
-  "editor.formatOnSave": false
+  "editor.formatOnSave": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "cSpell.words": [
+    "ankr",
+    "Arbitrum",
+    "Astar",
+    "blockvision",
+    "bluez",
+    "Cids",
+    "domaincontracts",
+    "endregion",
+    "ethersproject",
+    "hexlify",
+    "IDNS",
+    "IEIP",
+    "IERC",
+    "iframe",
+    "inversify",
+    "Ipfs",
+    "ISDQL",
+    "ITXT",
+    "Keccak",
+    "Metatransaction",
+    "moralis",
+    "mysten",
+    "neverthrow",
+    "oklink",
+    "poap",
+    "Postmate",
+    "retryable",
+    "sdql",
+    "Sibbach",
+    "Snickerdoodle",
+    "snickerdoodlelabs",
+    "Solana",
+    "Statii",
+    "tldts",
+    "tsbuildinfo",
+    "zksync"
+  ]
 }

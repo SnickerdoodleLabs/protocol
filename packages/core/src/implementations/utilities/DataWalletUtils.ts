@@ -1,7 +1,4 @@
-import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-} from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
   EVMPrivateKey,
   Signature,
@@ -16,17 +13,24 @@ import {
   SolanaAccountAddress,
   EVMAccountAddress,
   EVMContractAddress,
+  PasswordString,
+  SuiAccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
-import { base58 } from "ethers/lib/utils.js";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
-import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+  IDataWalletUtils,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class DataWalletUtils implements IDataWalletUtils {
   public constructor(
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
   ) {}
 
@@ -44,6 +48,29 @@ export class DataWalletUtils implements IDataWalletUtils {
       signature,
       this.accountAddressToHex(accountAddress),
     );
+  }
+
+  public deriveEncryptionKeyFromPassword(
+    password: PasswordString,
+  ): ResultAsync<AESKey, never> {
+    // The hard thing here is the salt.
+    return ResultUtils.combine([
+      this.cryptoUtils.hashStringSHA256(password),
+      this.configProvider.getConfig(),
+    ])
+      .andThen(([hashedPassword, config]) => {
+        // SHA256 is Base64 encoded. We'll combine that with the contract factory address,
+        // hash it again, convert to a hexstring, and use that as the salt.
+        return this.cryptoUtils.hashStringSHA256(
+          hashedPassword +
+            config.controlChainInformation.consentFactoryContractAddress,
+        );
+      })
+      .andThen((hashedPassword2) => {
+        const buffer = Buffer.from(hashedPassword2, "base64");
+        const salt = HexString(buffer.toString("hex"));
+        return this.cryptoUtils.deriveAESKeyFromString(password, salt);
+      });
   }
 
   public getDerivedEVMAccountFromSignature(
@@ -67,6 +94,39 @@ export class DataWalletUtils implements IDataWalletUtils {
       });
   }
 
+  public getDerivedEVMAccountFromPassword(
+    password: PasswordString,
+  ): ResultAsync<ExternallyOwnedAccount, never> {
+    // The hard thing here is the salt.
+    return ResultUtils.combine([
+      this.cryptoUtils.hashStringSHA256(password),
+      this.configProvider.getConfig(),
+    ])
+      .andThen(([hashedPassword, config]) => {
+        // SHA256 is Base64 encoded. We'll combine that with the contract factory address,
+        // hash it again, convert to a hexstring, and use that as the salt.
+        return this.cryptoUtils.hashStringSHA256(
+          hashedPassword +
+            config.controlChainInformation.consentFactoryContractAddress,
+        );
+      })
+      .andThen((hashedPassword2) => {
+        const buffer = Buffer.from(hashedPassword2, "base64");
+        const salt = HexString(buffer.toString("hex"));
+        return this.cryptoUtils.deriveEVMPrivateKeyFromString(password, salt);
+      })
+      .map((derivedEVMKey) => {
+        const derivedEVMAccountAddress =
+          this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+            derivedEVMKey,
+          );
+        return new ExternallyOwnedAccount(
+          derivedEVMAccountAddress,
+          derivedEVMKey,
+        );
+      });
+  }
+
   public verifySignature(
     chain: EChain,
     accountAddress: AccountAddress,
@@ -74,7 +134,6 @@ export class DataWalletUtils implements IDataWalletUtils {
     message: string,
   ): ResultAsync<boolean, never> {
     const chainInfo = chainConfig.get(ChainId(chain));
-
     if (chainInfo == null) {
       throw new Error();
     }
@@ -89,12 +148,52 @@ export class DataWalletUtils implements IDataWalletUtils {
           );
         });
     }
+    if (chainInfo.chainTechnology == EChainTechnology.Sui) {
+      return this.cryptoUtils.verifySuiSignature(
+        message,
+        signature,
+        accountAddress as SuiAccountAddress,
+      );
+    }
     if (chainInfo.chainTechnology == EChainTechnology.Solana) {
       return this.cryptoUtils.verifySolanaSignature(
         message,
         signature,
         accountAddress as SolanaAccountAddress,
       );
+    }
+
+    // No match for the chain technology!
+    throw new Error(`Unknown chainTechnology ${chainInfo.chainTechnology}`);
+  }
+
+  public verifyTypedDataSignature(
+    accountAddress: AccountAddress,
+    domain: ethers.TypedDataDomain,
+    types: Record<string, Array<ethers.TypedDataField>>,
+    value: Record<string, unknown>,
+    signature: Signature,
+    chain: EChain,
+  ): ResultAsync<boolean, never> {
+    const chainInfo = chainConfig.get(ChainId(chain));
+
+    if (chainInfo == null) {
+      throw new Error();
+    }
+
+    // The signature has to be verified based on the chain technology
+    if (chainInfo.chainTechnology == EChainTechnology.EVM) {
+      return this.cryptoUtils
+        .verifyTypedData(domain, types, value, signature)
+        .map((verifiedAccountAddress) => {
+          return (
+            verifiedAccountAddress.toLowerCase() == accountAddress.toLowerCase()
+          );
+        });
+    }
+    if (chainInfo.chainTechnology == EChainTechnology.Solana) {
+      // There is no equivalent to typed data in Solana
+      return okAsync(false);
     }
 
     // No match for the chain technology!
@@ -130,19 +229,18 @@ export class DataWalletUtils implements IDataWalletUtils {
   }
 
   protected accountAddressToHex(accountAddress: AccountAddress): HexString {
-    if (ethers.utils.isHexString(accountAddress)) {
+    if (ethers.isHexString(accountAddress)) {
       return HexString(accountAddress);
     }
 
     // Doesn't decode as base58, maybe it's just missing the 0x
     const prefixedHex = `0x${accountAddress}`;
-    if (ethers.utils.isHexString(prefixedHex)) {
+    if (ethers.isHexString(prefixedHex)) {
       return HexString(prefixedHex);
     }
     // If it's not a hex string, it should be a base58 encoded account address
     // Decode to an array
-    const arr = base58.decode(accountAddress);
-    const buffer = Buffer.from(arr);
-    return HexString(`0x${buffer.toString("hex")}`);
+    const decodedAddr = ethers.decodeBase58(accountAddress);
+    return HexString(`0x${ethers.toBeHex(decodedAddr)}`);
   }
 }

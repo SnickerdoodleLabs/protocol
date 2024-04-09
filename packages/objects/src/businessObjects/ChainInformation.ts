@@ -1,11 +1,10 @@
-import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
+import { EChain, EChainTechnology, EChainType } from "@objects/enum/index.js";
 import {
   ChainId,
   EVMContractAddress,
   URLString,
-  ProviderUrl,
   CoinGeckoAssetPlatformID,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export class NativeCurrencyInformation {
   public constructor(
@@ -23,9 +22,8 @@ export class ChainInformation {
     public chain: EChain,
     public chainTechnology: EChainTechnology,
     public isDev: boolean,
-    public providerUrls: ProviderUrl[],
+    public networkName: string,
     public averageBlockMiningTime: number,
-    public indexer: EIndexer,
     public nativeCurrency: NativeCurrencyInformation,
     public type: EChainType,
     public explorerURL: string,
@@ -42,16 +40,14 @@ export class ControlChainInformation extends ChainInformation {
     public chain: EChain,
     public chainTechnology: EChainTechnology,
     public isDev: boolean,
-    public providerUrls: ProviderUrl[],
+    public networkName: string,
     public averageBlockMiningTime: number,
-    public indexer: EIndexer,
     public nativeCurrency: NativeCurrencyInformation,
     public type: EChainType,
     public explorerURL: string,
     public consentFactoryContractAddress: EVMContractAddress,
     public crumbsContractAddress: EVMContractAddress,
     public metatransactionForwarderAddress: EVMContractAddress,
-    public siftContractAddress: EVMContractAddress,
     public etherscanEndpointURL?: URLString,
     public coinGeckoSlug?: CoinGeckoAssetPlatformID,
   ) {
@@ -61,9 +57,8 @@ export class ControlChainInformation extends ChainInformation {
       chain,
       chainTechnology,
       isDev,
-      providerUrls,
+      networkName,
       averageBlockMiningTime,
-      indexer,
       nativeCurrency,
       type,
       explorerURL,

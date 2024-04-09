@@ -1,0 +1,57 @@
+{
+  "name": "@snickerdoodlelabs/node-utils",
+  "version": "2.0.1",
+  "description": "Utilities that rely on Node APIs. They are usable in a browser with polyfills",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
+  },
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/node-utils#readme",
+  "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
+  "keywords": [
+    "Encryption",
+    "Snickerdoodle",
+    "Crypto"
+  ],
+  "main": "dist/index.js",
+  "module": "./dist/index.js",
+  "files": [
+    "dist",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo",
+    "!test",
+    "!src",
+    "!tsconfig.json"
+  ],
+  "scripts": {
+    "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
+    "alias-with-copyfiles": "yarn copy-files && tsc-alias",
+    "build": "yarn clean && yarn compile",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "compile": "npx tsc --build && cd ../.. && yarn alias",
+    "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
+    "prepare": "yarn build",
+    "prepublish": "yarn build",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@mysten/sui.js": "^0.44.0",
+    "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/objects": "workspace:^",
+    "axios": "^0.27.2",
+    "ethers": "^6.10.0",
+    "inversify": "^6.0.2",
+    "neverthrow": "^5.1.0",
+    "neverthrow-result-utils": "^2.0.2",
+    "oauth-1.0a": "^2.2.6",
+    "pino": "^8.1.0",
+    "tweetnacl": "^1.0.3",
+    "uuid": "^8.3.0"
+  }
+}

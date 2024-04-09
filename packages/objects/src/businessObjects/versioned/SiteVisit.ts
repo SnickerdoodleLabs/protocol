@@ -1,8 +1,13 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
-import { URLString, DomainName, UnixTimestamp } from "@objects/primitives";
+} from "@objects/businessObjects/versioned/VersionedObject.js";
+import {
+  URLString,
+  DomainName,
+  UnixTimestamp,
+} from "@objects/primitives/index.js";
+import { PropertiesOf } from "@objects/utilities/index.js";
 
 /**
  * Represents a visit to a particular Url
@@ -30,12 +35,8 @@ export class SiteVisitMigrator extends VersionedObjectMigrator<SiteVisit> {
     return SiteVisit.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown>): SiteVisit {
-    return new SiteVisit(
-      data["url"] as URLString,
-      data["startTime"] as UnixTimestamp,
-      data["endTime"] as UnixTimestamp,
-    );
+  protected factory(data: PropertiesOf<SiteVisit>): SiteVisit {
+    return new SiteVisit(data.url, data.startTime, data.endTime);
   }
 
   protected getUpgradeFunctions(): Map<

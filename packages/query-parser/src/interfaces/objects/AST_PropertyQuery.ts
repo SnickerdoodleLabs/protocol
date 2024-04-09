@@ -1,15 +1,16 @@
 import {
-  EWalletDataType,
   ESDQLQueryReturn,
+  EWalletDataType,
+  ISDQLQueryClause,
+  ISDQLTimestampRange,
   MissingWalletDataTypeError,
   SDQL_Name,
   SDQL_OperatorName,
   Web2QueryTypes,
-  ISDQLQueryClause,
-  ISDQLTimestampRange,
 } from "@snickerdoodlelabs/objects";
+import { Result, err, ok } from "neverthrow";
 
-import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
+import { AST_SubQuery } from "@query-parser/interfaces/objects/AST_SubQuery.js";
 import {
   BinaryCondition,
   ConditionE,
@@ -20,9 +21,7 @@ import {
   ConditionLE,
 } from "@query-parser/interfaces/objects/condition/index.js";
 
-import { err, ok, Result } from "neverthrow";
-
-export class AST_PropertyQuery extends AST_Query {
+export class AST_PropertyQuery extends AST_SubQuery {
   /**
    * @param name - the key of the query from schema, e.g., q1, q2, a3 ...
    * @param property - the name of the query from the schema, e.g., "age"
@@ -34,13 +33,16 @@ export class AST_PropertyQuery extends AST_Query {
     readonly property: Web2QueryTypes,
     readonly conditions: Array<BinaryCondition>,
     // for reading gender
-    readonly enum_keys ? : Array<string>,
-    readonly patternProperties ? : Record<string , unknown>,
-    readonly timestampRange ? : ISDQLTimestampRange
+    readonly enum_keys?: Array<string>,
+    readonly patternProperties?: Record<string, unknown>,
+    readonly timestampRange?: ISDQLTimestampRange,
   ) {
     super(name, returnType);
   }
-  static fromSchema(name: SDQL_Name, schema: ISDQLQueryClause): AST_PropertyQuery {
+  static fromSchema(
+    name: SDQL_Name,
+    schema: ISDQLQueryClause,
+  ): AST_PropertyQuery {
     const conditions = AST_PropertyQuery.parseConditions(schema.conditions);
 
     return new AST_PropertyQuery(
@@ -50,7 +52,7 @@ export class AST_PropertyQuery extends AST_Query {
       conditions,
       schema.enum_keys,
       schema.patternProperties,
-      schema.timestampRange
+      schema.timestampRange,
     );
   }
 
@@ -72,12 +74,14 @@ export class AST_PropertyQuery extends AST_Query {
         return ok(EWalletDataType.Location);
       case "url_visited_count":
         return ok(EWalletDataType.SiteVisits);
-      case "chain_transactions":
-        return ok(EWalletDataType.EVMTransactions);
       case "social_discord":
         return ok(EWalletDataType.Discord);
+      case "social_twitter":
+        return ok(EWalletDataType.Twitter);
       default:
-        const missingWalletType = new MissingWalletDataTypeError(this.property);
+        const missingWalletType = new MissingWalletDataTypeError(
+          `no wallet data type defined for ${this.property}`,
+        );
         console.error(missingWalletType);
         return err(missingWalletType);
     }

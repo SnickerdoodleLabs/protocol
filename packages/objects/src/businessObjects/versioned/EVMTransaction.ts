@@ -1,20 +1,21 @@
-import { Interface } from "ethers/lib/utils";
+import { Interface } from "ethers";
 
-import { ChainTransaction } from "@objects/businessObjects/versioned/ChainTransaction";
 import { EVMEvent } from "@objects/businessObjects/EVMEvent";
 import {
   EVMFunctionParameter,
   EVMFunctionSignature,
-} from "@objects/businessObjects/EVMFunctionSignature";
+} from "@objects/businessObjects/EVMFunctionSignature.js";
+import { ChainTransaction } from "@objects/businessObjects/versioned/ChainTransaction.js";
+import { EChain } from "@objects/enum/index.js";
 import {
-  ChainId,
   EVMAccountAddress,
   BigNumberString,
   UnixTimestamp,
   EVMAccountAddressRegex,
   EVMTransactionHash,
   EVMContractAddress,
-} from "@objects/primitives";
+  ISO8601DateString,
+} from "@objects/primitives/index.js";
 
 /**
  * This is a concrete implementation of the Transaction class from Ethers. I'd really prefer to not have to
@@ -27,7 +28,7 @@ export class EVMTransaction extends ChainTransaction {
   public functionSignature: EVMFunctionSignature | null = null;
 
   public constructor(
-    public chainId: ChainId,
+    public chain: EChain,
     public hash: EVMTransactionHash,
     public timestamp: UnixTimestamp,
     public blockHeight: number | null,
@@ -39,9 +40,10 @@ export class EVMTransaction extends ChainTransaction {
     public input: string | null,
     public methodId: string | null,
     public functionName: string | null,
-    events: EVMEvent[] | null,
+    public events: EVMEvent[] | null,
+    public measurementDate: UnixTimestamp,
   ) {
-    super(chainId, hash, timestamp);
+    super(chain, hash, timestamp, measurementDate);
     let addrs = new Set<EVMAccountAddress>();
     if (this.to) {
       addrs.add(this.to);
@@ -58,6 +60,12 @@ export class EVMTransaction extends ChainTransaction {
       try {
         const iface = new Interface([`function ${this.functionName}`]);
         const func = iface.getFunction(this.input.slice(0, 10));
+
+        if (func == null) {
+          throw new Error(
+            `While constructing EVMTransaction, function not found on interface ${this.functionName} for input ${this.input}`,
+          );
+        }
         const paramValues = iface.decodeFunctionData(func.name, this.input);
 
         // filter out unrecognized methodIDs

@@ -1,5 +1,6 @@
 import "reflect-metadata";
 
+import { ITimeUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   Age,
   BigNumberString,
@@ -23,6 +24,9 @@ import {
   EChainTechnology,
   EVMTransactionHash,
   ESDQLQueryReturn,
+  ISO8601DateString,
+  PublicEvents,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BlockchainTransactionQuery,
@@ -34,72 +38,33 @@ import * as td from "testdouble";
 import { BlockchainTransactionQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
 import { ITransactionHistoryRepository } from "@core/interfaces/data/index.js";
+import { ContextProviderMock } from "@core-tests/mock/utilities/ContextProviderMock";
 
+const queryCID = IpfsCID("mockCID");
+const iso = UnixTimestamp(11);
+const now = UnixTimestamp(2);
 class blockchainTransactionQueryEvaluatorMocks {
   public transactionRepo = td.object<ITransactionHistoryRepository>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
-
+  public contextProvider: ContextProviderMock;
+  public timeUtils: ITimeUtils;
   public URLmap = new Map<URLString, number>([
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
   public transactionsArray = new Array<ChainTransaction>();
 
-  public accountBalances = new Array<TokenBalance>(
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("ETH"),
-      ChainId(1),
-      EVMContractAddress("9dkj13nd"),
-      EVMAccountAddress("GOOD1"),
-      BigNumberString("18"),
-      18,
-    ),
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("ETH"),
-      ChainId(1),
-      EVMContractAddress("0pemc726"),
-      EVMAccountAddress("GOOD2"),
-      BigNumberString("25"),
-      18,
-    ),
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("BLAH"),
-      ChainId(901398),
-      EVMContractAddress("lp20xk3c"),
-      EVMAccountAddress("BAD"),
-      BigNumberString("26"),
-      18,
-    ),
-    new TokenBalance(
-      EChainTechnology.EVM,
-      TickerSymbol("ETH"),
-      ChainId(1),
-      EVMContractAddress("m12s93io"),
-      EVMAccountAddress("GOOD3"),
-      BigNumberString("36"),
-      18,
-    ),
-  );
-
   public constructor() {
-    //this.dataWalletPersistence.setLocation(CountryCode("US"));
-    // td.when(this.dataWalletPersistence.getAge()).thenReturn(okAsync(Age(25)));
-    // td.when(this.dataWalletPersistence.getGender()).thenReturn(
-    //   okAsync(Gender("male")),
-    // );
-    // td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
-    //   okAsync(this.URLmap),
-    // );
-    // td.when(this.dataWalletPersistence.getAccountBalances()).thenReturn(
-    //   okAsync(this.accountBalances),
-    // );
+    this.timeUtils = td.object<ITimeUtils>();
+    td.when(this.timeUtils.getUnixNow()).thenReturn(now as never);
+    this.contextProvider = new ContextProviderMock();
   }
 
   public factory() {
-    return new BlockchainTransactionQueryEvaluator(this.transactionRepo);
+    return new BlockchainTransactionQueryEvaluator(
+      this.transactionRepo,
+      this.contextProvider,
+    );
   }
 }
 
@@ -123,14 +88,13 @@ describe("QueryEvaluator: ", () => {
         new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
-    const chainId = blockchainTransactionQuery.contract.networkId;
-    const address = blockchainTransactionQuery.contract.address;
+
+    const chainId = blockchainTransactionQuery.contract!.networkId;
+    const address = blockchainTransactionQuery.contract!.address;
     const hash = "";
-    const startTime = blockchainTransactionQuery.contract.timestampRange.start;
-    const endTime = blockchainTransactionQuery.contract.timestampRange.end;
-    // console.log("Address: ", address)
-    // console.log("Start Time: ", startTime)
-    // console.log("End Time: ", endTime)
+    const startTime = blockchainTransactionQuery.contract!.timestampRange.start;
+    const endTime = blockchainTransactionQuery.contract!.timestampRange.end;
+
     const filter = new TransactionFilter(
       [chainId],
       [address],
@@ -156,12 +120,11 @@ describe("QueryEvaluator: ", () => {
           null,
           null,
           null,
+          iso,
         ),
       ]),
     );
-    const result = await repo.eval(blockchainTransactionQuery);
-    // console.log("Age is: ", result["value"]);
-    // console.log(result)
+    const result = await repo.eval(blockchainTransactionQuery, queryCID, now);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
@@ -185,12 +148,12 @@ describe("QueryEvaluator: ", () => {
         new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
-    const chainId = blockchainTransactionQuery.contract.networkId;
-    const address = blockchainTransactionQuery.contract
+    const chainId = blockchainTransactionQuery.contract!.networkId;
+    const address = blockchainTransactionQuery.contract!
       .address as EVMAccountAddress;
     const hash = "";
-    const startTime = blockchainTransactionQuery.contract.timestampRange.start;
-    const endTime = blockchainTransactionQuery.contract.timestampRange.end;
+    const startTime = blockchainTransactionQuery.contract!.timestampRange.start;
+    const endTime = blockchainTransactionQuery.contract!.timestampRange.end;
 
     const filter = new TransactionFilter(
       [chainId],
@@ -217,10 +180,11 @@ describe("QueryEvaluator: ", () => {
           null,
           null,
           null,
+          iso,
         ),
       ]),
     );
-    const result = await repo.eval(blockchainTransactionQuery);
+    const result = await repo.eval(blockchainTransactionQuery, queryCID, now);
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
@@ -244,15 +208,13 @@ describe("QueryEvaluator: ", () => {
         new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
-    const chainId = blockchainTransactionQuery.contract.networkId;
-    const address = blockchainTransactionQuery.contract
+    const chainId = blockchainTransactionQuery.contract!.networkId;
+    const address = blockchainTransactionQuery.contract!
       .address as EVMAccountAddress;
     const hash = "";
-    const startTime = blockchainTransactionQuery.contract.timestampRange.start;
-    const endTime = blockchainTransactionQuery.contract.timestampRange.end;
-    // console.log("Address: ", address)
-    // console.log("Start Time: ", startTime)
-    // console.log("End Time: ", endTime)
+    const startTime = blockchainTransactionQuery.contract!.timestampRange.start;
+    const endTime = blockchainTransactionQuery.contract!.timestampRange.end;
+
     const filter = new TransactionFilter(
       [chainId],
       [address],
@@ -263,9 +225,7 @@ describe("QueryEvaluator: ", () => {
     td.when(
       mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    const result = await repo.eval(blockchainTransactionQuery);
-    // console.log("Age is: ", result["value"]);
-    // console.log(result)
+    const result = await repo.eval(blockchainTransactionQuery, queryCID, now);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -291,12 +251,12 @@ describe("Blockchain Transaction Query Testing: ", () => {
         new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
-    const chainId = blockchainTransactionQuery.contract.networkId;
-    const address = blockchainTransactionQuery.contract
+    const chainId = blockchainTransactionQuery.contract!.networkId;
+    const address = blockchainTransactionQuery.contract!
       .address as EVMAccountAddress;
     const hash = "";
-    const startTime = blockchainTransactionQuery.contract.timestampRange.start;
-    const endTime = blockchainTransactionQuery.contract.timestampRange.end;
+    const startTime = blockchainTransactionQuery.contract!.timestampRange.start;
+    const endTime = blockchainTransactionQuery.contract!.timestampRange.end;
 
     const filter = new TransactionFilter(
       [chainId],
@@ -308,7 +268,7 @@ describe("Blockchain Transaction Query Testing: ", () => {
     td.when(
       mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    const result = await repo.eval(blockchainTransactionQuery);
+    const result = await repo.eval(blockchainTransactionQuery, queryCID, now);
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
@@ -333,12 +293,12 @@ describe("Blockchain Transaction Query Testing: ", () => {
         new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
-    const chainId = blockchainTransactionQuery.contract.networkId;
-    const address = blockchainTransactionQuery.contract
+    const chainId = blockchainTransactionQuery.contract!.networkId;
+    const address = blockchainTransactionQuery.contract!
       .address as EVMAccountAddress;
     const hash = "";
-    const startTime = blockchainTransactionQuery.contract.timestampRange.start;
-    const endTime = blockchainTransactionQuery.contract.timestampRange.end;
+    const startTime = blockchainTransactionQuery.contract!.timestampRange.start;
+    const endTime = blockchainTransactionQuery.contract!.timestampRange.end;
 
     const filter = new TransactionFilter(
       [chainId],
@@ -350,7 +310,7 @@ describe("Blockchain Transaction Query Testing: ", () => {
     td.when(
       mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    const result = await repo.eval(blockchainTransactionQuery);
+    const result = await repo.eval(blockchainTransactionQuery, queryCID, now);
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();
     //expect(result["value"]).toBe(false);

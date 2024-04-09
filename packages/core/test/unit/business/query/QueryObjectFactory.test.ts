@@ -1,14 +1,8 @@
-import { SDQL_Name } from "@snickerdoodlelabs/objects";
-import {
-  avalanche3SchemaStr,
-  ConditionGE,
-  IQueryObjectFactory,
-  QueryObjectFactory,
-} from "@snickerdoodlelabs/query-parser";
-
-import { QueryObjectFactoryMocks } from "@core-tests/mock/mocks/QueryObjectFactoryMocks";
-
 import "reflect-metadata";
+import { SDQL_Name } from "@snickerdoodlelabs/objects";
+import { ConditionGE } from "@snickerdoodlelabs/query-parser";
+
+import { QueryObjectFactoryMocks } from "@core-tests/mock/mocks/QueryObjectFactoryMocks.js";
 
 describe("test balance query parsing", () => {
   test("q4 should have networkId 43114 and no conditions", () => {

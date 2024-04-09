@@ -1,8 +1,12 @@
 import {
+  CloudStorageActivatedEvent,
   DataWalletAddress,
   EarnedReward,
-  EDynamicRewardParameterType,
+  EProfileFieldType,
+  ESolidityAbiParameterType,
+  EVMContractAddress,
   IDynamicRewardParameter,
+  IpfsCID,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
@@ -22,8 +26,6 @@ import {
   IInvitationServiceType,
 } from "@synamint-extension-sdk/core/interfaces/business";
 import {
-  IAccountCookieUtils,
-  IAccountCookieUtilsType,
   IContextProvider,
   IContextProviderType,
 } from "@synamint-extension-sdk/core/interfaces/utilities";
@@ -34,8 +36,6 @@ export class CoreListener implements ICoreListener {
   constructor(
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
-    @inject(IAccountCookieUtilsType)
-    protected accountCookieUtils: IAccountCookieUtils,
     @inject(IInvitationServiceType)
     protected invitationService: IInvitationService,
   ) {}
@@ -45,7 +45,7 @@ export class CoreListener implements ICoreListener {
       events.onInitialized.subscribe(this.onInitialized.bind(this));
       events.onAccountAdded.subscribe(this.onAccountAdded.bind(this));
       events.onAccountRemoved.subscribe(this.onAccountRemoved.bind(this));
-      events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
+
       events.onEarnedRewardsAdded.subscribe(
         this.onEarnedRewardsAdded.bind(this),
       );
@@ -55,6 +55,40 @@ export class CoreListener implements ICoreListener {
       events.onSocialProfileUnlinked.subscribe(
         this.onSocialProfileUnlinked.bind(this),
       );
+
+      events.onCohortJoined.subscribe(this.onChohortJoined.bind(this));
+
+      events.onCohortLeft.subscribe(this.onCohortLeft.bind(this));
+
+      events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
+
+      // Add a listener for cloud storage being switched out
+
+      // rename, event emitted from api listeners. keyed and activated by initialize function
+      events.onCloudStorageActivated.subscribe(
+        this.onCloudStorageActivated.bind(this),
+      );
+      events.onCloudStorageDeactivated.subscribe(
+        this.onCloudStorageDeactivated.bind(this),
+      );
+      events.onBirthdayUpdated.subscribe((birthday) => {
+        this.contextProvider.onProfileFieldChanged(
+          EProfileFieldType.DOB,
+          birthday,
+        );
+      });
+      events.onGenderUpdated.subscribe((gender) => {
+        this.contextProvider.onProfileFieldChanged(
+          EProfileFieldType.GENDER,
+          gender,
+        );
+      });
+      events.onLocationUpdated.subscribe((location) => {
+        this.contextProvider.onProfileFieldChanged(
+          EProfileFieldType.LOCATION,
+          location,
+        );
+      });
     });
   }
 
@@ -67,7 +101,6 @@ export class CoreListener implements ICoreListener {
         });
       }
     });
-    this.accountCookieUtils.writeDataWalletAddressToCookie(dataWalletAddress);
     this.contextProvider.setAccountContext(dataWalletAddress);
     console.log(
       `Extension: Initialized data wallet with address ${dataWalletAddress}`,
@@ -79,74 +112,17 @@ export class CoreListener implements ICoreListener {
     console.log(`Extension: account ${account.sourceAccountAddress} added`);
   }
 
-  private onQueryPosted(request: SDQLQueryRequest): void {
-    console.log(
-      `Extension: query posted with contract address: ${request.consentContractAddress} and CID: ${request.query.cid}`,
-    );
-    console.debug(request.query.query);
+  private onChohortJoined(consentAddress: EVMContractAddress): void {
+    this.contextProvider.onCohortJoined(consentAddress);
+    console.log(`Extension: cohort ${consentAddress} joined`);
+  }
 
-    // @TODO - remove once ipfs issue is resolved
-    const getStringQuery = () => {
-      const queryObjOrStr = request.query.query;
-      let queryString: SDQLString;
-      if (typeof queryObjOrStr === "object") {
-        queryString = JSON.stringify(queryObjOrStr) as SDQLString;
-      } else {
-        queryString = queryObjOrStr;
-      }
-      return queryString;
-    };
-
-    // DynamicRewardParameters added to be returned
-    const parameters: IDynamicRewardParameter[] = [];
-    // request.accounts.filter((acc.sourceAccountAddress == request.dataWalletAddress) ==> (acc))
-
-    this.invitationService
-      .getReceivingAddress(request.consentContractAddress)
-      .map((accountAddress) => {
-        request.rewardsPreview.forEach((eligibleReward) => {
-          if (request.dataWalletAddress !== null) {
-            parameters.push({
-              recipientAddress: {
-                type: EDynamicRewardParameterType.Address,
-                value: accountAddress,
-              },
-              compensationId: {
-                type: EDynamicRewardParameterType.CompensationId,
-                value: eligibleReward.compensationKey,
-              },
-            } as IDynamicRewardParameter);
-          }
-        });
-
-        this.core
-          .approveQuery(
-            request.consentContractAddress,
-            {
-              cid: request.query.cid,
-              query: getStringQuery(),
-            },
-            parameters,
-          )
-          .map(() => {
-            console.log(
-              `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
-            );
-          })
-          .mapErr((e) => {
-            console.error(
-              `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
-            );
-            console.error(e);
-          });
-      });
+  private onCohortLeft(consentAddress: EVMContractAddress): void {
+    this.contextProvider.onCohortLeft(consentAddress);
+    console.log(`Extension: cohort ${consentAddress} left`);
   }
 
   private onAccountRemoved(account: LinkedAccount): void {
-    console.log(`Extension: account ${account.sourceAccountAddress} removed`);
-    this.accountCookieUtils.removeAccountInfoFromCookie(
-      account.sourceAccountAddress,
-    );
     this.contextProvider.onAccountRemoved(account);
   }
 
@@ -154,6 +130,20 @@ export class CoreListener implements ICoreListener {
     this.contextProvider.onEarnedRewardsAdded(rewards);
   }
 
-  private onSocialProfileLinked(event: SocialProfileLinkedEvent): void {}
+  private onSocialProfileLinked(event: SocialProfileLinkedEvent): void {
+    this.contextProvider.onSocialProfileLinked(event);
+  }
+
   private onSocialProfileUnlinked(event: SocialProfileUnlinkedEvent): void {}
+
+  private onCloudStorageActivated(event: CloudStorageActivatedEvent): void {
+    this.contextProvider.onCloudStorageActivated(event);
+  }
+  private onCloudStorageDeactivated(event: CloudStorageActivatedEvent): void {
+    this.contextProvider.onCloudStorageDeactivated(event);
+  }
+  private onQueryPosted(event: SDQLQueryRequest) {
+    console.log("Query posted", event);
+    this.contextProvider.onQueryPosted(event);
+  }
 }

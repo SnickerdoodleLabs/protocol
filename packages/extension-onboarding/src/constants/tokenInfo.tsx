@@ -1,25 +1,66 @@
-import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
-import solanaCircle from "@extension-onboarding/assets/icons/solana-circle.svg";
-import usdcCircle from "@extension-onboarding/assets/icons/usdc-circle.png";
-import avaxCircle from "@extension-onboarding/assets/images/avax-circle.png";
-import binanceCircle from "@extension-onboarding/assets/images/bnb-circle.png";
-import moonbeamCircle from "@extension-onboarding/assets/images/moonbeam-circle.png";
-import polygonCircle from "@extension-onboarding/assets/images/polygon-circle.png";
-import gnosisCircle from "@extension-onboarding/assets/images/xDAI-circle.png";
-
 interface ITokenInfo {
   [tickerSymbol: string]: { displayName: string; iconSrc: string };
 }
 
 export const tokenInfoObj: ITokenInfo = {
-  ETH: { displayName: "Ethereum", iconSrc: ethereumCircle },
-  AVAX: { displayName: "AVAX", iconSrc: avaxCircle },
-  USDC: { displayName: "USDC", iconSrc: usdcCircle },
-  MATIC: { displayName: "MATIC", iconSrc: polygonCircle },
-  SOL: { displayName: "Sol", iconSrc: solanaCircle },
-  xDAI: { displayName: "xDAI", iconSrc: gnosisCircle },
-  BNB: { displayName: "Binance", iconSrc: binanceCircle },
-  GLMR: { displayName: "Moonbeam", iconSrc: moonbeamCircle },
+  ETH: {
+    displayName: "Ethereum",
+    iconSrc: "https://storage.googleapis.com/dw-assets/shared/icons/eth.png",
+  },
+  AVAX: {
+    displayName: "AVAX",
+    iconSrc:
+      "https://storage.googleapis.com/dw-assets/shared/icons/avax-circle.png",
+  },
+  USDC: {
+    displayName: "USDC",
+    iconSrc:
+      "https://storage.googleapis.com/dw-assets/shared/icons/usdc-circle.png",
+  },
+  MATIC: {
+    displayName: "MATIC",
+    iconSrc:
+      "https://storage.googleapis.com/dw-assets/shared/icons/polygon-circle.png",
+  },
+  SOL: {
+    displayName: "Sol",
+    iconSrc: "https://storage.googleapis.com/dw-assets/shared/icons/sol.png",
+  },
+  xDAI: {
+    displayName: "xDAI",
+    iconSrc:
+      "https://storage.googleapis.com/dw-assets/shared/icons/xDAI-circle.png",
+  },
+  BNB: {
+    displayName: "Binance",
+    iconSrc:
+      "https://storage.googleapis.com/dw-assets/shared/icons/bnb-circle.png",
+  },
+  GLMR: {
+    displayName: "Moonbeam",
+    iconSrc:
+      "https://storage.googleapis.com/dw-assets/shared/icons/moonbeam-circle.png",
+  },
+
+  ARB: {
+    displayName: "Arbitrum",
+    iconSrc:
+      "https://storage.googleapis.com/dw-assets/shared/icons/arbitrum-circle.png",
+  },
+  OP: {
+    displayName: "Optimism",
+    iconSrc:
+      "https://storage.googleapis.com/dw-assets/shared/icons/optimism-circle.png",
+  },
+  ASTR: {
+    displayName: "Astar",
+    iconSrc:
+      "https://storage.googleapis.com/dw-assets/shared/icons/astar-logo.png",
+  },
+  SUI: {
+    displayName: "Sui",
+    iconSrc: "https://storage.googleapis.com/dw-assets/shared/icons/sui.png",
+  },
 };
 
 export const stableCoins = [
@@ -34,4 +75,8 @@ export const stableCoins = [
   "xDAI",
   "BNB",
   "GLMR",
+  "ARB",
+  "OP",
+  "ASTR",
+  "SUI",
 ];

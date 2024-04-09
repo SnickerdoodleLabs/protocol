@@ -1,6 +1,7 @@
 import "reflect-metadata";
-import { ICryptoUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
+import { ILogUtils } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
+import { ICryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   BigNumberString,
   ConsentError,
@@ -11,14 +12,13 @@ import {
   EVMPrivateKey,
   HexString,
   HexString32,
-  Invitation,
-  InvitationDomain,
+  IOldUserAgreement,
   IpfsCID,
+  OptInInfo,
   Signature,
   TokenId,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
@@ -74,21 +74,15 @@ const updateAgreementFlagsMetatransactionSignature = Signature(
   "updateAgreementFlagsMetatransactionSignature",
 );
 
-const invitationDomain = new InvitationDomain(
-  domain,
-  "Domain Title",
-  "Domain Description",
-  URLString("Image"),
-  "RewardName",
-  URLString("nftClaimedImage"),
-);
+const invitationMetadata: IOldUserAgreement = {
+  title: "Domain Title",
+  description: "Domain Description",
+  image: URLString("Image"),
+  rewardName: "RewardName",
+  nftClaimedImage: URLString("nftClaimedImage"),
+};
 
-const acceptedInvitation = new Invitation(
-  domain,
-  consentContractAddress1,
-  tokenId1,
-  null,
-);
+const acceptedInvitation = new OptInInfo(consentContractAddress1, tokenId1);
 
 const consentToken1 = new ConsentToken(
   consentContractAddress1,
@@ -153,9 +147,12 @@ class InvitationServiceMocks {
     td.when(
       this.consentRepo.getConsentCapacity(consentContractAddress1),
     ).thenReturn(okAsync({ availableOptInCount: 10, maxCapacity: 10 }));
-    td.when(this.consentRepo.getConsentToken(acceptedInvitation)).thenReturn(
-      okAsync(consentToken1),
-    );
+    td.when(
+      this.consentRepo.getConsentToken(
+        acceptedInvitation.consentContractAddress,
+        acceptedInvitation.tokenId,
+      ),
+    ).thenReturn(okAsync(consentToken1));
     td.when(
       this.consentRepo.encodeUpdateAgreementFlags(
         consentContractAddress1,
@@ -167,9 +164,9 @@ class InvitationServiceMocks {
     ).thenReturn(okAsync(encodedUpdateAgreementFlagsContent));
 
     // InvitationRepo -------------------------------------------------------
-    td.when(
-      this.invitationRepo.getInvitationDomainByCID(ipfsCID, domain),
-    ).thenReturn(okAsync(invitationDomain));
+    td.when(this.invitationRepo.getInvitationMetadataByCID(ipfsCID)).thenReturn(
+      okAsync(invitationMetadata),
+    );
     td.when(this.invitationRepo.getAcceptedInvitations()).thenReturn(
       okAsync([acceptedInvitation]),
     );
@@ -178,6 +175,9 @@ class InvitationServiceMocks {
         consentContractAddress1,
       ]),
     ).thenReturn(okAsync(undefined));
+    td.when(this.invitationRepo.getRejectedInvitations()).thenReturn(
+      okAsync([]),
+    );
 
     // CryptoUtils ----------------------------------------------------------
     // Will return different nonces each time, just in case
@@ -188,8 +188,6 @@ class InvitationServiceMocks {
     td.when(
       this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(optInPrivateKey),
     ).thenReturn(optInAccountAddress as never);
-
-    // AccountRepo ------------------------------------------------
 
     // DataWalletUtils --------------------------------------------
     td.when(
@@ -223,7 +221,7 @@ class InvitationServiceMocks {
         metatransactionNonce,
         metatransactionValue,
         BigNumberString(
-          BigNumber.from(
+          BigInt(
             this.configProvider.config.gasAmounts.updateAgreementFlagsGas,
           ).toString(),
         ),
@@ -269,7 +267,7 @@ describe("InvitationService tests", () => {
     expect(pageInvitations.length).toBe(2);
 
     expect(pageInvitations[0].url).toBe(url1);
-    expect(pageInvitations[0].domainDetails).toBe(invitationDomain);
+    expect(pageInvitations[0].invitationMetadata).toBe(invitationMetadata);
     expect(pageInvitations[0].invitation.businessSignature).toBeNull();
     expect(pageInvitations[0].invitation.consentContractAddress).toBe(
       consentContractAddress1,
@@ -278,7 +276,7 @@ describe("InvitationService tests", () => {
     expect(pageInvitations[0].invitation.tokenId).toBe(tokenId1);
 
     expect(pageInvitations[1].url).toBe(url2);
-    expect(pageInvitations[1].domainDetails).toBe(invitationDomain);
+    expect(pageInvitations[1].invitationMetadata).toBe(invitationMetadata);
     expect(pageInvitations[1].invitation.businessSignature).toBeNull();
     expect(pageInvitations[1].invitation.consentContractAddress).toBe(
       consentContractAddress1,
@@ -358,9 +356,12 @@ describe("InvitationService.updateDataPermissions() tests", () => {
     // Arrange
     const mocks = new InvitationServiceMocks();
 
-    td.when(mocks.consentRepo.getConsentToken(acceptedInvitation)).thenReturn(
-      okAsync(null),
-    );
+    td.when(
+      mocks.consentRepo.getConsentToken(
+        acceptedInvitation.consentContractAddress,
+        acceptedInvitation.tokenId,
+      ),
+    ).thenReturn(okAsync(null));
 
     const service = mocks.factory();
 

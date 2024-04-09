@@ -1,4 +1,11 @@
 import {
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
+  DatabaseVersion,
   PersistenceError,
   VersionedObject,
   VolatileStorageKey,
@@ -18,23 +25,15 @@ import {
 
 @injectable()
 export class FakeDBVolatileStorage implements IVolatileStorage {
+  //@TODO update here
   protected indexedDB: ResultAsync<IndexedDB, never> | null = null;
 
   public constructor(
     @inject(IVolatileStorageSchemaProviderType)
     protected schemaProvider: IVolatileStorageSchemaProvider,
-  ) {
-    this.indexedDB = this.schemaProvider
-      .getVolatileStorageSchema()
-      .map(
-        (schema) =>
-          new IndexedDB(
-            "SD_Wallet",
-            Array.from(schema.values()),
-            fakeIndexedDB,
-          ),
-      );
-  }
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITimeUtilsType) protected timeUtils: ITimeUtils,
+  ) {}
 
   private _getIDB(): ResultAsync<IndexedDB, never> {
     if (this.indexedDB != null) {
@@ -45,14 +44,112 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
       .getVolatileStorageSchema()
       .map(
         (schema) =>
-          new IndexedDB("SD_Wallet", Array.from(schema.values()), indexedDB),
+          new IndexedDB(
+            "SD_Wallet",
+            Array.from(schema.values()),
+            fakeIndexedDB,
+            this.logUtils,
+            this.timeUtils,
+            DatabaseVersion,
+          ),
       );
     return this.indexedDB;
   }
 
-  public getKey(
+  public get<T extends VersionedObject>(
+    schemaKey: string,
+    {
+      index,
+      query = null,
+      count,
+      id,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      count?: number;
+      id?: IDBValidKey;
+    } = {},
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    return this._getIDB().andThen((db) =>
+      db.get<T>(schemaKey, {
+        index,
+        query,
+        count,
+        id,
+      }),
+    );
+  }
+
+  public countRecords(
+    schemaKey: string,
+    {
+      index,
+      query = undefined,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | undefined;
+    } = {},
+  ): ResultAsync<number, PersistenceError> {
+    return this._getIDB().andThen((db) =>
+      db.countRecords(schemaKey, {
+        index,
+        query,
+      }),
+    );
+  }
+
+  public getKeys(
+    schemaKey: string,
+    {
+      index,
+      query = null,
+      count,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      count?: number;
+    } = {},
+  ): ResultAsync<IDBValidKey[], PersistenceError> {
+    return this._getIDB().andThen((db) =>
+      db.getKeys(schemaKey, {
+        index,
+        query,
+        count,
+      }),
+    );
+  }
+
+  public getCursor2<T extends VersionedObject>(
+    schemaKey: string,
+    {
+      index,
+      query = null,
+      lowerCount,
+      upperCount,
+      latest = false,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      lowerCount?: number;
+      upperCount?: number;
+      latest?: boolean;
+    } = {},
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    return this._getIDB().andThen((db) =>
+    {
+      return db.getCursor2<T>(schemaKey, {
+        index,
+        query,
+        lowerCount,
+        upperCount,
+        latest,
+      });
+    });
+  }
+
+  public getKey<T extends VersionedObject>(
     tableName: string,
-    obj: VersionedObject,
+    obj: VolatileStorageMetadata<T>,
   ): ResultAsync<VolatileStorageKey | null, PersistenceError> {
     return this._getIDB().andThen((db) => db.getKey(tableName, obj));
   }
@@ -63,6 +160,10 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
 
   public persist(): ResultAsync<boolean, PersistenceError> {
     return this._getIDB().andThen((db) => db.persist());
+  }
+
+  public clear(): ResultAsync<void, PersistenceError> {
+    return this._getIDB().andThen((db) => db.clear());
   }
 
   public clearObjectStore(name: string): ResultAsync<void, PersistenceError> {
@@ -107,10 +208,8 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
 
   public getAll<T extends VersionedObject>(
     name: string,
-    indexName?: string,
-    query?: IDBValidKey | IDBKeyRange,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
-    return this._getIDB().andThen((db) => db.getAll<T>(name, indexName, query));
+    return this._getIDB().andThen((db) => db.getAll<T>(name));
   }
 
   public getAllByIndex<T extends VersionedObject>(

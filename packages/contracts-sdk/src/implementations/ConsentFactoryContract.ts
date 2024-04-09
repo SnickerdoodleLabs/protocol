@@ -1,9 +1,3 @@
-import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
-import {
-  ConsentRoles,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import {
   BaseURI,
   BigNumberString,
@@ -11,121 +5,101 @@ import {
   ConsentName,
   EVMAccountAddress,
   EVMContractAddress,
-  IBlockchainError,
   IpfsCID,
   MarketplaceListing,
   MarketplaceTag,
+  BlockchainCommonErrors,
+  TransactionResponseError,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import { ethers, BigNumber } from "ethers";
+import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { okAsync, Result, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
+import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
+import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract.js";
+import {
+  EConsentRoles,
+  ContractOverrides,
+  WrappedTransactionResponse,
+  ContractsAbis,
+} from "@contracts-sdk/interfaces/index.js";
+
 @injectable()
-export class ConsentFactoryContract implements IConsentFactoryContract {
-  protected contract: ethers.Contract;
+export class ConsentFactoryContract
+  extends BaseContract<ConsentFactoryContractError>
+  implements IConsentFactoryContract
+{
   constructor(
-    protected providerOrSigner:
-      | ethers.providers.Provider
-      | ethers.providers.JsonRpcSigner
-      | ethers.Wallet,
-    consentFactoryAddress: EVMContractAddress,
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
+    protected contractAddress: EVMContractAddress,
   ) {
-    this.contract = new ethers.Contract(
-      consentFactoryAddress,
-      ContractsAbis.ConsentFactoryAbi.abi,
+    super(
       providerOrSigner,
+      contractAddress,
+      ContractsAbis.ConsentFactoryAbi.abi,
     );
   }
 
   public getContractAddress(): EVMContractAddress {
-    return EVMContractAddress(this.contract?.address || "");
+    return this.contractAddress;
   }
 
-  // Function to help user create consent
-  // After creating consent, call getUserDeployedConsentsCount to get total number of deployed consents
   public createConsent(
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
     name: ConsentName,
-  ): ResultAsync<EVMContractAddress, ConsentFactoryContractError> {
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.writeToContract(
+      "createConsent",
+      [ownerAddress, baseUri, name],
+      overrides,
+    );
+  }
+
+  public estimateGasToCreateConsent(
+    ownerAddress: EVMAccountAddress,
+    baseUri: BaseURI,
+    name: ConsentName,
+  ): ResultAsync<bigint, ConsentFactoryContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.createConsent(
+      this.contract.estimateGas["createConsent"](
         ownerAddress,
         baseUri,
         name,
-      ) as Promise<ethers.providers.TransactionResponse>,
+      ) as Promise<bigint>,
       (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call createConsent()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, `Failed to estimate gas with error: ${e}`);
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentFactoryContractError(
-            "Wait for optIn() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .andThen((receipt) => {
-        // Get the hash of the event
-        const event = "ConsentDeployed(address,address)";
-        const eventHash = ethers.utils.keccak256(
-          ethers.utils.toUtf8Bytes(event),
-        );
-
-        // Filter out for the ConsentDeployed event from the receipt's logs
-        // returns an array
-        const consentDeployedLog = receipt.logs.filter(
-          (_log) => _log.topics[0] == eventHash,
-        );
-
-        // access the data and topics from the filtered log
-        const data = consentDeployedLog[0].data;
-        const topics = consentDeployedLog[0].topics;
-
-        // Declare a new interface
-        const Interface = ethers.utils.Interface;
-        const iface = new Interface([
-          "event ConsentDeployed(address indexed owner, address indexed consentAddress)",
-        ]);
-
-        // Decode the log from the given data and topic
-        const decodedLog = iface.decodeEventLog(
-          "ConsentDeployed",
-          data,
-          topics,
-        );
-
-        const deployedConsentAddress = decodedLog.consentAddress;
-
-        return okAsync(deployedConsentAddress as EVMContractAddress);
-      });
+    ).map((estimatedGas) => {
+      // TODO: confirm buffer value
+      // Increase estimated gas buffer by 10%
+      return (estimatedGas * 110n) / 100n;
+    });
   }
 
   // Gets the count of user's deployed Consents
   public getUserDeployedConsentsCount(
     ownerAddress: EVMAccountAddress,
-  ): ResultAsync<number, ConsentFactoryContractError> {
+  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.getUserDeployedConsentsCount(
         ownerAddress,
-      ) as Promise<BigNumber>,
+      ) as Promise<bigint>,
       (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call getUserDeployedConsentsCount()",
-          (e as IBlockchainError).reason,
+        return this.generateError(
           e,
+          "Unable to call getUserDeployedConsentsCount()",
         );
       },
     ).map((count) => {
-      return count.toNumber();
+      return Number(count);
     });
   }
 
@@ -136,7 +110,10 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     ownerAddress: EVMAccountAddress,
     startingIndex: number,
     endingIndex: number,
-  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError> {
+  ): ResultAsync<
+    EVMContractAddress[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.getUserDeployedConsentsByIndex(
         ownerAddress,
@@ -144,10 +121,9 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         endingIndex,
       ) as Promise<EVMContractAddress[]>,
       (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call getUserDeployedConsentsByIndex()",
-          (e as IBlockchainError).reason,
+        return this.generateError(
           e,
+          "Unable to call getUserDeployedConsentsByIndex()",
         );
       },
     );
@@ -156,7 +132,10 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   // get the latest deployed consent address by owner account address
   public getUserDeployedConsents(
     ownerAddress: EVMAccountAddress,
-  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError> {
+  ): ResultAsync<
+    EVMContractAddress[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
     return this.getUserDeployedConsentsCount(ownerAddress).andThen((count) => {
       return this.getUserDeployedConsentsByIndex(ownerAddress, 0, count);
     });
@@ -165,22 +144,21 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   // Gets the count of Consent addresses user has specific roles for
   public getUserRoleAddressesCount(
     ownerAddress: EVMAccountAddress,
-    role: ConsentRoles,
-  ): ResultAsync<number, ConsentFactoryContractError> {
+    role: EConsentRoles,
+  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.getUserConsentAddressesCount(
         ownerAddress,
         role,
-      ) as Promise<BigNumber>,
+      ) as Promise<bigint>,
       (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call getUserRoleAddressesCount()",
-          (e as IBlockchainError).reason,
+        return this.generateError(
           e,
+          "Unable to call getUserConsentAddressesCount()",
         );
       },
     ).map((count) => {
-      return count.toNumber();
+      return Number(count);
     });
   }
 
@@ -189,10 +167,13 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   // eg. If user has [0x123, 0xabc, 0x456] Consent contracts, query with startingIndex 0 and endingIndex 2 to get full list
   public getUserRoleAddressesCountByIndex(
     ownerAddress: EVMAccountAddress,
-    role: ConsentRoles,
+    role: EConsentRoles,
     startingIndex: number,
     endingIndex: number,
-  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError> {
+  ): ResultAsync<
+    EVMContractAddress[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.getUserRoleAddressesCountByIndex(
         ownerAddress,
@@ -201,10 +182,9 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         endingIndex,
       ) as Promise<EVMContractAddress[]>,
       (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call filters.getUserRoleAddressesCountByIndex()",
-          (e as IBlockchainError).reason,
+        return this.generateError(
           e,
+          "Unable to call getUserRoleAddressesCountByIndex()",
         );
       },
     );
@@ -212,23 +192,24 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   public getDeployedConsents(): ResultAsync<
     EVMContractAddress[],
-    ConsentFactoryContractError
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     const eventFilter = this.contract.filters.ConsentDeployed();
     return ResultAsync.fromPromise(
       this.contract.queryFilter(eventFilter),
       (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call contract.queryFilter() for ConsentDeployed event",
-          (e as IBlockchainError).reason,
+        return this.generateError(
           e,
+          "Unable to call contract.queryFilter() for ConsentDeployed event",
         );
       },
     ).map((events) => {
       const consents: EVMContractAddress[] = [];
       events.forEach((event) => {
-        if (event?.args?.consentAddress) {
-          consents.push(EVMContractAddress(event.args.consentAddress));
+        if (event instanceof ethers.EventLog) {
+          if (event.args.consentAddress != null) {
+            consents.push(EVMContractAddress(event.args.consentAddress));
+          }
         }
       });
       return consents;
@@ -238,114 +219,93 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   // Marketplace functions
   public getMaxTagsPerListing(): ResultAsync<
     number,
-    ConsentFactoryContractError
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.maxTagsPerListing() as Promise<BigNumber>,
+      this.contract.maxTagsPerListing() as Promise<bigint>,
       (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call getMaxTagsPerListing()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call getMaxTagsPerListing()");
       },
     ).map((num) => {
-      return num.toNumber();
+      return Number(num);
     });
   }
 
   public getListingDuration(): ResultAsync<
     number,
-    ConsentFactoryContractError
+    ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.getListingDuration() as Promise<BigNumber>,
+      this.contract.getListingDuration() as Promise<bigint>,
       (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call getListingDuration()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call getListingDuration()");
       },
     ).map((num) => {
-      return num.toNumber();
+      return Number(num);
     });
   }
 
   public setListingDuration(
     listingDuration: number,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.setListingDuration(
-        listingDuration,
-      ) as Promise<WrappedTransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call setListingDuration()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.writeToContract(
+      "setListingDuration",
+      [listingDuration],
+      overrides,
     );
   }
 
   public setMaxTagsPerListing(
     maxTagsPerListing: number,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.setMaxTagsPerListing(
-        maxTagsPerListing,
-      ) as Promise<WrappedTransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call setListingDuration()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.writeToContract(
+      "setMaxTagsPerListing",
+      [maxTagsPerListing],
+      overrides,
     );
   }
 
   public adminRemoveListing(
     tag: MarketplaceTag,
     removedSlot: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.adminRemoveListing(
-        tag,
-        removedSlot,
-      ) as Promise<ethers.providers.TransactionResponse>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call adminRemoveListing()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((tx) => {
-      return new WrappedTransactionResponse(tx);
-    });
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.writeToContract(
+      "setMaxTagsPerListing",
+      [tag, removedSlot],
+      overrides,
+    );
   }
 
   public getListingDetail(
     tag: MarketplaceTag,
     slot: BigNumberString,
-  ): ResultAsync<MarketplaceListing, ConsentFactoryContractError> {
+  ): ResultAsync<
+    MarketplaceListing,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.getListing(tag, slot) as Promise<IListingStruct>,
       (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call getListing()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call getListing()");
       },
     ).map((listing) => {
       return new MarketplaceListing(
         BigNumberString(listing.previous.toString()),
         BigNumberString(listing.next.toString()),
         listing.consentContract,
-        UnixTimestamp(listing.timeExpiring?.toNumber()),
+        UnixTimestamp(Number(listing.timeExpiring)),
         IpfsCID(""), // TODO: Update contract to also return its CID for getListing (only does this with getListingsForward/backward atm)
         slot,
         tag,
@@ -357,21 +317,20 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     tag: MarketplaceTag,
     startingSlot: BigNumberString,
     numberOfSlots: number,
-    filterActive: boolean,
-  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError> {
+    removeExpired: boolean,
+  ): ResultAsync<
+    MarketplaceListing[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.getListingsForward(
         tag,
         startingSlot,
         numberOfSlots,
-        filterActive,
+        removeExpired,
       ) as Promise<[string[], IListingStruct[]]>,
       (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call getListingsForward()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call getListingsForward()");
       },
     ).map(([cids, listings]) => {
       return listings
@@ -380,9 +339,9 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
             BigNumberString(listing.previous.toString()),
             BigNumberString(listing.next.toString()),
             listing.consentContract,
-            UnixTimestamp(listing.timeExpiring.toNumber()),
+            UnixTimestamp(Number(listing.timeExpiring)),
             IpfsCID(cids[index]),
-            listings[index + 1] != null && listing.next.isZero() === false
+            listings[index + 1] != null && listing.next != 0n
               ? BigNumberString(listings[index + 1].previous.toString())
               : listings[index - 1] != null
               ? BigNumberString(listings[index - 1].next.toString())
@@ -401,21 +360,20 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     tag: MarketplaceTag,
     startingSlot: BigNumberString,
     numberOfSlots: number,
-    filterActive: boolean,
-  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError> {
+    removeExpired: boolean,
+  ): ResultAsync<
+    MarketplaceListing[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
     return ResultAsync.fromPromise(
       this.contract.getListingsForward(
         tag,
         startingSlot,
         numberOfSlots,
-        filterActive,
+        removeExpired,
       ) as Promise<[string[], IListingStruct[]]>,
       (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call getListingsForward()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call getListingsForward()");
       },
     ).map(([cids, listings]) => {
       return listings
@@ -424,10 +382,9 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
             BigNumberString(listing.previous.toString()),
             BigNumberString(listing.next.toString()),
             listing.consentContract,
-            UnixTimestamp(listing.timeExpiring?.toNumber()),
+            UnixTimestamp(Number(listing.timeExpiring)),
             IpfsCID(cids[index]),
-            listings[index + 1] != null &&
-            listing.previous.eq(ethers.constants.MaxUint256) === false
+            listings[index + 1] != null && listing.previous != ethers.MaxUint256
               ? BigNumberString(listings[index + 1].next.toString())
               : listings[index - 1] != null
               ? BigNumberString(listings[index - 1].previous.toString())
@@ -444,32 +401,29 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   public getTagTotal(
     tag: MarketplaceTag,
-  ): ResultAsync<number, ConsentFactoryContractError> {
+  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.getTagTotal(tag) as Promise<BigNumber>,
+      this.contract.getTagTotal(tag) as Promise<bigint>,
       (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call getTagTotal()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+        return this.generateError(e, "Unable to call getTagTotal()");
       },
     ).map((count) => {
-      return count.toNumber();
+      return Number(count);
     });
   }
 
   public getListingsByTag(
     tag: MarketplaceTag,
-  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError> {
+    removeExpired: boolean,
+  ): ResultAsync<
+    MarketplaceListing[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
     // We get the total number of slots by calling getTagTotal()
     // And if we query the 2^256 - 1 slot by calling getListingDetail(), its previous member variable will point to the highest ranked listing for that tag
     return ResultUtils.combine([
       this.getTagTotal(tag),
-      this.getListingDetail(
-        tag,
-        BigNumberString(ethers.constants.MaxUint256.toString()),
-      ),
+      this.getListingDetail(tag, BigNumberString(ethers.MaxUint256.toString())),
     ]).andThen(([tagTotal, listingDetail]) => {
       // The max slot's next points to the highest slot
       const highestRankListingSlot = listingDetail.next;
@@ -479,16 +433,91 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         tag,
         highestRankListingSlot,
         tagTotal,
-        true,
+        removeExpired,
       );
     });
   }
+
+  public getAddressOfConsentCreated(
+    txRes: WrappedTransactionResponse,
+  ): ResultAsync<EVMContractAddress, TransactionResponseError> {
+    return txRes.wait().map((receipt) => {
+      // Get the hash of the event
+      const event = "ConsentDeployed(address,address)";
+      const eventHash = ethers.keccak256(ethers.toUtf8Bytes(event));
+
+      // Filter out for the ConsentDeployed event from the receipt's logs
+      // returns an array
+      const consentDeployedLog = receipt.logs.filter(
+        (_log) => _log.topics[0] == eventHash,
+      );
+
+      // access the data and topics from the filtered log
+      const data = consentDeployedLog[0].data;
+      const topics = consentDeployedLog[0].topics;
+
+      // Declare a new interface
+      const iface = new ethers.Interface([
+        "event ConsentDeployed(address indexed owner, address indexed consentAddress)",
+      ]);
+
+      // Decode the log from the given data and topic
+      const decodedLog = iface.decodeEventLog("ConsentDeployed", data, topics);
+
+      const deployedConsentAddress: EVMContractAddress =
+        decodedLog.consentAddress;
+
+      return deployedConsentAddress;
+    });
+  }
+
+  // #region Questionnaires
+  public getQuestionnaires(): ResultAsync<
+    IpfsCID[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getQuestionnaires() as Promise<IpfsCID[]>,
+      (e) => {
+        return this.generateError(e, "Unable to call getQuestionnaires()");
+      },
+    );
+  }
+
+  public addQuestionnaire(
+    ipfsCid: IpfsCID,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.writeToContract("addQuestionnaire", [ipfsCid], overrides);
+  }
+
+  public removeQuestionnaire(
+    index: number,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return this.writeToContract("removeQuestionnaire", [index], overrides);
+  }
+  // #endregion Questionnaires
+
+  protected generateContractSpecificError(
+    msg: string,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
+  ): ConsentFactoryContractError {
+    return new ConsentFactoryContractError(msg, e, transaction);
+  }
 }
 interface IListingStruct {
-  previous: BigNumber;
-  next: BigNumber;
+  previous: bigint;
+  next: bigint;
   consentContract: EVMContractAddress;
-  timeExpiring: BigNumber;
+  timeExpiring: bigint;
 }
 
 // I listingStruct { at the place where we're using it, and don't have to export here

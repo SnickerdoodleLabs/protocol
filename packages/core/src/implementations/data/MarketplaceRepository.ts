@@ -1,18 +1,5 @@
-import { IMarketplaceRepository } from "@core/interfaces/data/index.js";
-import {
-  IContractFactory,
-  IContractFactoryType,
-} from "@core/interfaces/utilities/factory/index.js";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-} from "@core/interfaces/utilities/index.js";
 import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
-import {
-  IConsentContract,
-  IConsentFactoryContract,
-  Tag,
-} from "@snickerdoodlelabs/contracts-sdk";
+import { IConsentFactoryContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
   ConsentFactoryContractError,
@@ -22,14 +9,22 @@ import {
   PagedResponse,
   PagingRequest,
   UnixTimestamp,
-  EVMContractAddress,
-  ConsentName,
   ConsentContractError,
-  BigNumberString,
+  BlockchainCommonErrors,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+
+import { IMarketplaceRepository } from "@core/interfaces/data/index.js";
+import {
+  IContractFactory,
+  IContractFactoryType,
+} from "@core/interfaces/utilities/factory/index.js";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class MarketplaceRepository implements IMarketplaceRepository {
@@ -46,7 +41,10 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     tag: MarketplaceTag,
   ): ResultAsync<
     number,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
   > {
     return this.getConsentFactoryContract().andThen(
       (consentFactoryContract) => {
@@ -61,7 +59,10 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     filterActive = true, // make it optional in interface, = true here
   ): ResultAsync<
     PagedResponse<MarketplaceListing>,
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
   > {
     return this.getMarketplaceTagListingsCached(tag, true).map((listings) => {
       const page = pagingReq.page;
@@ -84,14 +85,17 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     listing: MarketplaceListing,
   ): ResultAsync<
     MarketplaceTag[],
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | InvalidParametersError
   > {
     // Check if listing has a consent contract attached
     if (listing.consentContract == null) {
       return errAsync(
-        new ConsentContractError(
-          "Failed to get recommendations for requested listing",
-          "Listing does not have a consent contract",
+        new InvalidParametersError(
+          "Failed to get recommendations for requested listing. Listing does not have a consent contract.",
         ),
       );
     }
@@ -116,7 +120,10 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     toUpdate: boolean,
   ): ResultAsync<
     MarketplaceListing[],
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
   > {
     return this.configProvider.getConfig().andThen((config) => {
       const cache = this.tagCache.get(tag);
@@ -144,11 +151,14 @@ export class MarketplaceRepository implements IMarketplaceRepository {
     tag: MarketplaceTag,
   ): ResultAsync<
     MarketplaceListing[],
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
   > {
     return this.getConsentFactoryContract()
       .andThen((consentFactoryContract) => {
-        return consentFactoryContract.getListingsByTag(tag);
+        return consentFactoryContract.getListingsByTag(tag, true);
       })
       .map((listings) => {
         const cache = new MarketplaceTagCache(

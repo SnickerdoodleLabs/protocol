@@ -1,10 +1,10 @@
 import {
   AxiosAjaxUtils,
-  CryptoUtils,
+  BigNumberUtils,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
-  ICryptoUtils,
-  ICryptoUtilsType,
+  IBigNumberUtils,
+  IBigNumberUtilsType,
   ILogUtils,
   ILogUtilsType,
   ITimeUtils,
@@ -15,12 +15,19 @@ import {
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
+  IIndexerContextProvider,
+  IIndexerContextProviderType,
 } from "@snickerdoodlelabs/indexers";
 import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
   InsightPlatformRepository,
 } from "@snickerdoodlelabs/insight-platform-api";
+import {
+  CryptoUtils,
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/node-utils";
 import {
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
@@ -43,10 +50,22 @@ import {
   IVolatileStorageSchemaProvider,
   IVolatileStorageSchemaProviderType,
   VolatileStorageSchemaProvider,
+  CloudStorageManager,
+  ICloudStorageManager,
+  ICloudStorageManagerType,
+  ICloudStorage,
+  DropboxCloudStorage,
+  IDropboxCloudStorageType,
+  IPersistenceContextProvider,
+  IPersistenceContextProviderType,
+  NullCloudStorage,
+  INullCloudStorageType,
 } from "@snickerdoodlelabs/persistence";
 import {
   IQueryObjectFactory,
   IQueryObjectFactoryType,
+  IQueryRepository,
+  IQueryRepositoryType,
   ISDQLParserFactory,
   ISDQLParserFactoryType,
   ISDQLQueryUtils,
@@ -56,6 +75,9 @@ import {
   QueryObjectFactory,
   SDQLParserFactory,
   SDQLQueryUtils,
+  IQueryFactories,
+  IQueryFactoriesType,
+  QueryFactories,
   SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
 import { ContainerModule, interfaces } from "inversify";
@@ -74,12 +96,15 @@ import {
   IntegrationService,
   InvitationService,
   MarketplaceService,
+  QueryParsingEngine,
+  MetricsService,
   MonitoringService,
   ProfileService,
-  QueryParsingEngine,
   QueryService,
-  SiftContractService,
   TwitterService,
+  CloudStorageService,
+  CachingService,
+  QuestionnaireService,
 } from "@core/implementations/business/index.js";
 import { PermissionUtils } from "@core/implementations/business/utilities/index.js";
 import {
@@ -88,6 +113,7 @@ import {
   NftQueryEvaluator,
   QueryEvaluator,
   QueryRepository,
+  Web3AccountQueryEvaluator,
 } from "@core/implementations/business/utilities/query/index.js";
 import {
   AdContentRepository,
@@ -95,28 +121,29 @@ import {
   BrowsingDataRepository,
   CoinGeckoTokenPriceRepository,
   ConsentContractRepository,
-  CrumbsRepository,
+  DNSRepository,
   DataWalletPersistence,
   DemographicDataRepository,
   DiscordRepository,
-  DNSRepository,
   DomainCredentialRepository,
+  EntropyRepository,
   InvitationRepository,
   LinkedAccountRepository,
   MarketplaceRepository,
   MetatransactionForwarderRepository,
+  MetricsRepository,
+  OauthUtils,
   PermissionRepository,
   PortfolioBalanceRepository,
   SDQLQueryRepository,
-  SiftContractRepository,
   SocialRepository,
   TransactionHistoryRepository,
   TwitterRepository,
+  AuthenticatedStorageRepository,
+  NftRepository,
+  QuestionnaireRepository,
 } from "@core/implementations/data/index.js";
-import {
-  ContractFactory,
-  QueryFactories,
-} from "@core/implementations/utilities/factory/index.js";
+import { ContractFactory } from "@core/implementations/utilities/factory/index.js";
 import {
   BlockchainProvider,
   ConfigProvider,
@@ -138,6 +165,10 @@ import {
   IAccountServiceType,
   IAdService,
   IAdServiceType,
+  ICachingService,
+  ICachingServiceType,
+  ICloudStorageService,
+  ICloudStorageServiceType,
   IDiscordService,
   IDiscordServiceType,
   IIntegrationService,
@@ -146,14 +177,16 @@ import {
   IInvitationServiceType,
   IMarketplaceService,
   IMarketplaceServiceType,
+  IMetricsService,
+  IMetricsServiceType,
   IMonitoringService,
   IMonitoringServiceType,
   IProfileService,
   IProfileServiceType,
   IQueryService,
   IQueryServiceType,
-  ISiftContractService,
-  ISiftContractServiceType,
+  IQuestionnaireService,
+  IQuestionnaireServiceType,
   ITwitterService,
   ITwitterServiceType,
 } from "@core/interfaces/business/index.js";
@@ -172,8 +205,8 @@ import {
   IQueryEvaluatorType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
-  IQueryRepository,
-  IQueryRepositoryType,
+  IWeb3AccountQueryEvaluator,
+  IWeb3AccountQueryEvaluatorType,
 } from "@core/interfaces/business/utilities/index.js";
 import {
   IAdContentRepository,
@@ -184,16 +217,14 @@ import {
   IBrowsingDataRepositoryType,
   IConsentContractRepository,
   IConsentContractRepositoryType,
-  ICrumbsRepository,
-  ICrumbsRepositoryType,
+  IDNSRepository,
+  IDNSRepositoryType,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   IDemographicDataRepository,
   IDemographicDataRepositoryType,
   IDiscordRepository,
   IDiscordRepositoryType,
-  IDNSRepository,
-  IDNSRepositoryType,
   IDomainCredentialRepository,
   IDomainCredentialRepositoryType,
   IInvitationRepository,
@@ -204,26 +235,34 @@ import {
   IMarketplaceRepositoryType,
   IMetatransactionForwarderRepository,
   IMetatransactionForwarderRepositoryType,
+  IOauthUtils,
+  IOAuthRepositoryType,
   IPermissionRepository,
   IPermissionRepositoryType,
   IPortfolioBalanceRepository,
   IPortfolioBalanceRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
-  ISiftContractRepository,
-  ISiftContractRepositoryType,
   ISocialRepository,
   ISocialRepositoryType,
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
   ITwitterRepository,
   ITwitterRepositoryType,
+  IMetricsRepository,
+  IMetricsRepositoryType,
+  IAuthenticatedStorageRepository,
+  IAuthenticatedStorageRepositoryType,
+  IEntropyRepository,
+  IEntropyRepositoryType,
+  INFTRepositoryWithDebug,
+  INFTRepositoryWithDebugType,
+  IQuestionnaireRepository,
+  IQuestionnaireRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
   IContractFactoryType,
-  IQueryFactories,
-  IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
@@ -259,7 +298,12 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IAccountService>(IAccountServiceType)
       .to(AccountService)
       .inSingletonScope();
-
+    bind<ICachingService>(ICachingServiceType)
+      .to(CachingService)
+      .inSingletonScope();
+    bind<ICloudStorageService>(ICloudStorageServiceType)
+      .to(CloudStorageService)
+      .inSingletonScope();
     bind<IIntegrationService>(IIntegrationServiceType)
       .to(IntegrationService)
       .inSingletonScope();
@@ -274,13 +318,15 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IAdService>(IAdServiceType).to(AdService).inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
+    bind<IMetricsService>(IMetricsServiceType)
+      .to(MetricsService)
+      .inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
       .inSingletonScope();
-    bind<ISiftContractService>(ISiftContractServiceType)
-      .to(SiftContractService)
-      .inSingletonScope();
-
+    bind<IQuestionnaireService>(IQuestionnaireServiceType)
+    .to(QuestionnaireService)
+    .inSingletonScope();
     bind<IDiscordService>(IDiscordServiceType)
       .to(DiscordService)
       .inSingletonScope();
@@ -298,18 +344,18 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(QueryParsingEngine)
       .inSingletonScope();
 
+    bind<IAuthenticatedStorageRepository>(IAuthenticatedStorageRepositoryType)
+      .to(AuthenticatedStorageRepository)
+      .inSingletonScope();
+    bind<IEntropyRepository>(IEntropyRepositoryType)
+      .to(EntropyRepository)
+      .inSingletonScope();
     bind<IInsightPlatformRepository>(IInsightPlatformRepositoryType)
       .to(InsightPlatformRepository)
-      .inSingletonScope();
-    bind<ICrumbsRepository>(ICrumbsRepositoryType)
-      .to(CrumbsRepository)
       .inSingletonScope();
     bind<IConsentContractRepository>(IConsentContractRepositoryType).to(
       ConsentContractRepository,
     );
-    bind<ISiftContractRepository>(ISiftContractRepositoryType)
-      .to(SiftContractRepository)
-      .inSingletonScope();
     bind<IMetatransactionForwarderRepository>(
       IMetatransactionForwarderRepositoryType,
     ).to(MetatransactionForwarderRepository);
@@ -327,6 +373,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IInvitationRepository>(IInvitationRepositoryType)
       .to(InvitationRepository)
+      .inSingletonScope();
+    bind<IMetricsRepository>(IMetricsRepositoryType)
+      .to(MetricsRepository)
       .inSingletonScope();
 
     // Data Persistence and Indexing
@@ -354,6 +403,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IPortfolioBalanceRepository>(IPortfolioBalanceRepositoryType)
       .to(PortfolioBalanceRepository)
       .inSingletonScope();
+    bind<IQuestionnaireRepository>(IQuestionnaireRepositoryType)
+      .to(QuestionnaireRepository)
+      .inSingletonScope();
+
     bind<ITransactionHistoryRepository>(ITransactionHistoryRepositoryType)
       .to(TransactionHistoryRepository)
       .inSingletonScope();
@@ -363,6 +416,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IPermissionRepository>(IPermissionRepositoryType)
       .to(PermissionRepository)
       .inSingletonScope();
+    bind<IOauthUtils>(IOAuthRepositoryType).to(OauthUtils).inSingletonScope();
     bind<IDiscordRepository>(IDiscordRepositoryType)
       .to(DiscordRepository)
       .inSingletonScope();
@@ -379,19 +433,35 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(FieldSchemaProvider)
       .inSingletonScope();
 
+    bind<ICloudStorageManager>(ICloudStorageManagerType)
+      .to(CloudStorageManager)
+      .inSingletonScope();
+
     // Utilities
     const configProvider = new ConfigProvider();
     bind<IConfigProvider>(IConfigProviderType).toConstantValue(configProvider);
     bind<IIndexerConfigProvider>(IIndexerConfigProviderType).toConstantValue(
       configProvider,
     );
+
+    // Binding cloud storage manager
     bind<IPersistenceConfigProvider>(
       IPersistenceConfigProviderType,
     ).toConstantValue(configProvider);
 
-    bind<IContextProvider>(IContextProviderType)
-      .to(ContextProvider)
-      .inSingletonScope();
+    const contextProvider = new ContextProvider(new TimeUtils());
+    bind<IContextProvider>(IContextProviderType).toConstantValue(
+      contextProvider,
+    );
+
+    bind<IIndexerContextProvider>(IIndexerContextProviderType).toConstantValue(
+      contextProvider,
+    );
+
+    bind<IPersistenceContextProvider>(
+      IPersistenceContextProviderType,
+    ).toConstantValue(contextProvider);
+
     bind<IBlockchainProvider>(IBlockchainProviderType)
       .to(BlockchainProvider)
       .inSingletonScope();
@@ -402,6 +472,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
+      .inSingletonScope();
+    bind<IBigNumberUtils>(IBigNumberUtilsType)
+      .to(BigNumberUtils)
       .inSingletonScope();
 
     // Utilites/factory
@@ -426,6 +499,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IBalanceQueryEvaluator>(IBalanceQueryEvaluatorType)
       .to(BalanceQueryEvaluator)
+      .inSingletonScope();
+
+    bind<IWeb3AccountQueryEvaluator>(IWeb3AccountQueryEvaluatorType)
+      .to(Web3AccountQueryEvaluator)
       .inSingletonScope();
 
     bind<IQueryRepository>(IQueryRepositoryType)
@@ -457,5 +534,29 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
+
+    /* Cloud Storage Options - may need to comment out */
+    bind<ICloudStorage>(INullCloudStorageType)
+      .to(NullCloudStorage)
+      .inSingletonScope();
+    bind<ICloudStorage>(IDropboxCloudStorageType)
+      .to(DropboxCloudStorage)
+      .inSingletonScope();
+
+    /**
+     * Binding of Modules With Extra Capabilities.
+     *
+     * The binding process involves two types of Modules:
+     * 1. A 'larger' module with extended capabilities (e.g. WithDebug).
+     * 2. A 'smaller', more basic module that will be used by business logic (INftRepository).
+     *
+     * Steps for binding:
+     * a. First, we bind the 'larger' module (INFTRepositoryWithDebug). This module includes additional debugging capabilities
+     * b. Then, we bind the 'smaller' module (NftRepository). This module still points to the same instance but with proper type for the use case of the business logic
+     *
+     */
+    bind<INFTRepositoryWithDebug>(INFTRepositoryWithDebugType)
+      .to(NftRepository)
+      .inSingletonScope();
   },
 );

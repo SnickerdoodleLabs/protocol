@@ -1,12 +1,14 @@
-import { EDynamicRewardParameterType } from "@objects/enum/index.js";
+import { ESolidityAbiParameterType } from "@objects/enum/index.js";
 
 export interface ITypeAndValue {
-  type: EDynamicRewardParameterType;
+  type: ESolidityAbiParameterType;
   value: string;
 }
 
 export interface IDynamicRewardParameter {
-  compensationId: ITypeAndValue;
+  // required fields
+  compensationKey: ITypeAndValue;
   recipientAddress: ITypeAndValue;
-  [index: string]: ITypeAndValue;
+  // allow for optional fields
+  [index: string]: ITypeAndValue | undefined;
 }

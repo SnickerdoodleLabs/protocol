@@ -12,7 +12,6 @@ import {
   EVMContractAddress,
   HexString,
   IpfsCID,
-  OptInInfo,
   Signature,
   TokenId,
   TokenUri,
@@ -20,6 +19,8 @@ import {
   UninitializedError,
   URLString,
   BlockNumber,
+  BlockchainCommonErrors,
+  EWalletDataType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -31,8 +32,6 @@ import {
   IContractFactoryType,
 } from "@core/interfaces/utilities/factory/index.js";
 import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
   IContextProvider,
   IContextProviderType,
   IDataWalletUtils,
@@ -42,8 +41,6 @@ import {
 @injectable()
 export class ConsentContractRepository implements IConsentContractRepository {
   public constructor(
-    @inject(IBlockchainProviderType)
-    protected blockchainProvider: IBlockchainProvider,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IContractFactoryType)
     protected consentContractFactory: IContractFactory,
@@ -60,7 +57,10 @@ export class ConsentContractRepository implements IConsentContractRepository {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     URLString[],
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   > {
     return this.getConsentContract(consentContractAddress)
       .andThen((contract) => {
@@ -73,11 +73,74 @@ export class ConsentContractRepository implements IConsentContractRepository {
       });
   }
 
+  public getQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID[],
+    UninitializedError | ConsentContractError | BlockchainCommonErrors
+  > {
+    /**
+     * This method now works on a different principle- the consent contract does not maintain a list
+     * of questionnaires it's interested in. Instead, we use the marketplace data and do a reverse lookup-
+     * we get the list of all the questionnaires that this consent contract has staked, and use the amount
+     * of the stake to establish the order.
+     */
+    return this.getConsentContract(consentContractAddress)
+      .andThen((contract) => {
+        return contract.getTagArray();
+      })
+      .map((tags) => {
+        return tags.reduce<IpfsCID[]>((acc, tag) => {
+          if (tag.tag != null && tag.tag.startsWith("Questionnaire:")) {
+            const cid = tag.tag.split(":")[1];
+            acc.push(IpfsCID(cid));
+          }
+          return acc;
+        }, []);
+      });
+  }
+
+  public getVirtualQuestionnaires(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    EWalletDataType[],
+    UninitializedError | ConsentContractError | BlockchainCommonErrors
+  > {
+    /**
+     * This method now works on a different principle- the consent contract does not maintain a list
+     * of questionnaires it's interested in. Instead, we use the marketplace data and do a reverse lookup-
+     * we get the list of all the questionnaires that this consent contract has staked, and use the amount
+     * of the stake to establish the order.
+     */
+    return this.getConsentContract(consentContractAddress)
+      .andThen((contract) => {
+        return contract.getTagArray();
+      })
+      .map((tags) => {
+        return tags.reduce<EWalletDataType[]>((acc, tag) => {
+          if (tag.tag != null && tag.tag.startsWith("VirtualQuestionnaire:")) {
+            const typeString = tag.tag.split(":")[1];
+
+            const dataType =
+              EWalletDataType[typeString as keyof typeof EWalletDataType];
+
+            if (dataType !== undefined) {
+              acc.push(dataType);
+            }
+          }
+          return acc;
+        }, []);
+      });
+  }
+
   public getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IConsentCapacity,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   > {
     return this.getConsentContract(consentContractAddress)
       .andThen((contract) => {
@@ -108,7 +171,10 @@ export class ConsentContractRepository implements IConsentContractRepository {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IpfsCID,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   > {
     return this.getConsentContract(consentContractAddress)
       .andThen((contract) => {
@@ -120,20 +186,22 @@ export class ConsentContractRepository implements IConsentContractRepository {
   }
 
   public getConsentToken(
-    optInInfo: OptInInfo,
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
   ): ResultAsync<
     ConsentToken | null,
-    ConsentContractError | UninitializedError | BlockchainProviderError
+    UninitializedError | BlockchainProviderError
   > {
-    return this.getConsentContract(optInInfo.consentContractAddress)
+    return this.getConsentContract(consentContractAddress)
       .andThen((consentContract) => {
-        return consentContract.getConsentToken(
-          optInInfo.tokenId,
-        ) as ResultAsync<ConsentToken | null, ConsentContractError>;
+        return consentContract.getConsentToken(tokenId) as ResultAsync<
+          ConsentToken | null,
+          ConsentContractError
+        >;
       })
       .orElse((e) => {
         this.logUtils.warning(
-          `Cannot call ownerOf or agreementFlags for token ID ${optInInfo.tokenId} on consent contract ${optInInfo.consentContractAddress}. Assuming it does not exist!`,
+          `Cannot get consent token for token ID ${tokenId} on consent contract ${consentContractAddress}. Error returned from either ownerOf() or agreementFlags(). Assuming the consent token does not exist!`,
           e,
         );
         return okAsync(null);
@@ -149,6 +217,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
+    | BlockchainCommonErrors
   > {
     return this.contextProvider
       .getContext()
@@ -171,7 +240,17 @@ export class ConsentContractRepository implements IConsentContractRepository {
         ]);
       })
       .andThen(([consentContract, derivedAddress]) => {
-        return consentContract.balanceOf(derivedAddress);
+        return consentContract.balanceOf(derivedAddress).mapErr((e) => {
+          // Almost always, you get an error, "Unable to call "balanceOf", which is
+          // correct but not helpful; our goal here is to figure out if the address
+          // is opted in or not- the method we use to check that, "balanceOf", is not
+          // super relevant. Adding a specific error log to help understand what's going
+          // on.
+          this.logUtils.error(
+            `While checking if derived address ${derivedAddress} is opted in to consent contract ${consentContractAddress}, got an error from balanceOf(), which usually means the control chain cannot be reached or that the consent contract does not exist. Most commony this is a result of the doodlechain being reset.`,
+          );
+          return e;
+        });
       })
       .map((numberOfTokens) => {
         return numberOfTokens > 0;
@@ -182,7 +261,10 @@ export class ConsentContractRepository implements IConsentContractRepository {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     TokenId | null,
-    ConsentContractError | UninitializedError | BlockchainProviderError
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | BlockchainCommonErrors
   > {
     return this.contextProvider
       .getContext()
@@ -303,7 +385,10 @@ export class ConsentContractRepository implements IConsentContractRepository {
 
   public getDeployedConsentContractAddresses(): ResultAsync<
     EVMContractAddress[],
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
   > {
     return this.consentContractFactory
       .factoryConsentFactoryContract()
@@ -312,13 +397,33 @@ export class ConsentContractRepository implements IConsentContractRepository {
       });
   }
 
+  // #region Questionnaires
+  public getDefaultQuestionnaires(): ResultAsync<
+    IpfsCID[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | BlockchainCommonErrors
+  > {
+    return this.consentContractFactory
+      .factoryConsentFactoryContract()
+      .andThen((consentFactoryContract) => {
+        return consentFactoryContract.getQuestionnaires();
+        // lookup slots order by slots ?
+      });
+  }
+  // #endregion Questionnaires
+
   public isOpenOptInDisabled(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     boolean,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   > {
-    return this.getConsentContract(consentContractAddres).andThen(
+    return this.getConsentContract(consentContractAddress).andThen(
       (contract) => {
         return contract.openOptInDisabled();
       },
@@ -326,12 +431,15 @@ export class ConsentContractRepository implements IConsentContractRepository {
   }
 
   public getSignerRoleMembers(
-    consentContractAddres: EVMContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     EVMAccountAddress[],
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   > {
-    return this.getConsentContract(consentContractAddres).andThen(
+    return this.getConsentContract(consentContractAddress).andThen(
       (contract) => {
         return contract.getSignerRoleMembers();
       },
@@ -343,7 +451,10 @@ export class ConsentContractRepository implements IConsentContractRepository {
     tokenId: TokenId,
   ): ResultAsync<
     TokenUri | null,
-    ConsentContractError | UninitializedError | BlockchainProviderError
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | BlockchainCommonErrors
   > {
     return this.getConsentContract(consentContractAddress).andThen(
       (contract) => {
@@ -356,7 +467,10 @@ export class ConsentContractRepository implements IConsentContractRepository {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     BlockNumber,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
   > {
     // Check if the query horizon is in the cache
     const cachedQueryHorizon = this.queryHorizonCache.get(

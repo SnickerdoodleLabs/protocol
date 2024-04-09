@@ -1,17 +1,16 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const path = require("path");
 const webpack = require("webpack");
-var fileExtensions = ["jpg", "jpeg", "png", "gif", "eot", "otf", "svg"];
+const fileExtensions = ["jpg", "jpeg", "png", "gif", "eot", "otf", "svg"];
 const configFilePath = require.resolve("./tsconfig.json");
 
 module.exports = {
   target: "webworker",
   mode: "production",
-  devtool: "source-map",
+  devtool: false,
   entry: {
     "lib/core": path.resolve(__dirname, "src/core/index.ts"),
     "lib/contentjs": path.resolve(__dirname, "src/content/index.tsx"),
@@ -31,11 +30,21 @@ module.exports = {
     clean: true,
     chunkFilename: "chunks/chunk.[name].bundle.js",
   },
+  externals: {
+    ethers: "ethers",
+    // "@snickerdoodlelabs/objects": "@snickerdoodlelabs/objects",
+  },
   optimization: {
     minimize: true,
     minimizer: [
-      new TerserPlugin({ extractComments: false }),
-      // new CssMinimizerPlugin(),
+      new TerserPlugin({
+        extractComments: false,
+        terserOptions: {
+          compress: {
+            drop_console: true,
+          },
+        },
+      }),
     ],
   },
   module: {
@@ -45,31 +54,10 @@ module.exports = {
         exclude: /(node_modules|bower_components)/,
         use: {
           loader: "babel-loader",
+          options: {
+            plugins: ["@babel/plugin-syntax-import-assertions"],
+          },
         },
-      },
-      {
-        test: new RegExp(".(" + fileExtensions.join("|") + ")$"),
-        type: "asset/resource",
-        exclude: /node_modules/,
-      },
-      {
-        // look for .css or .scss files
-        test: /\.(css|scss)$/,
-        // in the `src` directory
-        use: [
-          {
-            loader: "style-loader",
-          },
-          {
-            loader: "css-loader",
-          },
-          {
-            loader: "sass-loader",
-            options: {
-              sourceMap: true,
-            },
-          },
-        ],
       },
       {
         test: /\.(tsx)$/,

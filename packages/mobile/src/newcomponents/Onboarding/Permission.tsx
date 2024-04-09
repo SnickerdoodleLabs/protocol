@@ -1,11 +1,41 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Age, EWalletDataType } from "@snickerdoodlelabs/objects";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text, Switch } from "react-native";
+
 import { useAppContext } from "../../context/AppContextProvider";
+import { useTheme } from "../../context/ThemeContext";
 import { normalizeHeight, normalizeWidth } from "../../themes/Metrics";
 import CustomSwitch from "../Custom/CustomSwitch";
 
 const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
+  const theme = useTheme();
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      paddingHorizontal: 16,
+      width: normalizeWidth(380),
+      marginTop: normalizeHeight(20),
+    },
+    row: {
+      borderWidth: 1,
+      borderColor: theme?.colors.border,
+      borderRadius: normalizeWidth(16),
+      paddingHorizontal: normalizeWidth(20),
+      paddingTop: normalizeHeight(20),
+      marginBottom: normalizeHeight(16),
+    },
+    rowTitle: {
+      fontSize: normalizeWidth(18),
+      fontWeight: "bold",
+      marginBottom: normalizeHeight(15),
+      color: theme?.colors.title,
+    },
+    toggleContainer: {
+      marginBottom: normalizeHeight(14),
+    },
+  });
+
   return (
     <View style={styles.row}>
       <Text style={styles.rowTitle}>{title}</Text>
@@ -14,7 +44,9 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
           <View
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
-            <Text>{item.name}</Text>
+            <Text style={{ color: theme?.colors.description }}>
+              {item.name}
+            </Text>
             <CustomSwitch
               value={item.state.status}
               onValueChange={() => {
@@ -43,7 +75,8 @@ const ToggleRow = ({ title, perms }: { title: string; perms: Array<any> }) => {
 };
 
 const Permission = () => {
-  const { mobileCore } = useAppContext();
+  const { mobileCore, isUnlocked } = useAppContext();
+  const theme = useTheme();
 
   interface IPermissionStateProps {
     walletDataType: EWalletDataType;
@@ -83,30 +116,59 @@ const Permission = () => {
     });
   // Discord
   const [discord, setDiscord] = useState<IPermissionStateProps>({
-    walletDataType: 11,
-    status: true,
+    walletDataType: EWalletDataType.Discord,
+    status: false,
+  });
+  const [twitter, setTwitter] = useState<IPermissionStateProps>({
+    walletDataType: EWalletDataType.Twitter,
+    status: false,
   });
   const [permissions, setPermissions] = useState<EWalletDataType[]>([]);
-  React.useEffect(() => {
-    mobileCore.dataPermissionUtils.getPermissions().map((permission) => {
-      if (permission.length === 0) {
-        mobileCore.dataPermissionUtils.setPermissions([
-          0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-        ]);
-        setPermissions([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
-      } else {
-        setPermissions(permission);
-      }
-    });
-  }, []);
+  useEffect(() => {
+    if (isUnlocked) {
+      mobileCore.dataPermissionUtils.getPermissions().map((permission) => {
+        AsyncStorage.getItem("permissionSetted").then((setted) => {
+          if (permission.length === 0 && setted == null) {
+            AsyncStorage.setItem("permissionSetted", "true");
+            mobileCore.dataPermissionUtils.setPermissions([
+              EWalletDataType.Age,
+              EWalletDataType.Gender,
+              EWalletDataType.Location,
+              EWalletDataType.SiteVisits,
+              EWalletDataType.AccountNFTs,
+              EWalletDataType.AccountBalances,
+              EWalletDataType.EVMTransactions,
+              EWalletDataType.Discord,
+              EWalletDataType.Twitter,
+            ]);
+
+            setPermissions([
+              EWalletDataType.Age,
+              EWalletDataType.Gender,
+              EWalletDataType.Location,
+              EWalletDataType.SiteVisits,
+              EWalletDataType.AccountNFTs,
+              EWalletDataType.AccountBalances,
+              EWalletDataType.EVMTransactions,
+              EWalletDataType.Discord,
+              EWalletDataType.Twitter,
+            ]);
+          } else {
+            setPermissions(permission);
+          }
+        });
+      });
+    }
+  }, [isUnlocked]);
 
   useEffect(() => {
     mobileCore.dataPermissionUtils.setPermissions(permissions);
+
     permissions.map((perm) => {
-      if (age.walletDataType == perm) {
+      if (age.walletDataType === perm) {
         setAge({ walletDataType: perm, status: true });
       }
-      if (gender.walletDataType == perm) {
+      if (gender.walletDataType === perm) {
         setGender({ walletDataType: perm, status: true });
       }
       if (location.walletDataType == perm) {
@@ -124,11 +186,14 @@ const Permission = () => {
       if (transactionHistory.walletDataType == perm) {
         setTransactionHistory({ walletDataType: perm, status: true });
       }
-      if (discord.walletDataType == perm) {
+      if (discord.walletDataType === perm) {
         setDiscord({ walletDataType: perm, status: true });
       }
+      if (twitter.walletDataType === perm) {
+        setTwitter({ walletDataType: perm, status: true });
+      }
     });
-  }, [permissions]);
+  }, [permissions, isUnlocked]);
 
   return (
     <View style={styles.container}>
@@ -205,12 +270,21 @@ const Permission = () => {
             name: "Discord",
             state: discord,
             setState: setDiscord,
-            ewalletType: 11,
+            ewalletType: EWalletDataType.Discord,
+            permissions,
+            setPermissions,
+          },
+          {
+            name: "Twitter",
+            state: twitter,
+            setState: setTwitter,
+            ewalletType: EWalletDataType.Twitter,
             permissions,
             setPermissions,
           },
         ]}
       />
+      <View style={{ height: normalizeHeight(0) }} />
     </View>
   );
 };
@@ -225,18 +299,18 @@ const styles = StyleSheet.create({
   row: {
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 16,
+    borderRadius: normalizeWidth(16),
     paddingHorizontal: normalizeWidth(20),
     paddingVertical: normalizeHeight(20),
-    marginBottom: 16,
+    marginBottom: normalizeHeight(16),
   },
   rowTitle: {
-    fontSize: 18,
+    fontSize: normalizeWidth(18),
     fontWeight: "bold",
-    marginBottom: 15,
+    marginBottom: normalizeHeight(15),
   },
   toggleContainer: {
-    marginBottom: 8,
+    marginBottom: normalizeHeight(14),
   },
 });
 

@@ -37,6 +37,7 @@ The *name* sub-keyword indicates which attribute must be accessed in the DW pers
 - `browsing_history`: access to the browsing history of the DW user
 - `gender`: access to the gender of the DW user
 - `social_discord`: access to information related to discord servers of the DW user
+- `social_discord`: access to information related to twitter accounts of the DW user
 - `url_visited_count`: accesses the number of times urls are visited by DW user
 - `chain_transactions`: accesses the transaction volume (in USD) and count by the DW user per chain
 - `url_visited_count`: access to the browsing history of the DW user
@@ -77,6 +78,12 @@ This sub-keyword is used in conjunction with the `balance` attribute type. This 
 - `100`: Gnosis
 - `56`: Binance Mainnet
 - `1284`: Moonbeam Mainnet
+- `10`: Optimism Mainnet
+- `42161`: Arbitrum Mainnet
+- `592`: Astar Mainnet
+- `81`: Astar Testnet (Shibuya)
+
+
 - `*`: all supported networks
 
 #### chain (required for blockchain transaction queries)
@@ -135,13 +142,16 @@ A reference to a query specified in the [*queries*](/documentation/sdql/README.m
 A complete URL specifying the location of the query aggregator associated with this SDQL file. 
 
 ### compensations (required)
-The *compensations* keyword is used to declare one or more possible digital assets associated with the SDQL file. Below are the following required characteristics of the compensations:
+The *compensations* keyword is used to declare one or more possible digital assets associated with the SDQL file. Each compensation has two parts. The first part is metadata about the compensation and eligibility requirements. The second part is the parameters needed from the users to generate the compensation.
 
-#### description (required)
-A text, markdown, or html string for displaying to the user information about the digital asset. 
+#### Metadata for Compensation
+    - name
+    - image
+    - description: A text, markdown, or html string for displaying to the user information about the digital asset. 
+    - requires: The insights required for the compensation.
+    - chainId: 
 
-#### callback (required)
-A callback URL for claiming the digital asset. 
+
 
 ### ads (optional)
 The *ads* keyword is used to publish one or more ads. Characteristics are as follows:
@@ -173,7 +183,7 @@ The time when ad expires in ISO 8601 format, i.e., YYYY-MM-DDTHH:mm:ss. Ads pass
 ### keywords (optional)
 ??
 
-### logic (required)
+### logic (deprecated)
 The *logic* keyword is used to specify arbitrary logic to components specified in the [*queries*](/documentation/sdql/README.md#queries), [*returns*](/documentation/sdql/README.md#returns), and [*compensations*](/documentation/sdql/README.md#compensations) blocks. 
 
 #### returns (optional)

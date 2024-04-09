@@ -186,7 +186,7 @@ async function deployRewards() {
   const Reward = await ethers.getContractFactory("Reward");
 
   // the MinimalForwarder does not require any arguments on deployment
-  const reward = await Reward.deploy();
+  const reward = await Reward.deploy("Test Reward", "TEST", "www.test.com/");
   const reward_receipt = await reward.deployTransaction.wait();
 
   console.log("Reward deployed to:", reward.address);

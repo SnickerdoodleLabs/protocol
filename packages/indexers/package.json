@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/indexers",
-  "version": "0.0.1",
+  "version": "2.0.0",
   "description": "Account indexer implementations compatible with Snickerdoodle Core",
   "license": "ISC",
   "repository": {
@@ -42,11 +42,12 @@
     "@snickerdoodlelabs/persistence": "workspace:^",
     "@solana/spl-token": "^0.3.6",
     "@solana/web3.js": "^1.66.2",
-    "ethers": "^5.6.6",
-    "inversify": "^5.1.1",
+    "ethers": "^6.10.0",
+    "inversify": "^6.0.2",
     "neverthrow": "^5.1.0",
     "neverthrow-result-utils": "^2.0.2",
     "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.5.5",
     "url-join-ts": "^1.0.5"
   }
 }

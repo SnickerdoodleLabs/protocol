@@ -3,31 +3,42 @@ import {
   MinimalForwarderContractError,
   BigNumberString,
   Signature,
+  BlockchainCommonErrors,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
-import { IMinimalForwarderRequest } from "@contracts-sdk/interfaces/objects";
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  ContractOverrides,
+  IMinimalForwarderRequest,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 
-export interface IMinimalForwarderContract {
+export interface IMinimalForwarderContract extends IBaseContract {
   getNonce(
     from: EVMAccountAddress,
-  ): ResultAsync<BigNumberString, MinimalForwarderContractError>;
+  ): ResultAsync<
+    BigNumberString,
+    MinimalForwarderContractError | BlockchainCommonErrors
+  >;
 
   verify(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<boolean, MinimalForwarderContractError>;
+  ): ResultAsync<
+    boolean,
+    MinimalForwarderContractError | BlockchainCommonErrors
+  >;
 
   execute(
     request: IMinimalForwarderRequest,
     signature: Signature,
+    overrides?: ContractOverrides,
   ): ResultAsync<
-    ethers.providers.TransactionResponse,
-    MinimalForwarderContractError
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | MinimalForwarderContractError
   >;
-
-  getContract(): ethers.Contract;
 }
 
 export const IMinimalForwarderContractType = Symbol.for(

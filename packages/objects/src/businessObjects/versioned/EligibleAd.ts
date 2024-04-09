@@ -3,13 +3,14 @@ import {
   VersionedObject,
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject.js";
+import { EAdDisplayType } from "@objects/enum/index.js";
 import {
   AdKey,
   EVMContractAddress,
   IpfsCID,
   UnixTimestamp,
-  EAdDisplayType,
 } from "@objects/primitives/index.js";
+import { PropertiesOf } from "@objects/utilities/index.js";
 
 export class EligibleAd extends VersionedObject {
   public static CURRENT_VERSION = 1;
@@ -43,18 +44,18 @@ export class EligibleAdMigrator extends VersionedObjectMigrator<EligibleAd> {
     return EligibleAd.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown>): EligibleAd {
+  protected factory(data: PropertiesOf<EligibleAd>): EligibleAd {
     return new EligibleAd(
-      data["consentContractAddress"] as EVMContractAddress,
-      data["queryCID"] as IpfsCID,
-      data["key"] as AdKey,
-      data["name"] as string,
-      data["content"] as AdContent,
-      data["text"] as string,
-      data["displayType"] as EAdDisplayType,
-      data["weight"] as number,
-      data["expiry"] as UnixTimestamp,
-      data["keywords"] as string[],
+      data.consentContractAddress,
+      data.queryCID,
+      data.key,
+      data.name,
+      data.content,
+      data.text,
+      data.displayType,
+      data.weight,
+      data.expiry,
+      data.keywords,
     );
   }
 

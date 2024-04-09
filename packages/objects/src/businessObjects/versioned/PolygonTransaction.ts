@@ -1,4 +1,4 @@
-import { EVMTransaction } from "@objects/businessObjects/versioned/EVMTransaction";
+import { EVMTransaction } from "@objects/businessObjects/versioned/EVMTransaction.js";
 import {
   BigNumberString,
   ChainId,
@@ -6,7 +6,7 @@ import {
   EVMContractAddress,
   EVMTransactionHash,
   UnixTimestamp,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
 
 export enum EPolygonTransactionType {
   ERC20 = 0,
@@ -27,6 +27,7 @@ export class PolygonTransaction extends EVMTransaction {
     public contractAddress: EVMContractAddress | null,
     public tokenId: BigNumberString | null,
     public type: EPolygonTransactionType,
+    public measurementDate: UnixTimestamp,
   ) {
     super(
       chainId,
@@ -42,6 +43,7 @@ export class PolygonTransaction extends EVMTransaction {
       null,
       null,
       null,
+      measurementDate,
     );
   }
 }

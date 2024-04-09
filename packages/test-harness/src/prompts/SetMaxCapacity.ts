@@ -52,6 +52,7 @@ export class SetMaxCapacity extends Prompt {
       .mapErr((e) => {
         console.error(e);
         return e;
-      });
+      })
+      .map(() => {});
   }
 }

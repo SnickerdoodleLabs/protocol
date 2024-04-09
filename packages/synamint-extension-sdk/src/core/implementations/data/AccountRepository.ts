@@ -1,9 +1,7 @@
 import {
   AccountAddress,
-  DataWalletAddress,
   EarnedReward,
   EChain,
-  EVMAccountAddress,
   WalletNFT,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
@@ -12,14 +10,26 @@ import {
   Signature,
   TokenBalance,
   UnauthorizedError,
+  IpfsCID,
+  QueryStatus,
+  EVMContractAddress,
+  BlockNumber,
+  ChainTransaction,
+  TransactionFilter,
+  TransactionFlowInsight,
+  DomainName,
+  TransactionPaymentCounter,
+  WalletNFTHistory,
+  WalletNftWithHistory,
+  UnixTimestamp,
+  NftRepositoryCache,
+  EQueryProcessingStatus,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { IAccountRepository } from "@synamint-extension-sdk/core/interfaces/data";
 import {
-  IAccountCookieUtils,
-  IAccountCookieUtilsType,
   IContextProvider,
   IContextProviderType,
   IErrorUtils,
@@ -31,11 +41,31 @@ import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/e
 export class AccountRepository implements IAccountRepository {
   constructor(
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
-    @inject(IAccountCookieUtilsType)
-    protected accountCookieUtils: IAccountCookieUtils,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
+
+  public getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError> {
+    return this.core.getQueryStatusByQueryCID(queryCID).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
+
+  public getQueryStatuses(
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus[],
+    blockNumber?: BlockNumber,
+  ): ResultAsync<QueryStatus[], SnickerDoodleCoreError> {
+    return this.core
+      .getQueryStatuses(contractAddress, status, blockNumber)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
+  }
 
   public getEarnedRewards(): ResultAsync<
     EarnedReward[],
@@ -46,21 +76,10 @@ export class AccountRepository implements IAccountRepository {
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  public getDataWalletForAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-  ): ResultAsync<DataWalletAddress | null, SnickerDoodleCoreError> {
-    return this.core
-      .getDataWalletForAccount(accountAddress, signature, languageCode, chain)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
-  }
-  public getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
-    return this.core.getAccounts().mapErr((error) => {
+  public getAccounts(
+    sourceDomain?: DomainName,
+  ): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
+    return this.core.account.getAccounts(sourceDomain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
@@ -76,11 +95,38 @@ export class AccountRepository implements IAccountRepository {
     });
   }
 
-  public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
-    return this.core.getAccountNFTs().mapErr((error) => {
+  public getTransactions(
+    filter?: TransactionFilter,
+    sourceDomain?: DomainName,
+  ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError> {
+    return this.core.getTransactions(filter, sourceDomain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
+  }
+  public getTransactionValueByChain(
+    sourceDomain?: DomainName,
+  ): ResultAsync<TransactionFlowInsight[], SnickerDoodleCoreError> {
+    return this.core
+      .getTransactionValueByChain(sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
+  }
+
+  public getNfts(
+    benchmark?: UnixTimestamp,
+    chains?: EChain[],
+    accounts?: LinkedAccount[],
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
+    return this.core.nft
+      .getNfts(benchmark, chains, accounts, sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public addAccount(
@@ -88,20 +134,13 @@ export class AccountRepository implements IAccountRepository {
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core
-      .addAccount(account, signature, languageCode, chain)
+    return this.core.account
+      .addAccount(account, signature, languageCode, chain, sourceDomain)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);
-      })
-      .andThen(() => {
-        return this.accountCookieUtils.writeAccountInfoToCookie(
-          account,
-          signature,
-          languageCode,
-          chain,
-        );
       })
       .orElse((error) => {
         this.errorUtils.emit(error);
@@ -109,41 +148,16 @@ export class AccountRepository implements IAccountRepository {
       });
   }
 
-  public unlock(
-    account: EVMAccountAddress,
-    signature: Signature,
-    chain: EChain,
+  public getLinkAccountMessage(
     languageCode: LanguageCode,
-    calledWithCookie: boolean,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core
-      .unlock(account, signature, languageCode, chain)
-      .mapErr((error) => {
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      })
-      .andThen(() => {
-        if (calledWithCookie) {
-          return okAsync(undefined);
-        }
-        return this.accountCookieUtils.writeAccountInfoToCookie(
-          account,
-          signature,
-          languageCode,
-          chain,
-        );
-      })
-      .orElse((error) => {
-        this.errorUtils.emit(error);
-        return okAsync(undefined);
-      });
-  }
-  public getUnlockMessage(
-    languageCode: LanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<string, SnickerDoodleCoreError> {
-    return this.core.getUnlockMessage(languageCode).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
+    return this.core.account
+      .getLinkAccountMessage(languageCode, sourceDomain)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<
@@ -155,12 +169,11 @@ export class AccountRepository implements IAccountRepository {
 
   public unlinkAccount(
     account: AccountAddress,
-    signature: Signature,
     chain: EChain,
-    languageCode: LanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core
-      .unlinkAccount(account, signature, languageCode, chain)
+    return this.core.account
+      .unlinkAccount(account, chain, sourceDomain)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);

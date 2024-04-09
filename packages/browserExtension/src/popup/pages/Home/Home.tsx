@@ -1,9 +1,10 @@
 import { Box, Typography } from "@material-ui/core";
+import React, { FC } from "react";
+import Browser from "webextension-polyfill";
+
 import { SPA_PATHS } from "@browser-extension/popup/constants";
 import LinkCard from "@browser-extension/popup/pages/Home/components/LinkCard";
 import { useStyles } from "@browser-extension/popup/pages/Home/Home.style";
-import React, { FC } from "react";
-import Browser from "webextension-polyfill";
 
 const Home: FC = () => {
   const classes = useStyles();
@@ -16,15 +17,15 @@ const Home: FC = () => {
               Welcome to Your Data Wallet
             </Typography>
           </Box>
-          <Box mt={1}>
+          <Box mt={2}>
             <LinkCard
-              navigateTo={SPA_PATHS.rewardsMarketplace}
-              icon={Browser.runtime.getURL("assets/icons/rewards.svg")}
-              title="Rewards Marketplace"
+              navigateTo={SPA_PATHS.dataPermissions}
+              icon={Browser.runtime.getURL("assets/icons/permissions.svg")}
+              title="Data Permmissions"
             />
             <LinkCard
               navigateTo={SPA_PATHS.dashboard}
-              icon={Browser.runtime.getURL("assets/icons/portfolio.svg")}
+              icon={Browser.runtime.getURL("assets/icons/dashboard.svg")}
               title="My Data Dashboard"
             />
             <LinkCard

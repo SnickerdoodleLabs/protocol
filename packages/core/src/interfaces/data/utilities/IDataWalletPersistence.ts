@@ -4,12 +4,12 @@ import {
   EBackupPriority,
   EFieldKey,
   ERecordKey,
-  EVMPrivateKey,
   DataWalletBackup,
   PersistenceError,
   VersionedObject,
   VolatileStorageKey,
-  VolatileStorageMetadata,
+  AuthenticatedStorageSettings,
+  BackupError,
 } from "@snickerdoodlelabs/objects";
 import { IVolatileCursor } from "@snickerdoodlelabs/persistence";
 import { ResultAsync } from "neverthrow";
@@ -23,71 +23,142 @@ import { ResultAsync } from "neverthrow";
  *
  */
 export interface IDataWalletPersistence {
-  /**
-   * This method is called on the IDataWalletPersistence after the data wallet's derived
-   * key is determined. All other methods should not return UNTIL after unlock is complete.
-   * This means that if I call addAccount() before unlock(), addAccount() should not resolve,
-   * indefinately. Once unlock() is complete, the outstanding call to addAccount() can continue.
-   * This is trivially implemented internally by maintaining a consistent unlocked ResultAsync,
-   * and using "return this.unlocked.andThen()" at the beginning of the other methods.
-   * @param derivedKey
-   */
-  unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
-  waitForUnlock(): ResultAsync<EVMPrivateKey, never>;
-
-  // write methods
-  updateRecord<T extends VersionedObject>(
-    tableName: ERecordKey,
-    value: T,
+  activateAuthenticatedStorage(
+    settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError>;
-  deleteRecord(
-    tableName: ERecordKey,
-    key: VolatileStorageKey,
-  ): ResultAsync<void, PersistenceError>;
-  updateField(
-    key: EFieldKey,
-    value: object,
+  deactivateAuthenticatedStorage(
+    settings: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError>;
 
-  // read methods
-  getField<T>(key: EFieldKey): ResultAsync<T | null, PersistenceError>;
+  // #region Records
   getObject<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     key: VolatileStorageKey,
   ): ResultAsync<T | null, PersistenceError>;
   getCursor<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     indexName?: string,
     query?: IDBValidKey | IDBKeyRange,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError>;
   getAll<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     indexName?: string,
   ): ResultAsync<T[], PersistenceError>;
   getAllByIndex<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     indexName: string,
     query: IDBValidKey | IDBKeyRange,
     priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError>;
   getAllKeys<T extends VersionedObject>(
-    name: ERecordKey,
+    recordKey: ERecordKey,
     indexName?: string,
     query?: IDBValidKey | IDBKeyRange,
     count?: number | undefined,
   ): ResultAsync<T[], PersistenceError>;
+  updateRecord<T extends VersionedObject>(
+    recordKey: ERecordKey,
+    value: T,
+  ): ResultAsync<void, PersistenceError>;
+  deleteRecord(
+    recordKey: ERecordKey,
+    key: VolatileStorageKey,
+  ): ResultAsync<void, PersistenceError>;
 
-  // backup methods
+  get<T extends VersionedObject>(
+    schemaKey: ERecordKey,
+    {
+      index,
+      query,
+      count,
+      id,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      count?: number;
+      id?: IDBValidKey;
+    },
+  ): ResultAsync<T[], PersistenceError>;
+
+  countRecords(
+    schemaKey: ERecordKey,
+    {
+      index,
+      query,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | undefined;
+    },
+  ): ResultAsync<number, PersistenceError>;
+
+  getKeys(
+    schemaKey: ERecordKey,
+    {
+      index,
+      query,
+      count,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      count?: number;
+    },
+  ): ResultAsync<IDBValidKey[], PersistenceError>;
+
+  getCursor2<T extends VersionedObject>(
+    name: string,
+    {
+      index,
+      query,
+      lowerCount,
+      upperCount,
+      latest,
+    }: {
+      index?: string;
+      query?: IDBValidKey | IDBKeyRange | null;
+      lowerCount?: number;
+      upperCount?: number;
+      latest?: boolean;
+    },
+  ): ResultAsync<T[], PersistenceError>;
+  // #endregion
+
+  // #region Fields
+  getField<T>(fieldKey: EFieldKey): ResultAsync<T | null, PersistenceError>;
+  updateField(
+    fieldKey: EFieldKey,
+    value: object,
+  ): ResultAsync<void, PersistenceError>;
+  /**
+   * This returns the value of a field directly from the authenticated storage.
+   * Normally you should use getField(), this occasionally you need to check the
+   * backed up value against your current volatile storage value.
+   * @param fieldKey
+   */
+  getFieldFromAuthenticatedStorage<T>(
+    fieldKey: EFieldKey,
+  ): ResultAsync<T | null, PersistenceError>;
+  // #endregion
+
+  // #region Backup Methods
+  /**
+   * This method will go over all the data in all the repositories and create a complete set of backups.
+   */
+  dumpVolatileStorage(): ResultAsync<void, BackupError>;
+
+  /**
+   * Restores a backup directly to the data wallet. This should only be called for test purposes.
+   * Normally, you should use pollBackups().
+   * @param backup
+   */
   restoreBackup(backup: DataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
   postBackups(
     force?: boolean,
   ): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
-  waitForInitialRestore(): ResultAsync<EVMPrivateKey, never>;
-  waitForFullRestore(): ResultAsync<EVMPrivateKey, never>;
+
   unpackBackupChunk(
     backup: DataWalletBackup,
   ): ResultAsync<string, PersistenceError>;
@@ -96,6 +167,11 @@ export interface IDataWalletPersistence {
   fetchBackup(
     backupHeader: string,
   ): ResultAsync<DataWalletBackup[], PersistenceError>;
+  // #endregion
+
+  // #region Volatile Storage Methods
+  clearVolatileStorage(): ResultAsync<void, PersistenceError>;
+  // #endregion
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

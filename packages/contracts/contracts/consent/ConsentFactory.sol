@@ -59,6 +59,9 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @dev Address of the upgradeable beacon
     address public beaconAddress; 
 
+    /// @dev Default questionnaires, added by the DAO. Stores the IPFS CID
+    string[] public questionnaires;
+
     /* MODIFIERS */
 
     /// @notice Modified to check if a caller of a function is a Consent contract
@@ -268,7 +271,13 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         for (uint i = 0; i < numSlots; i++) {
             Listing memory listing = listings[LLKey][_startingSlot];
             require(listing.timeExpiring > 0, "ConsentFactory: invalid slot"); // ensure the listing is valid by looking at the timestamp
-            if((filterActive == true) && (listing.timeExpiring < block.timestamp)) { continue; } // don't include expired listings if filtering enabled
+            if((filterActive == true) && (listing.timeExpiring < block.timestamp)) { 
+                _startingSlot = listing.next; // Move on to downstream slot
+                if(_startingSlot == 0) { // slot 0 is the EOL tail slot
+                    break;
+                }
+                continue; 
+            } // don't include expired listings if filtering enabled
             cids[i] = Consent(listing.consentContract).baseURI(); // grab the invitation details from the consent contract
             sources[i] = listing; // also grab the complete listing details
             _startingSlot = listing.next;
@@ -297,7 +306,13 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         for (uint i = 0; i < numSlots; i++) {
             Listing memory listing = listings[LLKey][_startingSlot];
             require(listing.timeExpiring > 0, "ConsentFactory: invalid slot"); // ensure the listing is valid by looking at the timestamp
-            if((filterActive == true) && (listing.timeExpiring < block.timestamp)) { continue; } // don't include expired listings if filtering enabled
+            if((filterActive == true) && (listing.timeExpiring < block.timestamp)) { 
+                _startingSlot = listing.previous; // Move on to upstream slot
+                if(listing.previous == type(uint256).max) { // slot 2^256-1 is the EOL head slot
+                    break;
+                }
+                continue;
+            } // don't include expired listings if filtering enabled
             cids[i] = Consent(listing.consentContract).baseURI(); // grab the invitation details from the consent contract
             sources[i] = listing; // also grab the complete listing details
             _startingSlot = listing.previous;
@@ -421,6 +436,31 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     function getUserRoleAddressesCountByIndex(address user, bytes32 role, uint256 startingIndex, uint256 endingIndex) external view returns(address[] memory) {
         
         return _queryList(startingIndex, endingIndex, addressToUserRolesArray[user][role]);
+    }
+
+    /// @notice Gets the array of questionnaires
+    /// @return questionnaireArr Array of registered questionnaires
+    function getQuestionnaires() external view returns (string[] memory questionnaireArr) {
+        return questionnaires;
+    }
+
+    function addQuestionnaire(
+        string memory ipfsCid
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(questionnaires.length < 128, "Consent Factory: Maximum number of questionnaires reached");
+       
+        questionnaires.push(ipfsCid);
+    }
+
+    /// @notice Removes a questionnaire from the questionnaires array
+    /// @param index Index of questionnaire to remove
+    function removeQuestionnaire(
+        uint8 index
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(index >= 0 && index <= questionnaires.length, "Consent: Questionnaire index out of bounds");
+
+        questionnaires[index] = questionnaires[questionnaires.length - 1];
+        questionnaires.pop();
     }
 
     /// @notice Internal function to help query an array of Consent addresses by indexes

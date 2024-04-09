@@ -6,11 +6,11 @@
     "service_worker": "background.bundle.js"
   },
   "action": {
-    "default_icon": "assets/appIcons/small.png"
+    "default_icon": "assets/appIcons/small.png",
+    "default_popup": "popup.html"
   },
   "host_permissions": [],
-
-  "permissions": ["cookies", "tabs", "storage", "activeTab"],
+  "permissions": ["tabs", "storage", "activeTab", "offscreen"],
   "icons": {
     "128": "assets/appIcons/big.png"
   },

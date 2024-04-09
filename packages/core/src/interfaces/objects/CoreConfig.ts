@@ -1,41 +1,42 @@
 import { IIndexerConfig } from "@snickerdoodlelabs/indexers";
 import {
-  ChainId,
-  ChainInformation,
   ControlChainInformation,
   DiscordConfig,
   ECurrencyCode,
   TwitterConfig,
   URLString,
   EChain,
+  ProviderUrl,
+  LanguageCode,
+  IApiKeys,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
+import { MetatransactionGasAmounts } from "@core/interfaces/objects/MetatransactionGasAmounts.js";
+
 export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
   public constructor(
-    public controlChainId: ChainId,
-    public supportedChains: ChainId[],
-    public chainInformation: Map<ChainId, ChainInformation>,
+    public controlChainId: EChain,
     public controlChainInformation: ControlChainInformation,
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
+
     public defaultGoogleCloudBucket: string,
+    public dropboxAppKey: string,
+    public dropboxAppSecret: string,
+    public dropboxRedirectUri: string,
+
     public accountIndexingPollingIntervalMS: number,
     public accountBalancePollingIntervalMS: number,
     public accountNFTPollingIntervalMS: number,
     public dataWalletBackupIntervalMS: number,
+    public questionnaireCacheUpdateIntervalMS: number,
     public backupChunkSizeTarget: number,
-    public covalentApiKey: string,
-    public moralisApiKey: string,
-    public nftScanApiKey: string,
-    public poapApiKey: string,
-    public oklinkApiKey: string,
+    public apiKeys: IApiKeys,
     public dnsServerAddress: URLString,
-    public ceramicNodeURL: URLString,
     public quoteCurrency: ECurrencyCode,
-    public etherscanApiKeys: Map<ChainId, string>,
     public etherscanTransactionsBatchSize: number,
-    public requestForDataCheckingFrequency: number,
+    public requestForDataPollingIntervalMS: number,
     public alchemyEndpoints: Map<EChain, URLString>,
     public restoreTimeoutMS: number,
     public domainFilter: string,
@@ -46,15 +47,9 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public twitter: TwitterConfig,
     public heartbeatIntervalMS: number,
     public gasAmounts: MetatransactionGasAmounts,
-  ) {}
-}
-
-export class MetatransactionGasAmounts {
-  public constructor(
-    public createCrumbGas: number,
-    public removeCrumbGas: number,
-    public optInGas: number,
-    public optOutGas: number,
-    public updateAgreementFlagsGas: number,
+    public devChainProviderURL: ProviderUrl | null,
+    public maxStatsRetentionSeconds: number,
+    public passwordLanguageCode: LanguageCode,
+    public queryPerformanceMetricsLimit: number,
   ) {}
 }

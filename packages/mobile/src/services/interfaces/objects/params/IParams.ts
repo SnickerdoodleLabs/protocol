@@ -116,13 +116,7 @@ export interface IInvitationDomainWithUUID {
   nftClaimedImage: URLString;
   id: UUID;
 }
-export interface ICheckURLParams {
-  domain: DomainName;
-}
-export interface IScamFilterSettingsParams {
-  isScamFilterActive: boolean;
-  showMessageEveryTime: boolean;
-}
+
 export interface IGetConsentContractCIDParams {
   consentAddress: EVMContractAddress;
 }

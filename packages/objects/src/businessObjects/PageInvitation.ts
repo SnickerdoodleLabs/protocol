@@ -1,11 +1,12 @@
-import { Invitation } from "@objects/businessObjects/Invitation";
-import { InvitationDomain } from "@objects/businessObjects/InvitationDomain";
-import { URLString } from "@objects/primitives";
+import { Invitation } from "@objects/businessObjects/Invitation.js";
+import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
+import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
+import { URLString } from "@objects/primitives/index.js";
 
 export class PageInvitation {
   public constructor(
     public url: URLString,
     public invitation: Invitation,
-    public domainDetails: InvitationDomain,
+    public invitationMetadata: IOldUserAgreement | IUserAgreement,
   ) {}
 }

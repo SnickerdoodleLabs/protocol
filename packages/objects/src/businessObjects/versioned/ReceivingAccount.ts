@@ -1,9 +1,12 @@
 import {
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects/versioned/VersionedObject";
-import { AccountAddress } from "@objects/primitives/AccountAddress";
-import { EVMContractAddress } from "@objects/primitives/EVMContractAddress";
+} from "@objects/businessObjects/versioned/VersionedObject.js";
+import {
+  AccountAddress,
+  EVMContractAddress,
+} from "@objects/primitives/index.js";
+import { PropertiesOf } from "@objects/utilities/index.js";
 
 export class ReceivingAccount extends VersionedObject {
   public static CURRENT_VERSION = 1;
@@ -25,11 +28,8 @@ export class ReceivingAccountMigrator extends VersionedObjectMigrator<ReceivingA
     return ReceivingAccount.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown>): ReceivingAccount {
-    return new ReceivingAccount(
-      data["contractAddress"] as EVMContractAddress,
-      data["receivingAddress"] as AccountAddress,
-    );
+  protected factory(data: PropertiesOf<ReceivingAccount>): ReceivingAccount {
+    return new ReceivingAccount(data.contractAddress, data.receivingAddress);
   }
 
   protected getUpgradeFunctions(): Map<

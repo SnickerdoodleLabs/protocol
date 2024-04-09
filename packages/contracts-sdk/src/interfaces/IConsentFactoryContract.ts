@@ -1,6 +1,3 @@
-import { WrappedTransactionResponse } from "@contracts-sdk/interfaces/objects";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   BaseURI,
   BigNumberString,
@@ -8,18 +5,22 @@ import {
   ConsentName,
   EVMAccountAddress,
   EVMContractAddress,
-  IpfsCID,
   MarketplaceListing,
   MarketplaceTag,
+  BlockchainCommonErrors,
+  TransactionResponseError,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export interface IConsentFactoryContract {
-  /**
-   * Return contract address
-   */
-  getContractAddress(): EVMContractAddress;
+import { EConsentRoles } from "@contracts-sdk/interfaces/enums/index.js";
+import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  WrappedTransactionResponse,
+  ContractOverrides,
+} from "@contracts-sdk/interfaces/objects/index.js";
 
+export interface IConsentFactoryContract extends IBaseContract {
   /**
    * Creates a consent contract for user
    * @param ownerAddress Address of the owner of the Consent contract instance
@@ -32,7 +33,22 @@ export interface IConsentFactoryContract {
     baseUri: BaseURI,
     name: ConsentName,
     overrides?: ContractOverrides,
-  ): ResultAsync<EVMContractAddress, ConsentFactoryContractError>;
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  >;
+
+  /**
+   *  Return the amount of gas required to create a Consent contract
+   * @param ownerAddress Address of the user
+   * @param baseUri URI for consent contract
+   * @param name Name of the consent contract
+   */
+  estimateGasToCreateConsent(
+    ownerAddress: EVMAccountAddress,
+    baseUri: BaseURI,
+    name: ConsentName,
+  ): ResultAsync<bigint, ConsentFactoryContractError | BlockchainCommonErrors>;
 
   /**
    *  Return the number Consent addresses that user has deployed
@@ -40,7 +56,7 @@ export interface IConsentFactoryContract {
    */
   getUserDeployedConsentsCount(
     ownerAddress: EVMAccountAddress,
-  ): ResultAsync<number, ConsentFactoryContractError>;
+  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors>;
 
   /**
    *  Return the an array of Consent addresses that user has deployed between two indexes
@@ -52,7 +68,10 @@ export interface IConsentFactoryContract {
     ownerAddress: EVMAccountAddress,
     startingIndex: number,
     endingIndex: number,
-  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError>;
+  ): ResultAsync<
+    EVMContractAddress[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
 
   /**
    *  Return the an array of Consent addresses that user has deployed
@@ -60,7 +79,10 @@ export interface IConsentFactoryContract {
    */
   getUserDeployedConsents(
     ownerAddress: EVMAccountAddress,
-  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError>;
+  ): ResultAsync<
+    EVMContractAddress[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
 
   /**
    *  Return the number Consent addresses that user has specific roles for
@@ -69,8 +91,8 @@ export interface IConsentFactoryContract {
    */
   getUserRoleAddressesCount(
     ownerAddress: EVMAccountAddress,
-    role: ConsentRoles,
-  ): ResultAsync<number, ConsentFactoryContractError>;
+    role: EConsentRoles,
+  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors>;
 
   /**
    *  Return the an array of Consent addresses that user has specific roles for
@@ -81,61 +103,91 @@ export interface IConsentFactoryContract {
    */
   getUserRoleAddressesCountByIndex(
     ownerAddress: EVMAccountAddress,
-    role: ConsentRoles,
+    role: EConsentRoles,
     startingIndex: number,
     endingIndex: number,
-  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError>;
+  ): ResultAsync<
+    EVMContractAddress[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
 
   /**
    *  Return Consent addresses by checking ContractDeployed event logs
    */
   getDeployedConsents(): ResultAsync<
     EVMContractAddress[],
-    ConsentFactoryContractError
+    ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
   /**
    * Marketplace Listings
    */
-  getMaxTagsPerListing(): ResultAsync<number, ConsentFactoryContractError>;
+  getMaxTagsPerListing(): ResultAsync<
+    number,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
 
-  getListingDuration(): ResultAsync<number, ConsentFactoryContractError>;
+  getListingDuration(): ResultAsync<
+    number,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
 
   setListingDuration(
     listingDuration: number,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  >;
 
   setMaxTagsPerListing(
     maxTagsPerListing: number,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  >;
 
   adminRemoveListing(
     tag: MarketplaceTag,
     removedSlot: BigNumberString,
-  ): ResultAsync<WrappedTransactionResponse, ConsentFactoryContractError>;
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  >;
 
   getListingDetail(
     tag: MarketplaceTag,
     slot: BigNumberString,
-  ): ResultAsync<MarketplaceListing, ConsentFactoryContractError>;
+  ): ResultAsync<
+    MarketplaceListing,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
 
   getListingsForward(
     tag: MarketplaceTag,
     startingSlot: BigNumberString,
     numberOfSlots: number,
     filterActive: boolean,
-  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError>;
+  ): ResultAsync<
+    MarketplaceListing[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
 
   getListingsBackward(
     tag: MarketplaceTag,
     startingSlot: BigNumberString,
     numberOfSlots: number,
     filterActive: boolean,
-  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError>;
+  ): ResultAsync<
+    MarketplaceListing[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
 
   getTagTotal(
     tag: MarketplaceTag,
-  ): ResultAsync<number, ConsentFactoryContractError>;
+  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors>;
 
   /**
    *  Return the list of marketplace listings of a specific tag
@@ -143,5 +195,51 @@ export interface IConsentFactoryContract {
    */
   getListingsByTag(
     tag: MarketplaceTag,
-  ): ResultAsync<MarketplaceListing[], ConsentFactoryContractError>;
+    removeExpired: boolean,
+  ): ResultAsync<
+    MarketplaceListing[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
+
+  getAddressOfConsentCreated(
+    txRes: WrappedTransactionResponse,
+  ): ResultAsync<EVMContractAddress, TransactionResponseError>;
+
+  // #region Questionnaires
+  /**
+   * Returns a list of all questionnaires
+   */
+  getQuestionnaires(): ResultAsync<
+    IpfsCID[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
+
+  /**
+   * Adds a questionnaire to the list of default questionnaires
+   * Only callable by address with DEFAULT_ADMIN_ROLE
+   * If domain already exists, reverts with error message "Consent : Questionnaire already added"
+   * @param ipfsCid Domain name
+   */
+  addQuestionnaire(
+    ipfsCid: IpfsCID,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  >;
+
+  /**
+   * Removes a questionnaire from the contract storage at the index position
+   * Only callable by address with DEFAULT_ADMIN_ROLE
+   * If the index is out of range, this reverts with error message "Consent : Questionnaire index out of range"
+   * @param index Index of the questionnaire. This must be a value between 0 and the number of questionnaires inclusive, otherwise it reverts
+   */
+  removeQuestionnaire(
+    index: number,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  >;
+  // #endregion Questionnaires
 }

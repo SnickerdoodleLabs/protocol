@@ -4,9 +4,12 @@ import { ResultAsync } from "neverthrow";
 import { IStorageUtils } from "@utils/IStorageUtils.js";
 
 export class ChromeStorageUtils implements IStorageUtils {
-  public remove<T = any>(
-    key: string | string[],
-  ): ResultAsync<void, PersistenceError> {
+  public constructor() {
+    console.log(
+      "Using ChromeStorageUtils synchronized storage for IStorageUtils",
+    );
+  }
+  public remove(key: string | string[]): ResultAsync<void, PersistenceError> {
     return ResultAsync.fromPromise(chrome.storage.sync.remove(key), (e) => {
       return new PersistenceError(
         `Cannot remove key ${key} from chrome storage, ${e}`,

@@ -1,27 +1,31 @@
 import { Brand, make } from "ts-brand";
 
 import {
-  TokenBalance,
+  SiteVisitsData,
   ChainTransaction,
   NftHolding,
-} from "@objects/businessObjects";
+  Web3AccountInsight,
+} from "@objects/businessObjects/index.js";
 import { ChainId } from "@objects/primitives/ChainId.js";
+import { TokenBalanceInsight } from "@objects/primitives/TokenBalanceInsight.js";
 import { URLString } from "@objects/primitives/URLString.js";
 
 //#region types
 export type SDQL_Name = Brand<string, "SDQL_Name">;
 export const SDQL_Name = make<SDQL_Name>();
 
+// TODO: This will probably be a circular import issue. It's a mess.
 export type SDQL_Return = Brand<
   | string
   | boolean
   | number
   | Array<any>
-  | Map<URLString, number>
+  | Record<URLString, SiteVisitsData>
   | Map<ChainId, number>
-  | TokenBalance[]
+  | TokenBalanceInsight[]
   | ChainTransaction[]
   | NftHolding[]
+  | Web3AccountInsight
   | Object
   | null,
   "SDQL_Return"

@@ -1,72 +1,64 @@
-import { SDQLParser } from "@query-parser/implementations";
 import {
-  CompensationId,
+  AccountIndexingError,
+  AdKey,
+  AjaxError,
+  CompensationKey,
   DuplicateIdInSchema,
+  EvalNotImplementedError,
+  EvaluationError,
+  InsightKey,
+  InvalidParametersError,
+  IpfsCID,
+  IQueryDeliveryItems,
+  MethodSupportError,
+  MissingASTError,
   MissingTokenConstructorError,
   ParserError,
+  PersistenceError,
+  PossibleReward,
   QueryExpiredError,
   QueryFormatError,
   SDQLString,
-  DataPermissions,
-  QueryFilteredByPermissions,
-  QueryIdentifier,
-  QueryTypes,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface ISDQLQueryUtils {
-  getEligibleCompensations(
+  getCompensationsToDispense(
     schemaString: SDQLString,
-    queryIds: QueryIdentifier[],
+    queryDeliveryItems: IQueryDeliveryItems,
   ): ResultAsync<
-    CompensationId[],
+    CompensationKey[],
     | ParserError
     | DuplicateIdInSchema
     | QueryFormatError
     | MissingTokenConstructorError
     | QueryExpiredError
+    | MissingASTError
+    | EvaluationError
+    | PersistenceError
+    | EvalNotImplementedError
+    | AjaxError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   >;
 
-  getPermittedQueryIdsFromSchemaString(
+  filterCompensationsForPreviews(
+    queryCID: IpfsCID,
     schemaString: SDQLString,
-    givenPermissions: DataPermissions,
+    activeCompensationKeys: CompensationKey[],
+    possibleInsightsAndAds: (InsightKey | AdKey)[],
   ): ResultAsync<
-    QueryIdentifier[],
+    PossibleReward[],
     | ParserError
     | DuplicateIdInSchema
     | QueryFormatError
     | MissingTokenConstructorError
     | QueryExpiredError
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
   >;
-
-  getPermittedQueryIds(
-    parser: SDQLParser,
-    givenPermissions: DataPermissions,
-  ): ResultAsync<
-    QueryIdentifier[],
-    | ParserError
-    | DuplicateIdInSchema
-    | QueryFormatError
-    | MissingTokenConstructorError
-    | QueryExpiredError
-  >;
-
-  filterQueryByPermissions(
-    schemaString: SDQLString,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<
-    QueryFilteredByPermissions,
-    | QueryFormatError
-    | ParserError
-    | DuplicateIdInSchema
-    | MissingTokenConstructorError
-    | QueryExpiredError
-  >;
-
-  getQueryTypeDependencies(
-    parser: SDQLParser,
-    compId: CompensationId,
-  ): QueryTypes[];
 }
 
 export const ISDQLQueryUtilsType = Symbol.for("ISDQLQueryUtils");

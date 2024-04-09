@@ -8,7 +8,8 @@ import {
   PEMEncodedRSAPrivateKey,
   PEMEncodedRSAPublicKey,
   UUID,
-} from "@objects/primitives";
+} from "@objects/primitives/index.js";
+import { PropertiesOf } from "@objects/utilities";
 
 export class DomainCredential extends VersionedObject {
   public static CURRENT_VERSION = 1;
@@ -31,16 +32,11 @@ export class DomainCredentialMigrator extends VersionedObjectMigrator<DomainCred
     return DomainCredential.CURRENT_VERSION;
   }
 
-  // Need the any because I have a nested object
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected factory(data: Record<string, any>): DomainCredential {
+  protected factory(data: PropertiesOf<DomainCredential>): DomainCredential {
     return new DomainCredential(
-      data["domain"] as DomainName,
-      data["id"] as UUID,
-      new RSAKeyPair(
-        data["key"]["privateKey"] as PEMEncodedRSAPrivateKey,
-        data["key"]["publicKey"] as PEMEncodedRSAPublicKey,
-      ),
+      data.domain,
+      data.id,
+      new RSAKeyPair(data.key.privateKey, data.key.publicKey),
     );
   }
 

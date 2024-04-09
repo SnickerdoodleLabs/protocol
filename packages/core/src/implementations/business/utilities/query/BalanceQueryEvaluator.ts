@@ -1,11 +1,22 @@
 import {
+  IBigNumberUtils,
+  IBigNumberUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import { MasterIndexer } from "@snickerdoodlelabs/indexers";
+import {
   BigNumberString,
   ChainId,
+  EQueryEvents,
+  EStatus,
   EvalNotImplementedError,
-  TokenBalance,
+  IpfsCID,
   PersistenceError,
+  PublicEvents,
+  QueryPerformanceEvent,
   SDQL_Return,
   TokenAddress,
+  TokenBalance,
+  TokenBalanceInsight,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -15,46 +26,86 @@ import {
   ConditionL,
   ConditionLE,
 } from "@snickerdoodlelabs/query-parser";
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
 import {
   IPortfolioBalanceRepository,
   IPortfolioBalanceRepositoryType,
 } from "@core/interfaces/data/index.js";
+import {
+  IContextProviderType,
+  IContextProvider,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
   constructor(
     @inject(IPortfolioBalanceRepositoryType)
     protected balanceRepo: IPortfolioBalanceRepository,
+    @inject(IBigNumberUtilsType) protected bigNumberUtils: IBigNumberUtils,
+    @inject(IContextProviderType)
+    protected contextProvider: IContextProvider,
   ) {}
 
   public eval(
     query: AST_BalanceQuery,
+    queryCID: IpfsCID,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    return this.balanceRepo
-      .getAccountBalances()
-      .andThen((balances) => {
-        if (query.networkId == null) {
-          return okAsync(balances);
-        }
-        const networkBalances = balances.filter(
-          (balance) => balance.chainId == query.networkId,
-        );
-        return okAsync(networkBalances);
-      })
-      .andThen((balanceArray) => {
-        return this.evalConditions(query, balanceArray);
-      })
-      .andThen((balanceArray) => {
-        return this.combineContractValues(query, balanceArray);
-      })
-      .andThen((balanceArray) => {
-        return okAsync(SDQL_Return(balanceArray));
-      });
+    return this.contextProvider.getContext().andThen((context) => {
+      context.publicEvents.queryPerformance.next(
+        new QueryPerformanceEvent(
+          EQueryEvents.BalanceDataAccess,
+          EStatus.Start,
+          queryCID,
+          query.name,
+        ),
+      );
+      return this.balanceRepo
+        .getAccountBalances()
+        .andThen((balances) => {
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.BalanceDataAccess,
+              EStatus.End,
+              queryCID,
+              query.name,
+            ),
+          );
+          if (query.networkId == null) {
+            return okAsync(balances);
+          }
+          const networkBalances = balances.filter(
+            (balance) => balance.chainId == query.networkId,
+          );
+          return okAsync(networkBalances);
+        })
+        .mapErr((err) => {
+          context.publicEvents.queryPerformance.next(
+            new QueryPerformanceEvent(
+              EQueryEvents.BalanceDataAccess,
+              EStatus.End,
+              queryCID,
+              query.name,
+              err,
+            ),
+          );
+          return err;
+        })
+        .andThen((balanceArray) => {
+          return this.evalConditions(query, balanceArray);
+        })
+        .andThen((balanceArray) => {
+          return this.combineContractValues(query, balanceArray);
+        })
+        .map((balanceArray) => {
+          return SDQL_Return(
+            this.getAccountBalancesWithoutOwnerAddress(balanceArray),
+          );
+        });
+    });
   }
 
   public evalConditions(
@@ -62,47 +113,50 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     balanceArray: TokenBalance[],
   ): ResultAsync<TokenBalance[], never> {
     for (const condition of query.conditions) {
-      let val: BigNumber = BigNumber.from(0);
+      let val = BigInt(0);
 
+      // TODO: the casts here for the conditions are just horrible!
       switch (condition.constructor) {
         case ConditionGE:
-          val = BigNumber.from((condition as ConditionGE).rval);
-          balanceArray = balanceArray.filter((balance) =>
-            BigNumber.from(balance.balance).gte(val),
+          val = BigInt((condition as ConditionGE).rval as number);
+          balanceArray = balanceArray.filter(
+            (balance) => this.bigNumberUtils.BNSToBN(balance.balance) >= val,
           );
           break;
 
         case ConditionG:
-          val = BigNumber.from((condition as ConditionG).rval);
-          balanceArray = balanceArray.filter((balance) =>
-            BigNumber.from(balance.balance).gt(val),
+          val = BigInt((condition as ConditionG).rval as number);
+          balanceArray = balanceArray.filter(
+            (balance) => this.bigNumberUtils.BNSToBN(balance.balance) > val,
           );
           break;
 
         case ConditionL:
-          val = BigNumber.from((condition as ConditionL).rval);
-          balanceArray = balanceArray.filter((balance) =>
-            BigNumber.from(balance.balance).lt(val),
+          val = BigInt((condition as ConditionL).rval as number);
+          balanceArray = balanceArray.filter(
+            (balance) => this.bigNumberUtils.BNSToBN(balance.balance) < val,
           );
           break;
 
         case ConditionE:
-          val = BigNumber.from((condition as ConditionE).rval);
-          balanceArray = balanceArray.filter((balance) =>
-            BigNumber.from(balance.balance).eq(val),
+          val = BigInt((condition as ConditionE).rval as number);
+          balanceArray = balanceArray.filter(
+            (balance) => this.bigNumberUtils.BNSToBN(balance.balance) == val,
           );
           break;
 
         case ConditionLE:
-          val = BigNumber.from((condition as ConditionLE).rval);
-          balanceArray = balanceArray.filter((balance) =>
-            BigNumber.from(balance.balance).lte(val),
+          val = BigInt((condition as ConditionLE).rval as number);
+          balanceArray = balanceArray.filter(
+            (balance) => this.bigNumberUtils.BNSToBN(balance.balance) <= val,
           );
           break;
 
         default:
           console.error("EvalNotImplementedError");
-          throw new EvalNotImplementedError(condition.constructor.name);
+          throw new EvalNotImplementedError(
+            `${condition.constructor.name} not implemented`,
+          );
       }
     }
     return okAsync(balanceArray);
@@ -115,12 +169,14 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     const balanceMap = new Map<`${ChainId}-${TokenAddress}`, TokenBalance>();
 
     const nonZeroBalanceArray = balanceArray.filter((item) => {
-      const ethValue = ethers.BigNumber.from(item.balance);
-      return !ethValue.eq(0);
+      const ethValue = this.bigNumberUtils.BNSToBN(item.balance);
+      return ethValue != 0n;
     });
 
     nonZeroBalanceArray.forEach((d) => {
-      const networkIdAndAddress: `${ChainId}-${TokenAddress}` = `${d.chainId}-${d.tokenAddress}`;
+      const networkIdAndAddress: `${ChainId}-${TokenAddress}` = `${
+        d.chainId as ChainId
+      }-${d.tokenAddress}`;
       const getObject = balanceMap.get(networkIdAndAddress);
 
       if (getObject) {
@@ -130,12 +186,11 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
             getObject.type,
             getObject.ticker,
             getObject.chainId,
-            getObject.tokenAddress || "NATIVE",
+            getObject.tokenAddress || MasterIndexer.nativeAddress,
             getObject.accountAddress,
-            BigNumberString(
-              BigNumber.from(getObject.balance)
-                .add(BigNumber.from(d.balance))
-                .toString(),
+            this.bigNumberUtils.BNToBNS(
+              this.bigNumberUtils.BNSToBN(getObject.balance) +
+                this.bigNumberUtils.BNSToBN(d.balance),
             ),
             getObject.decimals,
           ),
@@ -146,5 +201,13 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     });
 
     return okAsync(Array.from(balanceMap.values()));
+  }
+
+  protected getAccountBalancesWithoutOwnerAddress(
+    tokenBalances: TokenBalance[],
+  ): TokenBalanceInsight[] {
+    return tokenBalances.map(
+      ({ accountAddress, ...restOfBalance }) => restOfBalance,
+    );
   }
 }

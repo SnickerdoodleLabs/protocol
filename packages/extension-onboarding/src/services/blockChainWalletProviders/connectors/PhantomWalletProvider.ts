@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Web3Provider, JsonRpcSigner } from "@ethersproject/providers";
 import { AccountAddress, Signature } from "@snickerdoodlelabs/objects";
 import { PublicKey } from "@solana/web3.js";
 import { ethers } from "ethers";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 
 import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
-import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
 
 type DisplayEncoding = "utf8" | "hex";
 
@@ -47,6 +45,7 @@ export class PhantomWalletProvider implements IWalletProvider {
     if (!this._provider) {
       return errAsync(new Error("Phantom is not installed!"));
     }
+
     return ResultAsync.fromPromise(
       this._provider.connect() as Promise<{ publicKey: PublicKey }>,
       (e) => errAsync(new Error("User cancelled")),
@@ -59,6 +58,7 @@ export class PhantomWalletProvider implements IWalletProvider {
     if (!this._provider) {
       return errAsync("Should call connect() first.");
     }
+
     const encodedMessage = new TextEncoder().encode(message);
     return ResultAsync.fromPromise(
       // @ts-ignore
@@ -69,7 +69,7 @@ export class PhantomWalletProvider implements IWalletProvider {
     });
   }
   public checkAndSwitchToControlChain(): ResultAsync<
-    ethers.providers.Web3Provider,
+    ethers.BrowserProvider,
     unknown
   > {
     throw new Error("Method not implemented.");

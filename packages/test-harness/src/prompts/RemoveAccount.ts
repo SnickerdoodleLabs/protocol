@@ -21,8 +21,8 @@ export class RemoveAccount extends Prompt {
     | CrumbsContractError
     | Error
   > {
-    return this.core
-      .getAccounts()
+    return this.core.account
+      .getAccounts(undefined)
       .andThen((linkedAccounts) => {
         const removeableWallets = this.mocks.blockchain.accountWallets.filter(
           (aw) => {
@@ -59,16 +59,8 @@ export class RemoveAccount extends Prompt {
 
         const wallet = answers.removeAccountSelector as TestWallet;
 
-        return this.dataWalletProfile
-          .getSignatureForAccount(wallet)
-          .andThen((signature) => {
-            return this.core.unlinkAccount(
-              wallet.accountAddress,
-              signature,
-              this.mocks.languageCode,
-              wallet.chain,
-            );
-          })
+        return this.core.account
+          .unlinkAccount(wallet.accountAddress, wallet.chain, undefined)
           .map(() => {
             console.log(`Unlinked account ${wallet.getName()}`);
           });

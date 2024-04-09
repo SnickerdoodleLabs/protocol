@@ -1,5 +1,4 @@
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
-import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -8,16 +7,26 @@ import {
   ConsentContractRepositoryError,
   ConsentError,
   ConsentFactoryContractError,
-  EVMContractAddress,
   IPFSError,
   PersistenceError,
   UninitializedError,
   QueryFormatError,
   QueryExpiredError,
   EvaluationError,
+  ServerRewardError,
+  ParserError,
+  MissingTokenConstructorError,
+  DuplicateIdInSchema,
+  EvalNotImplementedError,
+  MissingASTError,
+  MissingWalletDataTypeError,
+  BlockchainCommonErrors,
+  AccountIndexingError,
+  InvalidParametersError,
+  MethodSupportError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IBlockchainListener } from "@core/interfaces/api/index.js";
@@ -98,7 +107,7 @@ export class BlockchainListener implements IBlockchainListener {
           this.logUtils.error(e);
           return e;
         });
-      }, config.requestForDataCheckingFrequency);
+      }, config.requestForDataPollingIntervalMS);
 
       // Subscribe to the opt-in event, and immediately do a poll
       context.publicEvents.onCohortJoined.subscribe(() => {
@@ -115,17 +124,27 @@ export class BlockchainListener implements IBlockchainListener {
   ): ResultAsync<
     void,
     | BlockchainProviderError
+    | PersistenceError
     | UninitializedError
     | ConsentFactoryContractError
-    | ConsentContractRepositoryError
     | IPFSError
     | AjaxError
     | ConsentContractError
     | ConsentError
-    | PersistenceError
     | QueryFormatError
-    | QueryExpiredError
     | EvaluationError
+    | QueryExpiredError
+    | BlockchainCommonErrors
+    | ServerRewardError
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+    | EvalNotImplementedError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.blockchainProvider
       .getLatestBlock(config.controlChainId)
@@ -144,7 +163,6 @@ export class BlockchainListener implements IBlockchainListener {
     | PersistenceError
     | UninitializedError
     | ConsentFactoryContractError
-    | ConsentContractRepositoryError
     | IPFSError
     | AjaxError
     | ConsentContractError
@@ -152,6 +170,17 @@ export class BlockchainListener implements IBlockchainListener {
     | QueryFormatError
     | EvaluationError
     | QueryExpiredError
+    | BlockchainCommonErrors
+    | ServerRewardError
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+    | EvalNotImplementedError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   > {
     return this.invitationRepo
       .getAcceptedInvitations()

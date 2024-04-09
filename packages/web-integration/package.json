@@ -1,0 +1,52 @@
+{
+  "name": "@snickerdoodlelabs/web-integration",
+  "version": "2.0.1",
+  "description": "Utilities for general consumption within the Snickerdoodle Protocol",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
+  },
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/web-integration#readme",
+  "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
+  "keywords": [
+    "Snickerdoodle",
+    "Core",
+    "Web"
+  ],
+  "main": "dist/index.js",
+  "module": "./dist/index.js",
+  "files": [
+    "dist",
+    "src",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo"
+  ],
+  "scripts": {
+    "alias": "tsc-alias",
+    "build": "yarn clean && yarn compile",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "compile": "npx tsc --build && cd ../.. && yarn alias",
+    "prepare": "yarn build",
+    "prepublish": "yarn build",
+    "test": "yarn test:ci",
+    "test:ci": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests",
+    "test:watch": "jest --watch --color --detectOpenHandles"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/objects": "workspace:^",
+    "@snickerdoodlelabs/utils": "workspace:^",
+    "ethers": "^6.10.0",
+    "inversify": "^6.0.2",
+    "neverthrow": "^5.1.0",
+    "neverthrow-result-utils": "^2.0.2",
+    "postmate": "^1.5.2",
+    "reflect-metadata": "^0.1.13"
+  }
+}

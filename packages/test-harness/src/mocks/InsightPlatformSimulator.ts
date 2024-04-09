@@ -9,8 +9,8 @@ import {
   File,
   GetFilesCallback,
 } from "@google-cloud/storage";
-import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
+import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   BigNumberString,
   ConsentContractError,
@@ -35,7 +35,8 @@ import {
   SHA256Hash,
   AdSignature,
   InvalidSignatureError,
-  CompensationId,
+  CompensationKey,
+  PossibleReward,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -45,7 +46,8 @@ import {
   clearCloudBackupsTypes,
   signedUrlTypes,
 } from "@snickerdoodlelabs/signature-verification";
-import { BigNumber } from "ethers";
+import { questionnaire } from "@test-harness/queries/index.js";
+import cors from "cors";
 import express from "express";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -78,6 +80,13 @@ export class InsightPlatformSimulator {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
 
+    const corsOptions = {
+      origin: "*",
+      methods: ["POST", "GET", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    };
+    this.app.use(cors(corsOptions));
+
     this.app.get("/", (req, res) => {
       res.send("Hello World!");
     });
@@ -93,7 +102,7 @@ export class InsightPlatformSimulator {
       });
     });
 
-    /* Rewards Preview API - get Eligible Rewards*/
+    /* Rewards Preview API - get Possible Rewards*/
     this.app.post("/insights/responses/preview", (req, res) => {
       console.log("Sending prompt rewards preview to the Insights Platform");
       console.log("Req is this: ", req.body);
@@ -101,42 +110,45 @@ export class InsightPlatformSimulator {
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const tokenId = TokenId(BigInt(req.body.tokenId));
       const queryCID = IpfsCID(req.body.queryCID);
-      const queries = JSON.stringify(req.body.queries);
+      const queryDeliveryItems = JSON.stringify(req.body.queryDeliveryItems);
       const signature = Signature(req.body.signature);
 
       const value = {
         consentContractId,
         queryCID,
         tokenId,
-        queries,
+        queryDeliveryItems,
       };
 
-      const eligibleRewards: EligibleReward[] = [];
-      eligibleRewards[0] = new EligibleReward(
-        CompensationId("c1"),
-        "Sugar to your coffee",
+      const possibleRewards: PossibleReward[] = [];
+      possibleRewards[0] = new PossibleReward(
         IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
+        CompensationKey("c1"),
+        ["age"],
+        "Sugar to your coffee",
+        IpfsCID("sugar image"),
         "10% discount code for Starbucks",
         ChainId(1),
-        "{ parameters: [Array], data: [Object] }",
         ERewardType.Direct,
       );
-      eligibleRewards[1] = new EligibleReward(
-        CompensationId("c2"),
-        "The CryptoPunk Draw",
+      possibleRewards[1] = new PossibleReward(
         IpfsCID("33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ"),
+        CompensationKey("c2"),
+        ["location"],
+        "The CryptoPunk Draw",
+        IpfsCID("Punk image"),
         "participate in the draw to win a CryptoPunk NFT",
         ChainId(1),
-        "{ parameters: [Array], data: [Object] }",
         ERewardType.Direct,
       );
-      eligibleRewards[2] = new EligibleReward(
-        CompensationId("c3"),
-        "CrazyApesClub NFT distro",
+      possibleRewards[2] = new PossibleReward(
         IpfsCID("GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8"),
+        CompensationKey("c3"),
+        [],
+        "CrazyApesClub NFT distro",
+        IpfsCID("Ape image"),
         "a free CrazyApesClub NFT",
         ChainId(1),
-        "{ parameters: [Array], data: [Object] }",
         ERewardType.Direct,
       );
 
@@ -165,7 +177,7 @@ export class InsightPlatformSimulator {
               return errAsync(err);
             }
 
-            if (consentToken.ownerAddress != verificationAddress) {
+            if (consentToken.ownerAddress.toLowerCase() != verificationAddress.toLowerCase()) {
               const err = new Error(
                 `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
               );
@@ -177,7 +189,7 @@ export class InsightPlatformSimulator {
           });
         })
         .map(() => {
-          res.send(eligibleRewards);
+          res.send(possibleRewards);
         })
         .mapErr((e) => {
           console.error(e);
@@ -187,7 +199,9 @@ export class InsightPlatformSimulator {
 
     this.app.post("/insights/responses", (req, res) => {
       console.log("Recieved Insight Response");
-      console.log("Req is this: ", req.body);
+
+      console.log("Insights : ", req.body["insights"]["insights"]);
+      console.log("Ads : ", req.body["insights"]["ads"]);
 
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const queryCID = IpfsCID(req.body.queryCID);
@@ -223,7 +237,79 @@ export class InsightPlatformSimulator {
               return errAsync(err);
             }
 
-            if (consentToken.ownerAddress != verificationAddress) {
+            if (consentToken.ownerAddress.toLowerCase() != verificationAddress.toLowerCase()) {
+              const err = new Error(
+                `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
+              );
+              console.error(err);
+              return errAsync(err);
+            }
+
+            return okAsync(undefined);
+          });
+        })
+        .map(() => {
+          const earnedRewards: EarnedReward[] = [];
+          earnedRewards[0] = new EarnedReward(
+            queryCID,
+            "Sugar to your coffee",
+            IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
+            "dummy desc",
+            ERewardType.Direct,
+          );
+          res.send(earnedRewards);
+        })
+        .mapErr((e) => {
+          console.error(e);
+          res.send(e);
+        });
+    });
+
+    this.app.post("/questionnaires/responses", (req, res) => {
+      console.log("Recieved Questionnaires Response");
+
+      // console.log("Insights : ", req.body["insights"]["insights"]);
+      // console.log("Ads : ", req.body["insights"]["ads"]);
+      console.log("req.body: " + req.body);
+
+      const consentContractId = EVMContractAddress(req.body.consentContractId);
+      const queryCID = IpfsCID(req.body.queryCID);
+      const tokenId = TokenId(BigInt(req.body.tokenId));
+      const insights = JSON.stringify(req.body.insights);
+      const rewardParameters = JSON.stringify(req.body.rewardParameters);
+      const signature = Signature(req.body.signature);
+
+      const value = {
+        consentContractId,
+        queryCID,
+        tokenId,
+        insights,
+        rewardParameters,
+      };
+
+      this.logStream.write(JSON.stringify(req.body));
+      return this.cryptoUtils
+        .verifyTypedData(
+          snickerdoodleSigningDomain,
+          insightDeliveryTypes,
+          value,
+          signature,
+        )
+        .andThen((verificationAddress) => {
+          const contract =
+            this.blockchain.getConsentContract(consentContractId);
+
+          return contract.getConsentToken(tokenId).andThen((consentToken) => {
+            if (consentToken == null) {
+              const err = new Error(`No consent token found for id ${tokenId}`);
+              console.error(err);
+              return errAsync(err);
+            }
+
+            console.log("consentToken.ownerAddress: " + consentToken.ownerAddress);
+            console.log("verificationAddress: " + verificationAddress);
+
+            if (consentToken.ownerAddress.toLowerCase() != verificationAddress.toLowerCase()) {
               const err = new Error(
                 `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
               );
@@ -336,7 +422,7 @@ export class InsightPlatformSimulator {
           signature,
         )
         .andThen((verificationAddress) => {
-          if (verificationAddress != accountAddress) {
+          if (verificationAddress.toLowerCase() != accountAddress.toLowerCase()) {
             console.error(
               `Invalid signature. Metatransaction request is signed by ${verificationAddress} but is for account ${accountAddress}`,
             );
@@ -350,9 +436,9 @@ export class InsightPlatformSimulator {
           const forwarderRequest = {
             to: contractAddress, // Contract address for the metatransaction
             from: accountAddress, // EOA to run the transaction as
-            value: BigNumber.from(value), // The amount of doodle token to pay. Should be 0.
-            gas: BigNumber.from(gas), // The amount of gas to pay.
-            nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+            value: BigInt(value), // The amount of doodle token to pay. Should be 0.
+            gas: BigInt(gas), // The amount of gas to pay.
+            nonce: BigInt(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
             data: data, // The actual bytes of the request, encoded as a hex string
           } as IMinimalForwarderRequest;
 
@@ -368,8 +454,8 @@ export class InsightPlatformSimulator {
           return ResultAsync.fromPromise(tx.wait(), (e) => {
             return new MinimalForwarderContractError(
               "Wait for createCrumb() failed",
-              "Unknown",
               e,
+              null,
             );
           });
         })
@@ -395,14 +481,9 @@ export class InsightPlatformSimulator {
   ): ResultAsync<void, Error | ConsentContractError> {
     // Posting a query involves two things- 1. putting the query content into IPFS, and 2.
     // calling requestForData on the consent contract
-
     // The queryText needs to have the timestamp inserted
     const queryJson = JSON.parse(queryText) as ISDQLQueryObject;
-    // queryJson.timestamp = UnixTimestamp(
-    //   Math.floor(new Date().getTime() / 1000),
-    // );
     queryJson.timestamp = ISO8601DateString(new Date().toISOString());
-    // queryJson.expiry = new Date().toISOString();
     // Convert query back to string
     queryText = SDQLString(JSON.stringify(queryJson));
 
@@ -425,12 +506,27 @@ export class InsightPlatformSimulator {
       });
   }
 
+  public uploadQuestionnaire(): ResultAsync<
+    IpfsCID, Error
+  > {
+      return this.ipfs.postToIPFS(questionnaire).map((cid) => {
+        console.log("cid: " + cid);
+        return cid;        
+      })
+        .mapErr((e) => {
+          console.error(e);
+          return e;
+        });
+  }
+  
+
   public createCampaign(
     domains: DomainName[],
   ): ResultAsync<
     EVMContractAddress,
     ConsentFactoryContractError | ConsentContractError | Error
   > {
+    console.log("Posting Audience Metadata to IPFS");
     return this.ipfs
       .postToIPFS(
         JSON.stringify({
@@ -456,14 +552,19 @@ export class InsightPlatformSimulator {
               this.blockchain.getConsentContract(contractAddress);
 
             console.log(
-              `Created consent contract address ${contractAddress} for business account adddress ${this.blockchain.businessAccount.accountAddress}, owned by ${this.blockchain.serverAccount.accountAddress}`,
+              `Created consent contract address ${contractAddress} for business account address ${this.blockchain.businessAccount.accountAddress}, owned by ${this.blockchain.serverAccount.accountAddress}`,
             );
             this.consentContracts.push(contractAddress);
 
             // Add a few URLs
             // We need to do this
             return ResultUtils.executeSerially(
-              domains.map((domain) => () => consentContract.addDomain(domain)),
+              domains.map((domain) => () => {
+                console.log(
+                  `Adding domain ${domain} to consent contract ${contractAddress}`,
+                );
+                return consentContract.addDomain(domain);
+              }),
             ).map(() => {
               console.log(
                 `Added domains to consent contract address ${contractAddress}`,

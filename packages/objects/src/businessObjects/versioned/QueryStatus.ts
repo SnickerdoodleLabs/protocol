@@ -2,14 +2,19 @@ import {
   VersionedObject,
   VersionedObjectMigrator,
 } from "@objects/businessObjects/versioned/VersionedObject.js";
-import { EQueryProcessingStatus } from "@objects/enum/index.js";
+import {
+  EQueryProcessingStatus,
+  EWalletDataType,
+} from "@objects/enum/index.js";
 import {
   BlockNumber,
   EVMContractAddress,
   IpfsCID,
   JSONString,
+  URLString,
   UnixTimestamp,
 } from "@objects/primitives/index.js";
+import { PropertiesOf } from "@objects/utilities/index.js";
 
 /**
  * This object stores the state of processing for a recieved SDQL Query. Once we hear about a query
@@ -31,7 +36,13 @@ export class QueryStatus extends VersionedObject {
     public receivedBlock: BlockNumber,
     public status: EQueryProcessingStatus,
     public expirationDate: UnixTimestamp,
-    public rewardsParameters: JSONString | null,
+    public rewardsParameters: JSONString,
+    public name: string,
+    public description: string,
+    public points: number,
+    public questionnaires: IpfsCID[],
+    public virtualQuestionnaires: EWalletDataType[],
+    public image: IpfsCID | null,
   ) {
     super();
   }
@@ -46,14 +57,20 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
     return QueryStatus.CURRENT_VERSION;
   }
 
-  protected factory(data: Record<string, unknown>): QueryStatus {
+  protected factory(data: PropertiesOf<QueryStatus>): QueryStatus {
     return new QueryStatus(
-      data["consentContractAddress"] as EVMContractAddress,
-      data["queryCID"] as IpfsCID,
-      data["receivedBlock"] as BlockNumber,
-      data["status"] as EQueryProcessingStatus,
-      data["expirationDate"] as UnixTimestamp,
-      data["rewardsParameters"] as JSONString,
+      data.consentContractAddress,
+      data.queryCID,
+      data.receivedBlock,
+      data.status,
+      data.expirationDate,
+      data.rewardsParameters,
+      data.name,
+      data.description,
+      data.points,
+      data.questionnaires,
+      data.virtualQuestionnaires,
+      data.image,
     );
   }
 
@@ -64,10 +81,14 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
     return new Map([
       [
         1,
-        (data, version) => {
-          // The only rewards parameter we care about is the recieving address. That will be added
-          // on by deliverInsights() if it's missing
-          data["rewardsParameters"] = null;
+        (data: Partial<QueryStatus>) => {
+          data.name = data.name ?? "Offer";
+          data.description = data.description ?? "";
+          data.points = data.points ?? 0;
+          data.questionnaires = data.questionnaires ?? [];
+          data.virtualQuestionnaires = data.virtualQuestionnaires ?? [];
+          data.rewardsParameters = data.rewardsParameters ?? JSONString("{}");
+          data.image = data.image ?? null;
           return data;
         },
       ],

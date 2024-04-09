@@ -1,7 +1,7 @@
 export const query2 = {
   version: 0.1,
   timestamp: "2021-11-13T20:20:39Z",
-  expiry: "2023-11-13T20:20:39Z",
+  expiry: "2024-11-13T20:20:39Z",
   description: "///This should dynamically populate",
   business: "/////This should dynamically populate",
   queries: {
@@ -67,36 +67,47 @@ export const query2 = {
           required: ["networkId", "balance"],
         },
       },
-      
     },
-    q4 : {
+    q4: {
       name: "url_visited_count",
       return: "object",
       timestampRange: {
         start: "*",
         end: "50",
       },
-    }
-    
+    },
+    q5: {
+      name: "questionnaire",
+      return: "object",
+      cid: "TestHarnessCID",
+    },
   },
-  returns: {
-    r1: {
-      name: "query_response",
-      query: "q1",
+  insights: {
+    i1: {
+      name: "callback",
+      target: "true",
+      returns: "$q1",
     },
-    r2: {
-      name: "query_response",
-      query: "q2",
+    i2: {
+      name: "callback",
+      target: "true",
+      returns: "$q2",
     },
-    r3: {
-      name: "query_response",
-      query: "q3",
+    i3: {
+      name: "callback",
+      target: "true",
+      returns: "$q3",
     },
-    r4: {
-      name: "query_response",
-      query: "q4",
+    i4: {
+      name: "callback",
+      target: "true",
+      returns: "$q4",
     },
-    url: "/////This should dynamically populate",
+    i5: {
+      name: "callback",
+      target: "true",
+      returns: "$q5",
+    },
   },
   compensations: {
     parameters: {
@@ -118,6 +129,7 @@ export const query2 = {
       name: "Sugar to your coffee",
       image: "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
       description: "10% discount code for Starbucks",
+      requires: "true",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress"],
@@ -130,6 +142,7 @@ export const query2 = {
       name: "The CryptoPunk Draw",
       image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
       description: "participate in the draw to win a CryptoPunk NFT",
+      requires: "true",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -143,6 +156,7 @@ export const query2 = {
       name: "CrazyApesClub NFT distro",
       image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
       description: "a free CrazyApesClub NFT",
+      requires: "true",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -152,9 +166,5 @@ export const query2 = {
       },
       alternatives: ["c2"],
     },
-  },
-  logic: {
-    returns: ["$r1", "$r2", "$r3" , "$r4"],
-    compensations: ["$c1", "$c2", "$c3"],
   },
 };

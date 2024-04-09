@@ -1,16 +1,34 @@
 import {
+  AccountIndexingError,
   AjaxError,
+  BlockchainCommonErrors,
   BlockchainProviderError,
+  BlockNumber,
   ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentError,
+  ConsentFactoryContractError,
+  ConsentToken,
+  DuplicateIdInSchema,
+  EQueryProcessingStatus,
+  EvalNotImplementedError,
   EvaluationError,
   EVMContractAddress,
+  EVMPrivateKey,
   IDynamicRewardParameter,
+  InvalidParametersError,
+  InvalidStatusError,
+  IpfsCID,
   IPFSError,
+  MethodSupportError,
+  MissingASTError,
+  MissingTokenConstructorError,
+  MissingWalletDataTypeError,
+  ParserError,
   PersistenceError,
+  PossibleReward,
   QueryExpiredError,
   QueryFormatError,
+  QueryStatus,
   RequestForData,
   SDQLQuery,
   ServerRewardError,
@@ -18,27 +36,44 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
+import { CoreConfig } from "@core/interfaces/objects/index.js";
+
 export interface IQueryService {
   initialize(): ResultAsync<void, never>;
   onQueryPosted(
     requestForData: RequestForData,
   ): ResultAsync<
     void,
+    | EvaluationError
+    | PersistenceError
     | ConsentContractError
-    | ConsentContractRepositoryError
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
     | QueryFormatError
-    | EvaluationError
     | QueryExpiredError
     | ServerRewardError
+    | ConsentContractError
+    | ConsentError
+    | IPFSError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | MissingASTError
+    | BlockchainCommonErrors
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
   >;
 
   approveQuery(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
-    parameters: IDynamicRewardParameter[],
+    queryCID: IpfsCID,
+    rewardParameters: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError
@@ -47,6 +82,11 @@ export interface IQueryService {
     | IPFSError
     | QueryFormatError
     | PersistenceError
+    | InvalidStatusError
+    | InvalidParametersError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | EvaluationError
   >;
 
   returnQueries(): ResultAsync<
@@ -59,6 +99,79 @@ export interface IQueryService {
     | EvaluationError
     | QueryFormatError
     | AjaxError
+    | BlockchainCommonErrors
+  >;
+
+  getPossibleRewards(
+    consentToken: ConsentToken,
+    optInKey: EVMPrivateKey,
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+    config: CoreConfig,
+  ): ResultAsync<
+    PossibleReward[],
+    | AjaxError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | ParserError
+    | EvaluationError
+    | QueryFormatError
+    | QueryExpiredError
+    | MissingTokenConstructorError
+    | DuplicateIdInSchema
+    | PersistenceError
+    | EvalNotImplementedError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+    | MissingASTError
+  >;
+
+  getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, PersistenceError>;
+
+  getQueryStatuses(
+    contractAddress?: EVMContractAddress,
+    statuses?: EQueryProcessingStatus[],
+    blockNumber?: BlockNumber,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | BlockchainCommonErrors
+    | PersistenceError
+  >;
+
+  getQueryStatusesByContractAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<
+    QueryStatus[],
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | IPFSError
+    | AjaxError
+    | ConsentContractError
+    | ConsentError
+    | QueryFormatError
+    | EvaluationError
+    | QueryExpiredError
+    | BlockchainCommonErrors
+    | ServerRewardError
+    | ParserError
+    | DuplicateIdInSchema
+    | MissingTokenConstructorError
+    | MissingASTError
+    | MissingWalletDataTypeError
+    | EvalNotImplementedError
+    | AccountIndexingError
+    | MethodSupportError
+    | InvalidParametersError
+    | InvalidStatusError
   >;
 }
 

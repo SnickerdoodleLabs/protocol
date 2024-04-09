@@ -1,41 +1,84 @@
-import Typography from "@extension-onboarding/components/Typography";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import Container from "@extension-onboarding/components/v2/Container";
+import DashboardTitle from "@extension-onboarding/components/v2/DashboardTitle";
+import { EPathsV2 as EPaths } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import clsx from "clsx";
+import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+
 const useStyles = makeStyles((theme) => ({
   link: {
-    fontFamily: "'Roboto'",
-    fontStyle: "normal",
-    fontWeight: 500,
-    fontSize: "18px",
-    lineHeight: "28px",
     textAlign: "center",
-    color: "#000000",
   },
   selected: {
-    fontWeight: 400,
+    fontWeight: 700,
+  },
+  linkItemsWrapper: {
+    display: "flex",
+    alignItems: "center",
+    paddingLeft: 8,
+    width: "100%",
+    height: 68,
+    boxShadow:
+      "0px 1px 2px 0px rgba(16, 24, 40, 0.06), 0px 1px 3px 0px rgba(16, 24, 40, 0.10)",
+    background: "#FAFAFA",
+    overflowX: "auto",
+    overflowY: "hidden",
   },
   linkWrapper: {
     cursor: "pointer",
+    whiteSpace: "nowrap",
   },
 }));
 
 interface ILink {
   path: EPaths;
   title: string;
+  subtitle?: string;
 }
 
 const LINKS: ILink[] = [
-  { path: EPaths.TOKENS, title: "Tokens" },
-  { path: EPaths.NFTS, title: "NFTs" },
-  { path: EPaths.POAP_NFTS, title: "POAPs" },
-  { path: EPaths.BROWSER_ACTIVITY, title: "Browser Activity" },
-  { path: EPaths.SOCIAL_MEDIA_DATA, title: "Social Media Data" },
-  { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
+  {
+    path: EPaths.TRANSACTION_HISTORY,
+    title: "Transaction History",
+    subtitle:
+      "Track your transactions for linked web3 accounts. Stay updated on your token, NFT, and airdrop activity.",
+  },
+  {
+    path: EPaths.AIRDROPS,
+    title: "Airdrops",
+    subtitle:
+      "Targeted airdrops you have received through your Snickerdoodle profile to one of your linked web3 accounts.",
+  },
+  {
+    path: EPaths.TOKENS,
+    title: "Tokens",
+    subtitle:
+      "See your fungible token statistics across your linked web3 accounts.",
+  },
+  {
+    path: EPaths.NFTS,
+    title: "NFTs",
+    subtitle: "See the NFTs you own across all of your linked web3 accounts.",
+  },
+  {
+    path: EPaths.POAP_NFTS,
+    title: "POAPs",
+    subtitle: "See POAPs you own across all of your linked web3 accounts.",
+  },
+  {
+    path: EPaths.BROWSER_ACTIVITY,
+    title: "Browser Activity",
+    subtitle: "See which sites you are spending the most time on.",
+  },
+  {
+    path: EPaths.SOCIAL_MEDIA_DATA,
+    title: "Social Media Data",
+    subtitle:
+      "Share what kinds of Discord channels you are subscribed to. No one will ever know your discord handle.",
+  },
 ];
 
 const DataDashboardLayout = () => {
@@ -43,52 +86,78 @@ const DataDashboardLayout = () => {
   const navigate = useNavigate();
   const classes = useStyles();
 
+  const navContainerRef = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    if (navContainerRef.current) {
+      const selectedLinkElement = navContainerRef.current.querySelector(
+        `[data-path="${location.pathname}"]`,
+      );
+      if (selectedLinkElement && selectedLinkElement instanceof HTMLElement) {
+        navContainerRef.current.scrollLeft =
+          selectedLinkElement.offsetLeft - navContainerRef.current.offsetLeft;
+      }
+    }
+  }, [location.pathname]);
+
   return (
-    <>
-      <Typography variant="pageTitle">My Data Dashboard</Typography>
-      <Box mt={1}>
-        <Typography variant="pageDescription">
-          The dashboard is your command center. View, manage, and monetize your
-          information from linked accounts. Link new accounts for more rewards.
-          No one can see or access your personal Data Wallet information but
-          you.
-        </Typography>
-      </Box>
-      <Box display="flex" alignItems="center">
-        {LINKS.map((link) => (
-          <Box
-            mt={4}
-            mb={3}
-            className={classes.linkWrapper}
-            key={link.path}
-            onClick={() => {
-              navigate(link.path);
-            }}
-          >
-            <Box px={4} mb={1}>
-              <Typography
-                className={clsx(classes.link, {
-                  [classes.selected]: location.pathname === link.path,
-                })}
-              >
-                {link.title}
-              </Typography>
-            </Box>
+    <Box style={{ background: "#FAFAFA" }}>
+      <Box>
+        <div className={classes.linkItemsWrapper} ref={navContainerRef}>
+          {LINKS.map((link) => (
             <Box
-              display="flex"
-              width="100%"
-              height="1px"
-              bgcolor={
-                location.pathname === link.path ? "black" : "transparent"
-              }
-            />
-          </Box>
-        ))}
+              mt={4}
+              mb={3}
+              className={classes.linkWrapper}
+              key={link.path}
+              data-path={link.path}
+              onClick={() => {
+                navigate(link.path);
+              }}
+            >
+              <Box px={4} mb={1}>
+                <SDTypography
+                  variant="titleSm"
+                  fontWeight={
+                    location.pathname === link.path ? "bold" : "medium"
+                  }
+                  color={
+                    location.pathname === link.path ? "textHeading" : "textBody"
+                  }
+                >
+                  {link.title}
+                </SDTypography>
+              </Box>
+              <Box
+                display="flex"
+                width="80%"
+                margin="auto"
+                height="1px"
+                bgcolor={
+                  location.pathname === link.path
+                    ? "textHeading"
+                    : "transparent"
+                }
+              />
+            </Box>
+          ))}
+        </div>
       </Box>
-      <DashboardContextProvider>
-        <Outlet />
-      </DashboardContextProvider>
-    </>
+      <Container>
+        <DashboardTitle
+          title={
+            LINKS.find((link) => link.path === location.pathname)?.title ?? ""
+          }
+          description={
+            LINKS.find((link) => link.path === location.pathname)?.subtitle ??
+            ""
+          }
+        />
+        <DashboardContextProvider>
+          <Outlet />
+        </DashboardContextProvider>
+      </Container>
+    </Box>
   );
 };
 

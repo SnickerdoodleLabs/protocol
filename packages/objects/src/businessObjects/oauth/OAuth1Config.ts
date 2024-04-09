@@ -1,5 +1,5 @@
-import { EHashAlgorithm, ESignatureAlgorithm } from "@objects/businessObjects";
-import { URLString } from "@objects/primitives";
+import { EHashAlgorithm, ESignatureAlgorithm } from "@objects/enum/index.js";
+import { URLString } from "@objects/primitives/index.js";
 
 export interface OAuth1Config {
   apiKey: string; // aka consumer key

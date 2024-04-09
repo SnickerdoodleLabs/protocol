@@ -1,13 +1,10 @@
 import {
-  AjaxError,
-  BlockchainProviderError,
-  CrumbsContractError,
   InvalidSignatureError,
-  MinimalForwarderContractError,
   PersistenceError,
   UnauthorizedError,
   UninitializedError,
   UnsupportedLanguageError,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -18,18 +15,15 @@ import { TestWallet } from "@test-harness/utilities/index.js";
 export class AddAccount extends Prompt {
   public start(): ResultAsync<
     void,
-    | UnsupportedLanguageError
     | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | MinimalForwarderContractError
     | UnauthorizedError
+    | InvalidParametersError
+    | UninitializedError
+    | UnsupportedLanguageError
+    | InvalidSignatureError
   > {
-    return this.core
-      .getAccounts()
+    return this.core.account
+      .getAccounts(undefined)
       .andThen((linkedAccounts) => {
         const addableAccounts = this.mocks.blockchain.accountWallets.filter(
           (aw) => {
@@ -56,15 +50,16 @@ export class AddAccount extends Prompt {
 
       .andThen((answers) => {
         const wallet = answers.addAccountSelector as TestWallet;
-        // Need to get the unlock message first
+        // Need to get the add account message first
         return this.dataWalletProfile
           .getSignatureForAccount(wallet)
           .andThen((signature) => {
-            return this.core.addAccount(
+            return this.core.account.addAccount(
               wallet.accountAddress,
               signature,
               this.mocks.languageCode,
               wallet.chain,
+              undefined,
             );
           });
       })

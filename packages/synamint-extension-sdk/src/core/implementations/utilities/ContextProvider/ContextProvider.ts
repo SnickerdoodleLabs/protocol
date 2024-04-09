@@ -4,7 +4,22 @@ import {
   EVMContractAddress,
   Invitation,
   LinkedAccount,
+  SocialProfileLinkedEvent,
   UUID,
+  AccountAddedNotification,
+  AccountInitializedNotification,
+  AccountRemovedNotification,
+  EarnedRewardsAddedNotification,
+  EProfileFieldType,
+  ProfileFieldChangedNotification,
+  SocialProfileLinkedNotification,
+  CloudStorageActivatedEvent,
+  CloudProviderActivatedNotification,
+  ProfileFieldUpdate,
+  CohortJoinedNotification,
+  CohortLeftNotification,
+  SDQLQueryRequest,
+  QueryPostedNotification,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { Subject } from "rxjs";
@@ -12,21 +27,15 @@ import { v4 } from "uuid";
 
 import { AccountContext } from "@synamint-extension-sdk/core/implementations/utilities/ContextProvider/AccountContext";
 import { AppContext } from "@synamint-extension-sdk/core/implementations/utilities/ContextProvider/AppContext";
-import { IContextProvider } from "@synamint-extension-sdk/core/interfaces/utilities";
 import {
+  IContextProvider,
   IConfigProvider,
   IConfigProviderType,
-} from "@synamint-extension-sdk/shared/interfaces/configProvider";
+} from "@synamint-extension-sdk/core/interfaces/utilities";
 import {
   IInternalState,
   IExternalState,
 } from "@synamint-extension-sdk/shared/interfaces/states";
-import {
-  AccountAddedNotification,
-  AccountInitializedNotification,
-  AccountRemovedNotification,
-  EarnedRewardsAddedNotification,
-} from "@synamint-extension-sdk/shared/objects/notifications";
 
 @injectable()
 export class ContextProvider implements IContextProvider {
@@ -85,27 +94,72 @@ export class ContextProvider implements IContextProvider {
 
   public onAccountAdded(linkedAccount: LinkedAccount): void {
     this.appContext.notifyAllConnections(
-      new AccountAddedNotification({ linkedAccount }, UUID(v4())),
+      new AccountAddedNotification(linkedAccount),
     );
   }
 
   public onAccountRemoved(linkedAccount: LinkedAccount): void {
     this.appContext.notifyAllConnections(
-      new AccountRemovedNotification({ linkedAccount }, UUID(v4())),
+      new AccountRemovedNotification(linkedAccount),
     );
   }
 
   public onEarnedRewardsAdded(rewards: EarnedReward[]): void {
     this.appContext.notifyAllConnections(
-      new EarnedRewardsAddedNotification({ rewards }, UUID(v4())),
+      new EarnedRewardsAddedNotification(rewards),
     );
+  }
+
+  public onSocialProfileLinked(event: SocialProfileLinkedEvent): void {
+    this.appContext.notifyAllConnections(
+      new SocialProfileLinkedNotification(event),
+    );
+  }
+
+  public onCloudStorageActivated(event: CloudStorageActivatedEvent): void {
+    this.appContext.notifyAllConnections(
+      new CloudProviderActivatedNotification(event),
+    );
+  }
+
+  public onCloudStorageDeactivated(event: CloudStorageActivatedEvent): void {
+    this.appContext.notifyAllConnections(
+      new CloudProviderActivatedNotification(event),
+    );
+  }
+
+  public onCohortJoined(consentAddress: EVMContractAddress): void {
+    this.appContext.notifyAllConnections(
+      new CohortJoinedNotification(consentAddress),
+    );
+  }
+
+  public onCohortLeft(consentAddress: EVMContractAddress): void {
+    this.appContext.notifyAllConnections(
+      new CohortLeftNotification(consentAddress),
+    );
+  }
+
+  public onProfileFieldChanged(
+    profileFieldType: EProfileFieldType,
+    value: any,
+  ): void {
+    this.appContext.notifyAllConnections(
+      new ProfileFieldChangedNotification(
+        new ProfileFieldUpdate(profileFieldType, value),
+      ),
+    );
+  }
+
+  public onQueryPosted(event: SDQLQueryRequest): void {
+    this.appContext.notifyAllConnections(new QueryPostedNotification(event));
   }
 
   private onAccountContextInitialized(
     dataWalletAddress: DataWalletAddress,
   ): void {
     this.appContext.notifyAllConnections(
-      new AccountInitializedNotification({ dataWalletAddress }, UUID(v4())),
+      new AccountInitializedNotification(dataWalletAddress),
     );
   }
 }

@@ -1,6 +1,5 @@
 import {
   AccountAddress,
-  DataWalletAddress,
   EarnedReward,
   EChain,
   WalletNFT,
@@ -9,12 +8,23 @@ import {
   Signature,
   TokenBalance,
   UnauthorizedError,
+  IpfsCID,
+  QueryStatus,
+  EVMContractAddress,
+  BlockNumber,
+  TransactionFlowInsight,
+  TransactionFilter,
+  ChainTransaction,
+  DomainName,
+  WalletNftWithHistory,
+  WalletNFTHistory,
+  UnixTimestamp,
+  NftRepositoryCache,
+  EQueryProcessingStatus,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import {
-  SnickerDoodleCoreError,
-} from "@synamint-extension-sdk/shared/objects/errors";
+import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 
 export interface IAccountRepository {
   addAccount(
@@ -22,34 +32,47 @@ export interface IAccountRepository {
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError>;
-  unlock(
-    account: AccountAddress,
-    signature: Signature,
-    chain: EChain,
+  getLinkAccountMessage(
     languageCode: LanguageCode,
-    calledWithCookie: boolean,
-  ): ResultAsync<void, SnickerDoodleCoreError>;
-  getUnlockMessage(
-    languageCode: LanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<string, SnickerDoodleCoreError>;
-  getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
+  getAccounts(
+    sourceDomain?: DomainName,
+  ): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
   getAccountBalances(): ResultAsync<TokenBalance[], SnickerDoodleCoreError>;
-  getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
+
+  getNfts(
+    benchmark?: UnixTimestamp,
+    chains?: EChain[],
+    accounts?: LinkedAccount[],
+    sourceDomain?: DomainName,
+  ): ResultAsync<WalletNFT[], SnickerDoodleCoreError>;
+
   isDataWalletAddressInitialized(): ResultAsync<boolean, UnauthorizedError>;
   unlinkAccount(
     account: AccountAddress,
-    signature: Signature,
     chain: EChain,
-    languageCode: LanguageCode,
+    sourceDomain?: DomainName,
   ): ResultAsync<void, SnickerDoodleCoreError>;
-  getDataWalletForAccount(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-  ): ResultAsync<DataWalletAddress | null, SnickerDoodleCoreError>;
   getEarnedRewards(): ResultAsync<EarnedReward[], SnickerDoodleCoreError>;
+  getQueryStatusByQueryCID(
+    queryCID: IpfsCID,
+  ): ResultAsync<QueryStatus | null, SnickerDoodleCoreError>;
+  getQueryStatuses(
+    contractAddress?: EVMContractAddress,
+    status?: EQueryProcessingStatus[],
+    blockNumber?: BlockNumber,
+  ): ResultAsync<QueryStatus[], SnickerDoodleCoreError>;
+
+  getTransactions(
+    filter?: TransactionFilter,
+    sourceDomain?: DomainName,
+  ): ResultAsync<ChainTransaction[], SnickerDoodleCoreError>;
+  getTransactionValueByChain(
+    sourceDomain?: DomainName,
+  ): ResultAsync<TransactionFlowInsight[], SnickerDoodleCoreError>;
 }
 
 export const IAccountRepositoryType = Symbol.for("IAccountRepository");

@@ -1,11 +1,7 @@
 import {
   EarnedReward,
-  AjaxError,
-  BlockchainProviderError,
-  CrumbsContractError,
   InvalidSignatureError,
   TokenBalance,
-  WalletNFT,
   LanguageCode,
   PersistenceError,
   Signature,
@@ -13,47 +9,33 @@ import {
   UnsupportedLanguageError,
   TransactionFilter,
   ChainId,
-  URLString,
   SiteVisit,
   InvalidParametersError,
   ChainTransaction,
   LinkedAccount,
   EChain,
-  MinimalForwarderContractError,
   AccountAddress,
-  DataWalletAddress,
   TokenAddress,
   UnixTimestamp,
   DataWalletBackupID,
-  TransactionPaymentCounter,
   DomainName,
   UnauthorizedError,
   AccountIndexingError,
-  EVMContractAddress,
+  SiteVisitsMap,
+  TransactionFlowInsight,
+  AjaxError,
+  MethodSupportError,
+  WalletNFT,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 export interface IAccountService {
-  getUnlockMessage(
+  getLinkAccountMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, UnsupportedLanguageError>;
 
-  unlock(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | AjaxError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | MinimalForwarderContractError
-  >;
+  initialize(): ResultAsync<void, PersistenceError>;
 
   addAccount(
     accountAddress: AccountAddress,
@@ -62,47 +44,49 @@ export interface IAccountService {
     chain: EChain,
   ): ResultAsync<
     void,
-    | BlockchainProviderError
+    | PersistenceError
     | UninitializedError
-    | CrumbsContractError
     | InvalidSignatureError
     | UnsupportedLanguageError
-    | PersistenceError
-    | AjaxError
-    | MinimalForwarderContractError
+    | InvalidParametersError
   >;
 
-  unlinkAccount(
+  addAccountWithExternalSignature(
     accountAddress: AccountAddress,
+    message: string,
     signature: Signature,
-    languageCode: LanguageCode,
     chain: EChain,
   ): ResultAsync<
     void,
     | PersistenceError
-    | InvalidParametersError
-    | BlockchainProviderError
     | UninitializedError
     | InvalidSignatureError
     | UnsupportedLanguageError
-    | CrumbsContractError
-    | AjaxError
-    | MinimalForwarderContractError
+    | InvalidParametersError
   >;
 
-  getDataWalletForAccount(
+  addAccountWithExternalTypedDataSignature(
     accountAddress: AccountAddress,
+    domain: ethers.TypedDataDomain,
+    types: Record<string, Array<ethers.TypedDataField>>,
+    value: Record<string, unknown>,
     signature: Signature,
-    languageCode: LanguageCode,
     chain: EChain,
+    sourceDomain: DomainName | undefined,
   ): ResultAsync<
-    DataWalletAddress | null,
+    void,
     | PersistenceError
     | UninitializedError
-    | BlockchainProviderError
-    | CrumbsContractError
     | InvalidSignatureError
-    | UnsupportedLanguageError
+    | InvalidParametersError
+  >;
+
+  unlinkAccount(
+    accountAddress: AccountAddress,
+    chain: EChain,
+  ): ResultAsync<
+    void,
+    PersistenceError | UninitializedError | InvalidParametersError
   >;
 
   getAccounts(
@@ -111,17 +95,29 @@ export interface IAccountService {
 
   getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
 
-  getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
-  getTranactions(
+  getNfts(
+    benchmark?: UnixTimestamp,
+    chains?: EChain[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<
+    WalletNFT[],
+    | PersistenceError
+    | AccountIndexingError
+    | AjaxError
+    | MethodSupportError
+    | InvalidParametersError
+  >;
+
+  getTransactions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError>;
 
   getTransactionValueByChain(): ResultAsync<
-    TransactionPaymentCounter[],
+    TransactionFlowInsight[],
     PersistenceError
   >;
 
-  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
+  getSiteVisitsMap(): ResultAsync<SiteVisitsMap, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   addTransactions(
@@ -138,7 +134,7 @@ export interface IAccountService {
 
   getTokenPrice(
     chainId: ChainId,
-    address: TokenAddress | null,
+    address: TokenAddress,
     timestamp: UnixTimestamp,
   ): ResultAsync<number, AccountIndexingError>;
 }

@@ -20,7 +20,9 @@ export interface IDiscordProvider extends ISocialMediaProvider {
     params: IDiscordInitParams,
   ): ResultAsync<void, unknown>;
   unlink(discordProfileId: DiscordID): ResultAsync<void, unknown>;
-  installationUrl(): ResultAsync<URLString, unknown>;
+  installationUrl(
+    attachRedirectTabId?: boolean,
+  ): ResultAsync<URLString, unknown>;
 }
 
 export interface IDiscordAuthResponse {

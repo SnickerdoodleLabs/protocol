@@ -1,14 +1,16 @@
-import { AnalyticsConfigProvider } from "@extension-onboarding/services/implementations/AnalyticsConfigProvider";
-import { AnalyticsConfig } from "@extension-onboarding/services/interfaces/objects/AnalyticsConfig";
 import React, {
   FC,
   createContext,
   useContext,
   useEffect,
   useCallback,
+  memo,
 } from "react";
 import ReactGA from "react-ga";
 import { hotjar } from "react-hotjar";
+
+import { AnalyticsConfigProvider } from "@extension-onboarding/services/implementations/AnalyticsConfigProvider";
+import { AnalyticsConfig } from "@extension-onboarding/services/interfaces/objects/AnalyticsConfig";
 
 const config: AnalyticsConfig = new AnalyticsConfigProvider().config;
 
@@ -35,42 +37,49 @@ const AnalyticsContext = createContext<IAnalyticsContext>(
   {} as IAnalyticsContext,
 );
 
-export const AnalyticsContextProvider: FC = ({ children }) => {
-  useEffect(() => {
-    initializeAnalyticTools();
-  }, []);
+interface IAnalyticsContextProviderProps {
+  disabled?: boolean;
+}
 
-  const initializeAnalyticTools = () => {
-    ReactGA.initialize(config.gaTrackingId);
-    hotjar.initialize(config.hotJarId, config.hotJarSv);
-  };
+export const AnalyticsContextProvider: FC<IAnalyticsContextProviderProps> =
+  memo(({ children, disabled = true }) => {
+    useEffect(() => {
+      initializeAnalyticTools();
+    }, []);
 
-  const sendEvent = useCallback(
-    (
-      action,
-      category = EEventCategory.DEFAULT,
-      label = EEventLabel.DEFAULT,
-    ) => {
-      ReactGA.event({ category, action, label });
-    },
-    [],
-  );
-  const sendPageView = useCallback(() => {
-    ReactGA.pageview(window.location.href);
-  }, []);
+    const initializeAnalyticTools = () => {
+      if (disabled) return;
+      ReactGA.initialize(config.gaTrackingId);
+      hotjar.initialize(config.hotJarId, config.hotJarSv);
+    };
 
-  return (
-    <AnalyticsContext.Provider
-      value={{
-        sendEvent,
-        sendPageView,
-        eventCategories: EEventCategory,
-        eventLabels: EEventLabel,
-      }}
-    >
-      {children}
-    </AnalyticsContext.Provider>
-  );
-};
+    const sendEvent = useCallback(
+      (
+        action,
+        category = EEventCategory.DEFAULT,
+        label = EEventLabel.DEFAULT,
+      ) => {
+        ReactGA.event({ category, action, label });
+      },
+      [disabled],
+    );
+    const sendPageView = useCallback(() => {
+      if (disabled) return;
+      ReactGA.pageview(window.location.href);
+    }, [disabled]);
+
+    return (
+      <AnalyticsContext.Provider
+        value={{
+          sendEvent,
+          sendPageView,
+          eventCategories: EEventCategory,
+          eventLabels: EEventLabel,
+        }}
+      >
+        {children}
+      </AnalyticsContext.Provider>
+    );
+  });
 
 export const useAnalyticsContext = () => useContext(AnalyticsContext);

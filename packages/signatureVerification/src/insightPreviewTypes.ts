@@ -1,10 +1,10 @@
-import { TypedDataField } from "@ethersproject/abstract-signer";
+import { TypedDataField } from "ethers";
 
 export const insightPreviewTypes: Record<string, TypedDataField[]> = {
   InsightPreview: [
     { name: "consentContractId", type: "address" },
     { name: "queryCID", type: "string" },
     { name: "tokenId", type: "uint256" },
-    { name: "queries", type: "string" },
+    { name: "queryDeliveryItems", type: "string" },
   ],
 };

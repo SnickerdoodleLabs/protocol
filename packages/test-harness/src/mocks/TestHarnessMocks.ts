@@ -1,5 +1,6 @@
-import { CryptoUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { LogUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
 import { ConfigProvider } from "@snickerdoodlelabs/core";
+import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   DomainName,
   EChain,
@@ -13,7 +14,7 @@ import {
 } from "@snickerdoodlelabs/persistence";
 
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
-import { query1, query2, query3, query4 } from "@test-harness/queries/index.js";
+import { query1, query2, query3, query4, query5, questionnaire } from "@test-harness/queries/index.js";
 import { BlockchainStuff, IPFSClient } from "@test-harness/utilities/index.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 
@@ -24,8 +25,13 @@ export class TestHarnessMocks {
     this.configProvider,
   );
   public timeUtils = new TimeUtils();
+  public logUtils = new LogUtils();
 
-  public fakeDBVolatileStorage = new FakeDBVolatileStorage(this.schemaProvider);
+  public fakeDBVolatileStorage = new FakeDBVolatileStorage(
+    this.schemaProvider,
+    this.logUtils,
+    this.timeUtils,
+  );
 
   public devAccountKeys = [
     new TestWallet(
@@ -100,4 +106,6 @@ export class TestHarnessMocks {
   public query2 = query2;
   public query3 = query3;
   public query4 = query4;
+  public query5 = query5;
+  public questionnaire = questionnaire;
 }

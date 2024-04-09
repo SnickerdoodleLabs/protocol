@@ -1,26 +1,24 @@
-import { UnixTimestamp } from "@snickerdoodlelabs/objects";
+import { ISdlDataWallet, UnixTimestamp } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IDataWalletProfileRepository } from "@extension-onboarding/services/interfaces/data/IDataWalletProfileRepository";
 import { PII } from "@extension-onboarding/services/interfaces/objects/";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { convertToSafePromise } from "@extension-onboarding/utils/ResultUtils";
-
-declare const window: IWindowWithSdlDataWallet;
 
 export class DataWalletProfileRepository
   implements IDataWalletProfileRepository
 {
+  constructor(private sdlDataWallet: ISdlDataWallet) {}
   public getProfile(): ResultAsync<PII, unknown> {
     return ResultUtils.combine([
       // below okAsync is used to skip type error coming from neverthrow find a smart way
       // tried defining global window d.ts no success
       okAsync("skip-type-error"),
-      window.sdlDataWallet.getBirthday(),
-      window.sdlDataWallet.getLocation(),
-      window.sdlDataWallet.getGender(),
-      window.sdlDataWallet.getAge(),
+      this.sdlDataWallet.getBirthday(),
+      this.sdlDataWallet.getLocation(),
+      this.sdlDataWallet.getGender(),
+      this.sdlDataWallet.getAge(),
     ]).map(([_, birthday, country_code, gender, age]) => {
       return new PII(
         null,
@@ -49,40 +47,40 @@ export class DataWalletProfileRepository
       ...(given_name
         ? [
             await convertToSafePromise(
-              window.sdlDataWallet.setGivenName(given_name),
+              this.sdlDataWallet.setGivenName(given_name),
             ),
           ]
         : []),
       ...(family_name
         ? [
             await convertToSafePromise(
-              window.sdlDataWallet.setFamilyName(family_name),
+              this.sdlDataWallet.setFamilyName(family_name),
             ),
           ]
         : []),
       ...(email_address
         ? [
             await convertToSafePromise(
-              window.sdlDataWallet.setEmail(email_address),
+              this.sdlDataWallet.setEmail(email_address),
             ),
           ]
         : []),
       ...(date_of_birth
         ? [
             await convertToSafePromise(
-              window.sdlDataWallet.setBirthday(
+              this.sdlDataWallet.setBirthday(
                 (+new Date(date_of_birth) / 1000) as UnixTimestamp,
               ),
             ),
           ]
         : []),
       ...(gender
-        ? [await convertToSafePromise(window.sdlDataWallet.setGender(gender))]
+        ? [await convertToSafePromise(this.sdlDataWallet.setGender(gender))]
         : []),
       ...(country_code
         ? [
             await convertToSafePromise(
-              window.sdlDataWallet.setLocation(country_code),
+              this.sdlDataWallet.setLocation(country_code),
             ),
           ]
         : []),

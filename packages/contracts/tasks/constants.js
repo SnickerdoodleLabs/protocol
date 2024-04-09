@@ -8,7 +8,8 @@ const logTXDetails = (txrct) => {
 };
 
 const BEACON = function () {
-  const artifactPath = "./artifacts/\@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol/UpgradeableBeacon.json";
+  const artifactPath =
+    "./artifacts/@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol/UpgradeableBeacon.json";
   if (fs.existsSync(artifactPath)) {
     return require("../" + artifactPath);
   } else {
@@ -47,6 +48,15 @@ const CR = function () {
 
 const SIFT = function () {
   const artifactPath = "./artifacts/contracts/registry/Sift.sol/Sift.json";
+  if (fs.existsSync(artifactPath)) {
+    return require("../" + artifactPath);
+  } else {
+    return null;
+  }
+};
+
+const REWARD = function () {
+  const artifactPath = "./artifacts/contracts/testing/Reward.sol/Reward.json";
   if (fs.existsSync(artifactPath)) {
     return require("../" + artifactPath);
   } else {
@@ -103,6 +113,14 @@ const consentBeacon = function () {
     return "";
   } else if (hre.hardhatArguments.network == "moonbeam") {
     return "";
+  } else if (hre.hardhatArguments.network == "arbitrum") {
+    return "";
+  } else if (hre.hardhatArguments.network == "optimism") {
+    return "";
+  } else if (hre.hardhatArguments.network == "astar") {
+    return "";
+  } else if (hre.hardhatArguments.network == "sui") {
+    return "";
   } else {
     return "";
   }
@@ -139,6 +157,14 @@ const consentFactory = function () {
     return "";
   } else if (hre.hardhatArguments.network == "moonbeam") {
     return "";
+  } else if (hre.hardhatArguments.network == "arbitrum") {
+    return "";
+  } else if (hre.hardhatArguments.network == "optimism") {
+    return "";
+  } else if (hre.hardhatArguments.network == "astar") {
+    return "";
+  } else if (hre.hardhatArguments.network == "sui") {
+    return "";
   } else {
     return "";
   }
@@ -172,6 +198,14 @@ const crumbsContract = function () {
   } else if (hre.hardhatArguments.network == "binance") {
     return "";
   } else if (hre.hardhatArguments.network == "moonbeam") {
+    return "";
+  } else if (hre.hardhatArguments.network == "arbitrum") {
+    return "";
+  } else if (hre.hardhatArguments.network == "optimism") {
+    return "";
+  } else if (hre.hardhatArguments.network == "astar") {
+    return "";
+  } else if (hre.hardhatArguments.network == "sui") {
     return "";
   } else {
     return "";
@@ -208,6 +242,14 @@ const siftContract = function () {
     return "";
   } else if (hre.hardhatArguments.network == "moonbeam") {
     return "";
+  } else if (hre.hardhatArguments.network == "arbitrum") {
+    return "";
+  } else if (hre.hardhatArguments.network == "optimism") {
+    return "";
+  } else if (hre.hardhatArguments.network == "astar") {
+    return "";
+  } else if (hre.hardhatArguments.network == "sui") {
+    return "";
   } else {
     return "";
   }
@@ -238,4 +280,5 @@ module.exports = {
   countryCode,
   crumbsContract,
   siftContract,
+  REWARD,
 };

@@ -1,7 +1,3 @@
-import CustomizedAlert, {
-  EAlertSeverity,
-} from "@extension-onboarding/components/CustomizedAlert";
-import VisualAlert from "@extension-onboarding/components/VisualAlert";
 import React, {
   FC,
   createContext,
@@ -9,7 +5,13 @@ import React, {
   useState,
   useMemo,
   useCallback,
+  memo,
 } from "react";
+
+import CustomizedAlert, {
+  EAlertSeverity,
+} from "@extension-onboarding/components/CustomizedAlert";
+import VisualAlert from "@extension-onboarding/components/VisualAlert";
 
 export interface IAlert {
   message: string | null;
@@ -30,7 +32,7 @@ const NotificationContext = createContext<INotificationContext>(
   {} as INotificationContext,
 );
 
-export const NotificationContextProvider: FC = ({ children }) => {
+export const NotificationContextProvider: FC = memo(({ children }) => {
   const [alert, _setAlert] = useState<IAlert>(initialAlertState);
   const [visualAlert, _setVisualAlert] = useState<IVisualAlert>();
 
@@ -66,6 +68,6 @@ export const NotificationContextProvider: FC = ({ children }) => {
       {children}
     </NotificationContext.Provider>
   );
-};
+});
 
 export const useNotificationContext = () => useContext(NotificationContext);

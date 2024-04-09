@@ -1,6 +1,11 @@
-import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
-import { SiteVisit, URLString } from "@snickerdoodlelabs/objects";
+import {
+  SiteVisit,
+  SiteVisitsMap,
+  URLString,
+} from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { SnickerDoodleCoreError } from "@synamint-extension-sdk/shared/objects/errors";
 
 export interface IUserSiteInteractionService {
   addSiteVisits(
@@ -8,10 +13,7 @@ export interface IUserSiteInteractionService {
   ): ResultAsync<void, SnickerDoodleCoreError>;
   getSiteVisits(): ResultAsync<SiteVisit[], SnickerDoodleCoreError>;
 
-  getSiteVisitsMap(): ResultAsync<
-    Map<URLString, number>,
-    SnickerDoodleCoreError
-  >;
+  getSiteVisitsMap(): ResultAsync<SiteVisitsMap, SnickerDoodleCoreError>;
 }
 
 export const IUserSiteInteractionServiceType = Symbol.for(

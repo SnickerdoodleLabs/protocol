@@ -1,0 +1,61 @@
+{
+  "name": "@snickerdoodlelabs/iframe",
+  "version": "1.0.0",
+  "description": "Account indexer implementations compatible with Snickerdoodle Core",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
+  },
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/iframe#readme",
+  "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
+  "keywords": [
+    "Snickerdoodle Labs",
+    "SDQL"
+  ],
+  "main": "dist/index.js",
+  "browser": "dist/index.js",
+  "files": [
+    "dist",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo"
+  ],
+  "scripts": {
+    "alias": "npx tsc-alias",
+    "build": "yarn clean && yarn compile && yarn postCompile",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "compile": "npx tsc --build && cd ../.. && yarn alias",
+    "dev": "webpack watch --config webpack.config.js --mode development",
+    "dockerize": "docker build -t snickerdoodlelabs/core-iframe:local -f Dockerfile --progress=plain ../..",
+    "postCompile": "npx webpack",
+    "prepare": "yarn build",
+    "start": "node scripts/webserver.js",
+    "test": "echo \"No tests specified yet\" && exit 0"
+  },
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/core": "workspace:^",
+    "@snickerdoodlelabs/extension-onboarding": "workspace:^",
+    "@snickerdoodlelabs/node-utils": "workspace:^",
+    "@snickerdoodlelabs/objects": "workspace:^",
+    "@snickerdoodlelabs/shared-components": "workspace:^",
+    "@snickerdoodlelabs/utils": "workspace:^",
+    "ethers": "^6.10.0",
+    "html-react-parser": "^4.2.2",
+    "inversify": "^6.0.2",
+    "jss": "^10.9.0",
+    "jss-preset-default": "^10.10.0",
+    "neverthrow": "^5.1.0",
+    "neverthrow-result-utils": "^2.0.2",
+    "postmate": "^1.5.2",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-jss": "^10.10.0",
+    "rxjs": "^7.5.5",
+    "tldts": "^5.7.89"
+  }
+}

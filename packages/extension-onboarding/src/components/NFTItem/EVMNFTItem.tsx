@@ -1,10 +1,13 @@
+import { Box } from "@material-ui/core";
+import { NftMetadataParseUtils } from "@snickerdoodlelabs/common-utils";
+import { EVMNFT } from "@snickerdoodlelabs/objects";
+import { SDTypography } from "@snickerdoodlelabs/shared-components";
+import React, { FC, useMemo } from "react";
+
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import MediaRenderer from "@extension-onboarding/components/NFTItem/MediaRenderer";
 import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
-import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
-import { Box, Grid, Typography } from "@material-ui/core";
-import { EVMNFT } from "@snickerdoodlelabs/objects";
-import React, { FC } from "react";
-import { useNavigate } from "react-router";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 
 export interface IEVMNFTItemProps {
   item: EVMNFT;
@@ -14,43 +17,53 @@ export const EVMNFTItem: FC<IEVMNFTItemProps> = ({
   item,
 }: IEVMNFTItemProps) => {
   const classes = useStyles();
-  const navigate = useNavigate();
+  const { setModal } = useLayoutContext();
+
+  const nftData = useMemo(() => {
+    if (item.metadata) {
+      const val = NftMetadataParseUtils.getParsedNFT(
+        JSON.stringify(item.metadata),
+      );
+      return NftMetadataParseUtils.getParsedNFT(JSON.stringify(item.metadata));
+    }
+    return undefined;
+  }, [item]);
+
+  const name = useMemo(() => {
+    const _name = nftData?.name ?? item?.name ?? "_";
+    return _name ? _name : "_";
+  }, [nftData]);
 
   return (
-    <Grid item sm={3}>
-      <Box
-        border="1px solid #D9D9D9"
-        display="flex"
-        flexDirection="column"
-        borderRadius={12}
-        p={1.5}
-      >
-        <Box mt={1.5} mb={3}>
-          <Typography className={classes.name}>{item?.name || "_"}</Typography>
-        </Box>
-        <Box display="flex" justifyContent="center" mb={1.5}>
-          <MediaRenderer
-            metadataString={
-              item.metadata ? JSON.stringify(item.metadata) : null
-            }
-          />
-        </Box>
-        <Typography
-          className={classes.review}
-          onClick={() =>
-            navigate(EPaths.NFT_DETAIL, {
-              state: {
-                item,
-                metadataString: item.metadata
-                  ? JSON.stringify(item.metadata)
-                  : null,
-              },
-            })
-          }
-        >
-          Review
-        </Typography>
+    <Box
+      border="1px solid"
+      borderColor="borderColor"
+      display="flex"
+      width="100%"
+      flexDirection="column"
+      borderRadius={12}
+      p={1}
+      style={{ cursor: "pointer" }}
+      onClick={() => {
+        setModal({
+          modalSelector: EModalSelectors.NFT_DETAIL_MODAL,
+          onPrimaryButtonClick: () => {},
+          customProps: { item, nftData },
+        });
+      }}
+    >
+      <Box display="flex" justifyContent="center">
+        <MediaRenderer nftData={nftData} />
       </Box>
-    </Grid>
+      <Box my={2}>
+        <SDTypography
+          variant="bodyLg"
+          fontWeight="medium"
+          className={classes.name}
+        >
+          {name}
+        </SDTypography>
+      </Box>
+    </Box>
   );
 };

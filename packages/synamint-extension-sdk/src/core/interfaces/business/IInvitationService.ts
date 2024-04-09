@@ -5,7 +5,7 @@ import {
   PageInvitation,
   DomainName,
   EVMContractAddress,
-  IOpenSeaMetadata,
+  IOldUserAgreement,
   IpfsCID,
   EWalletDataType,
   MarketplaceListing,
@@ -15,6 +15,9 @@ import {
   PagingRequest,
   MarketplaceTag,
   PagedResponse,
+  UnixTimestamp,
+  EarnedReward,
+  IUserAgreement,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -28,6 +31,11 @@ export interface IInvitationService {
     invitation: Invitation,
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;
 
+  updateAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, SnickerDoodleCoreError>;
+
   acceptInvitation(
     invitation: Invitation,
     dataTypes: EWalletDataType[] | null,
@@ -35,6 +43,7 @@ export interface IInvitationService {
 
   rejectInvitation(
     invitation: Invitation,
+    rejectUntil?: UnixTimestamp,
   ): ResultAsync<void, SnickerDoodleCoreError>;
 
   leaveCohort(
@@ -52,17 +61,16 @@ export interface IInvitationService {
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError>;
+  ): ResultAsync<IOldUserAgreement | IUserAgreement, SnickerDoodleCoreError>;
 
   getConsentCapacity(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError>;
 
-  getPossibleRewards(
+  getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
-    timeoutMs?: number,
   ): ResultAsync<
-    Map<EVMContractAddress, PossibleReward[]>,
+    Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     SnickerDoodleCoreError
   >;
   getAvailableInvitationsCID(): ResultAsync<

@@ -1,9 +1,15 @@
 // This is basically global variables
 
-import { DataWalletAddress, EVMPrivateKey } from "@snickerdoodlelabs/objects";
-import { Subject } from "rxjs";
+import { IIndexerContext } from "@snickerdoodlelabs/indexers";
+import {
+  ComponentStatus,
+  DataWalletAddress,
+  EVMPrivateKey,
+  PublicEvents,
+  UnixTimestamp,
+} from "@snickerdoodlelabs/objects";
 
-import { PublicEvents } from "@core/interfaces/objects/PublicEvents";
+import { PrivateEvents } from "@core/interfaces/objects/PrivateEvents.js";
 
 /**
  * Some people may object to some of the values in here- like private keys.
@@ -19,16 +25,15 @@ import { PublicEvents } from "@core/interfaces/objects/PublicEvents";
  * obtain our derived key. So again, getting paranoid about the storage
  * of the key in this context is unproductive. KISS!
  */
-export class CoreContext {
-  public heartbeat: Subject<void>;
-
+export class CoreContext implements IIndexerContext {
   public constructor(
     public dataWalletAddress: DataWalletAddress | null,
     public dataWalletKey: EVMPrivateKey | null,
-    public unlockInProgress: boolean,
+    public initializeInProgress: boolean,
     public publicEvents: PublicEvents,
+    public privateEvents: PrivateEvents,
     public restoreInProgress: boolean,
-  ) {
-    this.heartbeat = new Subject();
-  }
+    public startTime: UnixTimestamp,
+    public components: ComponentStatus,
+  ) {}
 }

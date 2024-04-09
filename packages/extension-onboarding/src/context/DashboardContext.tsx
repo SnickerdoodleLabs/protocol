@@ -1,13 +1,12 @@
 import { useAppContext } from "@extension-onboarding/context/App";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { NftMetadataParseUtils } from "@extension-onboarding/utils";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { NftMetadataParseUtils } from "@snickerdoodlelabs/common-utils";
 import {
   chainConfig,
   EChainType,
   ChainId,
   WalletNFT,
   EVMNFT,
-  EChainTechnology,
   EChain,
 } from "@snickerdoodlelabs/objects";
 import React, {
@@ -16,12 +15,12 @@ import React, {
   useContext,
   useEffect,
   useState,
+  memo,
 } from "react";
-declare const window: IWindowWithSdlDataWallet;
 
 interface IDashboardContext {
-  accountNFTs?: WalletNFT[];
-  accountTestnetNFTs?: WalletNFT[];
+  accountNFTs?: Omit<WalletNFT, "getVersion">[];
+  accountTestnetNFTs?: Omit<WalletNFT, "getVersion">[];
   poapNFTs?: EVMNFT[];
   isNFTsLoading: boolean;
 }
@@ -53,11 +52,12 @@ const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
   },
 );
 
-export const DashboardContextProvider: FC = ({ children }) => {
+export const DashboardContextProvider: FC = memo(({ children }) => {
   const [accountNFTs, setAccountNFTs] = useState<WalletNFT[]>();
   const [poapNFTs, setPoapNFTs] = useState<EVMNFT[]>();
   const [accountTestnetNFTs, setAccountTestnetNFTs] = useState<WalletNFT[]>();
   const [isNFTsLoading, setIsNFTsLoading] = useState(true);
+  const { sdlDataWallet } = useDataWalletContext();
   const { linkedAccounts } = useAppContext();
 
   useEffect(() => {
@@ -68,28 +68,36 @@ export const DashboardContextProvider: FC = ({ children }) => {
   }, [linkedAccounts.length]);
 
   const initializeNfts = () => {
-    window.sdlDataWallet
-      .getAccountNFTs()
+    sdlDataWallet.nft
+      .getNfts(undefined, undefined, undefined)
       .mapErr((e) => {
         setIsNFTsLoading(false);
       })
       .map((result) => {
         const structeredNfts = result.reduce(
           (acc, item) => {
-            const isMainnetItem = mainnetSupportedChainIds.includes(item.chain);
-            const isPopap =
-              item.chain === EChain.Gnosis ||
-              (item.type === EChainTechnology.EVM &&
-                !!NftMetadataParseUtils.getParsedNFT(
-                  JSON.stringify((item as EVMNFT).metadata) || "",
-                ).event);
+            const isMainnetItem = mainnetSupportedChainIds.includes(
+              ChainId(item.chain),
+            );
 
-            if (isPopap) {
-              acc.poapNfts = [...acc.poapNfts, item as EVMNFT];
-              return acc;
+            if (NftMetadataParseUtils.isEVMNFT(item)) {
+              const evmNft = item as EVMNFT;
+              if (
+                evmNft.chain === EChain.Gnosis ||
+                !!NftMetadataParseUtils.getParsedNFT(
+                  JSON.stringify(evmNft.metadata) || "",
+                ).event
+              ) {
+                acc.poapNfts = [...acc.poapNfts, evmNft];
+                return acc;
+              }
             }
+
             if (isMainnetItem) {
-              acc.mainnetNfts = [...acc.mainnetNfts, item];
+              acc.mainnetNfts = [
+                ...acc.mainnetNfts,
+                item as Omit<WalletNFT, "getVersion">,
+              ];
               return acc;
             }
             acc.testnetNfts = [...acc.testnetNfts, item];
@@ -115,6 +123,6 @@ export const DashboardContextProvider: FC = ({ children }) => {
       {children}
     </DashboardContext.Provider>
   );
-};
+});
 
 export const useDashboardContext = () => useContext(DashboardContext);
