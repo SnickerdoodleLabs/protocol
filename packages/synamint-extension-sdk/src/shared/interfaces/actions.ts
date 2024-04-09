@@ -61,8 +61,10 @@ import {
   Questionnaire,
   QuestionnaireWithAnswers,
   NewQuestionnaireAnswer,
+  DataPermissions,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 
@@ -224,23 +226,8 @@ export class GetInvitationWithDomainParams extends CoreActionParams<JSONString |
   }
 }
 
-export class UpdateAgreementPermissionsParams extends CoreActionParams<void> {
-  public constructor(
-    public consentContractAddress: EVMContractAddress,
-    public dataTypes: EWalletDataType[],
-  ) {
-    super(UpdateAgreementPermissionsParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.UPDATE_AGREEMENT_PERMISSIONS;
-  }
-}
-
 export class AcceptInvitationParams extends CoreActionParams<void> {
-  public constructor(
-    public invitation: JSONString,
-    public dataTypes: EWalletDataType[] | null,
-  ) {
+  public constructor(public invitation: JSONString) {
     super(AcceptInvitationParams.getCoreAction());
   }
   static getCoreAction(): ECoreActions {
@@ -257,17 +244,6 @@ export class RejectInvitationParams extends CoreActionParams<void> {
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.REJECT_INVITATION;
-  }
-}
-
-export class GetAgreementPermissionsParams extends CoreActionParams<
-  EWalletDataType[]
-> {
-  public constructor(public consentContractAddress: EVMContractAddress) {
-    super(GetAgreementPermissionsParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_AGREEMENT_PERMISSIONS;
   }
 }
 
@@ -672,6 +648,7 @@ export class ApproveQueryParams extends CoreActionParams<void> {
   public constructor(
     public queryCID: IpfsCID,
     public parameters: IDynamicRewardParameter[],
+    public queryPermissions: IQueryPermissions | null,
   ) {
     super(ApproveQueryParams.getCoreAction());
   }
@@ -804,18 +781,6 @@ export class GetConfigParams extends CoreActionParams<IExtensionConfig> {
 
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_CONFIG;
-  }
-}
-
-export class GetConsentContractURLsParams extends CoreActionParams<
-  URLString[]
-> {
-  public constructor(public contractAddress: EVMContractAddress) {
-    super(GetConsentContractURLsParams.getCoreAction());
-  }
-
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_CONSENT_CONTRACT_URLS;
   }
 }
 

@@ -1,0 +1,34 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "module": "ES2022",
+    "paths": {
+      "@circuits-sdk/*": [
+        "./packages/circuits-sdk/src/*"
+      ],
+      "@circuits-sdk-test/*": [
+        "./packages/circuits-sdk/test/*"
+      ],
+    }
+  },
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "references": [
+    {
+      "path": "../common-utils"
+    },
+    {
+      "path": "../objects"
+    },
+    {
+      "path": "../circuits"
+    }
+  ],
+}

@@ -28,13 +28,8 @@ export interface IInvitationRepository {
   checkInvitationStatus(
     invitation: Invitation,
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;
-  updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<void, SnickerDoodleCoreError>;
   acceptInvitation(
     invitation: Invitation,
-    dataPermissions: DataPermissions | null,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   rejectInvitation(
     invitation: Invitation,
@@ -49,9 +44,6 @@ export interface IInvitationRepository {
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOldUserAgreement | IUserAgreement, SnickerDoodleCoreError>;
-  getConsentCapacity(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, SnickerDoodleCoreError>;
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError
@@ -62,9 +54,6 @@ export interface IInvitationRepository {
     Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     SnickerDoodleCoreError
   >;
-  getAgreementFlags(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<HexString32, SnickerDoodleCoreError>;
   getConsentContractCID(
     consentAddress: EVMContractAddress,
   ): ResultAsync<IpfsCID, SnickerDoodleCoreError>;

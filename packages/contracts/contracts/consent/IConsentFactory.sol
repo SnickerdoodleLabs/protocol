@@ -1,68 +1,31 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.24;
 
-interface IConsentFactory {
+import {IContentFactory} from "../recomender/IContentFactory.sol";
 
-    /// @dev Listing object for storing marketplace listings
-    struct Listing{
-      uint256 previous; // pointer to the previous active slot
-      uint256 next; // pointer to the next active slot
-      address consentContract; // address of the target consent contract
-      uint256 timeExpiring; // unix timestamp when the listing expires and can be replaced
-    }
-
-    /* EVENTS */ 
+interface IConsentFactory is IContentFactory {
+    /* EVENTS */
 
     /// @notice Emitted when a Consent contract's Beacon Proxy is deployed
-    /// @param owner Indexed address of the owner of the deployed Consent contract Beacon Proxy 
+    /// @param owner Indexed address of the owner of the deployed Consent contract Beacon Proxy
     /// @param consentAddress Indexed address of the deployed Consent contract Beacon Proxy
-    event ConsentDeployed(address indexed owner, address indexed consentAddress);
+    event ConsentContractDeployed(
+        address indexed owner,
+        address indexed consentAddress
+    );
 
-    /// @notice Emitted when a new marketplace listing is created
-    /// @dev the full time-history of the marketplace can be reconstructed from this event
-    /// @param oldOccupant address of the previous occupant of the given slot
-    /// @param newOccupant address of the new occupant of the given slot
-    /// @param tag the human-readable tag associated with the update
-    /// @param slot The slot (i.e. amount of stake) associated with the update
-    event MarketplaceUpdate(address indexed oldOccupant, address indexed newOccupant, string tag, uint256 slot);
+    function createConsent(address owner, string memory baseURI) external;
 
-    /* External Functions */ 
+    function setListingDuration(uint256 listingDuration) external; 
 
-    function listingDuration() external view returns (uint256);
+    function setMaxTagsPerListing(uint256 maxTagsPerListing) external; 
 
-    function maxTagsPerListing() external view returns (uint256);
+    function registerStakingToken(address stakingToken) external;
 
-    function trustedForwarder() external view returns (address);
+    function adminRemoveListings(string memory tag, address stakingToken, uint256[] memory removedSlots) external;
 
-    function initializeTag(string memory tag, uint256 _newHead) external;
+    function blockContentObject(address stakingToken, address contentAddress) external;
 
-    function insertUpstream(
-        string memory tag,
-        uint256 _newSlot,
-        uint256 _existingSlot
-    ) external;
+    function unblockContentObject(address stakingToken, address contentAddress) external;
 
-    function insertDownstream(
-        string memory tag,
-        uint256 _existingSlot,
-        uint256 _newSlot
-    ) external;
-
-    function replaceExpiredListing(string memory tag, uint256 _slot) external;
-
-    function removeListing(string memory tag, uint256 _removedSlot) external;
-
-    function addUserRole(address user, bytes32 role) external;
-
-    function removeUserRole(address user, bytes32 role) external;
-
-    function getQuestionnaires() external view returns (string[] memory questionnaireArr);
-    
-    function addQuestionnaire(
-        string memory ipfsCid
-    ) external;
-
-    function removeQuestionnaire(
-        uint8 index
-    ) external;
 }

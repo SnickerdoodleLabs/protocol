@@ -3,6 +3,7 @@ const errorCodes = {
   AjaxError: "ERR_AJAX",
   BackupError: "ERR_BACKUP",
   BlockchainProviderError: "ERR_BLOCKCHAIN_PROVIDER",
+  CircuitError: "ERR_CIRCUIT",
   CloudStorageError: "ERR_CLOUD_STORAGE",
   ConsentContractRepositoryError: "CONSENT_CONTRACT_REPOSITORY_ERROR",
   ConsentContractError: "CONSENT_CONTRACT_ERROR",
@@ -69,6 +70,7 @@ const errorCodes = {
   AuthenticationError: "ERR_AUTHENTICATION",
   ERC721RewardContractError: "ERR_ERC721_REWARD_CONTRACT",
   ERC20ContractError: "ERR_ERC20_CONTRACT",
+  QuestionnairesContractError: "ERR_QUESTIONNAIRES_CONTRACT",
 };
 
 export default errorCodes;

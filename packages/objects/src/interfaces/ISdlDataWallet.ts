@@ -15,6 +15,7 @@ import {
   TransactionFilter,
   ChainTransaction,
   TransactionFlowInsight,
+  DataPermissions,
   IDynamicRewardParameter,
 } from "@objects/businessObjects/index.js";
 import {
@@ -38,6 +39,7 @@ import {
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
+import { IQueryPermissions } from "@objects/interfaces/IQueryPermissions.js";
 import {
   AccountAddress,
   Age,
@@ -276,13 +278,7 @@ export interface ISdlDataWallet {
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError>;
-  updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[],
-  ): ResultAsync<void, ProxyError>;
-  getAgreementPermissions(
-    consentContractAddres: EVMContractAddress,
-  ): ResultAsync<EWalletDataType[], ProxyError>;
+
   leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, ProxyError>;
@@ -316,6 +312,7 @@ export interface ISdlDataWallet {
   approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
   ): ResultAsync<void, ProxyError>;
 
   getSiteVisits(): ResultAsync<SiteVisit[], ProxyError>;
@@ -342,14 +339,6 @@ export interface ISdlDataWallet {
   getReceivingAddress(
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, ProxyError>;
-
-  getConsentContractURLs(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<URLString[], ProxyError>;
-
-  getConsentCapacity(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, ProxyError>;
 
   getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],

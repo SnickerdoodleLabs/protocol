@@ -16,6 +16,7 @@ import {
   UninitializedError,
   ConsentFactoryContractError,
   EWalletDataType,
+  QuestionnairesContractError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync } from "neverthrow";
@@ -29,6 +30,8 @@ import {
   IInvitationRepositoryType,
   IQuestionnaireRepository,
   IQuestionnaireRepositoryType,
+  IQuestionnairesContractRepository,
+  IQuestionnairesContractRepositoryType,
 } from "@core/interfaces/data/index.js";
 
 @injectable()
@@ -38,6 +41,8 @@ export class QuestionnaireService implements IQuestionnaireService {
     protected questionnaireRepo: IQuestionnaireRepository,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
+    @inject(IQuestionnairesContractRepositoryType)
+    protected questionnairesContractRepository: IQuestionnairesContractRepository,
     @inject(IInvitationRepositoryType)
     protected invitationRepo: IInvitationRepository,
   ) {}
@@ -51,9 +56,9 @@ export class QuestionnaireService implements IQuestionnaireService {
     | BlockchainCommonErrors
     | AjaxError
     | PersistenceError
-    | ConsentFactoryContractError
+    | QuestionnairesContractError
   > {
-    return this.consentContractRepository
+    return this.questionnairesContractRepository
       .getDefaultQuestionnaires()
       .andThen((defaultCids) => {
         const uniqueCidsArray = this.uniqueCids(defaultCids);
@@ -113,10 +118,10 @@ export class QuestionnaireService implements IQuestionnaireService {
     | BlockchainCommonErrors
     | AjaxError
     | PersistenceError
-    | ConsentFactoryContractError
+    | QuestionnairesContractError
   > {
     return ResultUtils.combine([
-      this.consentContractRepository.getDefaultQuestionnaires(),
+      this.questionnairesContractRepository.getDefaultQuestionnaires(),
       this.questionnaireRepo.getQuestionnaireIds(),
     ]).andThen(([defaultCids, storedCids]) => {
       const concatenatedCids = defaultCids.concat(storedCids);

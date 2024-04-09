@@ -1,7 +1,9 @@
 import {
   ChainId,
+  DataPermissions,
   ESDQLQueryReturn,
   EWalletDataType,
+  IpfsCID,
   MissingWalletDataTypeError,
   SDQL_Name,
 } from "@snickerdoodlelabs/objects";

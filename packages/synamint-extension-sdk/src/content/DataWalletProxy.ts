@@ -65,6 +65,7 @@ import {
   EQueryProcessingStatus,
   IDynamicRewardParameter,
   SDQLQueryRequest,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -86,7 +87,6 @@ import {
   SetEmailParams,
   SetLocationParams,
   SetGenderParams,
-  GetAgreementPermissionsParams,
   LeaveCohortParams,
   GetInvitationMetadataByCIDParams,
   GetConsentContractCIDParams,
@@ -106,7 +106,6 @@ import {
   SetAuthenticatedStorageParams,
   GetQueryStatusesParams,
   GetTransactionsParams,
-  UpdateAgreementPermissionsParams,
   ApproveQueryParams,
   GetQueryStatusesByContractAddressParams,
 } from "@synamint-extension-sdk/shared";
@@ -478,9 +477,10 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
   ): ResultAsync<void, ProxyError> {
     return coreGateway.approveQuery(
-      new ApproveQueryParams(queryCID, parameters),
+      new ApproveQueryParams(queryCID, parameters, queryPermissions),
     );
   }
 
@@ -577,12 +577,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
   }
 
-  public getConsentContractURLs(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<URLString[], ProxyError> {
-    return coreGateway.getConsentContractURLs(contractAddress);
-  }
-
   public checkInvitationStatus(
     consentAddress: EVMContractAddress,
     signature?: Signature,
@@ -667,20 +661,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     );
   }
 
-  public getAgreementPermissions(consentContractAddress: EVMContractAddress) {
-    return coreGateway.getAgreementPermissions(
-      new GetAgreementPermissionsParams(consentContractAddress),
-    );
-  }
-  public updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[],
-  ): ResultAsync<void, ProxyError> {
-    return coreGateway.updateAgreementPermissions(
-      new UpdateAgreementPermissionsParams(consentContractAddress, dataTypes),
-    );
-  }
-
   public leaveCohort(consentContractAddress: EVMContractAddress) {
     return coreGateway.leaveCohort(
       new LeaveCohortParams(consentContractAddress),
@@ -694,14 +674,6 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
   public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, ProxyError> {
     return coreGateway.getSiteVisitsMap();
-  }
-
-  public getConsentCapacity(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, ProxyError> {
-    return coreGateway.getConsentCapacity(
-      new GetConsentCapacityParams(contractAddress),
-    );
   }
 
   public getEarnedRewardsByContractAddress(

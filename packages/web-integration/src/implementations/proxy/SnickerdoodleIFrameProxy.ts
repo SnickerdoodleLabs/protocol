@@ -6,7 +6,6 @@ import {
   BigNumberString,
   ChainId,
   CountryCode,
-  DataPermissionsUpdatedEvent,
   DataWalletAddress,
   DiscordGuildProfile,
   DiscordID,
@@ -84,8 +83,10 @@ import {
   JSONString,
   IProxyQuestionnaireMethods,
   NewQuestionnaireAnswer,
+  DataPermissions,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, ParentProxy } from "@snickerdoodlelabs/utils";
 import { ethers } from "ethers";
@@ -162,13 +163,6 @@ export class SnickerdoodleIFrameProxy
         this.child.on("onCohortLeft", (data: EVMContractAddress) => {
           this.events.onCohortLeft.next(data);
         });
-
-        this.child.on(
-          "onDataPermissionsUpdated",
-          (data: DataPermissionsUpdatedEvent) => {
-            this.events.onDataPermissionsUpdated.next(data);
-          },
-        );
 
         this.child.on("onTransaction", (data: EVMTransaction) => {
           this.events.onTransaction.next(data);
@@ -418,33 +412,11 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("getAvailableInvitationsCID", null);
   }
 
-  public getConsentContractURLs(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<URLString[], ProxyError> {
-    return this._createCall("getConsentContractURLs", { contractAddress });
-  }
-
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {
     return this._createCall("getInvitationMetadataByCID", {
       ipfsCID,
-    });
-  }
-  public updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[],
-  ): ResultAsync<void, ProxyError> {
-    return this._createCall("updateAgreementPermissions", {
-      consentContractAddress,
-      dataTypes,
-    });
-  }
-  public getAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<EWalletDataType[], ProxyError> {
-    return this._createCall("getAgreementPermissions", {
-      consentContractAddress,
     });
   }
 
@@ -541,14 +513,6 @@ export class SnickerdoodleIFrameProxy
     });
   }
 
-  public getConsentCapacity(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<IConsentCapacity, ProxyError> {
-    return this._createCall("getConsentCapacity", {
-      contractAddress,
-    });
-  }
-
   public getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],
     timeoutMs?: number,
@@ -556,7 +520,7 @@ export class SnickerdoodleIFrameProxy
     Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     ProxyError
   > {
-    return this._createCall("getPossibleRewards", {
+    return this._createCall("getEarnedRewardsByContractAddress", {
       contractAddresses,
       timeoutMs,
     });
@@ -594,10 +558,12 @@ export class SnickerdoodleIFrameProxy
   approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
   ): ResultAsync<void, ProxyError> {
     return this._createCall("approveQuery", {
       queryCID,
       parameters,
+      queryPermissions,
     });
   }
 
