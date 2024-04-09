@@ -6,6 +6,7 @@ import {
   ITimeUtilsType,
   ObjectUtils,
   ValidationUtils,
+  RandomizationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IInsightPlatformRepository,
@@ -536,16 +537,11 @@ export class QueryService implements IQueryService {
     return this.consentContractRepository
       .getCommitmentCount(consentContractAddress)
       .andThen((commitmentCount) => {
-        const maxSetSize = 1000;
-        let setSize =
-          commitmentCount > maxSetSize ? maxSetSize : commitmentCount;
-        // Ensure the start index is always less than commitmentIndex to include our commitment
-        let start =
-          commitmentIndex - setSize >= 0 ? commitmentIndex - setSize : 0;
-        // Adjust the start if it's too close to the end of the commitment array
-        if (start + setSize > commitmentCount) {
-          start = commitmentCount - setSize;
-        }
+        const { start, setSize } = RandomizationUtils.getRandomizedSetRange(
+          commitmentIndex,
+          commitmentCount,
+          1000,
+        );
         return this.consentContractRepository.getAnonymitySet(
           consentContractAddress,
           start,
