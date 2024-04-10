@@ -42,6 +42,7 @@ export class ConsentFactoryContract
     );
   }
 
+  //#region Consent
   public getContractAddress(): EVMContractAddress {
     return this.contractAddress;
   }
@@ -105,75 +106,6 @@ export class ConsentFactoryContract
         }
       });
       return consents;
-    });
-  }
-
-  // Marketplace functions
-  public listingDuration(): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.listingDuration() as Promise<bigint>,
-      (e) => {
-        return this.generateError(e, "Unable to call listingDuration()");
-      },
-    ).map((duration) => {
-      return Number(duration);
-    });
-  }
-
-  public getMaxTagsPerListing(): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.maxTagsPerListing() as Promise<bigint>,
-      (e) => {
-        return this.generateError(e, "Unable to call maxTagsPerListing()");
-      },
-    ).map((num) => {
-      return Number(num);
-    });
-  }
-
-  public getGovernanceToken(): ResultAsync<
-    EVMContractAddress,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.getGovernanceToken() as Promise<EVMContractAddress>,
-      (e) => {
-        return this.generateError(e, "Unable to call getGovernanceToken()");
-      },
-    );
-  }
-
-  public isStakingToken(
-    stakingToken: EVMContractAddress,
-  ): ResultAsync<
-    boolean,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.isStakingToken(stakingToken) as Promise<boolean>,
-      (e) => {
-        return this.generateError(e, "Unable to call isStakingToken()");
-      },
-    );
-  }
-
-  public getListingDuration(): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.listingDuration() as Promise<bigint>,
-      (e) => {
-        return this.generateError(e, "Unable to call listingDuration()");
-      },
-    ).map((num) => {
-      return Number(num);
     });
   }
 
@@ -263,6 +195,170 @@ export class ConsentFactoryContract
       [stakingToken, contentAddress],
       overrides,
     );
+  }
+
+  public getListingsByTag(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    removeExpired: boolean,
+  ): ResultAsync<
+    MarketplaceListing[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    // We get the total number of slots by calling getTagTotal()
+    // And if we query the 2^256 - 1 slot by calling getListingDetail(), its previous member variable will point to the highest ranked listing for that tag
+    return this.getTagTotal(tag, stakingToken).andThen((tagTotal) => {
+      // The max slot
+      const highestRankListingSlot = BigNumberString(
+        ethers.MaxUint256.toString(),
+      );
+
+      // Fetch from the highest to lowest listings
+      return this.getListingsForward(
+        tag,
+        stakingToken,
+        highestRankListingSlot,
+        // Since we do not have getListing anymore, we wont immediately be able to get the highest slot (ie. .next of uint256)
+        // So to get the whole list, we start with uint256 and work our way down
+        // getListingsForward() on the contract returns from first slot queried and works its way down
+        // So we need to add one more slot to account for all tags as the first one will be taken by uint256
+        // this.getListingsForward function then filters out uint256 and 0 slot values by checking its .next and .previous values.
+        tagTotal + 1,
+        removeExpired,
+      );
+    });
+  }
+
+  public getAddressOfConsentCreated(
+    txRes: WrappedTransactionResponse,
+  ): ResultAsync<EVMContractAddress, TransactionResponseError> {
+    return txRes.wait().andThen((receipt) => {
+      // Get the hash of the event
+      const event = "ConsentContractDeployed(address,address)";
+      const eventHash = ethers.keccak256(ethers.toUtf8Bytes(event));
+
+      // Filter out for the ConsentContractDeployed event from the receipt's logs
+      // returns an array
+      const consentDeployedLog = receipt.logs.filter(
+        (_log) => _log.topics[0] == eventHash,
+      );
+
+      // If there are no logs, return an error
+      if (consentDeployedLog.length == 0) {
+        return errAsync(
+          new TransactionResponseError(
+            "No ConsentContractDeployed event found in the transaction receipt",
+          ),
+        );
+      }
+
+      // access the data and topics from the filtered log
+      const data = consentDeployedLog[0].data;
+      const topics = consentDeployedLog[0].topics;
+
+      // Declare a new interface
+      const iface = new ethers.Interface([
+        "event ConsentContractDeployed(address indexed owner, address indexed consentAddress)",
+      ]);
+
+      // Decode the log from the given data and topic
+      const decodedLog = iface.decodeEventLog(
+        "ConsentContractDeployed",
+        data,
+        topics,
+      );
+
+      const deployedConsentAddress: EVMContractAddress =
+        decodedLog.consentAddress;
+
+      return okAsync(deployedConsentAddress);
+    });
+  }
+  //#endregion Consent
+
+  //#region Content
+  public getGovernanceToken(): ResultAsync<
+    EVMContractAddress,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getGovernanceToken() as Promise<EVMContractAddress>,
+      (e) => {
+        return this.generateError(e, "Unable to call getGovernanceToken()");
+      },
+    );
+  }
+
+  public isStakingToken(
+    stakingToken: EVMContractAddress,
+  ): ResultAsync<
+    boolean,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.isStakingToken(stakingToken) as Promise<boolean>,
+      (e) => {
+        return this.generateError(e, "Unable to call isStakingToken()");
+      },
+    );
+  }
+
+  public listingDuration(): ResultAsync<
+    number,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.listingDuration() as Promise<bigint>,
+      (e) => {
+        return this.generateError(e, "Unable to call listingDuration()");
+      },
+    ).map((duration) => {
+      return Number(duration);
+    });
+  }
+
+  maxTagsPerListing(): ResultAsync<
+    number,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.maxTagsPerListing() as Promise<bigint>,
+      (e) => {
+        return this.generateError(e, "Unable to call maxTagsPerListing()");
+      },
+    ).map((num) => {
+      return Number(num);
+    });
+  }
+
+  // TODO remove
+  public getMaxTagsPerListing(): ResultAsync<
+    number,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return this.maxTagsPerListing();
+  }
+
+  // TODO remove
+  public getListingDuration(): ResultAsync<
+    number,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return this.listingDuration();
+  }
+
+  public getTagTotal(
+    tag: MarketplaceTag,
+    stakedToken: EVMContractAddress,
+  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.contract.getTagTotal(tag, stakedToken) as Promise<bigint>,
+      (e) => {
+        return this.generateError(e, "Unable to call getTagTotal()");
+      },
+    ).map((count) => {
+      return Number(count);
+    });
   }
 
   public getListingsForward(
@@ -355,97 +451,118 @@ export class ConsentFactoryContract
     });
   }
 
-  public getTagTotal(
-    tag: MarketplaceTag,
-    stakedToken: EVMContractAddress,
-  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors> {
-    return ResultAsync.fromPromise(
-      this.contract.getTagTotal(tag, stakedToken) as Promise<bigint>,
-      (e) => {
-        return this.generateError(e, "Unable to call getTagTotal()");
-      },
-    ).map((count) => {
-      return Number(count);
-    });
-  }
-
-  public getListingsByTag(
+  public initializeTag(
     tag: MarketplaceTag,
     stakingToken: EVMContractAddress,
-    removeExpired: boolean,
+    newHead: BigNumberString,
+    overrides?: ContractOverrides,
   ): ResultAsync<
-    MarketplaceListing[],
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return errAsync(
+      new ConsentFactoryContractError("Method not implemented", null, null),
+    );
+  }
+
+  insertUpstream(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    newSlot: BigNumberString,
+    existingSlot: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return errAsync(
+      new ConsentFactoryContractError("Method not implemented", null, null),
+    );
+  }
+
+  moveUpstream(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    newSlot: BigNumberString,
+    downstreamSlot: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return errAsync(
+      new ConsentFactoryContractError("Method not implemented", null, null),
+    );
+  }
+
+  insertDownstream(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    existingSlot: BigNumberString,
+    newSlot: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return errAsync(
+      new ConsentFactoryContractError("Method not implemented", null, null),
+    );
+  }
+
+  replaceExpiredListing(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    slot: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return errAsync(
+      new ConsentFactoryContractError("Method not implemented", null, null),
+    );
+  }
+
+  removeExpiredListings(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    slots: BigNumberString[],
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return errAsync(
+      new ConsentFactoryContractError("Method not implemented", null, null),
+    );
+  }
+
+  removeListing(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    removedSlot: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ConsentFactoryContractError
+  > {
+    return errAsync(
+      new ConsentFactoryContractError("Method not implemented", null, null),
+    );
+  }
+
+  computeFee(
+    slot: BigNumberString,
+  ): ResultAsync<
+    BigNumberString,
     ConsentFactoryContractError | BlockchainCommonErrors
   > {
-    // We get the total number of slots by calling getTagTotal()
-    // And if we query the 2^256 - 1 slot by calling getListingDetail(), its previous member variable will point to the highest ranked listing for that tag
-    return this.getTagTotal(tag, stakingToken).andThen((tagTotal) => {
-      // The max slot
-      const highestRankListingSlot = BigNumberString(
-        ethers.MaxUint256.toString(),
-      );
-
-      // Fetch from the highest to lowest listings
-      return this.getListingsForward(
-        tag,
-        stakingToken,
-        highestRankListingSlot,
-        // Since we do not have getListing anymore, we wont immediately be able to get the highest slot (ie. .next of uint256)
-        // So to get the whole list, we start with uint256 and work our way down
-        // getListingsForward() on the contract returns from first slot queried and works its way down
-        // So we need to add one more slot to account for all tags as the first one will be taken by uint256
-        // this.getListingsForward function then filters out uint256 and 0 slot values by checking its .next and .previous values.
-        tagTotal + 1,
-        removeExpired,
-      );
-    });
+    return errAsync(
+      new ConsentFactoryContractError("Method not implemented", null, null),
+    );
   }
-
-  public getAddressOfConsentCreated(
-    txRes: WrappedTransactionResponse,
-  ): ResultAsync<EVMContractAddress, TransactionResponseError> {
-    return txRes.wait().andThen((receipt) => {
-      // Get the hash of the event
-      const event = "ConsentContractDeployed(address,address)";
-      const eventHash = ethers.keccak256(ethers.toUtf8Bytes(event));
-
-      // Filter out for the ConsentContractDeployed event from the receipt's logs
-      // returns an array
-      const consentDeployedLog = receipt.logs.filter(
-        (_log) => _log.topics[0] == eventHash,
-      );
-
-      // If there are no logs, return an error
-      if (consentDeployedLog.length == 0) {
-        return errAsync(
-          new TransactionResponseError(
-            "No ConsentContractDeployed event found in the transaction receipt",
-          ),
-        );
-      }
-
-      // access the data and topics from the filtered log
-      const data = consentDeployedLog[0].data;
-      const topics = consentDeployedLog[0].topics;
-
-      // Declare a new interface
-      const iface = new ethers.Interface([
-        "event ConsentContractDeployed(address indexed owner, address indexed consentAddress)",
-      ]);
-
-      // Decode the log from the given data and topic
-      const decodedLog = iface.decodeEventLog(
-        "ConsentContractDeployed",
-        data,
-        topics,
-      );
-
-      const deployedConsentAddress: EVMContractAddress =
-        decodedLog.consentAddress;
-
-      return okAsync(deployedConsentAddress);
-    });
-  }
+  //#endregion Content
 
   // #region Domains- ERC-7529
   public addDomain(

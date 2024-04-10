@@ -9,12 +9,11 @@ import {
   MarketplaceTag,
   BlockchainCommonErrors,
   TransactionResponseError,
-  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { EConsentRoles } from "@contracts-sdk/interfaces/enums/index.js";
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import { IContentFactoryContract } from "@contracts-sdk/interfaces/IContentFactoryContract.js";
 import { IERC7529Contract } from "@contracts-sdk/interfaces/IERC7529Contract.js";
 import {
   WrappedTransactionResponse,
@@ -23,7 +22,8 @@ import {
 
 export interface IConsentFactoryContract
   extends IBaseContract,
-    IERC7529Contract<ConsentFactoryContractError> {
+    IERC7529Contract<ConsentFactoryContractError>,
+    IContentFactoryContract {
   /**
    * Creates a consent contract for user
    * @param ownerAddress Address of the owner of the Consent contract instance
@@ -57,33 +57,6 @@ export interface IConsentFactoryContract
    */
   getDeployedConsents(): ResultAsync<
     EVMContractAddress[],
-    ConsentFactoryContractError | BlockchainCommonErrors
-  >;
-
-  /**
-   * Returns the number of seconds that a listing will be active for
-   */
-  listingDuration(): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  >;
-
-  getMaxTagsPerListing(): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  >;
-
-  getGovernanceToken(): ResultAsync<
-    EVMContractAddress,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  >;
-
-  isStakingToken(
-    stakingToken: EVMContractAddress,
-  ): ResultAsync<boolean, ConsentFactoryContractError | BlockchainCommonErrors>;
-
-  getListingDuration(): ResultAsync<
-    number,
     ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
@@ -148,34 +121,11 @@ export interface IConsentFactoryContract
     ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
-  getListingsForward(
-    tag: MarketplaceTag,
-    stakingToken: EVMContractAddress,
-    startingSlot: BigNumberString,
-    numberOfSlots: number,
-    removeExpired: boolean,
-  ): ResultAsync<
-    MarketplaceListing[],
-    ConsentFactoryContractError | BlockchainCommonErrors
-  >;
-
-  getListingsBackward(
-    tag: MarketplaceTag,
-    stakingToken: EVMContractAddress,
-    startingSlot: BigNumberString,
-    numberOfSlots: number,
-    removeExpired: boolean,
-  ): ResultAsync<
-    MarketplaceListing[],
-    ConsentFactoryContractError | BlockchainCommonErrors
-  >;
-
-  getTagTotal(
-    tag: MarketplaceTag,
-    stakingToken: EVMContractAddress,
-  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors>;
-
   getAddressOfConsentCreated(
     txRes: WrappedTransactionResponse,
   ): ResultAsync<EVMContractAddress, TransactionResponseError>;
 }
+
+export const IConsentFactoryContractType = Symbol.for(
+  "IConsentFactoryContract",
+);
