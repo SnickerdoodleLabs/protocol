@@ -163,6 +163,7 @@ export interface IConsentContract
     BlockchainCommonErrors | ConsentContractError
   >;
 
+  //#region Roles
   /**
    * Checks if an address has a specific role in the Consent contract
    * @param role string that is a key defined in EConsentRoles enum
@@ -214,6 +215,7 @@ export interface IConsentContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError
   >;
+  //#endregion Roles
 
   /**
    * Returns the earliest block that should be looked at for requestForData events
@@ -282,35 +284,60 @@ export interface IConsentContract
     >,
   ): ResultAsync<Signature, InvalidParametersError>;
 
-  /**
-   * Marketplace functions
-   */
+  //#region Staking
+  // # TODO Remove
   getStakingToken(): ResultAsync<
     EVMContractAddress,
     ConsentContractError | BlockchainCommonErrors
   >;
 
+  //#region Content Object
   tagIndices(
     tag: string,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<
     BigNumberString,
     ConsentContractError | BlockchainCommonErrors
   >;
 
-  updateMaxTagsLimit(
+  // # TODO maybe make it return BNS
+  getNumberOfStakedTags(
+    stakingToken: EVMContractAddress,
+  ): ResultAsync<number, ConsentContractError | BlockchainCommonErrors>;
+
+  getTagArray(
+    stakingToken: EVMContractAddress,
+  ): ResultAsync<Tag[], ConsentContractError | BlockchainCommonErrors>;
+
+  getContentAddress(): ResultAsync<
+    EVMContractAddress,
+    ConsentContractError | BlockchainCommonErrors
+  >;
+  //#endregion Content Object
+
+  //#region Consent Object
+  depositStake(
+    depositToken: EVMContractAddress,
+    amount: BigNumberString,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     ConsentContractError | BlockchainCommonErrors
   >;
 
-  getNumberOfStakedTags(): ResultAsync<
-    number,
+  removeStake(
+    depositToken: EVMContractAddress,
+    amount: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
     ConsentContractError | BlockchainCommonErrors
   >;
-
-  getTagArray(): ResultAsync<
-    Tag[],
+  //#endregion Consent Object
+  updateMaxTagsLimit(
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
     ConsentContractError | BlockchainCommonErrors
   >;
 
@@ -389,6 +416,7 @@ export interface IConsentContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentContractError
   >;
+  //#endregion Staking
 
   filters: IConsentContractFilters;
 }

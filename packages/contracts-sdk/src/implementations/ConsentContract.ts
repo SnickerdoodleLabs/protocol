@@ -236,6 +236,7 @@ export class ConsentContract
     return this.writeToContract("setBaseURI", [baseUri], overrides);
   }
 
+  //#region Roles
   public hasRole(
     role: EConsentRoles,
     address: EVMAccountAddress,
@@ -280,6 +281,7 @@ export class ConsentContract
   > {
     return this.writeToContract("renounceRole", [role, address], overrides);
   }
+  //#endregion Roles
 
   public getQueryHorizon(): ResultAsync<
     BlockNumber,
@@ -407,7 +409,8 @@ export class ConsentContract
     );
   }
 
-  // Marketplace functions
+  //#region Staking
+  // # TODO Remove
   public getStakingToken(): ResultAsync<
     EVMContractAddress,
     ConsentContractError | BlockchainCommonErrors
@@ -415,42 +418,34 @@ export class ConsentContract
     return ResultAsync.fromPromise(
       this.contract.getStakingToken() as Promise<EVMContractAddress>,
       (e) => {
-        return this.generateError(e, "Unable to call getNumberOfStakedTags()");
+        return this.generateError(e, "Unable to call getStakingToken()");
       },
     );
   }
 
+  //#region Content Object
   public tagIndices(
     tag: string,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<
     BigNumberString,
     ConsentContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.tagIndices() as Promise<bigint>,
+      this.contract.tagIndices(tag, stakingToken) as Promise<bigint>,
       (e) => {
-        return this.generateError(e, "Unable to call getNumberOfStakedTags()");
+        return this.generateError(e, "Unable to call tagIndices()");
       },
     ).map((index) => {
       return BigNumberString(index.toString());
     });
   }
 
-  public updateMaxTagsLimit(
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return this.writeToContract("updateMaxTagsLimit", [], overrides);
-  }
-
-  public getNumberOfStakedTags(): ResultAsync<
-    number,
-    ConsentContractError | BlockchainCommonErrors
-  > {
+  public getNumberOfStakedTags(
+    stakingToken: EVMContractAddress,
+  ): ResultAsync<number, ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.getNumberOfStakedTags() as Promise<bigint>,
+      this.contract.getNumberOfStakedTags(stakingToken) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call getNumberOfStakedTags()");
       },
@@ -459,12 +454,11 @@ export class ConsentContract
     });
   }
 
-  public getTagArray(): ResultAsync<
-    Tag[],
-    ConsentContractError | BlockchainCommonErrors
-  > {
+  public getTagArray(
+    stakingToken: EVMContractAddress,
+  ): ResultAsync<Tag[], ConsentContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.getTagArray() as Promise<ITagStruct[]>,
+      this.contract.getTagArray(stakingToken) as Promise<ITagStruct[]>,
       (e) => {
         return this.generateError(e, "Unable to call getTagArray()");
       },
@@ -477,6 +471,60 @@ export class ConsentContract
         );
       });
     });
+  }
+
+  public getContentAddress(): ResultAsync<
+    EVMContractAddress,
+    ConsentContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.contentAddress() as Promise<EVMContractAddress>,
+      (e) => {
+        return this.generateError(e, "Unable to call contentAddress()");
+      },
+    );
+  }
+  //#endregion Content Object
+
+  //#region Consent Object
+  public depositStake(
+    depositToken: EVMContractAddress,
+    amount: BigNumberString,
+    overrides?: ContractOverrides | undefined,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    ConsentContractError | BlockchainCommonErrors
+  > {
+    return this.writeToContract(
+      "depositStake",
+      [depositToken, amount],
+      overrides,
+    );
+  }
+
+  public removeStake(
+    depositToken: EVMContractAddress,
+    amount: BigNumberString,
+    overrides?: ContractOverrides | undefined,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    ConsentContractError | BlockchainCommonErrors
+  > {
+    return this.writeToContract(
+      "removeStake",
+      [depositToken, amount],
+      overrides,
+    );
+  }
+  //#endregion Consent Object
+
+  public updateMaxTagsLimit(
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    ConsentContractError | BlockchainCommonErrors
+  > {
+    return this.writeToContract("updateMaxTagsLimit", [], overrides);
   }
 
   public newGlobalTag(
@@ -596,6 +644,7 @@ export class ConsentContract
       overrides,
     );
   }
+  //#endregion Staking
 
   public getSignature(
     values: (
