@@ -196,8 +196,16 @@ describe("Consent Contract and Factory Tests", function () {
       );
     });
 
-    // use it.only to only test
-    xit("Testing fetchAnonymitySet fetch limit", async function () {
+    // Use it.only to only run this specific test to determine the limits batchOptIn and fetchAnonymitySet
+    // To run this test:
+    // 1. Update hardhat.config.ts for localhost network to use:
+    //    - 30,000,000 gas (a full block's gas limit)
+    //    - 30 gwei (average gas price for Avalanche chain)
+    // 2. Change xit to it.only
+    // 3. On a separate terminal, run npx hardhat node, this spins up a local blockchain node
+    // 4. Run npx hardhat run --network localhost
+
+    xit("Testing batchOptIn and fetchAnonymitySet fetch limit", async function () {
       const { consentFactory, token, owner, otherAccount } = await loadFixture(
         deployConsentStack,
       );
@@ -221,19 +229,17 @@ describe("Consent Contract and Factory Tests", function () {
         events[0].args[1],
       );
 
-      // 629 is about the max commitment batch size for batchOptIn based on full block sizel imit of 30,000,000 gas
-      // set number of batches to commit
+      // For batchOptIn, 629 is the max commitment batch size before erroring out.
       const sizeBatchPerCall = 629;
 
-      // fetchAnonymitySet passes with 11184 commitments
-      // fails with 11185 commitments
+      // For fetchAnonymitySet, 11184 commitments was its max before erroring out.
       const totalCommitments = 11184;
 
       let totalCommitmentsRemaining = totalCommitments;
 
       const arrayOfBatches: string[][] = [];
 
-      while (totalCommitmentsRemaining > 629) {
+      while (totalCommitmentsRemaining > sizeBatchPerCall) {
         const commitmentBatch: string[] = [];
         for (let i = 0; i < sizeBatchPerCall; i++) {
           commitmentBatch.push(`0x${generateRandomHex(32)}`);
