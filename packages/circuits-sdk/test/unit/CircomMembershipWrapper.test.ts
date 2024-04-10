@@ -1,13 +1,14 @@
+import "reflect-metadata";
+
 import { CircomUtils } from "@snickerdoodlelabs/circuits";
 import {
-  BigNumberString,
   Commitment,
   IpfsCID,
   NullifierBNS,
   TrapdoorBNS,
 } from "@snickerdoodlelabs/objects";
 
-import { CircomMembershipWrapper } from "@circuits-sdk/implementations/circom/CircomMembershipWrapper.js";
+import { CircomMembershipWrapper } from "@circuits-sdk/implementations/CircomMembershipWrapper.js";
 
 const signal = "Phoebe";
 const identityTrapdoor = TrapdoorBNS(1234567890n.toString());
