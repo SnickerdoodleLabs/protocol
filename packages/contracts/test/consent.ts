@@ -203,7 +203,8 @@ describe("Consent Contract and Factory Tests", function () {
     //    - 30 gwei (average gas price for Avalanche chain)
     // 2. Change xit to it.only
     // 3. On a separate terminal, run npx hardhat node, this spins up a local blockchain node
-    // 4. Run npx hardhat run --network localhost
+    // 4. In the .env file, include the localhost's wallet private key: ETH_PRIVATE_KEY = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+    // 5. Run npx hardhat run --network localhost
 
     xit("Testing batchOptIn and fetchAnonymitySet fetch limit", async function () {
       const { consentFactory, token, owner, otherAccount } = await loadFixture(
