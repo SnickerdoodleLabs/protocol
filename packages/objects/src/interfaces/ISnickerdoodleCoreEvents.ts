@@ -4,7 +4,6 @@ import {
   CloudStorageActivatedEvent,
   BackupCreatedEvent,
   BackupRestoreEvent,
-  DataPermissionsUpdatedEvent,
   EVMTransaction,
   EarnedReward,
   LinkedAccount,
@@ -38,7 +37,6 @@ export interface ISnickerdoodleCoreEvents {
   onPasswordRemoved: Observable<void>;
   onCohortJoined: Observable<EVMContractAddress>;
   onCohortLeft: Observable<EVMContractAddress>;
-  onDataPermissionsUpdated: Observable<DataPermissionsUpdatedEvent>;
   onTransaction: Observable<EVMTransaction>;
   onEarnedRewardsAdded: Observable<EarnedReward[]>;
   onMetatransactionSignatureRequested: Observable<MetatransactionSignatureRequest>;

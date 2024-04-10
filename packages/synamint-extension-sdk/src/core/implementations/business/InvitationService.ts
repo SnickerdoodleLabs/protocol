@@ -43,16 +43,6 @@ export class InvitationService implements IInvitationService {
     @inject(IContextProviderType) protected contexProvider: IContextProvider,
   ) {}
 
-  public updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.invitationRepository.updateAgreementPermissions(
-      consentContractAddress,
-      dataPermissions,
-    );
-  }
-
   public getMarketplaceListingsByTag(
     pagingReq: PagingRequest,
     tag: MarketplaceTag,
@@ -75,12 +65,6 @@ export class InvitationService implements IInvitationService {
     consentAddress: EVMContractAddress,
   ): ResultAsync<IpfsCID, SnickerDoodleCoreError> {
     return this.invitationRepository.getConsentContractCID(consentAddress);
-  }
-
-  public getDataPermissions(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<DataPermissions, SnickerDoodleCoreError> {
-    return this.invitationRepository.getDataPermissions(consentContractAddress);
   }
 
   public getAvailableInvitationsCID(): ResultAsync<

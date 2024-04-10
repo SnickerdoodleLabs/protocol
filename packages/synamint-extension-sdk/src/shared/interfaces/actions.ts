@@ -64,6 +64,7 @@ import {
   DataPermissions,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 
@@ -225,17 +226,6 @@ export class GetInvitationWithDomainParams extends CoreActionParams<JSONString |
   }
 }
 
-export class UpdateAgreementPermissionsParams extends CoreActionParams<void> {
-  public constructor(
-    public consentContractAddress: EVMContractAddress,
-    public dataPermissions: DataPermissions,
-  ) {
-    super(UpdateAgreementPermissionsParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.UPDATE_AGREEMENT_PERMISSIONS;
-  }
-}
 export class AcceptInvitationParams extends CoreActionParams<void> {
   public constructor(public invitation: JSONString) {
     super(AcceptInvitationParams.getCoreAction());
@@ -254,15 +244,6 @@ export class RejectInvitationParams extends CoreActionParams<void> {
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.REJECT_INVITATION;
-  }
-}
-
-export class GetAgreementPermissionsParams extends CoreActionParams<DataPermissions> {
-  public constructor(public consentContractAddress: EVMContractAddress) {
-    super(GetAgreementPermissionsParams.getCoreAction());
-  }
-  static getCoreAction(): ECoreActions {
-    return ECoreActions.GET_AGREEMENT_PERMISSIONS;
   }
 }
 
@@ -667,6 +648,7 @@ export class ApproveQueryParams extends CoreActionParams<void> {
   public constructor(
     public queryCID: IpfsCID,
     public parameters: IDynamicRewardParameter[],
+    public queryPermissions: IQueryPermissions | null,
   ) {
     super(ApproveQueryParams.getCoreAction());
   }
