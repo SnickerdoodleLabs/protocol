@@ -1,10 +1,6 @@
-import { ethers } from "ethers";
-import { ResultAsync } from "neverthrow";
-
 import {
   AdSignature,
   ChainTransaction,
-  DataPermissions,
   DataWalletBackup,
   DiscordGuildProfile,
   DiscordProfile,
@@ -84,6 +80,7 @@ import {
   QuestionnairesContractError,
 } from "@objects/errors/index.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
+import { IQueryPermissions } from "@objects/interfaces/IQueryPermissions.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
 import {
@@ -119,6 +116,8 @@ import {
   RefreshToken,
   JSONString,
 } from "@objects/primitives/index.js";
+import { ethers } from "ethers";
+import { ResultAsync } from "neverthrow";
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
  Whenever you add or change a method in this class, you also need to look at and probably update
@@ -589,21 +588,6 @@ export interface IInvitationMethods {
     | BlockchainCommonErrors
   >;
 
-  getDataPermissions(
-    consentContractAddress: EVMContractAddress,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<
-    DataPermissions,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | ConsentFactoryContractError
-    | PersistenceError
-    | ConsentError
-    | UnauthorizedError
-    | BlockchainCommonErrors
-  >;
-
   getAvailableInvitationsCID(
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
@@ -635,22 +619,6 @@ export interface IInvitationMethods {
   ): ResultAsync<
     IOldUserAgreement | IUserAgreement,
     IPFSError | UnauthorizedError
-  >;
-
-  updateDataPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
-    sourceDomain?: DomainName,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | UninitializedError
-    | ConsentError
-    | ConsentContractError
-    | BlockchainProviderError
-    | MinimalForwarderContractError
-    | AjaxError
-    | BlockchainCommonErrors
   >;
 }
 
@@ -841,14 +809,6 @@ export interface IQuestionnaireMethods {
 }
 
 export interface IPermissionMethods {
-  getContentContractPermissions(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<DataPermissions, PersistenceError>;
-
-  setContentContractPermissions(
-    dataPermissions: DataPermissions,
-  ): ResultAsync<void, PersistenceError>;
-
   getDomainPermissions(
     domain: DomainName,
   ): ResultAsync<EDataWalletPermission[], PersistenceError>;
@@ -891,6 +851,7 @@ export interface ISnickerdoodleCore {
   approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,

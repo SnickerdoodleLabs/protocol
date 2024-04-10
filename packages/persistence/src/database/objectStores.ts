@@ -21,7 +21,6 @@ import {
   InvitationForStorageMigrator,
   QuestionnaireMigrator,
   QuestionnaireHistoryMigrator,
-  PermissionForStorageMigrator,
 } from "@snickerdoodlelabs/objects";
 
 import { IPersistenceConfig } from "@persistence/IPersistenceConfig";
@@ -265,17 +264,6 @@ export const getObjectStoreDefinitions = (config?: IPersistenceConfig) => {
         config?.dataWalletBackupIntervalMS ?? testTimeValue,
         config?.backupChunkSizeTarget ?? testTimeValue,
         [[["deleted", "id", "measurementDate"], false]],
-      ),
-    ],
-    [
-      ERecordKey.PERMISSIONS,
-      new VolatileTableIndex(
-        ERecordKey.PERMISSIONS,
-        ["consentContractAddress", false],
-        new PermissionForStorageMigrator(),
-        EBackupPriority.NORMAL,
-        config?.dataWalletBackupIntervalMS ?? testTimeValue,
-        config?.backupChunkSizeTarget ?? testTimeValue,
       ),
     ],
   ]);

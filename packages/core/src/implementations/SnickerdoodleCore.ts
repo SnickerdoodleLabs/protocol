@@ -107,6 +107,7 @@ import {
   MethodSupportError,
   MissingWalletDataTypeError,
   ServerRewardError,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBVolatileStorage,
@@ -419,16 +420,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
         return invitationService.getInvitationsByDomain(domain);
       },
-      getDataPermissions: (
-        consentContractAddress: EVMContractAddress,
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        const invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-
-        return invitationService.getDataPermissions(consentContractAddress);
-      },
       getAvailableInvitationsCID: (
         sourceDomain: DomainName | undefined = undefined,
       ) => {
@@ -453,20 +444,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
 
         return invitationService.getInvitationMetadataByCID(ipfsCID);
-      },
-      updateDataPermissions: (
-        consentContractAddress: EVMContractAddress,
-        dataPermissions: DataPermissions,
-        sourceDomain: DomainName | undefined = undefined,
-      ) => {
-        const invitationService = this.iocContainer.get<IInvitationService>(
-          IInvitationServiceType,
-        );
-
-        return invitationService.updateDataPermissions(
-          consentContractAddress,
-          dataPermissions,
-        );
       },
     };
 
@@ -861,28 +838,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     };
 
     this.permission = {
-      getContentContractPermissions: (
-        consentContractAddress: EVMContractAddress,
-      ) => {
-        const permissionRepository =
-          this.iocContainer.get<IPermissionRepository>(
-            IPermissionRepositoryType,
-          );
-        return permissionRepository.getContentContractPermissions(
-          consentContractAddress,
-        );
-      },
-
-      setContentContractPermissions: (dataPermissions: DataPermissions) => {
-        const permissionRepository =
-          this.iocContainer.get<IPermissionRepository>(
-            IPermissionRepositoryType,
-          );
-        return permissionRepository.setContentContractPermissions(
-          dataPermissions,
-        );
-      },
-
       getDomainPermissions: (domain: DomainName) => {
         const permissionRepository =
           this.iocContainer.get<IPermissionRepository>(
@@ -1011,6 +966,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
     _sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     void,
@@ -1029,7 +985,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.approveQuery(queryCID, parameters);
+    return queryService.approveQuery(queryCID, parameters, queryPermissions);
   }
 
   getQueryStatusesByContractAddress(

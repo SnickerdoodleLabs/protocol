@@ -6,6 +6,7 @@ import {
   EQueryProcessingStatus,
   EWalletDataType,
 } from "@objects/enum/index.js";
+import { IQueryPermissions } from "@objects/interfaces/index.js";
 import {
   BlockNumber,
   EVMContractAddress,
@@ -29,7 +30,7 @@ import { PropertiesOf } from "@objects/utilities/index.js";
  * @param expirationDate Technically retrievable from IPFS, we'll cache it here. We need to process the query before this date, so periodically we need to look for queries that are about to expire.
  */
 export class QueryStatus extends VersionedObject {
-  public static CURRENT_VERSION = 2;
+  public static CURRENT_VERSION = 3;
   public constructor(
     public consentContractAddress: EVMContractAddress,
     public queryCID: IpfsCID,
@@ -43,6 +44,7 @@ export class QueryStatus extends VersionedObject {
     public questionnaires: IpfsCID[],
     public virtualQuestionnaires: EWalletDataType[],
     public image: IpfsCID | null,
+    public queryPermissions: IQueryPermissions,
   ) {
     super();
   }
@@ -71,6 +73,7 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
       data.questionnaires,
       data.virtualQuestionnaires,
       data.image,
+      data.queryPermissions,
     );
   }
 
@@ -89,6 +92,16 @@ export class QueryStatusMigrator extends VersionedObjectMigrator<QueryStatus> {
           data.virtualQuestionnaires = data.virtualQuestionnaires ?? [];
           data.rewardsParameters = data.rewardsParameters ?? JSONString("{}");
           data.image = data.image ?? null;
+          return data;
+        },
+      ],
+      [
+        2,
+        (data: Partial<QueryStatus>) => {
+          data.queryPermissions = {
+            questionnaires: data.questionnaires ?? [],
+            virtualQuestionnaires: data.virtualQuestionnaires ?? [],
+          };
           return data;
         },
       ],
