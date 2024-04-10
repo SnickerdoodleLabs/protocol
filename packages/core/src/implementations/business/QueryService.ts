@@ -6,6 +6,7 @@ import {
   ITimeUtilsType,
   ObjectUtils,
   ValidationUtils,
+  RandomizationUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IInsightPlatformRepository,
@@ -63,6 +64,7 @@ import {
   AccountAddress,
   ConsentFactoryContractError,
   MissingWalletDataTypeError,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import {
   SDQLQueryWrapper,
@@ -378,6 +380,7 @@ export class QueryService implements IQueryService {
   public approveQuery(
     queryCID: IpfsCID,
     rewardParameters: IDynamicRewardParameter[],
+    queryPermissions: IQueryPermissions | null,
   ): ResultAsync<
     void,
     | AjaxError
@@ -444,6 +447,9 @@ export class QueryService implements IQueryService {
         // the query for ads here.
         queryStatus.status = EQueryProcessingStatus.AdsCompleted;
         queryStatus.rewardsParameters = ObjectUtils.serialize(rewardParameters);
+        if (queryPermissions) {
+          queryStatus.queryPermissions = queryPermissions;
+        }
         return this.sdqlQueryRepo.upsertQueryStatus([queryStatus]).map(() => {
           return queryStatus;
         });
@@ -531,16 +537,11 @@ export class QueryService implements IQueryService {
     return this.consentContractRepository
       .getCommitmentCount(consentContractAddress)
       .andThen((commitmentCount) => {
-        const maxSetSize = 1000;
-        let setSize =
-          commitmentCount > maxSetSize ? maxSetSize : commitmentCount;
-        // Ensure the start index is always less than commitmentIndex to include our commitment
-        let start =
-          commitmentIndex - setSize >= 0 ? commitmentIndex - setSize : 0;
-        // Adjust the start if it's too close to the end of the commitment array
-        if (start + setSize > commitmentCount) {
-          start = commitmentCount - setSize;
-        }
+        const { start, setSize } = RandomizationUtils.getRandomizedSetRange(
+          commitmentIndex,
+          commitmentCount,
+          1000,
+        );
         return this.consentContractRepository.getAnonymitySet(
           consentContractAddress,
           start,
@@ -575,6 +576,10 @@ export class QueryService implements IQueryService {
       queryMetadata.questionnaires,
       queryMetadata.virtualQuestionnaires,
       queryMetadata.image ?? null,
+      {
+        virtualQuestionnaires: queryMetadata.virtualQuestionnaires,
+        questionnaires: queryMetadata.questionnaires,
+      },
     );
     return this.sdqlQueryRepo
       .upsertQueryStatus([queryStatus])
@@ -604,6 +609,10 @@ export class QueryService implements IQueryService {
       queryMetadata.questionnaires,
       queryMetadata.virtualQuestionnaires,
       queryMetadata.image ?? null,
+      {
+        virtualQuestionnaires: queryMetadata.virtualQuestionnaires,
+        questionnaires: queryMetadata.questionnaires,
+      },
     );
     return this.sdqlQueryRepo
       .upsertQueryStatus([queryStatus])
@@ -904,6 +913,11 @@ export class QueryService implements IQueryService {
                         queryMetadata.questionnaires,
                         queryMetadata.virtualQuestionnaires,
                         queryMetadata.image ?? null,
+                        {
+                          virtualQuestionnaires:
+                            queryMetadata.virtualQuestionnaires,
+                          questionnaires: queryMetadata.questionnaires,
+                        },
                       );
 
                       return this.sdqlQueryRepo
@@ -992,15 +1006,18 @@ export class QueryService implements IQueryService {
           ),
         );
       }
-      return ResultUtils.combine([
-        this.validateContextConfig(context, commitmentIndex),
-        this.permisionRepo.getContentContractPermissions(
-          queryStatus.consentContractAddress,
-        ),
-      ])
-        .andThen(([_, permissions]) => {
+      return this.validateContextConfig(context, commitmentIndex)
+
+        .andThen(() => {
           // After sanity checking, we process the query into insights for a
           // (hopefully) final time, and get our opt-in key
+
+          const _permissions = new DataPermissions(
+            queryStatus.consentContractAddress,
+            queryStatus.queryPermissions.virtualQuestionnaires,
+            queryStatus.queryPermissions.questionnaires,
+          );
+
           context.publicEvents.queryPerformance.next(
             new QueryPerformanceEvent(
               EQueryEvents.ProcessesBeforeReturningQueryEvaluation,
@@ -1015,7 +1032,7 @@ export class QueryService implements IQueryService {
             this.queryParsingEngine
               .handleQuery(
                 query,
-                permissions, // We're enabling all permissions for now instead of using consentToken!.dataPermissions till the permissions are properly refactored.
+                _permissions, // We're enabling all permissions for now instead of using consentToken!.dataPermissions till the permissions are properly refactored.
               )
               .map((insights) => {
                 this.logUtils.debug(

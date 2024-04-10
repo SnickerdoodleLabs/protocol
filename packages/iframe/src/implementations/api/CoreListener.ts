@@ -45,6 +45,7 @@ import {
   NewQuestionnaireAnswer,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
+  IQueryPermissions,
 } from "@snickerdoodlelabs/objects";
 import {
   IIFrameCallData,
@@ -466,35 +467,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         }, data.callId);
       },
 
-      updateAgreementPermissions: (
-        data: IIFrameCallData<{
-          dataPermissions: DataPermissions;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.permission.setContentContractPermissions(
-              data.data.dataPermissions,
-            );
-          });
-        }, data.callId);
-      },
-
-      getDataPermissions: (
-        data: IIFrameCallData<{
-          consentContractAddress: EVMContractAddress;
-        }>,
-      ) => {
-        this.returnForModel(() => {
-          return this.coreProvider.getCore().andThen((core) => {
-            return core.invitation.getDataPermissions(
-              data.data.consentContractAddress,
-              this.sourceDomain,
-            );
-          });
-        }, data.callId);
-      },
-
       getInvitationByDomain: (
         data: IIFrameCallData<{
           domain: DomainName;
@@ -742,6 +714,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
         data: IIFrameCallData<{
           queryCID: IpfsCID;
           parameters: IDynamicRewardParameter[];
+          queryPermissions: IQueryPermissions | null;
           _sourceDomain?: DomainName | undefined;
         }>,
       ) => {
@@ -750,6 +723,7 @@ export class CoreListener extends ChildProxy implements ICoreListener {
             return core.approveQuery(
               data.data.queryCID,
               data.data.parameters,
+              data.data.queryPermissions,
               this.sourceDomain,
             );
           });
@@ -1224,10 +1198,6 @@ export class CoreListener extends ChildProxy implements ICoreListener {
 
         events.onCohortLeft.subscribe((val) => {
           parent.emit("onCohortLeft", val);
-        });
-
-        events.onDataPermissionsUpdated.subscribe((val) => {
-          parent.emit("onDataPermissionsUpdated", val);
         });
 
         events.onTransaction.subscribe((val) => {
