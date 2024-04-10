@@ -196,6 +196,88 @@ describe("Consent Contract and Factory Tests", function () {
       );
     });
 
+    // use it.only to only test
+    xit("Testing fetchAnonymitySet fetch limit", async function () {
+      const { consentFactory, token, owner, otherAccount } = await loadFixture(
+        deployConsentStack,
+      );
+
+      // add snickerdoodle.com to the token contract
+      await expect(
+        consentFactory.createConsent(owner.address, "snickerdoodle.com"),
+      )
+        .to.emit(consentFactory, "ConsentContractDeployed")
+        .withArgs(owner.address, anyValue);
+
+      // read the event logs to find the contract address
+      const filter = await consentFactory.filters.ConsentContractDeployed(
+        owner.address,
+      );
+      const events = await consentFactory.queryFilter(filter);
+
+      // get a contract handle on the deployed contract
+      const consentContract = await ethers.getContractAt(
+        "Consent",
+        events[0].args[1],
+      );
+
+      // 629 is about the max commitment batch size for batchOptIn based on full block sizel imit of 30,000,000 gas
+      // set number of batches to commit
+      const sizeBatchPerCall = 629;
+
+      // fetchAnonymitySet passes with 11184 commitments
+      // fails with 11185 commitments
+      const totalCommitments = 11184;
+
+      let totalCommitmentsRemaining = totalCommitments;
+
+      const arrayOfBatches: string[][] = [];
+
+      while (totalCommitmentsRemaining > 629) {
+        const commitmentBatch: string[] = [];
+        for (let i = 0; i < sizeBatchPerCall; i++) {
+          commitmentBatch.push(`0x${generateRandomHex(32)}`);
+        }
+        arrayOfBatches.push(commitmentBatch);
+
+        const remainingCommitment =
+          totalCommitmentsRemaining - sizeBatchPerCall;
+
+        // If the remainder is greater than the max batch size per call, just batch the remainder, push in the array of batches and exit the loop
+        if (remainingCommitment < sizeBatchPerCall) {
+          const remainingCommitmentBatch: string[] = [];
+
+          for (let i = 0; i < remainingCommitment; i++) {
+            remainingCommitmentBatch.push(`0x${generateRandomHex(32)}`);
+          }
+
+          arrayOfBatches.push(remainingCommitmentBatch);
+          break;
+        }
+
+        totalCommitmentsRemaining = remainingCommitment;
+      }
+
+      // make an arbitrary commitment of 32 bytes
+      for (let j = 0; j < arrayOfBatches.length; j++) {
+        await consentContract.batchOptIn(arrayOfBatches[j]);
+      }
+
+      expect(await consentContract.totalSupply()).to.equal(totalCommitments);
+
+      console.log("TOTAL COMMITMENTS", totalCommitments);
+      console.log("FETCHING ANONYMITYSET...");
+      const output = await consentContract.fetchAnonymitySet(
+        0,
+        totalCommitments,
+      );
+
+      console.log("COMMITMENT COUNT", output.length);
+      expect(
+        await consentContract.fetchAnonymitySet(0, totalCommitments),
+      ).to.eql(arrayOfBatches.flat());
+    });
+
     it("Restricted single optin", async function () {
       const { consentFactory, token, owner, otherAccount } = await loadFixture(
         deployConsentStack,
