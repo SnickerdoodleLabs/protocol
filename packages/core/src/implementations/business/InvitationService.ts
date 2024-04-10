@@ -30,7 +30,6 @@ import {
   TokenId,
   UninitializedError,
   UnixTimestamp,
-  DataPermissionsUpdatedEvent,
   BlockchainCommonErrors,
   OptInInfo,
   IUserAgreement,
@@ -322,25 +321,44 @@ export class InvitationService implements IInvitationService {
               config.defaultInsightPlatformBaseUrl,
             )
             .andThen(() => {
+              return ResultAsync.fromSafePromise(
+                new Promise((resolve, _) => {
+                  let attemptCount = 0;
+                  const maxtAttempts = 10;
+                  const checkIntervalMs = 1000;
+                  const checkCommitmentExistence = () => {
+                    attemptCount = attemptCount + 1;
+                    if (attemptCount > maxtAttempts) {
+                      this.logUtils.info(
+                        `Commitment index could not be found within ${maxtAttempts} attempts; skipping`,
+                      );
+                      resolve(undefined);
+                    }
+                    return this.consentRepo
+                      .getCommitmentIndex(invitation.consentContractAddress)
+                      .map((commitmentIndex) => {
+                        if (commitmentIndex === -1) {
+                          setTimeout(checkCommitmentExistence, checkIntervalMs);
+                        } else {
+                          this.logUtils.info(
+                            `Commitment index found at attempt ${attemptCount}`,
+                          );
+                          resolve(undefined);
+                        }
+                      })
+                      .mapErr(() => {
+                        resolve(undefined);
+                      });
+                  };
+                  checkCommitmentExistence();
+                }),
+              );
+            })
+            .andThen(() => {
               return this.invitationRepo.addAcceptedInvitations([optInInfo]);
             });
         })
         .map(() => {
-          // This is just a helpful bit of debug info
-          this.consentRepo
-            .getCommitmentIndex(invitation.consentContractAddress)
-            .map((commitmentIndex) => {
-              if (commitmentIndex == -1) {
-                this.logUtils.error(
-                  `No commitment added on ${invitation.consentContractAddress}`,
-                );
-              } else {
-                this.logUtils.log(
-                  `Opted in to ${invitation.consentContractAddress}`,
-                );
-              }
-            });
-
           // Notify the world that we've opted in to the cohort
           context.publicEvents.onCohortJoined.next(
             invitation.consentContractAddress,
@@ -576,69 +594,6 @@ export class InvitationService implements IInvitationService {
           });
         });
     });
-  }
-
-  public updateDataPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<
-    void,
-    | UninitializedError
-    | ConsentContractError
-    | BlockchainCommonErrors
-    | PersistenceError
-    | ConsentError
-  > {
-    // TODO: We need the PermissionRepository for this. Right now, this will do nothing!
-    return ResultUtils.combine([
-      this.contextProvider.getContext(),
-      this.invitationRepo.getAcceptedInvitations(),
-      this.consentRepo.getCommitmentIndex(consentContractAddress),
-    ]).andThen(([context, acceptedInvitations, consentIndex]) => {
-      if (
-        !acceptedInvitations.some((ai) => {
-          return ai.consentContractAddress == consentContractAddress;
-        })
-      ) {
-        return errAsync(
-          new ConsentError(
-            "You must be opted in to the consent contract to update data permissions.",
-          ),
-        );
-      }
-
-      if (consentIndex == -1) {
-        return errAsync(
-          new ConsentError(
-            `No commitment found for consent contract ${consentContractAddress} on chain. Removing opt in from persistence.`,
-          ),
-        );
-      }
-
-      // Metatransaction complete. We don't actually store the permissions in our
-      // persistence layer, they are only stored on the chain, so there's nothing more
-      // to do for that. We should let the world know we made this change though.
-      // Notify the world that we've opted in to the cohort
-      context.publicEvents.onDataPermissionsUpdated.next(
-        new DataPermissionsUpdatedEvent(
-          consentContractAddress,
-          dataPermissions,
-        ),
-      );
-
-      return okAsync(undefined);
-    });
-  }
-
-  public getDataPermissions(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    DataPermissions,
-    UninitializedError | ConsentError | PersistenceError
-  > {
-    return this.permissionRepo.getContentContractPermissions(
-      consentContractAddress,
-    );
   }
 
   public getAvailableInvitationsCID(): ResultAsync<

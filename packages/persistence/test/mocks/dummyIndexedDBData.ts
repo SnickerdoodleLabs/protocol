@@ -286,7 +286,7 @@ export const dummyQuestionnaireHistory = [
     data: {
       id: "QmX5u2op8fZKSWX4vVDntxz5X7a7vFL41PgzECyEp4o6u3",
       measurementDate: 1706029219,
-      questions: [
+      answers: [
         {
           questionIndex: 0,
           questionnaireId: "QmX5u2op8fZKSWX4vVDntxz5X7a7vFL41PgzECyEp4o6u3",

@@ -18,6 +18,7 @@ export enum EExternalApi {
   EtherscanAvalanche = "Etherscan Avalanche",
   EtherscanBinance = "Etherscan Binance",
   EtherscanMoonbeam = "Etherscan Moonbeam",
+  Expand = "Expand",
   Moralis = "Moralis",
   NftScan = "NftScan",
   Oklink = "Oklink",

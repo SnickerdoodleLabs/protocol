@@ -25,10 +25,6 @@ export interface IInvitationRepository {
   getInvitationsByDomain(
     domain: string,
   ): ResultAsync<PageInvitation[], SnickerDoodleCoreError>;
-  updateAgreementPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<void, SnickerDoodleCoreError>;
   checkInvitationStatus(
     invitation: Invitation,
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;
@@ -58,9 +54,6 @@ export interface IInvitationRepository {
     Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     SnickerDoodleCoreError
   >;
-  getDataPermissions(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<DataPermissions, SnickerDoodleCoreError>;
   getConsentContractCID(
     consentAddress: EVMContractAddress,
   ): ResultAsync<IpfsCID, SnickerDoodleCoreError>;

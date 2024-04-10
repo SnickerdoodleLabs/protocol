@@ -216,6 +216,7 @@ export class EtherscanIndexer implements IEVMIndexer {
         return this.ajaxUtils.get<IEtherscanNativeBalanceResponse>(url);
       })
       .map((response) => {
+        console.log("etherscan response: ", response);
         const nativeBalance = new TokenBalance(
           EChainTechnology.EVM,
           TickerSymbol(getChainInfoByChain(chain).nativeCurrency.symbol),
