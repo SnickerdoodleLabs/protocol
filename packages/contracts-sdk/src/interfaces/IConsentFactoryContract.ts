@@ -24,6 +24,7 @@ export interface IConsentFactoryContract
   extends IBaseContract,
     IERC7529Contract<ConsentFactoryContractError>,
     IContentFactoryContract {
+  //#region Contract
   /**
    * Creates a consent contract for user
    * @param ownerAddress Address of the owner of the Consent contract instance
@@ -38,26 +39,6 @@ export interface IConsentFactoryContract
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentFactoryContractError
-  >;
-
-  /**
-   *  Return the amount of gas required to create a Consent contract
-   * @param ownerAddress Address of the user
-   * @param baseUri URI for consent contract
-   * @param name Name of the consent contract
-   */
-  estimateGasToCreateConsent(
-    ownerAddress: EVMAccountAddress,
-    baseUri: BaseURI,
-    name: ConsentName,
-  ): ResultAsync<bigint, ConsentFactoryContractError | BlockchainCommonErrors>;
-
-  /**
-   *  Return Consent addresses by checking ContractDeployed event logs
-   */
-  getDeployedConsents(): ResultAsync<
-    EVMContractAddress[],
-    ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
   setListingDuration(
@@ -110,6 +91,27 @@ export interface IConsentFactoryContract
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentFactoryContractError
+  >;
+  //#endregion Contract
+
+  /**
+   *  Return the amount of gas required to create a Consent contract
+   * @param ownerAddress Address of the user
+   * @param baseUri URI for consent contract
+   * @param name Name of the consent contract
+   */
+  estimateGasToCreateConsent(
+    ownerAddress: EVMAccountAddress,
+    baseUri: BaseURI,
+    name: ConsentName,
+  ): ResultAsync<bigint, ConsentFactoryContractError | BlockchainCommonErrors>;
+
+  /**
+   *  Return Consent addresses by checking ContractDeployed event logs
+   */
+  getDeployedConsents(): ResultAsync<
+    EVMContractAddress[],
+    ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
   getListingsByTag(

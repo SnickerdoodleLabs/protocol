@@ -42,11 +42,12 @@ export class ConsentFactoryContract
     );
   }
 
-  //#region Consent
   public getContractAddress(): EVMContractAddress {
     return this.contractAddress;
   }
 
+  //#region Consent
+  //#region Contract
   public createConsent(
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
@@ -60,53 +61,6 @@ export class ConsentFactoryContract
       [ownerAddress, baseUri],
       overrides,
     );
-  }
-
-  public estimateGasToCreateConsent(
-    ownerAddress: EVMAccountAddress,
-    baseUri: BaseURI,
-    name: ConsentName,
-  ): ResultAsync<bigint, ConsentFactoryContractError | BlockchainCommonErrors> {
-    return ResultAsync.fromPromise(
-      this.contract.estimateGas["createConsent"](
-        ownerAddress,
-        baseUri,
-        name,
-      ) as Promise<bigint>,
-      (e) => {
-        return this.generateError(e, `Failed to estimate gas with error: ${e}`);
-      },
-    ).map((estimatedGas) => {
-      // TODO: confirm buffer value
-      // Increase estimated gas buffer by 10%
-      return (estimatedGas * 110n) / 100n;
-    });
-  }
-
-  public getDeployedConsents(): ResultAsync<
-    EVMContractAddress[],
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
-    const eventFilter = this.contract.filters.ConsentContractDeployed();
-    return ResultAsync.fromPromise(
-      this.contract.queryFilter(eventFilter),
-      (e) => {
-        return this.generateError(
-          e,
-          "Unable to call contract.queryFilter() for ConsentContractDeployed event",
-        );
-      },
-    ).map((events) => {
-      const consents: EVMContractAddress[] = [];
-      events.forEach((event) => {
-        if (event instanceof ethers.EventLog) {
-          if (event.args.consentAddress != null) {
-            consents.push(EVMContractAddress(event.args.consentAddress));
-          }
-        }
-      });
-      return consents;
-    });
   }
 
   public setListingDuration(
@@ -195,6 +149,54 @@ export class ConsentFactoryContract
       [stakingToken, contentAddress],
       overrides,
     );
+  }
+  //#endregion Contract
+
+  public estimateGasToCreateConsent(
+    ownerAddress: EVMAccountAddress,
+    baseUri: BaseURI,
+    name: ConsentName,
+  ): ResultAsync<bigint, ConsentFactoryContractError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.contract.estimateGas["createConsent"](
+        ownerAddress,
+        baseUri,
+        name,
+      ) as Promise<bigint>,
+      (e) => {
+        return this.generateError(e, `Failed to estimate gas with error: ${e}`);
+      },
+    ).map((estimatedGas) => {
+      // TODO: confirm buffer value
+      // Increase estimated gas buffer by 10%
+      return (estimatedGas * 110n) / 100n;
+    });
+  }
+
+  public getDeployedConsents(): ResultAsync<
+    EVMContractAddress[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    const eventFilter = this.contract.filters.ConsentContractDeployed();
+    return ResultAsync.fromPromise(
+      this.contract.queryFilter(eventFilter),
+      (e) => {
+        return this.generateError(
+          e,
+          "Unable to call contract.queryFilter() for ConsentContractDeployed event",
+        );
+      },
+    ).map((events) => {
+      const consents: EVMContractAddress[] = [];
+      events.forEach((event) => {
+        if (event instanceof ethers.EventLog) {
+          if (event.args.consentAddress != null) {
+            consents.push(EVMContractAddress(event.args.consentAddress));
+          }
+        }
+      });
+      return consents;
+    });
   }
 
   public getListingsByTag(
