@@ -63,6 +63,65 @@ export interface IContentFactoryContract<T> extends IBaseContract {
   ): ResultAsync<WrappedTransactionResponse, T | BlockchainCommonErrors>;
 }
 
+export interface IInternalContentFactoryContract<T> extends IBaseContract {
+  // Functions below are only callable by a content object contract
+  // Calling them in another way will result in an error
+  // Adding them as part of this interface for documentation purposes
+  //    aka These functions exist on the contract and we've chosen not to expose them
+  // In the future we can consider moving them into the main interface
+
+  // Called by Consent(newGlobalTag) > ContentObject(_newGlobalTag) > ContentFactory(initializeTag)
+  initializeTag(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    newHead: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, BlockchainCommonErrors | T>;
+
+  // Called by Consent(newLocalTagUpstream) > ContentObject(_newLocalTagUpstream) > ContentFactory(insertUpstream)
+  insertUpstream(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    newSlot: BigNumberString,
+    existingSlot: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, BlockchainCommonErrors | T>;
+
+  // Called by Consent(moveExistingListingUpstream) > ContentObject(_moveExistingListingUpstream) > ContentFactory(moveUpstream)
+  moveUpstream(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    newSlot: BigNumberString,
+    downstreamSlot: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, BlockchainCommonErrors | T>;
+
+  // Called by Consent(newLocalTagDownstream) > ContentObject(_newLocalTagDownstream) > ContentFactory(insertDownstream)
+  insertDownstream(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    existingSlot: BigNumberString,
+    newSlot: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, BlockchainCommonErrors | T>;
+
+  // Called by Consent(replaceExpiredListing) > ContentObject(_replaceExpiredListing) > ContentFactory(replaceExpiredListing)
+  replaceExpiredListing(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    slot: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, BlockchainCommonErrors | T>;
+
+  // Called by Consent(removeListing) > ContentObject(_removeListing) > ContentFactory(removeListing)
+  removeListing(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    removedSlot: BigNumberString,
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, BlockchainCommonErrors | T>;
+}
+
 export const IContentFactoryContractType = Symbol.for(
   "IContentFactoryContract",
 );
