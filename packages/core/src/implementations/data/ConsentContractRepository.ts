@@ -404,7 +404,9 @@ export class ConsentContractRepository implements IConsentContractRepository {
         );
       }
       return okAsync(
-        EVMContractAddress(config.controlChainInformation.sdlTokenAddress),
+        EVMContractAddress(
+          config.controlChainInformation.governanceTokenContractAddress,
+        ),
       );
     });
   }

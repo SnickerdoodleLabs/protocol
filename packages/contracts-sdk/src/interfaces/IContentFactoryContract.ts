@@ -5,10 +5,15 @@ import {
   MarketplaceTag,
   MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
+import { Block } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
-import { Tag } from "@contracts-sdk/interfaces/objects";
+import {
+  ContractOverrides,
+  Tag,
+  WrappedTransactionResponse,
+} from "@contracts-sdk/interfaces/objects";
 
 export interface IContentFactoryContract<T> extends IBaseContract {
   getGovernanceToken(): ResultAsync<
@@ -44,6 +49,18 @@ export interface IContentFactoryContract<T> extends IBaseContract {
     numberOfSlots: number,
     removeExpired: boolean,
   ): ResultAsync<MarketplaceListing[], T | BlockchainCommonErrors>;
+
+  computeFee(
+    slot: BigNumberString,
+  ): ResultAsync<BigNumberString, T | BlockchainCommonErrors>;
+
+  // External function meant to be called by anyone to boot an expired listing
+  removeExpiredListings(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    slots: BigNumberString[],
+    overrides?: ContractOverrides,
+  ): ResultAsync<WrappedTransactionResponse, T | BlockchainCommonErrors>;
 }
 
 export const IContentFactoryContractType = Symbol.for(

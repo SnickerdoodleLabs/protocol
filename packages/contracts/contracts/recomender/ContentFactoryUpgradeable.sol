@@ -617,7 +617,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
         string calldata tag,
         address stakingToken,
         uint256[] calldata slots
-    ) external onlyContentObject(stakingToken) {
+    ) external {
         ContentFactoryStorage storage $ = _getContentFactoryStorage();
 
         require(

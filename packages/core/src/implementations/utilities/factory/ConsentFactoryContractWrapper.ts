@@ -268,6 +268,41 @@ export class ConsentFactoryContractWrapper
         ),
     );
   }
+
+  public computeFee(
+    slot: BigNumberString,
+  ): ResultAsync<
+    BigNumberString,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return this.fallback(
+      () => this.primary.computeFee(slot),
+      () => this.secondary?.computeFee(slot),
+    );
+  }
+
+  public removeExpiredListings(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    slots: BigNumberString[],
+    overrides?: ContractOverrides | undefined,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return this.fallback(
+      () =>
+        this.primary.removeExpiredListings(tag, stakingToken, slots, overrides),
+      () =>
+        this.secondary?.removeExpiredListings(
+          tag,
+          stakingToken,
+          slots,
+          overrides,
+        ),
+    );
+  }
+
   public getTagTotal(
     tag: MarketplaceTag,
     stakingToken: EVMContractAddress,

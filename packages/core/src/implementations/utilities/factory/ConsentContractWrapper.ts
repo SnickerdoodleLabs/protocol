@@ -4,6 +4,7 @@ import {
   EConsentRoles,
   IConsentContract,
   IConsentContractFilters,
+  IContentObjectContract,
   Tag,
   WrappedTransactionResponse,
 } from "@snickerdoodlelabs/contracts-sdk";
@@ -142,36 +143,7 @@ export class ConsentContractWrapper
       () => this.secondary?.fetchAnonymitySet(start, stop),
     );
   }
-  public getStakingToken(): ResultAsync<
-    EVMContractAddress,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return this.fallback(
-      () => this.primary.getStakingToken(),
-      () => this.secondary?.getStakingToken(),
-    );
-  }
-  public tagIndices(
-    tag: string,
-    stakingToken: EVMContractAddress,
-  ): ResultAsync<
-    BigNumberString,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return this.fallback(
-      () => this.primary.tagIndices(tag, stakingToken),
-      () => this.secondary?.tagIndices(tag, stakingToken),
-    );
-  }
-  public getContentAddress(): ResultAsync<
-    EVMContractAddress,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return this.fallback(
-      () => this.primary.getContentAddress(),
-      () => this.secondary?.getContentAddress(),
-    );
-  }
+
   public restakeExpiredListing(
     tag: string,
     stakingToken: EVMContractAddress,
@@ -432,24 +404,6 @@ export class ConsentContractWrapper
 
   public filters: IConsentContractFilters = this.primary.filters;
 
-  public getNumberOfStakedTags(
-    stakingToken: EVMContractAddress,
-  ): ResultAsync<number, ConsentContractError | BlockchainCommonErrors> {
-    return this.fallback(
-      () => this.primary.getNumberOfStakedTags(stakingToken),
-      () => this.secondary?.getNumberOfStakedTags(stakingToken),
-    );
-  }
-
-  public getTagArray(
-    stakingToken: EVMContractAddress,
-  ): ResultAsync<Tag[], ConsentContractError | BlockchainCommonErrors> {
-    return this.fallback(
-      () => this.primary.getTagArray(stakingToken),
-      () => this.secondary?.getTagArray(stakingToken),
-    );
-  }
-
   public newGlobalTag(
     tag: string,
     stakingToken: EVMContractAddress,
@@ -647,4 +601,47 @@ export class ConsentContractWrapper
       () => this.secondary?.removeStake(depositToken, amount, overrides),
     );
   }
+
+  // Content object reqion starts
+  public tagIndices(
+    tag: string,
+    stakingToken: EVMContractAddress,
+  ): ResultAsync<
+    BigNumberString,
+    ConsentContractError | BlockchainCommonErrors
+  > {
+    return this.fallback(
+      () => this.primary.tagIndices(tag, stakingToken),
+      () => this.secondary?.tagIndices(tag, stakingToken),
+    );
+  }
+
+  public getNumberOfStakedTags(
+    stakingToken: EVMContractAddress,
+  ): ResultAsync<number, ConsentContractError | BlockchainCommonErrors> {
+    return this.fallback(
+      () => this.primary.getNumberOfStakedTags(stakingToken),
+      () => this.secondary?.getNumberOfStakedTags(stakingToken),
+    );
+  }
+
+  public getTagArray(
+    stakingToken: EVMContractAddress,
+  ): ResultAsync<Tag[], ConsentContractError | BlockchainCommonErrors> {
+    return this.fallback(
+      () => this.primary.getTagArray(stakingToken),
+      () => this.secondary?.getTagArray(stakingToken),
+    );
+  }
+
+  public getContentAddress(): ResultAsync<
+    EVMContractAddress,
+    ConsentContractError | BlockchainCommonErrors
+  > {
+    return this.fallback(
+      () => this.primary.getContentAddress(),
+      () => this.secondary?.getContentAddress(),
+    );
+  }
+  // Content object reqion ends
 }

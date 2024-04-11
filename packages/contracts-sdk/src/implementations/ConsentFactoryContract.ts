@@ -437,7 +437,7 @@ export class ConsentFactoryContract
     });
   }
 
-  computeFee(
+  public computeFee(
     slot: BigNumberString,
   ): ResultAsync<
     BigNumberString,
@@ -448,6 +448,23 @@ export class ConsentFactoryContract
       (e) => {
         return this.generateError(e, "Unable to call computeFee()");
       },
+    );
+  }
+
+  // External function meant to be called by anyone to boot an expired listing
+  public removeExpiredListings(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    slots: BigNumberString[],
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return this.writeToContract(
+      "removeExpiredListings",
+      [tag, stakingToken, slots],
+      overrides,
     );
   }
 
