@@ -422,18 +422,6 @@ export class ConsentContract
   }
 
   //#region Staking
-  // TODO remove
-  public getStakingToken(): ResultAsync<
-    EVMContractAddress,
-    ConsentContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.getStakingToken() as Promise<EVMContractAddress>,
-      (e) => {
-        return this.generateError(e, "Unable to call getStakingToken()");
-      },
-    );
-  }
 
   //#region Content
   public tagIndices(

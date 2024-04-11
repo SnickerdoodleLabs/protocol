@@ -30,7 +30,6 @@ export class ChainInformation {
     public getExplorerURL: (txHash: string) => string,
     public etherscanEndpointURL?: URLString,
     public coinGeckoSlug?: CoinGeckoAssetPlatformID, // this is the string id by which coin gecko uses for chains ("asset platforms")
-    public sdlTokenAddress?: EVMContractAddress, // this is our SDL ERC20 token contract address. It is used for getTagrray
   ) {}
 }
 

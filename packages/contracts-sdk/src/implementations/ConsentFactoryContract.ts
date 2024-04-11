@@ -319,7 +319,7 @@ export class ConsentFactoryContract
     });
   }
 
-  maxTagsPerListing(): ResultAsync<
+  public maxTagsPerListing(): ResultAsync<
     number,
     ConsentFactoryContractError | BlockchainCommonErrors
   > {
@@ -331,22 +331,6 @@ export class ConsentFactoryContract
     ).map((num) => {
       return Number(num);
     });
-  }
-
-  // TODO remove
-  public getMaxTagsPerListing(): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
-    return this.maxTagsPerListing();
-  }
-
-  // TODO remove
-  public getListingDuration(): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
-    return this.listingDuration();
   }
 
   public getTagTotal(
@@ -453,6 +437,23 @@ export class ConsentFactoryContract
     });
   }
 
+  computeFee(
+    slot: BigNumberString,
+  ): ResultAsync<
+    BigNumberString,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.computeFee(slot) as Promise<BigNumberString>,
+      (e) => {
+        return this.generateError(e, "Unable to call computeFee()");
+      },
+    );
+  }
+
+  /* 
+  // TODO: Functions commented out are probably not required as they are only callable by a content object contract
+  // Called by Consent(newGlobalTag) > ContentObject(_newGlobalTag) > ContentFactory(initializeTag)
   public initializeTag(
     tag: MarketplaceTag,
     stakingToken: EVMContractAddress,
@@ -467,6 +468,7 @@ export class ConsentFactoryContract
     );
   }
 
+  // Called by Consent(newLocalTagUpstream) > ContentObject(_newLocalTagUpstream) > ContentFactory(insertUpstream)
   insertUpstream(
     tag: MarketplaceTag,
     stakingToken: EVMContractAddress,
@@ -482,6 +484,7 @@ export class ConsentFactoryContract
     );
   }
 
+  // Called by Consent(moveExistingListingUpstream) > ContentObject(_moveExistingListingUpstream) > ContentFactory(moveUpstream)
   moveUpstream(
     tag: MarketplaceTag,
     stakingToken: EVMContractAddress,
@@ -497,6 +500,7 @@ export class ConsentFactoryContract
     );
   }
 
+  // Called by Consent(newLocalTagDownstream) > ContentObject(_newLocalTagDownstream) > ContentFactory(insertDownstream)
   insertDownstream(
     tag: MarketplaceTag,
     stakingToken: EVMContractAddress,
@@ -512,6 +516,7 @@ export class ConsentFactoryContract
     );
   }
 
+  // Called by Consent(replaceExpiredListing) > ContentObject(_replaceExpiredListing) > ContentFactory(replaceExpiredListing)
   replaceExpiredListing(
     tag: MarketplaceTag,
     stakingToken: EVMContractAddress,
@@ -540,6 +545,7 @@ export class ConsentFactoryContract
     );
   }
 
+  // Called by Consent(removeListing) > ContentObject(_removeListing) > ContentFactory(removeListing)
   removeListing(
     tag: MarketplaceTag,
     stakingToken: EVMContractAddress,
@@ -552,18 +558,7 @@ export class ConsentFactoryContract
     return errAsync(
       new ConsentFactoryContractError("Method not implemented", null, null),
     );
-  }
-
-  computeFee(
-    slot: BigNumberString,
-  ): ResultAsync<
-    BigNumberString,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
-    return errAsync(
-      new ConsentFactoryContractError("Method not implemented", null, null),
-    );
-  }
+  } */
   //#endregion Content
 
   // #region Domains- ERC-7529

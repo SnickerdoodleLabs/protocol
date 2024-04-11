@@ -394,7 +394,9 @@ export class ConsentContractRepository implements IConsentContractRepository {
     BlockchainProviderError | UninitializedError
   > {
     return this.configProvider.getConfig().andThen((config) => {
-      if (config.controlChainInformation.sdlTokenAddress == null) {
+      if (
+        config.controlChainInformation.governanceTokenContractAddress == null
+      ) {
         return errAsync(
           new UninitializedError(
             "SDL Token Address is missing on control chain config",

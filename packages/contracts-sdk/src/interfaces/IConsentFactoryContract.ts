@@ -1,3 +1,4 @@
+import { IContentFactoryContract } from "@contracts-sdk/interfaces/IContentFactoryContract.js";
 import {
   BaseURI,
   BigNumberString,
@@ -13,7 +14,6 @@ import {
 import { ResultAsync } from "neverthrow";
 
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
-import { IContentFactoryContract } from "@contracts-sdk/interfaces/IContentFactoryContract.js";
 import { IERC7529Contract } from "@contracts-sdk/interfaces/IERC7529Contract.js";
 import {
   WrappedTransactionResponse,
@@ -23,7 +23,7 @@ import {
 export interface IConsentFactoryContract
   extends IBaseContract,
     IERC7529Contract<ConsentFactoryContractError>,
-    IContentFactoryContract {
+    IContentFactoryContract<ConsentFactoryContractError> {
   //#region Contract
   /**
    * Creates a consent contract for user

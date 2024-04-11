@@ -177,24 +177,16 @@ export class ConsentFactoryContractWrapper
       () => this.secondary?.getDeployedConsents(),
     );
   }
-  public getMaxTagsPerListing(): ResultAsync<
+  public maxTagsPerListing(): ResultAsync<
     number,
     ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return this.fallback(
-      () => this.primary.getMaxTagsPerListing(),
-      () => this.secondary?.getMaxTagsPerListing(),
+      () => this.primary.maxTagsPerListing(),
+      () => this.secondary?.maxTagsPerListing(),
     );
   }
-  public getListingDuration(): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
-    return this.fallback(
-      () => this.primary.getListingDuration(),
-      () => this.secondary?.getListingDuration(),
-    );
-  }
+
   public setListingDuration(
     listingDuration: number,
   ): ResultAsync<
