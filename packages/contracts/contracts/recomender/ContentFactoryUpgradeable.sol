@@ -17,7 +17,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
         address governanceToken;
         /// @dev the default amount of time, in seconds, that a listing is valid for
         uint256 listingDuration;
-        /// @dev the default maximum number of tags that can be staked by a single consent constract listing
+        /// @dev the default maximum number of tags that can be staked by a single consent contract listing
         uint256 maxTagsPerListing;
         /// @dev registered ERC20 tokens that can be used for staking the recommender system
         mapping(address => bool) stakingTokens;
@@ -324,7 +324,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
             "Content Factory: Content Object has already staked this tag"
         );
 
-        // The new listing must fit between _upstream and its current downstresam
+        // The new listing must fit between _upstream and its current downstream
         // if the .previous variable is 0, it means the slot is uninitialized and thus it is invalid _upstream entry
         Listing memory existingListing = $.listings[LLKey][stakingToken][
             _existingSlot
@@ -419,7 +419,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
             .listings[LLKey][stakingToken][oldListing.next]
                 .previous = oldListing.previous;
 
-            // The new listing must fit between _upstream and its current downstresam
+            // The new listing must fit between _upstream and its current downstream
             // we store only the downstreamListing.preview variable to avoid hitting the Solidity stack limit
             uint256 downstreamListingPrevious = $.listings[LLKey][stakingToken][
                 _downstreamSlot
