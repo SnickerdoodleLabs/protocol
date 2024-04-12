@@ -1,4 +1,7 @@
-import { Box, Grid, Hidden, Theme, makeStyles } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Grid from "@material-ui/core/Grid";
+import Hidden from "@material-ui/core/Hidden";
+import { makeStyles, Theme } from "@material-ui/core/styles";
 import {
   SDTypography,
   SDButton,

@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import  Box  from "@material-ui/core/Box";
 import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
 import React, { FC } from "react";
 import { SDTypography } from "@shared-components/v2/components/Typograpy";

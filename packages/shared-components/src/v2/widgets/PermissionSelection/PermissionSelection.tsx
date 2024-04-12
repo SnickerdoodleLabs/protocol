@@ -1,4 +1,7 @@
-import { Box, Divider, Grid, Hidden } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Divider from "@material-ui/core/Divider";
+import Grid from "@material-ui/core/Grid";
+import Hidden from "@material-ui/core/Hidden";
 import {
   SDTypography,
   SDButton,

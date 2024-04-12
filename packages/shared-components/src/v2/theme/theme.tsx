@@ -1,5 +1,4 @@
 import "@material-ui/core/styles/createPalette";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 export declare enum _EColorMode {
   LIGHT = "light",
@@ -50,8 +49,10 @@ declare module "@material-ui/core/styles/createPalette" {
   }
 }
 
-import { createTheme, Theme } from "@material-ui/core";
+import { createTheme, Theme } from "@material-ui/core/styles";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { IPaletteOverrides } from "@snickerdoodlelabs/objects";
+
 export enum EColorMode {
   LIGHT = "light",
   DARK = "dark",

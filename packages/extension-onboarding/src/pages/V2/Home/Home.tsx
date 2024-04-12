@@ -4,10 +4,9 @@ import ConnectDiscordCard from "@extension-onboarding/pages/V2/Home/ConnectDisco
 import ConnectWalletCard from "@extension-onboarding/pages/V2/Home/ConnectWalletCard";
 import QuestionnairesCard from "@extension-onboarding/pages/V2/Home/QuestionnairesCard";
 import SocialLinks from "@extension-onboarding/pages/V2/Home/SocialLinks";
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import { useResponsiveValue } from "@snickerdoodlelabs/shared-components";
 import React, { FC } from "react";
-import { useNavigate } from "react-router-dom";
 
 const Home: FC = () => {
   const getResponsiveValue = useResponsiveValue();

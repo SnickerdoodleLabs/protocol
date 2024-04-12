@@ -1,6 +1,7 @@
-import { Box, Hidden, makeStyles } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Hidden from "@material-ui/core/Hidden";
+import { makeStyles } from "@material-ui/core/styles";
 import CallMadeIcon from "@material-ui/icons/CallMade";
-
 import {
   EQuestionnaireStatus,
   Questionnaire,

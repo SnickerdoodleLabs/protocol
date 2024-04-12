@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import React, { FC } from "react";
 import Browser from "webextension-polyfill";
 

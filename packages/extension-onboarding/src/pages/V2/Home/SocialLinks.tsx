@@ -1,5 +1,5 @@
 import { TWITTER_URL } from "@extension-onboarding/constants";
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import {
   SDTypography,
   useResponsiveValue,

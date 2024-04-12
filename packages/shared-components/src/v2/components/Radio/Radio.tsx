@@ -1,4 +1,5 @@
-import { Box, makeStyles } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import { makeStyles } from "@material-ui/core/styles";
 import { SDTypography } from "@shared-components/v2/components/Typograpy";
 import { colors } from "@shared-components/v2/theme";
 

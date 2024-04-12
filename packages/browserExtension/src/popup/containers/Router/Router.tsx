@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import React, { FC, useMemo } from "react";
 import { Route, HashRouter, Routes, Navigate } from "react-router-dom";
 

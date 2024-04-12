@@ -7,7 +7,7 @@ import {
   IFrameEvents,
   IInvitationDisplayRequest,
 } from "@core-iframe/interfaces/objects/IFrameEvents";
-import { Theme, ThemeProvider } from "@material-ui/core";
+import { Theme, ThemeProvider } from "@material-ui/core/styles";
 import {
   DataPermissions,
   EChain,
@@ -34,7 +34,7 @@ import {
   createDefaultTheme,
   createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
-import { ResultAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, {
   useMemo,

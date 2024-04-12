@@ -1,5 +1,5 @@
-import { Button as MuiButton, Theme, ButtonProps } from "@material-ui/core";
-import { withStyles, useTheme } from "@material-ui/styles";
+import  MuiButton,  {ButtonProps } from "@material-ui/core/Button";
+import { withStyles, Theme } from "@material-ui/core/styles";
 import React from "react";
 
 const customColors = ["danger", "warn", "button"] as const;

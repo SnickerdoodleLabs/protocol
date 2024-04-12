@@ -3,7 +3,8 @@ import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import Card from "@extension-onboarding/pages/V2/Home/Card";
-import { Box, Grid } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Grid from "@material-ui/core/Grid";
 import CallMadeIcon from "@material-ui/icons/CallMade";
 import {
   EQuestionnaireStatus,
