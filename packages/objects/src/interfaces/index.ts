@@ -6,6 +6,7 @@ export * from "@objects/interfaces/ICrumbContent.js";
 export * from "@objects/interfaces/IERC721Metadata.js";
 export * from "@objects/interfaces/IExtensionConfigOverrides.js";
 export * from "@objects/interfaces/IExtensionSdkConfigOverrides.js";
+export * from "@objects/interfaces/IFormFactorInternalEvents.js";
 export * from "@objects/interfaces/IIFrameConfigOverrides.js";
 export * from "@objects/interfaces/IInsightWithProof.js";
 export * from "@objects/interfaces/INFT.js";
