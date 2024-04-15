@@ -3,9 +3,7 @@ import {
   ICircomSemaphoreInputs,
   ICircomSemaphoreVerificationInputs,
   factoryCircomSemaphoreVerificationInputs,
-  semaphoreCode,
   semaphoreVerificationKey,
-  semaphoreZKey,
 } from "@snickerdoodlelabs/circuits";
 import {
   Commitment,
@@ -31,7 +29,17 @@ export class CircomMembershipWrapper
   implements IMembershipWrapper
 {
   public constructor() {
-    super(semaphoreCode, semaphoreZKey, semaphoreVerificationKey);
+    super(
+      () =>
+        import(
+          "@snickerdoodlelabs/circuits/src/circom/semaphore/semaphore.wasm.js"
+        ).then((mod) => mod.semaphoreCode),
+      () =>
+        import(
+          "@snickerdoodlelabs/circuits/src/circom/semaphore/semaphore.zkey.js"
+        ).then((mod) => mod.semaphoreZKey),
+      semaphoreVerificationKey,
+    );
   }
 
   public MAX_DEPTH = 16;

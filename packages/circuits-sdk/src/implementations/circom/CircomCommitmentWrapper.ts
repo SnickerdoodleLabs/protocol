@@ -2,9 +2,7 @@ import {
   CircomUtils,
   ICircomCommitmentInputs,
   ICircomCommitmentVerificationInputs,
-  commitmentCode,
   commitmentVerificationKey,
-  commitmentZKey,
   factoryCircomCommitmentVerificationInputs,
 } from "@snickerdoodlelabs/circuits";
 import {
@@ -29,7 +27,17 @@ export class CircomCommitmentWrapper
   implements ICommitmentWrapper
 {
   public constructor() {
-    super(commitmentCode, commitmentZKey, commitmentVerificationKey);
+    super(
+      () =>
+        import(
+          "@snickerdoodlelabs/circuits/src/circom/commitment/commitment.wasm.js"
+        ).then((mod) => mod.commitmentCode),
+      () =>
+        import(
+          "@snickerdoodlelabs/circuits/src/circom/commitment/commitment.zkey.js"
+        ).then((mod) => mod.commitmentZKey),
+      commitmentVerificationKey,
+    );
   }
 
   public prove(

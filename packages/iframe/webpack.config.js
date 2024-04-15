@@ -7,15 +7,18 @@ const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const webpack = require("webpack");
 const configFilePath = require.resolve("./tsconfig.json");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
-
+const webpackBundleAnalyzer =
+  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 /** @type import('webpack').Configuration */
+
 module.exports = {
   externals: {},
   context: __dirname,
   mode: process.env.__BUILD_ENV__ === "dev" ? "development" : "production",
   entry: path.join(__dirname, "src/index.tsx"),
   output: {
-    filename: "index.js",
+    filename: "[name].[contenthash].js",
+    chunkFilename: "[name].[contenthash].js",
     path: path.join(__dirname, "/dist/bundle"),
     publicPath: "/",
   },
@@ -31,6 +34,20 @@ module.exports = {
     port: 9005,
     devMiddleware: {
       writeToDisk: true,
+    },
+  },
+  optimization: {
+    moduleIds: "deterministic",
+    splitChunks: {
+      cacheGroups: {
+        json: {
+          test: /\.json$/,
+          type: "json",
+          name: "data",
+          chunks: "all",
+          enforce: true,
+        },
+      },
     },
   },
   module: {
@@ -80,6 +97,7 @@ module.exports = {
   },
   devtool: process.env.__BUILD_ENV__ === "dev" ? "eval" : "source-map",
   plugins: [
+    new webpackBundleAnalyzer(),
     new NodePolyfillPlugin(),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src/index.html"),
