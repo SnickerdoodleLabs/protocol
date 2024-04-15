@@ -27,7 +27,6 @@ export class IFrameProxyFactory implements IIFrameProxyFactory {
     iframeUrl: URLString,
     configOverrides: IConfigOverrides,
   ): ResultAsync<ISnickerdoodleIFrameProxy, ProxyError> {
-    const iframeContainer = this._prepareIFrameContainer();
     return ResultUtils.backoffAndRetry(
       () => {
         const iframeContainer = this._prepareIFrameContainer();
