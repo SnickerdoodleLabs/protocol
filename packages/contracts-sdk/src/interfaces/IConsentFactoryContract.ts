@@ -9,12 +9,11 @@ import {
   MarketplaceTag,
   BlockchainCommonErrors,
   TransactionResponseError,
-  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { EConsentRoles } from "@contracts-sdk/interfaces/enums/index.js";
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import { IContentFactoryContract } from "@contracts-sdk/interfaces/IContentFactoryContract.js";
 import { IERC7529Contract } from "@contracts-sdk/interfaces/IERC7529Contract.js";
 import {
   WrappedTransactionResponse,
@@ -23,7 +22,9 @@ import {
 
 export interface IConsentFactoryContract
   extends IBaseContract,
-    IERC7529Contract<ConsentFactoryContractError> {
+    IERC7529Contract<ConsentFactoryContractError>,
+    IContentFactoryContract<ConsentFactoryContractError> {
+  //#region Contract
   /**
    * Creates a consent contract for user
    * @param ownerAddress Address of the owner of the Consent contract instance
@@ -38,53 +39,6 @@ export interface IConsentFactoryContract
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentFactoryContractError
-  >;
-
-  /**
-   *  Return the amount of gas required to create a Consent contract
-   * @param ownerAddress Address of the user
-   * @param baseUri URI for consent contract
-   * @param name Name of the consent contract
-   */
-  estimateGasToCreateConsent(
-    ownerAddress: EVMAccountAddress,
-    baseUri: BaseURI,
-    name: ConsentName,
-  ): ResultAsync<bigint, ConsentFactoryContractError | BlockchainCommonErrors>;
-
-  /**
-   *  Return Consent addresses by checking ContractDeployed event logs
-   */
-  getDeployedConsents(): ResultAsync<
-    EVMContractAddress[],
-    ConsentFactoryContractError | BlockchainCommonErrors
-  >;
-
-  /**
-   * Returns the number of seconds that a listing will be active for
-   */
-  listingDuration(): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  >;
-
-  getMaxTagsPerListing(): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  >;
-
-  getGovernanceToken(): ResultAsync<
-    EVMContractAddress,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  >;
-
-  isStakingToken(
-    stakingToken: EVMContractAddress,
-  ): ResultAsync<boolean, ConsentFactoryContractError | BlockchainCommonErrors>;
-
-  getListingDuration(): ResultAsync<
-    number,
-    ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
   setListingDuration(
@@ -138,6 +92,27 @@ export interface IConsentFactoryContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | ConsentFactoryContractError
   >;
+  //#endregion Contract
+
+  /**
+   *  Return the amount of gas required to create a Consent contract
+   * @param ownerAddress Address of the user
+   * @param baseUri URI for consent contract
+   * @param name Name of the consent contract
+   */
+  estimateGasToCreateConsent(
+    ownerAddress: EVMAccountAddress,
+    baseUri: BaseURI,
+    name: ConsentName,
+  ): ResultAsync<bigint, ConsentFactoryContractError | BlockchainCommonErrors>;
+
+  /**
+   *  Return Consent addresses by checking ContractDeployed event logs
+   */
+  getDeployedConsents(): ResultAsync<
+    EVMContractAddress[],
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
 
   getListingsByTag(
     tag: MarketplaceTag,
@@ -148,34 +123,21 @@ export interface IConsentFactoryContract
     ConsentFactoryContractError | BlockchainCommonErrors
   >;
 
-  getListingsForward(
-    tag: MarketplaceTag,
-    stakingToken: EVMContractAddress,
-    startingSlot: BigNumberString,
-    numberOfSlots: number,
-    removeExpired: boolean,
-  ): ResultAsync<
-    MarketplaceListing[],
-    ConsentFactoryContractError | BlockchainCommonErrors
-  >;
-
-  getListingsBackward(
-    tag: MarketplaceTag,
-    stakingToken: EVMContractAddress,
-    startingSlot: BigNumberString,
-    numberOfSlots: number,
-    removeExpired: boolean,
-  ): ResultAsync<
-    MarketplaceListing[],
-    ConsentFactoryContractError | BlockchainCommonErrors
-  >;
-
-  getTagTotal(
-    tag: MarketplaceTag,
-    stakingToken: EVMContractAddress,
-  ): ResultAsync<number, ConsentFactoryContractError | BlockchainCommonErrors>;
-
   getAddressOfConsentCreated(
     txRes: WrappedTransactionResponse,
   ): ResultAsync<EVMContractAddress, TransactionResponseError>;
+
+  removeExpiredListings(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    slots: BigNumberString[],
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
 }
+
+export const IConsentFactoryContractType = Symbol.for(
+  "IConsentFactoryContract",
+);

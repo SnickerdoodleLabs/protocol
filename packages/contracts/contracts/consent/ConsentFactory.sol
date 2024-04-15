@@ -25,7 +25,7 @@ contract ConsentFactory is
 
     /// @notice Initializes the contract
     /// @dev Uses the initializer modifier to to ensure the contract is only initialized once
-    /// @dev The deploying address recieves the DEFAULT_ADMIN_ROL on deployment
+    /// @dev The deploying address receives the DEFAULT_ADMIN_ROL on deployment
     /// @dev After deployment, the DAO contract should be given the DEFAULT_ADMIN_ROLE and deployer reliquish
     /// @param _consentImpAddress Address of implementation contract for the Consent Contract
     /// @param _governanceToken Address of the ERC20-compatible protocol token
@@ -80,7 +80,7 @@ contract ConsentFactory is
         _registerStakingToken(stakingToken);
     }
 
-    /// @notice Associates an admin account with a staking token which can curate listins in that namespace
+    /// @notice Associates an admin account with a staking token which can curate listings in that namespace
     /// @dev token admin role is calculated as keccak256(abi.encodePacked(stakingToken))
     /// @param tag Human readable string denoting the target tag
     /// @param stakingToken Address of the staking token whose admin account will be set

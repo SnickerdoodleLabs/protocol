@@ -41,7 +41,7 @@ contract Questionnaires is
     }
 
     /// @notice an authenticated function that allows for a new questionnaire CID to be added to the array
-    /// @param ipfsCid the CID of a questioniare to add to the discovery array
+    /// @param ipfsCid the CID of a questionnaire to add to the discovery array
     function addQuestionnaire(
         string memory ipfsCid
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {

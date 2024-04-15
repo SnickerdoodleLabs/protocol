@@ -53,6 +53,7 @@ export interface IMarketplaceService {
 
   getRecommendationsByListing(
     listing: MarketplaceListing,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<
     MarketplaceTag[],
     | UninitializedError

@@ -110,9 +110,9 @@ const addDomain = async () => {
   }
 };
 
-const getDomain = async () => {
+const checkDomain = async () => {
   try {
-    const response = await contracts.consentContract.getDomain(
+    const response = await contracts.consentContract.checkDomain(
       DomainName("test.com"),
     );
     console.log("getDomain response: ", response);
@@ -197,7 +197,7 @@ const newGlobalTag = async () => {
     const tx = await contracts.consentContract.newGlobalTag(
       "tag2",
       EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
-      EVMAccountAddress(signer.address),
+      BigNumberString("6"),
       BigNumberString("5"),
     );
 
@@ -209,7 +209,9 @@ const newGlobalTag = async () => {
 
 const getTagArray = async () => {
   try {
-    const tx = await contracts.consentContract3.getTagArray();
+    const tx = await contracts.consentContract3.getTagArray(
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"),
+    );
 
     console.log("getTagArray res: ", tx);
   } catch (err) {
@@ -219,7 +221,9 @@ const getTagArray = async () => {
 
 const getNumberOfStakedTags = async () => {
   try {
-    const tx = await contracts.consentContract2.getNumberOfStakedTags();
+    const tx = await contracts.consentContract2.getNumberOfStakedTags(
+      EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"),
+    );
 
     console.log("getNumberOfStakedTags res: ", tx);
   } catch (err) {
@@ -245,7 +249,7 @@ const newLocalTagUpstream = async () => {
     const tx = await contracts.consentContract2.newLocalTagUpstream(
       "tag2",
       EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
-      EVMAccountAddress(signer.address),
+      BigNumberString("7"),
       BigNumberString("6"),
       BigNumberString("5"),
     );
@@ -259,7 +263,7 @@ const newLocalTagUpstream = async () => {
     const tx2 = await contracts.consentContract3.newLocalTagUpstream(
       "tag2",
       EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
-      EVMAccountAddress(signer.address),
+      BigNumberString("8"),
       BigNumberString("7"),
       BigNumberString("6"),
     );
@@ -275,7 +279,7 @@ const newLocalTagDownstream = async () => {
     const tx = await contracts.consentContract3.newLocalTagDownstream(
       "tag1",
       EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
-      EVMAccountAddress(signer.address),
+      BigNumberString("8"),
       BigNumberString("7"),
       BigNumberString("4"),
     );
@@ -291,7 +295,7 @@ const replaceExpiredListing = async () => {
     const tx = await contracts.consentContract.replaceExpiredListing(
       "tag1",
       EVMContractAddress("0x3B6d7bF2203bad30fecDf2c03984D2b9610Eb9D7"), // test with random erc20 address
-      EVMAccountAddress(signer.address),
+      BigNumberString("6"),
       BigNumberString("5"),
     );
 
