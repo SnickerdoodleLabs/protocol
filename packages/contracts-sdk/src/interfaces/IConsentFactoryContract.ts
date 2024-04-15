@@ -1,4 +1,3 @@
-import { IContentFactoryContract } from "@contracts-sdk/interfaces/IContentFactoryContract.js";
 import {
   BaseURI,
   BigNumberString,
@@ -14,6 +13,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import { IContentFactoryContract } from "@contracts-sdk/interfaces/IContentFactoryContract.js";
 import { IERC7529Contract } from "@contracts-sdk/interfaces/IERC7529Contract.js";
 import {
   WrappedTransactionResponse,
@@ -126,6 +126,16 @@ export interface IConsentFactoryContract
   getAddressOfConsentCreated(
     txRes: WrappedTransactionResponse,
   ): ResultAsync<EVMContractAddress, TransactionResponseError>;
+
+  removeExpiredListings(
+    tag: MarketplaceTag,
+    stakingToken: EVMContractAddress,
+    slots: BigNumberString[],
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  >;
 }
 
 export const IConsentFactoryContractType = Symbol.for(
