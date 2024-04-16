@@ -156,6 +156,7 @@ import {
   GetQuestionnairesByCIDSParams,
   ApproveQueryParams,
   GetQueryStatusesByContractAddressParams,
+  LinkAccountRequestParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -672,6 +673,10 @@ export class ExternalCoreGateway {
       return config.providerKey;
     });
   };
+
+  public requestLinkAccount = (): ResultAsync<void, ProxyError> => {
+    return this._handler.call(new LinkAccountRequestParams());
+  }
 
   public setUIState(state: JSONString): ResultAsync<void, ProxyError> {
     return this._handler.call(new SetUIStateParams(state));

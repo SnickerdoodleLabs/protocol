@@ -36,6 +36,7 @@ export interface IContextProvider {
   onSocialProfileLinked(event: SocialProfileLinkedEvent): void;
   onCohortJoined(consentAddress: EVMContractAddress): void;
   onCohortLeft(consentAddress: EVMContractAddress): void;
+  onLinkAccountRequested(): void 
 
   onCloudStorageActivated(event: CloudStorageActivatedEvent): void;
   onCloudStorageDeactivated(event: CloudStorageActivatedEvent): void;

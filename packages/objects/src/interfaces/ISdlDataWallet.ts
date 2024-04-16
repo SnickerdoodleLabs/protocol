@@ -61,6 +61,7 @@ import {
   URLString,
 } from "@objects/primitives/index.js";
 import { GetResultAsyncValueType, PopTuple } from "@objects/types.js";
+import { IFormFactorInternalEvents } from "./IFormFactorInternalEvents";
 
 export type IProxyAccountMethods = {
   [key in FunctionKeys<IAccountMethods>]: (
@@ -365,6 +366,7 @@ export interface ISdlDataWallet {
   storage: IProxyStorageMethods;
   nft: INftProxyMethods;
   events: ISnickerdoodleCoreEvents;
+  formFactorEvents: IFormFactorInternalEvents;
   questionnaire: IProxyQuestionnaireMethods;
 }
 
