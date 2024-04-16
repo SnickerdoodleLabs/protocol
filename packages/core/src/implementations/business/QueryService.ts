@@ -787,7 +787,7 @@ export class QueryService implements IQueryService {
           type: ESolidityAbiParameterType.string,
           value: key,
         },
-        ...(_value.callback.data.amount != null && {
+        ...(_value?.callback?.data?.amount != null && {
           amount: {
             type: ESolidityAbiParameterType.uint,
             value: _value.callback.data.amount as string,
