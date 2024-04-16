@@ -522,29 +522,25 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
         coreGateway
           .acceptInvitation(currentInvitation.data.invitation)
           .andThen(() => {
-            // set consent permissions here
-            return okAsync(undefined);
-          })
-          .andThen(() => {
             return ResultUtils.combine(
               Array.from(approvals.entries()).map(([cid, rewardParams]) =>
                 coreGateway.approveQuery(
-                  new ApproveQueryParams(cid, rewardParams),
+                  new ApproveQueryParams(cid, rewardParams, null),
                 ),
               ),
             );
           })
           .andThen(() => {
-            return ResultUtils.executeSerially(
+            return ResultUtils.combine(
               Array.from(withPermissions.entries()).map(
-                ([cid, { permissions, rewardParameters }]) =>
-                  () =>
-                    // set consent permissions here
-                    okAsync(undefined).andThen(() => {
-                      return coreGateway.approveQuery(
-                        new ApproveQueryParams(cid, rewardParameters),
-                      );
+                ([cid, { rewardParameters, permissions }]) => {
+                  return coreGateway.approveQuery(
+                    new ApproveQueryParams(cid, rewardParameters, {
+                      virtualQuestionnaires: permissions.dataTypes,
+                      questionnaires: permissions.questionnaires,
                     }),
+                  );
+                },
               ),
             );
           })

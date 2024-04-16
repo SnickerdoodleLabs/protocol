@@ -3,7 +3,6 @@ import {
   BackupRestoreEvent,
   ComponentStatus,
   CountryCode,
-  DataPermissionsUpdatedEvent,
   DataWalletAddress,
   EChain,
   EComponentStatus,
@@ -42,8 +41,6 @@ export class ContextProviderMock implements IContextProvider {
   public onPasswordAddedActivations: void[] = [];
   public onAccountRemovedActivations: LinkedAccount[] = [];
   public onPasswordRemovedActivations: void[] = [];
-  public onDataPermissionsUpdatedActivations: DataPermissionsUpdatedEvent[] =
-    [];
   public heartbeatActivations: void[] = [];
   public onApiAccessedActivations: EExternalApi[] = [];
   public onQueryPerformanceActivations: QueryPerformanceEvent[] = [];
@@ -124,10 +121,6 @@ export class ContextProviderMock implements IContextProvider {
       this.onPasswordRemovedActivations.push(val);
     });
 
-    this.publicEvents.onDataPermissionsUpdated.subscribe((val) => {
-      this.onDataPermissionsUpdatedActivations.push(val);
-    });
-
     this.publicEvents.onBackupCreated.subscribe((val) => {
       this.onBackupCreatedActivations.push(val);
     });
@@ -188,7 +181,6 @@ export class ContextProviderMock implements IContextProvider {
       onPasswordAdded: 0,
       onAccountRemoved: 0,
       onPasswordRemoved: 0,
-      onDataPermissionsUpdated: 0,
       heartbeat: 0,
       onApiAccessed: 0,
       onBackupCreated: 0,
@@ -220,9 +212,6 @@ export class ContextProviderMock implements IContextProvider {
     expect(this.onPasswordRemovedActivations.length).toBe(
       counts.onPasswordRemoved,
     );
-    expect(this.onDataPermissionsUpdatedActivations.length).toBe(
-      counts.onDataPermissionsUpdated,
-    );
     expect(this.heartbeatActivations.length).toBe(counts.heartbeat);
     expect(this.onApiAccessedActivations.length).toBe(counts.onApiAccessed);
     expect(this.onBackupCreatedActivations.length).toBe(counts.onBackupCreated);
@@ -250,7 +239,6 @@ export interface IExpectedEventCounts {
   onPasswordAdded?: number;
   onAccountRemoved?: number;
   onPasswordRemoved?: number;
-  onDataPermissionsUpdated?: number;
   heartbeat?: number;
   onApiAccessed?: number;
   onBackupCreated?: number;

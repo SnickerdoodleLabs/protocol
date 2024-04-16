@@ -78,7 +78,11 @@ const SingleQuestionnaireOffer: React.FC<ISingleQuestionnaireOfferProps> = ({
           });
         });
         return sdlDataWallet
-          .approveQuery(offer.queryStatus.queryCID, calculatedRewardParameters)
+          .approveQuery(
+            offer.queryStatus.queryCID,
+            calculatedRewardParameters,
+            null,
+          )
           .map(() => {
             reCalculateOffers();
           });

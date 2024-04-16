@@ -30,7 +30,6 @@ import {
   TokenId,
   UninitializedError,
   UnixTimestamp,
-  DataPermissionsUpdatedEvent,
   BlockchainCommonErrors,
   OptInInfo,
   IUserAgreement,
@@ -595,69 +594,6 @@ export class InvitationService implements IInvitationService {
           });
         });
     });
-  }
-
-  public updateDataPermissions(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<
-    void,
-    | UninitializedError
-    | ConsentContractError
-    | BlockchainCommonErrors
-    | PersistenceError
-    | ConsentError
-  > {
-    // TODO: We need the PermissionRepository for this. Right now, this will do nothing!
-    return ResultUtils.combine([
-      this.contextProvider.getContext(),
-      this.invitationRepo.getAcceptedInvitations(),
-      this.consentRepo.getCommitmentIndex(consentContractAddress),
-    ]).andThen(([context, acceptedInvitations, consentIndex]) => {
-      if (
-        !acceptedInvitations.some((ai) => {
-          return ai.consentContractAddress == consentContractAddress;
-        })
-      ) {
-        return errAsync(
-          new ConsentError(
-            "You must be opted in to the consent contract to update data permissions.",
-          ),
-        );
-      }
-
-      if (consentIndex == -1) {
-        return errAsync(
-          new ConsentError(
-            `No commitment found for consent contract ${consentContractAddress} on chain. Removing opt in from persistence.`,
-          ),
-        );
-      }
-
-      // Metatransaction complete. We don't actually store the permissions in our
-      // persistence layer, they are only stored on the chain, so there's nothing more
-      // to do for that. We should let the world know we made this change though.
-      // Notify the world that we've opted in to the cohort
-      context.publicEvents.onDataPermissionsUpdated.next(
-        new DataPermissionsUpdatedEvent(
-          consentContractAddress,
-          dataPermissions,
-        ),
-      );
-
-      return okAsync(undefined);
-    });
-  }
-
-  public getDataPermissions(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    DataPermissions,
-    UninitializedError | ConsentError | PersistenceError
-  > {
-    return this.permissionRepo.getContentContractPermissions(
-      consentContractAddress,
-    );
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
