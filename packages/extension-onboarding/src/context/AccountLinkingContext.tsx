@@ -25,6 +25,7 @@ import {
   AccountAddress,
   Signature,
   ECoreProxyType,
+  EChainTechnology,
 } from "@snickerdoodlelabs/objects";
 import { ConnectModal, useWallet } from "@suiet/wallet-kit";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
@@ -51,6 +52,7 @@ interface IWalletProviderKit {
   key: EWalletProviderKit;
   label: string;
   icon: string;
+  chainTech: EChainTechnology;
   mobileVisible: boolean;
   iframeVisible: boolean;
 }
@@ -60,6 +62,7 @@ const WalletKitProviderList: IWalletProviderKit[] = [
     key: EWalletProviderKit.WEB3_MODAL,
     label: "Wallet Connect",
     mobileVisible: true,
+    chainTech: EChainTechnology.EVM,
     iframeVisible: true,
     icon: "https://seeklogo.com/images/W/walletconnect-logo-EE83B50C97-seeklogo.com.png",
   },
@@ -67,6 +70,7 @@ const WalletKitProviderList: IWalletProviderKit[] = [
     key: EWalletProviderKit.SUI,
     label: "Suiet Kit",
     iframeVisible: false,
+    chainTech: EChainTechnology.Sui,
     icon: "https://framerusercontent.com/images/eDZRos3xvCrlWxmLFr72sFtiyQ.png?scale-down-to=512",
     mobileVisible: false,
   },
@@ -93,7 +97,7 @@ export const AccountLinkingContextProvider: FC = memo(({ children }) => {
   const {
     providerList,
     linkedAccounts,
-    isLinkerModalOpen,
+    linkAccountModalState,
     setLinkerModalClose,
     socialMediaProviderList,
   } = useAppContext();
@@ -369,8 +373,11 @@ export const AccountLinkingContextProvider: FC = memo(({ children }) => {
         walletKits,
       }}
     >
-      {isLinkerModalOpen && (
-        <LinkAccountModal closeModal={setLinkerModalClose} />
+      {!!linkAccountModalState && (
+        <LinkAccountModal
+          chainFilters={linkAccountModalState.chainFilters}
+          closeModal={setLinkerModalClose}
+        />
       )}
       <ConnectModal
         onOpenChange={() => {

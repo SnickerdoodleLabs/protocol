@@ -21,6 +21,7 @@ import {
 import {
   BigNumberString,
   EarnedReward,
+  EChainTechnology,
   EVMContractAddress,
   IpfsCID,
   JSONString,
@@ -50,6 +51,9 @@ export interface IInvitationInfo {
   rewardImage: URLString | undefined;
 }
 
+interface ILinkAccountModalState {
+  chainFilters?: EChainTechnology[];
+}
 export interface IAppContext {
   apiGateway: ApiGateway;
   dataWalletGateway: DataWalletGateway;
@@ -59,19 +63,12 @@ export interface IAppContext {
   optedInContracts: Map<EVMContractAddress, IpfsCID> | undefined;
   socialMediaProviderList: ISocialMediaWrapper[];
   addAccount(account: LinkedAccount): void;
-  setLinkerModalOpen: () => void;
+  setLinkerModalOpen: (chainFilters?: EChainTechnology[]) => void;
   setLinkerModalClose: () => void;
-  isLinkerModalOpen: boolean;
+  linkAccountModalState: ILinkAccountModalState | undefined;
   onboardingState: EOnboardingState | undefined;
   uiStateUtils: UIStateUtils;
 }
-
-const INITIAL_INVITATION_INFO: IInvitationInfo = {
-  consentAddress: undefined,
-  tokenId: undefined,
-  signature: undefined,
-  rewardImage: undefined,
-};
 
 const AppContext = createContext<IAppContext>({} as IAppContext);
 
@@ -83,8 +80,8 @@ export const AppContextProvider: FC = ({ children }) => {
   const [earnedRewards, setEarnedRewards] = useState<EarnedReward[]>();
   const [optedInContracts, setOptedInContracts] =
     useState<Map<EVMContractAddress, IpfsCID>>();
-  const [isLinkerModalOpen, setIsLinkerModalOpen] =
-    React.useState<boolean>(false);
+  const [linkAccountModalState, setLinkAccountModalState] =
+    React.useState<ILinkAccountModalState>();
   const initialAccountsFetchRef = React.useRef<boolean>(false);
   const accountLinkingEventSubscription = React.useRef<Subscription>();
   const onboardingStateEventSubscription = React.useRef<Subscription>();
@@ -111,11 +108,10 @@ export const AppContextProvider: FC = ({ children }) => {
       onboardingState === EOnboardingState.COMPLETED &&
       linkedAccounts.length === 0
     ) {
-      setIsLinkerModalOpen(true);
+      setLinkAccountModalState({ chainFilters: [EChainTechnology.EVM] });
       setAccountLinkingRequested(false);
     }
   }, [accountLinkingRequested, onboardingState, linkedAccounts.length]);
-
 
   useEffect(() => {
     setTimeout(() => {
@@ -275,9 +271,10 @@ export const AppContextProvider: FC = ({ children }) => {
         linkedAccounts,
         earnedRewards,
         addAccount,
-        setLinkerModalOpen: () => setIsLinkerModalOpen(true),
-        setLinkerModalClose: () => setIsLinkerModalOpen(false),
-        isLinkerModalOpen,
+        setLinkerModalOpen: (chainFilters = [EChainTechnology.EVM]) =>
+          setLinkAccountModalState({ chainFilters }),
+        setLinkerModalClose: () => setLinkAccountModalState(undefined),
+        linkAccountModalState,
       }}
     >
       {uiStateReady ? children : <Loading />}
