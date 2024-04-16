@@ -8,6 +8,7 @@ import {
   UUID,
   AccountAddedNotification,
   AccountInitializedNotification,
+  LinkAccountRequestedNotification,
   AccountRemovedNotification,
   EarnedRewardsAddedNotification,
   EProfileFieldType,
@@ -153,6 +154,10 @@ export class ContextProvider implements IContextProvider {
 
   public onQueryPosted(event: SDQLQueryRequest): void {
     this.appContext.notifyAllConnections(new QueryPostedNotification(event));
+  }
+
+  public onLinkAccountRequested(): void {
+    this.appContext.notifyAllConnections(new LinkAccountRequestedNotification());
   }
 
   private onAccountContextInitialized(

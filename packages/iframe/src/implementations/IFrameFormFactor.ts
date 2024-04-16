@@ -35,6 +35,7 @@ import {
   IIFrameContextProvider,
   IIFrameContextProviderType,
 } from "@core-iframe/interfaces/utilities/index";
+import { IProxyBridge } from "@core-iframe/interfaces/IProxyBridge";
 
 export class IFrameFormFactor {
   protected iocContainer = new Container();
@@ -47,7 +48,7 @@ export class IFrameFormFactor {
   public initialize(): ResultAsync<
     {
       core: ISnickerdoodleCore;
-      proxy: ISdlDataWallet;
+      proxy: IProxyBridge;
       childApi: ChildAPI;
       iframeEvents: IFrameEvents;
       config: IFrameControlConfig;

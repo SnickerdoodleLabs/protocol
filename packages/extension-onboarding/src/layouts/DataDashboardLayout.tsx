@@ -2,7 +2,7 @@ import Container from "@extension-onboarding/components/v2/Container";
 import DashboardTitle from "@extension-onboarding/components/v2/DashboardTitle";
 import { EPathsV2 as EPaths } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import { DashboardContextProvider } from "@extension-onboarding/context/DashboardContext";
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import { makeStyles } from "@material-ui/core/styles";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import React from "react";

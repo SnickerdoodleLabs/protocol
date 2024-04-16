@@ -1,14 +1,11 @@
-import {
-  Box,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  MenuItem,
-  Theme,
-  makeStyles,
-} from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import { makeStyles, Theme } from "@material-ui/core/styles";
+
 import {
   SDTypography,
   Image,
@@ -856,6 +853,20 @@ export const ConsentModal = ({
       !!queryApprovalState
     );
   }, [questionnaires, queryStatuses, groupedDataTypes, queryApprovalState]);
+
+  // if there is only one questionnaire query -no answered- and no other queries, open the questionnaire directly
+  useEffect(() => {
+    if (isQueriesReady) {
+      if (
+        queryStatuses?.multiQuestionQueries.length === 0 &&
+        queryStatuses?.virtualQuestionnaireQueries.length === 0 &&
+        queryStatuses?.questionnaireQueries.length === 1 &&
+        questionnaires?.unAnsweredQuestionnaires.length === 1
+      ) {
+        setQuestionnaireToAnswer(questionnaires.unAnsweredQuestionnaires[0]);
+      }
+    }
+  }, [isQueriesReady]);
 
   const content = () => {
     if (componentRenderState === EComponentRenderState.RENDER_QUERIES) {

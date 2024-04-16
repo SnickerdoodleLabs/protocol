@@ -1,5 +1,5 @@
 import { IBalanceItem } from "@extension-onboarding/objects";
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import {
   Chart as ChartJS,
   CategoryScale,

@@ -1,4 +1,4 @@
-import { Skeleton } from "@material-ui/lab";
+import  Skeleton  from "@material-ui/lab/Skeleton";
 import { useSafeState } from "@shared-components/v2/hooks";
 import React, { FC, useEffect, useMemo, useState } from "react";
 

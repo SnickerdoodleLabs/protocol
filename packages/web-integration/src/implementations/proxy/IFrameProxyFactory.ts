@@ -27,9 +27,9 @@ export class IFrameProxyFactory implements IIFrameProxyFactory {
     iframeUrl: URLString,
     configOverrides: IConfigOverrides,
   ): ResultAsync<ISnickerdoodleIFrameProxy, ProxyError> {
-    const iframeContainer = this._prepareIFrameContainer();
     return ResultUtils.backoffAndRetry(
       () => {
+        const iframeContainer = this._prepareIFrameContainer();
         const proxy = new SnickerdoodleIFrameProxy(
           iframeContainer,
           iframeUrl,
@@ -38,9 +38,15 @@ export class IFrameProxyFactory implements IIFrameProxyFactory {
           this.storageUtils,
         );
 
-        return proxy.activate().map(() => {
-          return proxy;
-        });
+        return proxy
+          .activate()
+          .map(() => {
+            return proxy;
+          })
+          .mapErr((e) => {
+            iframeContainer.remove();
+            return e;
+          });
       },
       [ProxyError], // Retry after a ProxyError
       3, // We'll give it 3 tries

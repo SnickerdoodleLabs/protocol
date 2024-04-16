@@ -1,14 +1,12 @@
-import {
-  Grid,
-  Tab,
-  Tabs,
-  Box,
-  Radio,
-  AppBar,
-  Toolbar,
-  CssBaseline,
-} from "@material-ui/core";
-import { ThemeProvider, useTheme } from "@material-ui/styles";
+import Grid from "@material-ui/core/Grid";
+import Tab from "@material-ui/core/Tab";
+import Tabs from "@material-ui/core/Tabs";
+import Box from "@material-ui/core/Box";
+import Radio from "@material-ui/core/Radio";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import { ThemeProvider } from "@material-ui/core/styles";
 import {
   createDefaultTheme,
   EColorMode,

@@ -21,6 +21,7 @@ import {
 import {
   BigNumberString,
   EarnedReward,
+  EChainTechnology,
   EVMContractAddress,
   IpfsCID,
   JSONString,
@@ -50,6 +51,9 @@ export interface IInvitationInfo {
   rewardImage: URLString | undefined;
 }
 
+interface ILinkAccountModalState {
+  chainFilters?: EChainTechnology[];
+}
 export interface IAppContext {
   apiGateway: ApiGateway;
   dataWalletGateway: DataWalletGateway;
@@ -59,21 +63,12 @@ export interface IAppContext {
   optedInContracts: Map<EVMContractAddress, IpfsCID> | undefined;
   socialMediaProviderList: ISocialMediaWrapper[];
   addAccount(account: LinkedAccount): void;
-  invitationInfo: IInvitationInfo;
-  setInvitationInfo: (invitationInfo: IInvitationInfo) => void;
-  setLinkerModalOpen: () => void;
+  setLinkerModalOpen: (chainFilters?: EChainTechnology[]) => void;
   setLinkerModalClose: () => void;
-  isLinkerModalOpen: boolean;
+  linkAccountModalState: ILinkAccountModalState | undefined;
   onboardingState: EOnboardingState | undefined;
   uiStateUtils: UIStateUtils;
 }
-
-const INITIAL_INVITATION_INFO: IInvitationInfo = {
-  consentAddress: undefined,
-  tokenId: undefined,
-  signature: undefined,
-  rewardImage: undefined,
-};
 
 const AppContext = createContext<IAppContext>({} as IAppContext);
 
@@ -82,41 +77,19 @@ export const AppContextProvider: FC = ({ children }) => {
   const [chainProviderList, setChainProviderList] = useState<IProvider[]>([]);
   const [linkedAccounts, setLinkedAccounts] = useState<LinkedAccount[]>([]);
   const { setAlert, setVisualAlert } = useNotificationContext();
-  const [invitationInfo, setInvitationInfo] = useState<IInvitationInfo>(
-    INITIAL_INVITATION_INFO,
-  );
   const [earnedRewards, setEarnedRewards] = useState<EarnedReward[]>();
   const [optedInContracts, setOptedInContracts] =
     useState<Map<EVMContractAddress, IpfsCID>>();
-  const [isLinkerModalOpen, setIsLinkerModalOpen] =
-    React.useState<boolean>(false);
+  const [linkAccountModalState, setLinkAccountModalState] =
+    React.useState<ILinkAccountModalState>();
   const initialAccountsFetchRef = React.useRef<boolean>(false);
+  const accountLinkingEventSubscription = React.useRef<Subscription>();
   const onboardingStateEventSubscription = React.useRef<Subscription>();
   const uiStateUtilsRef = React.useRef<UIStateUtils>();
   const [appInitFlag, setAppInitFlag] = useState<boolean>(false);
   const [uiStateUtils, setUiStateUtils] = useState<UIStateUtils>();
   const [onboardingState, _setonboardingState] = useState<EOnboardingState>();
-
-  useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
-    if (!queryParams.has("consentAddress")) {
-      return;
-    }
-    return setInvitationInfo({
-      consentAddress: queryParams.get("consentAddress")
-        ? EVMContractAddress(queryParams.get("consentAddress")!)
-        : undefined,
-      tokenId: queryParams.get("tokenId")
-        ? BigNumberString(queryParams.get("tokenId")!)
-        : undefined,
-      signature: queryParams.get("signature")
-        ? Signature(queryParams.get("signature")!)
-        : undefined,
-      rewardImage: queryParams.get("rewardImage")
-        ? URLString(queryParams.get("rewardImage")!)
-        : undefined,
-    });
-  }, [JSON.stringify(window.location.search)]);
+  const [accountLinkingRequested, setAccountLinkingRequested] = useState(false);
 
   useEffect(() => {
     if (uiStateUtils && !onboardingStateEventSubscription.current) {
@@ -131,17 +104,14 @@ export const AppContextProvider: FC = ({ children }) => {
 
   useEffect(() => {
     if (
-      invitationInfo.consentAddress &&
-      linkedAccounts.length === 0 &&
-      initialAccountsFetchRef.current
+      accountLinkingRequested &&
+      onboardingState === EOnboardingState.COMPLETED &&
+      linkedAccounts.length === 0
     ) {
-      // setIsLinkerModalOpen(true);
+      setLinkAccountModalState({ chainFilters: [EChainTechnology.EVM] });
+      setAccountLinkingRequested(false);
     }
-  }, [JSON.stringify(invitationInfo), linkedAccounts]);
-
-  const updateInvitationInfo = (invitationInfo: IInvitationInfo) => {
-    setInvitationInfo(invitationInfo);
-  };
+  }, [accountLinkingRequested, onboardingState, linkedAccounts.length]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -163,6 +133,18 @@ export const AppContextProvider: FC = ({ children }) => {
   const checkDataWalletAddressAndInitializeApp = () => {
     setAppInitFlag(true);
   };
+
+  useEffect(() => {
+    if (appInitFlag) {
+      accountLinkingEventSubscription.current =
+        sdlDataWallet.formFactorEvents.onLinkAccountRequested.subscribe(() => {
+          setAccountLinkingRequested(true);
+        });
+    }
+    return () => {
+      accountLinkingEventSubscription.current?.unsubscribe();
+    };
+  }, [appInitFlag]);
 
   let accountAddedSubscription: Subscription | null = null;
   let accountRemovedSubscription: Subscription | null = null;
@@ -289,11 +271,10 @@ export const AppContextProvider: FC = ({ children }) => {
         linkedAccounts,
         earnedRewards,
         addAccount,
-        invitationInfo,
-        setInvitationInfo: updateInvitationInfo,
-        setLinkerModalOpen: () => setIsLinkerModalOpen(true),
-        setLinkerModalClose: () => setIsLinkerModalOpen(false),
-        isLinkerModalOpen,
+        setLinkerModalOpen: (chainFilters = [EChainTechnology.EVM]) =>
+          setLinkAccountModalState({ chainFilters }),
+        setLinkerModalClose: () => setLinkAccountModalState(undefined),
+        linkAccountModalState,
       }}
     >
       {uiStateReady ? children : <Loading />}

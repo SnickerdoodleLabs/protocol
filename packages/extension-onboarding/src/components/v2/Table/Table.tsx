@@ -1,15 +1,12 @@
-import {
-  Table as MuiTable,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableSortLabel,
-  Paper,
-  TablePagination,
-  withStyles,
-  makeStyles,
-} from "@material-ui/core";
+import MuiTable from "@material-ui/core/Table";
+import TableCell from "@material-ui/core/TableCell";
+import TableSortLabel from "@material-ui/core/TableSortLabel";
+import TablePagination from "@material-ui/core/TablePagination";
+import Paper from "@material-ui/core/Paper";
+import TableRow from "@material-ui/core/TableRow";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
+import TableHead from "@material-ui/core/TableHead";
+import TableBody from "@material-ui/core/TableBody";
 import {
   SDTypography,
   colors,
