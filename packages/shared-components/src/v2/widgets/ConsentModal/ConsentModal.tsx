@@ -854,6 +854,20 @@ export const ConsentModal = ({
     );
   }, [questionnaires, queryStatuses, groupedDataTypes, queryApprovalState]);
 
+  // if there is only one questionnaire query -no answered- and no other queries, open the questionnaire directly
+  useEffect(() => {
+    if (isQueriesReady) {
+      if (
+        queryStatuses?.multiQuestionQueries.length === 0 &&
+        queryStatuses?.virtualQuestionnaireQueries.length === 0 &&
+        queryStatuses?.questionnaireQueries.length === 1 &&
+        questionnaires?.unAnsweredQuestionnaires.length === 1
+      ) {
+        setQuestionnaireToAnswer(questionnaires.unAnsweredQuestionnaires[0]);
+      }
+    }
+  }, [isQueriesReady]);
+
   const content = () => {
     if (componentRenderState === EComponentRenderState.RENDER_QUERIES) {
       return (
