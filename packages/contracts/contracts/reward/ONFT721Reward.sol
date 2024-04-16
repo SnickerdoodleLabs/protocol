@@ -4,15 +4,13 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "@snickerdoodlelabs/erc7529/contract/ERC7529.sol";
 import "@layerzerolabs/solidity-examples/contracts/token/onft721/ONFT721.sol";
 
 contract ONFT721Reward is ERC721Burnable, AccessControl, ONFT721, ERC7529 {
-    using Counters for Counters.Counter;
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    Counters.Counter private _totalSupplyCounter;
+    uint256 public _totalSupplyCounter;
     string public baseURI;
 
     constructor(string memory name, string memory symbol, string memory baseUri, uint256 minGasToTransfer, address lzEndpoint) ONFT721(name, symbol, minGasToTransfer, lzEndpoint) {
@@ -22,7 +20,7 @@ contract ONFT721Reward is ERC721Burnable, AccessControl, ONFT721, ERC7529 {
     }
 
     function safeMint(address to, uint256 tokenId) public onlyRole(MINTER_ROLE) {
-        _totalSupplyCounter.increment();
+        _totalSupplyCounter++;
         _safeMint(to, tokenId);
     }
 
@@ -70,7 +68,7 @@ contract ONFT721Reward is ERC721Burnable, AccessControl, ONFT721, ERC7529 {
         // burn NFT
         _burn(tokenId);
 
-        _totalSupplyCounter.decrement();
+        _totalSupplyCounter--;
     }
 
     function lzReceive(

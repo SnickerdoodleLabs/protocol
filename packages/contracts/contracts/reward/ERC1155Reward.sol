@@ -4,7 +4,6 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "@snickerdoodlelabs/erc7529/contract/ERC7529.sol";
 
 contract ERC1155Reward is ERC1155, AccessControl, ERC1155Supply, ERC7529 {
