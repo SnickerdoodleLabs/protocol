@@ -83,6 +83,7 @@ import {
   QuestionnairesContractError,
 } from "@objects/errors/index.js";
 import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
+import { IQueryPermissions } from "@objects/interfaces/IQueryPermissions.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
 import {
@@ -118,7 +119,6 @@ import {
   RefreshToken,
   JSONString,
 } from "@objects/primitives/index.js";
-import { IQueryPermissions } from "./IQueryPermissions";
 /**
  ************************ MAINTENANCE HAZARD ***********************************************
  Whenever you add or change a method in this class, you also need to look at and probably update
@@ -255,6 +255,7 @@ export interface ICoreMarketplaceMethods {
 
   getRecommendationsByListing(
     listing: MarketplaceListing,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<
     MarketplaceTag[],
     | BlockchainProviderError

@@ -152,9 +152,9 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       new NativeCurrencyInformation("AVAX", 18, "AVAX", "avalanche-2"),
       EChainType.Testnet,
       "https://testnet.snowtrace.io/tx/",
-      EVMContractAddress("0x5540122e78241679Da8d07A04A74D3a7f52aED97"), // Consent Contract Factory
-      EVMContractAddress("0x5540122e78241679Da8d07A04A74D3a7f52aED97"), // TODO: Governance Token Contract
-      EVMContractAddress("0x0000000000000000000000000000000000000000"), // TODO: Fix Questionnaires Contract on Fuji
+      EVMContractAddress("0x5b6c961538E65b6EaCaf09Ec8E93D5f5f1d1afcC"), // Consent Contract Factory
+      EVMContractAddress("0x73F4391c2669f79F15480d3e2Bb22e0792c682bE"), // Governance Token Contract
+      EVMContractAddress("0x692F3657c24B91Cb8516b9622b1F271E03cBcEC9"), // Questionnaires Contract
       URLString("https://api-testnet.snowtrace.io/"),
     ),
   ],
