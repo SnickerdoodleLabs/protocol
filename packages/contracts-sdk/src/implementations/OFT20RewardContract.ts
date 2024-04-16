@@ -4,15 +4,14 @@ import {
   BlockchainCommonErrors,
   OFT20RewardContractError,
   TokenAmount,
-  DomainName,
   Signature,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
-import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
+import { ERC7529Contract } from "@contracts-sdk/implementations/ERC7529Contract.js";
 import { ERewardRoles } from "@contracts-sdk/interfaces/enums/index.js";
 import {
   ContractOverrides,
@@ -23,7 +22,7 @@ import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export class OFT20RewardContract
-  extends BaseContract<OFT20RewardContractError>
+  extends ERC7529Contract<OFT20RewardContractError>
   implements IOFT20RewardContract
 {
   constructor(
@@ -199,38 +198,6 @@ export class OFT20RewardContract
       "renounceRole",
       [ERewardRoles[role], address],
       overrides,
-    );
-  }
-
-  public addDomain(
-    domain: DomainName,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | OFT20RewardContractError
-  > {
-    return this.writeToContract("addDomain", [domain], overrides);
-  }
-
-  public removeDomain(
-    domain: DomainName,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | OFT20RewardContractError
-  > {
-    return this.writeToContract("removeDomain", [domain], overrides);
-  }
-
-  public checkDomain(
-    domain: DomainName,
-  ): ResultAsync<boolean, OFT20RewardContractError | BlockchainCommonErrors> {
-    return ResultAsync.fromPromise(
-      // returns array of domains
-      this.contract.checkDomain(domain) as Promise<boolean>,
-      (e) => {
-        return this.generateError(e, "Unable to call checkDomain()");
-      },
     );
   }
 
