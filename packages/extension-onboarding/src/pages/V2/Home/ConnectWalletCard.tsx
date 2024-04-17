@@ -1,7 +1,10 @@
 import { useWalletProvider } from "@extension-onboarding/components/v2/LinkingAccountMenu";
 import { useAppContext } from "@extension-onboarding/context/App";
 import Card from "@extension-onboarding/pages/V2/Home/Card";
-import { Box, Collapse, Menu, MenuItem } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Collapse from "@material-ui/core/Collapse";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import {
   SDButton,

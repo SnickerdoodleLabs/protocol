@@ -3,7 +3,7 @@ import PageBanners from "@extension-onboarding/components/v2/PageBanners";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import BrandItem from "@extension-onboarding/pages/V2/Offers/BrandItem";
-import { Box } from "@material-ui/core";
+import  Box  from "@material-ui/core/Box";
 import {
   EQueryProcessingStatus,
   EVMContractAddress,

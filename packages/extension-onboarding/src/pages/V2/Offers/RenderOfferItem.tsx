@@ -1,12 +1,12 @@
-import { Box, makeStyles } from "@material-ui/core";
-import { CallMade } from "@material-ui/icons";
+import  Box from "@material-ui/core/Box";
+import { makeStyles } from "@material-ui/core/styles";
+import CallMade  from "@material-ui/icons/CallMade";
 import {
   colors,
   shadows,
   useResponsiveValue,
   Image,
   SDTypography,
-  SDButton,
 } from "@snickerdoodlelabs/shared-components";
 import React from "react";
 

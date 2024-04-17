@@ -1,5 +1,7 @@
-import { Box, Fade, Theme, makeStyles } from "@material-ui/core";
-import { AssignmentTurnedInOutlined } from "@material-ui/icons";
+import Box from "@material-ui/core/Box";
+import Fade from "@material-ui/core/Fade";
+import { Theme, makeStyles } from "@material-ui/core/styles";
+import AssignmentTurnedInOutlined  from "@material-ui/icons/AssignmentTurnedInOutlined";
 import { LinkedAccount } from "@snickerdoodlelabs/objects/src/businessObjects";
 import {
   useMedia,

@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import { Image } from "@shared-components/v2/components/Image";
 import { SDTypography } from "@shared-components/v2/components/Typograpy";
 import { colors } from "@shared-components/v2/theme";

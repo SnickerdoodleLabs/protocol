@@ -1,5 +1,6 @@
 import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
-import { Box, Container } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Container from "@material-ui/core/Container";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   SDTypography,

@@ -142,6 +142,7 @@ import {
   GetVirtualQuestionnairesParams,
   GetQuestionnairesByCIDSParams,
   GetQueryStatusesByContractAddressParams,
+  LinkAccountRequestParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -554,6 +555,13 @@ export class RpcCallHandler implements IRpcCallHandler {
             this.errorUtils.emit(error);
             return new SnickerDoodleCoreError((error as Error).message, error);
           });
+      },
+    ),
+
+    new CoreActionHandler<LinkAccountRequestParams>(
+      LinkAccountRequestParams.getCoreAction(),
+      (_) => {
+        return okAsync(this.contextProvider.onLinkAccountRequested());
       },
     ),
 

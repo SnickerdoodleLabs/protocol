@@ -1,5 +1,5 @@
 import { IFrameEvents } from "@core-iframe/interfaces/objects";
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import CloseIcon from "@material-ui/icons/Close";
 import { ISdlDataWallet } from "@snickerdoodlelabs/objects";
 import { ModalContainer } from "@snickerdoodlelabs/shared-components";
