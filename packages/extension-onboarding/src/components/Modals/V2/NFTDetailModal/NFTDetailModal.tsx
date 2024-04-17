@@ -1,13 +1,10 @@
-import {
-  Box,
-  Dialog,
-  Grid,
-  Slide,
-  Toolbar,
-  makeStyles,
-  useTheme,
-} from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Dialog from "@material-ui/core/Dialog";
+import Grid from "@material-ui/core/Grid";
+import Slide from "@material-ui/core/Slide";
+import Toolbar from "@material-ui/core/Toolbar";
 import { TransitionProps } from "@material-ui/core/transitions";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
   WalletNFT,
   chainConfig,

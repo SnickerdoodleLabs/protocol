@@ -1,11 +1,8 @@
-import {
-  Box,
-  IconButton,
-  Menu,
-  MenuItem,
-  Theme,
-  makeStyles,
-} from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import IconButton from "@material-ui/core/IconButton";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
+import { Theme, makeStyles } from "@material-ui/core/styles";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";

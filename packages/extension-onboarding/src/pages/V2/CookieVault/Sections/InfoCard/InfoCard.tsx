@@ -3,7 +3,9 @@ import {
   EInfoCardVisiblity,
   EPageKeys,
 } from "@extension-onboarding/objects/interfaces/IUState";
-import { Box, Collapse, Grid } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Grid from "@material-ui/core/Grid";
+import Collapse from "@material-ui/core/Collapse";
 import {
   CloseButton,
   SDTypography,

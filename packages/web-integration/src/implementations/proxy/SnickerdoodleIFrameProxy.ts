@@ -84,6 +84,7 @@ import {
   IProxyQuestionnaireMethods,
   NewQuestionnaireAnswer,
   DataPermissions,
+  FormFactorEvents,
   EQueryProcessingStatus,
   IDynamicRewardParameter,
   IQueryPermissions,
@@ -109,6 +110,7 @@ export class SnickerdoodleIFrameProxy
     super(element, iframeUrl, iframeName);
 
     this.events = new PublicEvents();
+    this.formFactorEvents = new FormFactorEvents();
     this.onIframeDisplayRequested = new Subject<void>();
   }
 
@@ -243,6 +245,10 @@ export class SnickerdoodleIFrameProxy
 
         this.child.on("onLocationUpdated", (data: CountryCode) => {
           this.events.onLocationUpdated.next(data);
+        });
+
+        this.child.on("onLinkAccountRequested", () => {
+          this.formFactorEvents.onLinkAccountRequested.next();
         });
 
         this.child.on("onIframeDisplayRequested", () => {
@@ -839,6 +845,8 @@ export class SnickerdoodleIFrameProxy
   }
 
   public events: PublicEvents;
+
+  public formFactorEvents: FormFactorEvents;
 
   private _displayCoreIFrame(): void {
     // Disable scrolling on the body

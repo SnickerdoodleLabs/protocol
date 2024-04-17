@@ -1,9 +1,5 @@
-import {
-  SwitchProps,
-  Theme,
-  createStyles,
-  makeStyles,
-} from "@material-ui/core";
+import { SwitchProps } from "@material-ui/core/Switch";
+import { Theme, createStyles, makeStyles } from "@material-ui/core/styles";
 import { SDSwitch, colors } from "@snickerdoodlelabs/shared-components";
 import React from "react";
 

@@ -1,4 +1,5 @@
-import { Box, Grid } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Grid from "@material-ui/core/Grid";
 import { NftMetadataParseUtils } from "@snickerdoodlelabs/common-utils";
 import { EVMNFT, POAPMetadata } from "@snickerdoodlelabs/objects";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";

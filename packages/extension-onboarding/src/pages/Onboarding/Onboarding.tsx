@@ -9,7 +9,8 @@ import { useThemeContext } from "@extension-onboarding/context/ThemeContext";
 import { EOnboardingState } from "@extension-onboarding/objects/interfaces/IUState";
 import StepIndicators from "@extension-onboarding/pages/Onboarding//StepIndicators";
 import StepRenderer from "@extension-onboarding/pages/Onboarding//StepRenderer";
-import { Toolbar, makeStyles } from "@material-ui/core";
+import Toolbar from "@material-ui/core/Toolbar";
+import { makeStyles } from "@material-ui/core/styles";
 import { SDCheckbox, SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useMemo, useEffect, ReactNode, useCallback } from "react";
 

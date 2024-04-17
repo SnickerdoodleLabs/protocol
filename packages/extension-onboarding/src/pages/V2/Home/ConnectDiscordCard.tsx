@@ -4,7 +4,7 @@ import { useDataWalletContext } from "@extension-onboarding/context/DataWalletCo
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import Card from "@extension-onboarding/pages/V2/Home/Card";
 import { getResponsivePopupProperties } from "@extension-onboarding/utils";
-import { Collapse } from "@material-ui/core";
+import Collapse from "@material-ui/core/Collapse";
 import {
   EOAuthProvider,
   OAuthAuthorizationCode,
@@ -13,7 +13,6 @@ import {
 import {
   SDButton,
   colors,
-  useResponsiveValue,
 } from "@snickerdoodlelabs/shared-components";
 import { errAsync } from "neverthrow";
 import React, { FC, useCallback, useEffect, useMemo, useState } from "react";

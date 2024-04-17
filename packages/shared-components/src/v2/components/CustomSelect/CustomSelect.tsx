@@ -1,9 +1,6 @@
-import {
-  FormControl,
-  Select,
-  SelectProps,
-  makeStyles,
-} from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import FormControl from "@material-ui/core/FormControl";
+import Select, { SelectProps } from "@material-ui/core/Select";
 import { colors } from "@shared-components/v2/theme";
 import React, { FC } from "react";
 

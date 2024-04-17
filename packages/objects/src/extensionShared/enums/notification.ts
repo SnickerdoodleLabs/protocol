@@ -11,4 +11,5 @@ export enum ENotificationTypes {
   CLOUD_STORAGE_ACTIVATED = "onCloudStorageActivated",
   CLOUD_STORAGE_DEACTIVATED = "onCloudStorageDeactivated",
   QUERY_POSTED = "onQueryPosted",
+  LINK_ACCOUNT_REQUESTED = "onLinkAccountRequested",
 }

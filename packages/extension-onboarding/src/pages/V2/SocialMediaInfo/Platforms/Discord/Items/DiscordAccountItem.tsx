@@ -1,7 +1,9 @@
 import Card from "@extension-onboarding/components/v2/Card";
 import { DiscordServerItem } from "@extension-onboarding/pages/V2/SocialMediaInfo/Platforms/Discord/Items/DiscordServerItem";
 import { ILinkedDiscordAccount } from "@extension-onboarding/pages/V2/SocialMediaInfo/Platforms/Discord/types";
-import { Box, Divider, Grid } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Divider from "@material-ui/core/Divider";
+import Grid from "@material-ui/core/Grid";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { FC, memo } from "react";
 
