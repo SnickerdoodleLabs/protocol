@@ -1,6 +1,6 @@
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { Box, MenuItem } from "@material-ui/core";
+import  MenuItem from "@material-ui/core/MenuItem";
 import {
   EChain,
   EVMAccountAddress,

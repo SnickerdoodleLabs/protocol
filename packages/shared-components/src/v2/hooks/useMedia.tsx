@@ -1,4 +1,4 @@
-import { Theme, useTheme } from "@material-ui/core";
+import { Theme, useTheme } from "@material-ui/core/styles";
 import { useSafeState } from "@shared-components/v2/hooks/useSafeState";
 import { useEffect, useMemo } from "react";
 

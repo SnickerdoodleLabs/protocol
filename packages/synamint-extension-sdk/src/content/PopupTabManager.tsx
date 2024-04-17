@@ -1,4 +1,6 @@
-import { Box, Slide, Typography } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Slide from "@material-ui/core/Slide";
+import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import React, { useEffect, useMemo, useState } from "react";
 

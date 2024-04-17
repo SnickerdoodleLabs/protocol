@@ -9,6 +9,7 @@ import {
   ConsentContractError,
   BlockchainCommonErrors,
   InvalidParametersError,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -38,6 +39,7 @@ export interface IMarketplaceRepository {
 
   getRecommendationsByListing(
     listing: MarketplaceListing,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<
     MarketplaceTag[],
     | BlockchainProviderError

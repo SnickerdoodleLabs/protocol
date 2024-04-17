@@ -66,6 +66,7 @@ import {
   IDynamicRewardParameter,
   SDQLQueryRequest,
   IQueryPermissions,
+  FormFactorEvents,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -166,6 +167,7 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   public nft: INftProxyMethods;
   public questionnaire: IProxyQuestionnaireMethods;
   public events: PublicEvents;
+  public formFactorEvents: FormFactorEvents;
   public requestDashboardView = undefined;
 
   public proxyType: ECoreProxyType = ECoreProxyType.EXTENSION_INJECTED;
@@ -177,7 +179,11 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
     const _this = this;
 
     this.events = new PublicEvents();
+    this.formFactorEvents = new FormFactorEvents();
 
+    this.on(ENotificationTypes.LINK_ACCOUNT_REQUESTED, () => {
+      this.formFactorEvents.onLinkAccountRequested.next();
+    });
     this.on(
       ENotificationTypes.ACCOUNT_ADDED,
       (notification: { data: LinkedAccount }) => {

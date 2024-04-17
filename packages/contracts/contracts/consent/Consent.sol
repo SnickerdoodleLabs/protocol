@@ -100,7 +100,7 @@ contract Consent is
         super._grantRole(STAKER_ROLE, _consentOwner);
     }
 
-    /* Function Implemenations */
+    /* Function Implementations */
 
     /// @notice Get the current total number of identity commitments
     function totalSupply() external view returns (uint256) {
@@ -189,7 +189,7 @@ contract Consent is
 
     /// @notice Allows any user to opt in to sharing their data
     /// @dev Registers an identity commitment for a user
-    /// @param commitment A bytes32 identity commitment computed with Posiedon hash function
+    /// @param commitment A bytes32 identity commitment computed with Poseidon hash function
     function optIn(bytes32 commitment) external whenNotPaused whenNotDisabled {
         // don't allow commitments to be committed twice
         require(commitments[commitment] == 0, "Commitment exists already");
@@ -205,7 +205,7 @@ contract Consent is
 
     /// @notice Allows multiple identity commitments to be written at once
     /// @dev Registers a batch of identity commitments for multiple users
-    /// @param commitmentBatch A bytes32 array of identity commitments computed with Posiedon hash function
+    /// @param commitmentBatch A bytes32 array of identity commitments computed with Poseidon hash function
     function batchOptIn(
         bytes32[] calldata commitmentBatch
     ) external whenNotPaused whenNotDisabled {
@@ -228,7 +228,7 @@ contract Consent is
     /// @dev The function is called with the signature from SIGNER_ROLE
     /// @dev If the message signature is valid, the user calling this may create an identity commitment
     /// @param nonce A one-time use integer to commit without replay
-    /// @param commitment A bytes32 identity commitment computed with Posiedon hash function
+    /// @param commitment A bytes32 identity commitment computed with Poseidon hash function
     /// @param signature Signature to be recovered from the hash of the target contract address and nonce
     function restrictedOptIn(
         uint256 nonce,
@@ -267,7 +267,7 @@ contract Consent is
         emit RequestForData(msg.sender, ipfsCID, ipfsCID);
     }
 
-    /// @notice this function is called by an account with the STAKER_ROLE priviledge to deposit tokens for use in global rankings
+    /// @notice this function is called by an account with the STAKER_ROLE privilege to deposit tokens for use in global rankings
     /// @dev a depositor can deposit multiple times
     /// @param depositToken the address of the token to deposit into the contract
     /// @param amount the amount of depositToken to send to this contract
@@ -289,7 +289,7 @@ contract Consent is
 
     /// @notice this function allows a depositor to remove there funds from this contract
     /// @dev there is no authentication on this function so that if a depositor no longer has the STAKER_ROLE, then can still recall their funds
-    /// @param depositToken the addres of the token the depositor is reclaiming
+    /// @param depositToken the address of the token the depositor is reclaiming
     /// @param amount the amount of depositToken that is being reclaimed
     function removeStake(address depositToken, uint256 amount) external {
         require(
@@ -417,7 +417,7 @@ contract Consent is
 
     /// @notice Removes this contract's listing under the specified tag
     /// @dev either an address with STAKER_ROLE or a stake owner can call this function
-    /// @param tag Human readable string denoting the target tag to destake
+    /// @param tag Human readable string denoting the target tag to unstake
     /// @param stakingToken Address of the token used for staking recommender listings
     function removeListing(
         string calldata tag,

@@ -254,6 +254,7 @@ export interface ICoreMarketplaceMethods {
 
   getRecommendationsByListing(
     listing: MarketplaceListing,
+    stakingToken: EVMContractAddress,
   ): ResultAsync<
     MarketplaceTag[],
     | BlockchainProviderError
