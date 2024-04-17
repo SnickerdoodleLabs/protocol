@@ -1,4 +1,6 @@
-import { Box, Grid, MenuItem } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Grid from "@material-ui/core/Grid";
+import MenuItem from "@material-ui/core/MenuItem";
 import { COUNTRIES } from "@shared-components/constants/countries";
 import { SDCheckbox } from "@shared-components/v2/components/Checkbox";
 import { SDRadio } from "@shared-components/v2/components/Radio";

@@ -1,6 +1,7 @@
 import { useAppContext } from "@browser-extension/popup/context";
 import { useStyles } from "@browser-extension/popup/pages/Home/components/LinkCard/LinkCard.style";
-import { Box, Typography } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Typography from "@material-ui/core/Typography";
 import React from "react";
 
 interface ILinkCardProps {

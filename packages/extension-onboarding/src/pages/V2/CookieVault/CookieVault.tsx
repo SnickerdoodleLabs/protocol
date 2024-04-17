@@ -6,7 +6,8 @@ import Questionnaires from "@extension-onboarding/pages/V2/CookieVault/Sections/
 import SocialAccountLinking from "@extension-onboarding/pages/V2/CookieVault/Sections/SocialAccountLinking";
 import VaultStatus from "@extension-onboarding/pages/V2/CookieVault/Sections/VaultStatus";
 import WalletLinking from "@extension-onboarding/pages/V2/CookieVault/Sections/WalletLinking";
-import { Box, Grid } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Grid from "@material-ui/core/Grid";
 import React, { FC } from "react";
 const CookieVault: FC = () => {
   return (

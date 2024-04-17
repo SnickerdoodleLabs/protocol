@@ -2,7 +2,8 @@ import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.st
 import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { Box, Dialog } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Dialog from "@material-ui/core/Dialog";
 import {
   EarnedReward,
   DirectReward,

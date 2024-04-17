@@ -1,4 +1,6 @@
-import { Box, Menu, MenuItem } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
 import {
   SDTypography,
   colors,
