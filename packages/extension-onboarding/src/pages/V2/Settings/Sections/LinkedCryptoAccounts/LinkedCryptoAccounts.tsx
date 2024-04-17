@@ -6,7 +6,7 @@ import CardTitle from "@extension-onboarding/components/v2/CardTitle";
 import Table, { IColumn } from "@extension-onboarding/components/v2/Table";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import { LinkedAccount } from "@snickerdoodlelabs/objects";
 import { getChainImageSrc } from "@snickerdoodlelabs/shared-components";
 import React from "react";

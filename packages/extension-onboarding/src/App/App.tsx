@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import { ISdlDataWallet, OAuthURLState } from "@snickerdoodlelabs/objects";
 import React, { FC, useMemo, memo, lazy, Suspense } from "react";
 const MainContainer = lazy(

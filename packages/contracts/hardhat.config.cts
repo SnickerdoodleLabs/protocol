@@ -4,6 +4,8 @@ import "@openzeppelin/hardhat-upgrades";
 import "hardhat-gas-reporter";
 import "hardhat-contract-sizer";
 
+import "./tasks/general.js";
+
 require("dotenv").config();
 
 // Remote RPC URL
@@ -37,6 +39,11 @@ const config: HardhatUserConfig = {
       url: "http://localhost:8545",
       gas: 6000000,
       gasPrice: 8000000000,
+    },
+    fuji: {
+      accounts: accounts,
+      chainId: 43113,
+      url: "https://avalanche-fuji.blockpi.network/v1/rpc/public",
     },
   },
   gasReporter: {

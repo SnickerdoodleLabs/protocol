@@ -1,4 +1,4 @@
-import { ThemeProvider } from "@material-ui/core";
+import { ThemeProvider } from "@material-ui/core/styles";
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   BaseNotification,
@@ -198,6 +198,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
   const _path = usePath();
   const [isHidden, setIsHidden] = useState<boolean>(false);
   const optInRequestSubsriptionRef = useRef<Subscription>();
+  const evmAccountsRef = useRef<EVMAccountAddress[] | null>(null);
 
   // #region new flow
   const [deepLinkInvitation, setDeepLinkInvitation] =
@@ -218,9 +219,13 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
       .filter((account) => account.sourceChain === EChain.EthereumMainnet)
       .map((account) => account.sourceAccountAddress);
 
-    return filteredAccounts.length > 0
-      ? (filteredAccounts as EVMAccountAddress[])
-      : null;
+    if (filteredAccounts.length > 0) {
+      evmAccountsRef.current = filteredAccounts as EVMAccountAddress[];
+      return filteredAccounts as EVMAccountAddress[];
+    } else {
+      evmAccountsRef.current = null;
+      return null;
+    }
   }, [accounts]);
 
   const handleURLChange = useCallback(() => {
@@ -273,6 +278,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
             )
             .map((status) => {
               if (status === EInvitationStatus.New) {
+                requestLinkAccountIfNeeded();
                 setDomainInvitation({
                   invitation: result.invitation,
                   metadata: result.invitationMetadata,
@@ -285,6 +291,12 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
       .mapErr((err) => {});
     // #endregion
   }, []);
+
+  const requestLinkAccountIfNeeded = () => {
+    if (!evmAccountsRef.current) {
+      coreGateway.requestLinkAccount();
+    }
+  };
 
   const getInvitation = (
     consentAddress: EVMContractAddress,
@@ -322,6 +334,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
                   new GetInvitationMetadataByCIDParams(cid),
                 )
                 .map((metadata) => {
+                  requestLinkAccountIfNeeded();
                   return {
                     invitation,
                     metadata,
