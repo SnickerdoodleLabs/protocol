@@ -288,7 +288,7 @@ describe("Consent Contract and Factory Tests", function () {
     });
 
     // Change xit to it.only to test
-    xit("Testing computeFee limit", async function () {
+    it.only("Testing computeFee limit", async function () {
       const { consentFactory, token, owner, otherAccount } = await loadFixture(
         deployConsentStack,
       );
@@ -300,12 +300,18 @@ describe("Consent Contract and Factory Tests", function () {
 
       // To calculate the number of tokens to stake, the ContentFactory's computeFee does 1.0001^(slot)
       // So to determine the max slot given the maximum output of a uint256, we can use a reverse exponential calculation formula
-      // which gives us a max slot value of 1774545.503594127
+      // Using base of 1.0001 and maxUintTokens gives us a max slot value of 1774545.503594127
       function reverseExponent(base, result) {
         return Math.log(result) / Math.log(base);
       }
 
-      // However, in trying to pass this slot to computeFee, the transaction reverts. so we decrement one step at a time to figure out what value computeFee will pass
+      console.log(
+        "Theoratical max slot value for max uint256 token amount",
+        Math.floor(reverseExponent(base, Number(maxUintTokens))),
+      );
+
+      // However, in trying to pass this slot to computeFee, the transaction reverts.
+      // So we decrement one step at a time to figure out what value computeFee will take.
       const maxSlot = 1774545;
 
       // To reduce testing cycle, logged a value closer to the correct target
