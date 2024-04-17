@@ -1,10 +1,5 @@
-import {
-  Typography as MuiTypography,
-  Theme,
-  TypographyProps,
-} from "@material-ui/core";
-import { styled } from "@material-ui/core/styles";
-import { makeStyles, useTheme } from "@material-ui/styles";
+import MuiTypography, { TypographyProps } from "@material-ui/core/Typography";
+import { styled, makeStyles, Theme } from "@material-ui/core/styles";
 import { compose, spacing } from "@material-ui/system";
 import {
   typograpyVariants,

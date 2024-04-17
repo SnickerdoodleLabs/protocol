@@ -1,4 +1,5 @@
-import { Switch, SwitchProps, Theme, makeStyles } from "@material-ui/core";
+import { Theme, makeStyles } from "@material-ui/core/styles";
+import Switch, { SwitchProps } from "@material-ui/core/Switch";
 import { colors } from "@shared-components/v2/theme/theme";
 import clsx from "clsx";
 import React, { FC } from "react";

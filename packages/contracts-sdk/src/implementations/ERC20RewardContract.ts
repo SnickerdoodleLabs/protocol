@@ -5,10 +5,12 @@ import {
   ERC20ContractError,
   TokenAmount,
   DomainName,
+  Signature,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+import { Token } from "zksync-ethers/build/src/types";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
@@ -144,6 +146,18 @@ export class ERC20RewardContract
     ]);
   }
 
+  public hasRole(
+    role: keyof typeof ERewardRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<boolean, ERC20ContractError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.contract.hasRole(ERewardRoles[role], address) as Promise<boolean>,
+      (e) => {
+        return this.generateError(e, "Unable to call hasRole()");
+      },
+    );
+  }
+
   public grantRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
@@ -209,16 +223,31 @@ export class ERC20RewardContract
     return this.writeToContract("removeDomain", [domain], overrides);
   }
 
-  public getDomains(): ResultAsync<
-    DomainName[],
-    BlockchainCommonErrors | ERC20ContractError
-  > {
+  public checkDomain(
+    domain: DomainName,
+  ): ResultAsync<boolean, ERC20ContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       // returns array of domains
-      this.contract.getDomains() as Promise<DomainName[]>,
+      this.contract.checkDomain(domain) as Promise<boolean>,
       (e) => {
-        return this.generateError(e, "Unable to call getDomains()");
+        return this.generateError(e, "Unable to call checkDomain()");
       },
+    );
+  }
+
+  public redeem(
+    account: EVMAccountAddress,
+    amount: TokenAmount,
+    signature: Signature,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | ERC20ContractError
+  > {
+    return this.writeToContract(
+      "redeem",
+      [account, amount, signature],
+      overrides,
     );
   }
 

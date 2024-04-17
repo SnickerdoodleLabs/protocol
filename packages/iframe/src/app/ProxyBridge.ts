@@ -1,4 +1,5 @@
 import { IFrameEvents } from "@core-iframe/interfaces/objects";
+import { IProxyBridge } from "@core-iframe/interfaces/IProxyBridge";
 import {
   AccountAddress,
   Age,
@@ -23,6 +24,7 @@ import {
   EarnedReward,
   EmailAddressString,
   FamilyName,
+  FormFactorEvents,
   Gender,
   GivenName,
   IConsentCapacity,
@@ -76,7 +78,7 @@ import {
 import { TypedDataDomain, TypedDataField } from "ethers";
 import { ResultAsync, okAsync } from "neverthrow";
 
-export class ProxyBridge implements ISdlDataWallet {
+export class ProxyBridge implements IProxyBridge {
   public account: IProxyAccountMethods;
   public discord: IProxyDiscordMethods;
   public integration: IProxyIntegrationMethods;
@@ -87,12 +89,15 @@ export class ProxyBridge implements ISdlDataWallet {
   public questionnaire: IProxyQuestionnaireMethods;
   private sourceDomain = undefined;
   public requestDashboardView = undefined;
+  public formFactorEvents: FormFactorEvents;
+
 
   constructor(
     private core: ISnickerdoodleCore,
     public events: ISnickerdoodleCoreEvents,
     public iframeEvents: IFrameEvents,
   ) {
+    this.formFactorEvents = new FormFactorEvents();
     this.account = {
       getLinkAccountMessage: (
         languageCode: LanguageCode,
@@ -353,7 +358,9 @@ export class ProxyBridge implements ISdlDataWallet {
       },
     };
   }
-
+  requestLinkAccount() {
+    this.formFactorEvents.onLinkAccountRequested.next();
+  } 
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     ProxyError

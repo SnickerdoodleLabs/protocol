@@ -1,5 +1,5 @@
 import { useAppContext } from "@extension-onboarding/context/App";
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import { SDTypography, colors } from "@snickerdoodlelabs/shared-components";
 import React from "react";
 import { useCookieVaultContext } from "@extension-onboarding/pages/V2/CookieVault/CookieVault.context";

@@ -1,4 +1,5 @@
-import { Box, darken, makeStyles } from "@material-ui/core";
+import { darken, makeStyles } from "@material-ui/core/styles";
+import Box from "@material-ui/core/Box";
 import { SDTypography } from "@shared-components/v2/components/Typograpy";
 import { colors } from "@shared-components/v2/theme";
 import clsx from "clsx";

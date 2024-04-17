@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/contracts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Smart contracts for the Snickerdoodle Protocol",
   "license": "MIT",
   "repository": {
@@ -21,9 +21,13 @@
   },
   "type": "commonjs",
   "dependencies": {
+    "@layerzerolabs/lz-evm-oapp-v2": "^2.1.18",
+    "@layerzerolabs/lz-evm-protocol-v2": "^2.1.18",
+    "@layerzerolabs/solidity-examples": "^1.1.0",
     "@openzeppelin/contracts": "^5.0.2",
     "@openzeppelin/contracts-upgradeable": "^5.0.2",
     "@prb/math": "^4.0.2",
+    "@snickerdoodlelabs/erc7529": "workspace:^",
     "dotenv": "^16.0.1",
     "fs": "^0.0.1-security",
     "it-all": "^1.0.6",

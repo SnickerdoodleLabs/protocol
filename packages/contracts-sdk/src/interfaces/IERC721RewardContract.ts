@@ -11,13 +11,20 @@ import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import { ERewardRoles } from "@contracts-sdk/interfaces/enums";
-import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
+import {
+  IBaseContract,
+  IRBCContract,
+  IERC7529Contract,
+} from "@contracts-sdk/interfaces/index.js";
 import {
   ContractOverrides,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
 
-export interface IERC721RewardContract extends IBaseContract {
+export interface IERC721RewardContract
+  extends IBaseContract,
+    IERC7529Contract<ERC721RewardContractError>,
+    IRBCContract<ERC721RewardContractError> {
   getOwner(): ResultAsync<
     EVMAccountAddress,
     ERC721RewardContractError | BlockchainCommonErrors
@@ -80,94 +87,6 @@ export interface IERC721RewardContract extends IBaseContract {
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC721RewardContractError
-  >;
-
-  /**
-   * Checks if an address has a specific role in the Reward contract
-   * @param role string that is a key defined in RewardRoles enum
-   * @param address Address to use
-   */
-  hasRole(
-    role: keyof typeof ERewardRoles,
-    address: EVMAccountAddress,
-  ): ResultAsync<boolean, ERC721RewardContractError | BlockchainCommonErrors>;
-
-  /**
-   * Grants a role to an address
-   * @param role string that is a key defined in RewardRoles enum
-   * @param address Address to use
-   */
-  grantRole(
-    role: keyof typeof ERewardRoles,
-    address: EVMAccountAddress,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC721RewardContractError
-  >;
-
-  /**
-   * Revokes a role of an address
-   * @param role string that is a key defined in RewardRoles enum
-   * @param address Address to use
-   */
-  revokeRole(
-    role: keyof typeof ERewardRoles,
-    address: EVMAccountAddress,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC721RewardContractError
-  >;
-
-  /**
-   * Allows an address to renounce its role
-   * @param role string that is a key defined in RewardRoles enum
-   * @param address Address to use
-   */
-  renounceRole(
-    role: keyof typeof ERewardRoles,
-    address: EVMAccountAddress,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC721RewardContractError
-  >;
-
-  /**
-   * Adds a domain to the contract storage
-   * Only callable by address with DEFAULT_ADMIN_ROLE
-   * If domain already exists, reverts with error message "Reward : Domain already added"
-   * @param domain Domain name
-   */
-  addDomain(
-    domain: DomainName,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC721RewardContractError
-  >;
-
-  /**
-   * Removes a domain from the contract storage
-   * Only callable by address with DEFAULT_ADMIN_ROLE
-   * If domain does not exist, reverts with error message "Reward : Domain is not in the list"
-   * @param domain Domain name
-   */
-  removeDomain(
-    domain: DomainName,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC721RewardContractError
-  >;
-
-  /**
-   * Returns an array of domains added to the contract
-   */
-  getDomains(): ResultAsync<
-    DomainName[],
     BlockchainCommonErrors | ERC721RewardContractError
   >;
 

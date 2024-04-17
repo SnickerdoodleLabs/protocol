@@ -1,5 +1,4 @@
-import { SDLogoCircle, MobileMenuIcon } from "@extension-onboarding/assets";
-import HideOnScroll from "@extension-onboarding/components/v2/HideOnScroll";
+import { MobileMenuIcon } from "@extension-onboarding/assets";
 import {
   CookieVaultIcon,
   DashboardIcon,
@@ -10,16 +9,12 @@ import {
 } from "@extension-onboarding/components/v2/Icons";
 import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import {
-  AppBar,
-  Box,
-  Hidden,
-  Menu,
-  MenuItem,
-  Theme,
-  Toolbar,
-  makeStyles,
-} from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Hidden from "@material-ui/core/Hidden";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
+import Toolbar from "@material-ui/core/Toolbar";
+import { makeStyles, Theme } from "@material-ui/core/styles";
 import { ECoreProxyType } from "@snickerdoodlelabs/objects";
 import {
   SDTypography,

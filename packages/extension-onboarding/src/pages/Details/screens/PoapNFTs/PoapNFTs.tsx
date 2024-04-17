@@ -6,7 +6,9 @@ import UnauthScreen from "@extension-onboarding/components/v2/UnauthScreen";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useDashboardContext } from "@extension-onboarding/context/DashboardContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/PoapNFTs/PoapNFTs.style";
-import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import CircularProgress from "@material-ui/core/CircularProgress";
+
 import React from "react";
 
 export default () => {

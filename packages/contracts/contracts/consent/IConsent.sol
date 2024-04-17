@@ -20,8 +20,8 @@ interface IConsent is IContentObject, IERC7529 {
     );
 
     /// @notice Emitted when an identity commitment is created via optIn or restrictedOptIn
-    /// @param index The index of the idenity commitment in the set
-    /// @param commitment The Posiedon hash of the idenity commitment
+    /// @param index The index of the identity commitment in the set
+    /// @param commitment The Poseidon hash of the identity commitment
     event Commitment(uint indexed index, bytes32 indexed commitment);
 
     /// @notice Emitted when a deposit of staking token is made to this contract
@@ -32,7 +32,7 @@ interface IConsent is IContentObject, IERC7529 {
 
     /// @notice Emitted when a depositor withdraws their asset from this contract
     /// @param depositor the address which is withdrawing their asset
-    /// @param asset the addres of the asset being withdrawn
+    /// @param asset the address of the asset being withdrawn
     /// @param amount the amount of the asset withdrawn
     event Withdraw(address indexed depositor, address indexed asset, uint256 amount);
 

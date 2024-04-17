@@ -1,4 +1,5 @@
-import { Container as MuiContainer, makeStyles } from "@material-ui/core";
+import MuiContainer from "@material-ui/core/Container";
+import { makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import React, { FC, ReactNode } from "react";
 
