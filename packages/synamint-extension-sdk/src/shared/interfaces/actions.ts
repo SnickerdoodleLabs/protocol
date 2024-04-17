@@ -785,6 +785,16 @@ export class GetConfigParams extends CoreActionParams<IExtensionConfig> {
 }
 
 // #region Integration
+
+export class LinkAccountRequestParams extends CoreActionParams<void> {
+  public constructor() {
+    super(LinkAccountRequestParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.LINK_ACCOUNT_REQUEST;
+  }
+}
+
 export class RequestPermissionsParams extends CoreActionParams<
   EDataWalletPermission[]
 > {

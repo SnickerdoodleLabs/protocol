@@ -8,7 +8,7 @@ import { useDataWalletContext } from "@extension-onboarding/context/DataWalletCo
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { useCookieVaultContext } from "@extension-onboarding/pages/V2/CookieVault/CookieVault.context";
 import { getResponsivePopupProperties } from "@extension-onboarding/utils";
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import {
   DiscordProfile,
   EOAuthProvider,

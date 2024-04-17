@@ -1,6 +1,8 @@
 import LinkingAccountMenu from "@extension-onboarding/components/v2/LinkingAccountMenu/LinkingAccountMenu";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
-import { Box, Dialog, makeStyles } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Dialog from "@material-ui/core/Dialog";
+import { makeStyles } from "@material-ui/core/styles";
 import {
   SDButton,
   SDTypography,

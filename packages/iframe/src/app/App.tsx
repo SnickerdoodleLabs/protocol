@@ -4,9 +4,10 @@ import {
   IFrameControlConfig,
   IFrameEvents,
 } from "@core-iframe/interfaces/objects";
-import { ISdlDataWallet, ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
+import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
 import { ChildAPI } from "postmate";
 import React, { FC, useCallback, useState } from "react";
+import { IProxyBridge } from "@core-iframe/interfaces/IProxyBridge";
 
 enum EComponentKey {
   INVITATION_HANDLER = "INVITATION_HANDLER",
@@ -15,7 +16,7 @@ enum EComponentKey {
 
 interface IAppProps {
   core: ISnickerdoodleCore;
-  proxy: ISdlDataWallet;
+  proxy: IProxyBridge;
   childApi: ChildAPI;
   events: IFrameEvents;
   config: IFrameControlConfig;
@@ -36,10 +37,17 @@ const App: FC<IAppProps> = ({
     setVisibleComponent(null);
     childApi.emit("onIframeHideRequested");
   }, []);
+
   const show = useCallback((componentKey: EComponentKey) => {
     setVisibleComponent(componentKey);
     childApi.emit("onIframeDisplayRequested");
   }, []);
+
+  const requestLinkAccount = useCallback(() => {
+    childApi.emit("onLinkAccountRequested");
+    proxy.requestLinkAccount();
+  }, []);
+
   return (
     <>
       <SPAModal
@@ -56,6 +64,7 @@ const App: FC<IAppProps> = ({
         }
       />
       <InvitationHandler
+        requestLinkAccount={requestLinkAccount}
         core={core}
         events={events}
         hide={() => {

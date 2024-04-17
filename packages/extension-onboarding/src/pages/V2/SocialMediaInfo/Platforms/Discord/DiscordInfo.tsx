@@ -3,7 +3,7 @@ import { useAccountLinkingContext } from "@extension-onboarding/context/AccountL
 import { ISocialMediaPlatformProps } from "@extension-onboarding/pages/V2/SocialMediaInfo/Platforms";
 import { DiscordAccountItem } from "@extension-onboarding/pages/V2/SocialMediaInfo/Platforms/Discord/Items/DiscordAccountItem";
 import { ILinkedDiscordAccount } from "@extension-onboarding/pages/V2/SocialMediaInfo/Platforms/Discord/types";
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import { DiscordProfile } from "@snickerdoodlelabs/objects";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { FC, memo, useEffect, useState } from "react";

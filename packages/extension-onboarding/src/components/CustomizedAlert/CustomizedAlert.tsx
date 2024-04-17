@@ -1,16 +1,7 @@
-import {
-  Box,
-  Checkbox,
-  Color,
-  Grid,
-  Slide,
-  Snackbar,
-  SnackbarOrigin,
-  Typography,
-} from "@material-ui/core";
-import React, { FC, useEffect, useState, memo } from "react";
-import Browser from "webextension-polyfill";
-
+import Box from "@material-ui/core/Box";
+import Snackbar, { SnackbarOrigin } from "@material-ui/core/Snackbar";
+import Typography from "@material-ui/core/Typography";
+import React, { FC, memo } from "react";
 import {
   EAlertSeverity,
   SEVERITY_COLORS,
