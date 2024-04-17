@@ -288,7 +288,7 @@ describe("Consent Contract and Factory Tests", function () {
     });
 
     // Change xit to it.only to test
-    it.only("Testing computeFee limit", async function () {
+    xit("Testing computeFee limit", async function () {
       const { consentFactory, token, owner, otherAccount } = await loadFixture(
         deployConsentStack,
       );
