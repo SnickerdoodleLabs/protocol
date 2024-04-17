@@ -35,8 +35,10 @@ const config: HardhatUserConfig = {
       accounts: accounts,
       chainId: 31337,
       url: "http://localhost:8545",
-      gas: 30000000, // to mimic a full block gas limit locally
-      gasPrice: 30000000000, // to mimic fuji gas price locally
+      gas: 6000000,
+      gasPrice: 8000000000,
+      /* gas: 30000000, // to mimic a full block gas limit locally
+      gasPrice: 30000000000, // to mimic fuji gas price locally */
     },
   },
   gasReporter: {
