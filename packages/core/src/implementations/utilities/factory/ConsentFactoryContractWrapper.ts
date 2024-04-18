@@ -271,7 +271,10 @@ export class ConsentFactoryContractWrapper
 
   public computeFee(
     slot: BigNumberString,
-  ): ResultAsync<bigint, ConsentFactoryContractError | BlockchainCommonErrors> {
+  ): ResultAsync<
+    BigNumberString,
+    ConsentFactoryContractError | BlockchainCommonErrors
+  > {
     return this.fallback(
       () => this.primary.computeFee(slot),
       () => this.secondary?.computeFee(slot),
