@@ -2,7 +2,8 @@ import Container from "@extension-onboarding/components/v2/Container";
 import PageBanners from "@extension-onboarding/components/v2/PageBanners";
 import { useAppContext } from "@extension-onboarding/context/App";
 import BrandItem from "@extension-onboarding/pages/V2/TrustedBrands/BrandItem";
-import { Box, Divider } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Divider from "@material-ui/core/Divider";
 import {
   SDTypography,
   colors,

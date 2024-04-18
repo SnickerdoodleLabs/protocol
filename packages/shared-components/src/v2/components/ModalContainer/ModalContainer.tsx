@@ -1,4 +1,6 @@
-import { Box, Container, makeStyles } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import Box from "@material-ui/core/Box";
+import Container from "@material-ui/core/Container";
 import clsx from "clsx";
 import React, { FC } from "react";
 interface IModalContainerProps {

@@ -7,7 +7,7 @@ import {
   IFrameEvents,
   IInvitationDisplayRequest,
 } from "@core-iframe/interfaces/objects/IFrameEvents";
-import { Theme, ThemeProvider } from "@material-ui/core";
+import { Theme, ThemeProvider } from "@material-ui/core/styles";
 import {
   DataPermissions,
   EChain,
@@ -34,8 +34,9 @@ import {
   createDefaultTheme,
   createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
-import { ResultAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { ChildAPI } from "postmate";
 import React, {
   useMemo,
   useState,
@@ -54,6 +55,7 @@ interface IInvitationHandlerProps {
   config: IFrameControlConfig;
   coreConfig: IFrameConfig;
   awaitRender: boolean;
+  requestLinkAccount: () => void;
 }
 
 export enum EAPP_STATE {
@@ -98,6 +100,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   events,
   config,
   awaitRender,
+  requestLinkAccount,
   coreConfig,
 }) => {
   const [theme, setTheme] = useState<Theme>(
@@ -114,6 +117,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
   const defaultConsentOptinRequestSubscription = useRef<Subscription | null>(
     null,
   );
+  const evmAccountsRef = useRef<EVMAccountAddress[] | null>(null);
   const uniqueConsentAdressesRef = useRef<EVMContractAddress[]>([]);
   const [deepLinkInvitation, setDeepLinkInvitation] =
     useState<IInvitation | null>(null);
@@ -133,10 +137,20 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
       .filter((account) => account.sourceChain === EChain.EthereumMainnet)
       .map((account) => account.sourceAccountAddress);
 
-    return filteredAccounts.length > 0
-      ? (filteredAccounts as EVMAccountAddress[])
-      : null;
+    if (filteredAccounts.length > 0) {
+      evmAccountsRef.current = filteredAccounts as EVMAccountAddress[];
+      return filteredAccounts as EVMAccountAddress[];
+    } else {
+      evmAccountsRef.current = null;
+      return null;
+    }
   }, [accounts]);
+
+  const requestLinkAccountIfNeeded = () => {
+    if (!evmAccountsRef.current) {
+      requestLinkAccount();
+    }
+  };
 
   const currentInvitation: ICurrentInvitation | null = useMemo(() => {
     if (!evmAccounts) return null;
@@ -243,6 +257,7 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
     type,
   }: IInvitationDisplayRequest) => {
     console.log("invitationDisplayRequestHandler", data, type);
+    requestLinkAccountIfNeeded();
     if (
       uniqueConsentAdressesRef.current.includes(
         data.invitation.consentContractAddress,

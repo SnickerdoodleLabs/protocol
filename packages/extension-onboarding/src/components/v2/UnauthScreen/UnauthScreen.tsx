@@ -1,7 +1,8 @@
 import { EPathsV2 as EPaths } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import { makeStyles } from "@material-ui/core/styles";
+import { EChainTechnology } from "@snickerdoodlelabs/objects";
 import { SDButton, SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
@@ -73,7 +74,17 @@ const UnauthScreen = () => {
           {title}
         </SDTypography>
         <Box mt={3} />
-        <SDButton onClick={setLinkerModalOpen}>Link Account</SDButton>
+        <SDButton
+          onClick={() => {
+            setLinkerModalOpen([
+              EChainTechnology.EVM,
+              EChainTechnology.Solana,
+              EChainTechnology.Sui,
+            ]);
+          }}
+        >
+          Link Account
+        </SDButton>
       </Box>
     </Box>
   );

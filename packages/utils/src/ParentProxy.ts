@@ -54,7 +54,7 @@ export abstract class ParentProxy {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected calls: IFrameCall<any, any, any>[] = [];
   protected active: boolean;
-  protected activationTimeoutMS = 5000;
+  protected activationTimeoutMS = 120000;
 
   constructor(
     @unmanaged() protected element: HTMLElement | null,

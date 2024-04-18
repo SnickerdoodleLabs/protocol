@@ -1,4 +1,7 @@
-import { Box, CssBaseline, Theme, ThemeProvider } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import { Theme, ThemeProvider } from "@material-ui/core/styles";
+
 import {
   EColorMode,
   createDefaultTheme,

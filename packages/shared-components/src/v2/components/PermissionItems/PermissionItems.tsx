@@ -1,6 +1,6 @@
-import { Box } from "@material-ui/core";
-import { CallMade } from "@material-ui/icons";
-import { Skeleton } from "@material-ui/lab";
+import Box from "@material-ui/core/Box";
+import CallMade from "@material-ui/icons/CallMade";
+import Skeleton from "@material-ui/lab/Skeleton";
 import { SDButton } from "@shared-components/v2/components/Button";
 import { SDCheckbox } from "@shared-components/v2/components/Checkbox";
 import { Image } from "@shared-components/v2/components/Image";

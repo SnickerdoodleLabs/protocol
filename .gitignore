@@ -54,8 +54,6 @@ artifacts
 notes
 Qm*
 
-# We don't need to track upgrades until testnet or mainnet deployment
-.openzeppelin/
 packages/test-harness/data/insight/*
 
 # Don't checkin the ceramic stuff
