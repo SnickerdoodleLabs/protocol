@@ -153,7 +153,7 @@ export class ERC721RewardContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | ERC721RewardContractError
   > {
-    return this.writeToContract("setBaseURI", [baseUri, overrides]);
+    return this.writeToContract("setBaseURI", [baseUri], overrides);
   }
 
   public balanceOf(

@@ -52,7 +52,7 @@ export interface IContentFactoryContract<T> extends IBaseContract {
 
   computeFee(
     slot: BigNumberString,
-  ): ResultAsync<BigNumberString, T | BlockchainCommonErrors>;
+  ): ResultAsync<bigint, T | BlockchainCommonErrors>;
 
   // External function meant to be called by anyone to boot an expired listing
   removeExpiredListings(

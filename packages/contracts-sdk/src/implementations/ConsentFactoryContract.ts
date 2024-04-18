@@ -439,12 +439,9 @@ export class ConsentFactoryContract
 
   public computeFee(
     slot: BigNumberString,
-  ): ResultAsync<
-    BigNumberString,
-    ConsentFactoryContractError | BlockchainCommonErrors
-  > {
+  ): ResultAsync<bigint, ConsentFactoryContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
-      this.contract.computeFee(slot) as Promise<BigNumberString>,
+      this.contract.computeFee(slot) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call computeFee()");
       },

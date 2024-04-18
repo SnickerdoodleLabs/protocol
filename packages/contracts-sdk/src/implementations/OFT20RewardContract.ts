@@ -113,7 +113,7 @@ export class OFT20RewardContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | OFT20RewardContractError
   > {
-    return this.writeToContract("approve", [spender, amount, overrides]);
+    return this.writeToContract("approve", [spender, amount], overrides);
   }
 
   public transfer(
@@ -124,7 +124,7 @@ export class OFT20RewardContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | OFT20RewardContractError
   > {
-    return this.writeToContract("transfer", [recipient, amount, overrides]);
+    return this.writeToContract("transfer", [recipient, amount], overrides);
   }
 
   public transferFrom(
