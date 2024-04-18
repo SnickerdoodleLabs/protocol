@@ -144,6 +144,18 @@ export class ERC20RewardContract
     ]);
   }
 
+  public hasRole(
+    role: keyof typeof ERewardRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<boolean, ERC20ContractError | BlockchainCommonErrors> {
+    return ResultAsync.fromPromise(
+      this.contract.hasRole(ERewardRoles[role], address) as Promise<boolean>,
+      (e) => {
+        return this.generateError(e, "Unable to call hasRole()");
+      },
+    );
+  }
+
   public grantRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
@@ -209,15 +221,14 @@ export class ERC20RewardContract
     return this.writeToContract("removeDomain", [domain], overrides);
   }
 
-  public getDomains(): ResultAsync<
-    DomainName[],
-    BlockchainCommonErrors | ERC20ContractError
-  > {
+  public checkDomain(
+    domain: DomainName,
+  ): ResultAsync<boolean, ERC20ContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       // returns array of domains
-      this.contract.getDomains() as Promise<DomainName[]>,
+      this.contract.checkDomain(domain) as Promise<boolean>,
       (e) => {
-        return this.generateError(e, "Unable to call getDomains()");
+        return this.generateError(e, "Unable to call checkDomain()");
       },
     );
   }

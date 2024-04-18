@@ -1,5 +1,6 @@
 import ConsentAbi from "@contracts-sdk/interfaces/objects/abi/ConsentAbi.js";
 import ConsentFactoryAbi from "@contracts-sdk/interfaces/objects/abi/ConsentFactoryAbi.js";
+import ERC1155RewardAbi from "@contracts-sdk/interfaces/objects/abi/ERC1155RewardAbi.js";
 import ERC20Abi from "@contracts-sdk/interfaces/objects/abi/ERC20Abi.js";
 import ERC20RewardAbi from "@contracts-sdk/interfaces/objects/abi/ERC20RewardAbi.js";
 import ERC721RewardAbi from "@contracts-sdk/interfaces/objects/abi/ERC721RewardAbi.js";
@@ -14,5 +15,6 @@ export const ContractsAbis = {
   ERC7529Abi: ERC7529Abi,
   ZkSyncERC721RewardAbi: ZkSyncERC721RewardAbi,
   ERC20Reward: ERC20RewardAbi,
+  ERC1155Reward: ERC1155RewardAbi,
   QuestionnairesAbi: QuestionnairesAbi,
 };
