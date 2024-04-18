@@ -7,6 +7,8 @@ export * from "@contracts-sdk/interfaces/IERC721RewardContract.js";
 export * from "@contracts-sdk/interfaces/IERC20RewardContract.js";
 export * from "@contracts-sdk/interfaces/IERC1155RewardContract.js";
 export * from "@contracts-sdk/interfaces/IRBCContract.js";
+export * from "@contracts-sdk/interfaces/IOFT20RewardContract.js";
+export * from "@contracts-sdk/interfaces/IONFT721RewardContract.js";
 export * from "@contracts-sdk/interfaces/IQuestionnairesContract.js";
 
 export * from "@contracts-sdk/interfaces/objects/index.js";
