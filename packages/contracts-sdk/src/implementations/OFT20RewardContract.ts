@@ -2,41 +2,39 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   BlockchainCommonErrors,
-  ERC20ContractError,
+  OFT20RewardContractError,
   TokenAmount,
-  DomainName,
   Signature,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-import { Token } from "zksync-ethers/build/src/types";
 
-import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
+import { ERC7529Contract } from "@contracts-sdk/implementations/ERC7529Contract.js";
 import { ERewardRoles } from "@contracts-sdk/interfaces/enums/index.js";
 import {
   ContractOverrides,
-  IERC20RewardContract,
+  IOFT20RewardContract,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/index.js";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
-export class ERC20RewardContract
-  extends BaseContract<ERC20ContractError>
-  implements IERC20RewardContract
+export class OFT20RewardContract
+  extends ERC7529Contract<OFT20RewardContractError>
+  implements IOFT20RewardContract
 {
   constructor(
     protected providerOrSigner: ethers.Provider | ethers.Signer,
     protected contractAddress: EVMContractAddress,
   ) {
-    super(providerOrSigner, contractAddress, ContractsAbis.ERC20Reward.abi);
+    super(providerOrSigner, contractAddress, ContractsAbis.OFT20Reward.abi);
   }
 
   public name(): ResultAsync<
     string,
-    ERC20ContractError | BlockchainCommonErrors
+    OFT20RewardContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.name() as Promise<string>,
@@ -48,7 +46,7 @@ export class ERC20RewardContract
 
   public symbol(): ResultAsync<
     string,
-    ERC20ContractError | BlockchainCommonErrors
+    OFT20RewardContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.symbol() as Promise<string>,
@@ -60,7 +58,7 @@ export class ERC20RewardContract
 
   public decimals(): ResultAsync<
     number,
-    ERC20ContractError | BlockchainCommonErrors
+    OFT20RewardContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.decimals() as Promise<bigint>,
@@ -74,7 +72,7 @@ export class ERC20RewardContract
 
   public totalSupply(): ResultAsync<
     bigint,
-    ERC20ContractError | BlockchainCommonErrors
+    OFT20RewardContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
       this.contract.totalSupply() as Promise<bigint>,
@@ -86,7 +84,7 @@ export class ERC20RewardContract
 
   public balanceOf(
     address: EVMAccountAddress | EVMContractAddress,
-  ): ResultAsync<bigint, ERC20ContractError | BlockchainCommonErrors> {
+  ): ResultAsync<bigint, OFT20RewardContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.balanceOf(address) as Promise<bigint>,
       (e) => {
@@ -98,7 +96,7 @@ export class ERC20RewardContract
   public allowance(
     owner: EVMAccountAddress | EVMContractAddress,
     spender: EVMAccountAddress | EVMContractAddress,
-  ): ResultAsync<bigint, ERC20ContractError | BlockchainCommonErrors> {
+  ): ResultAsync<bigint, OFT20RewardContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.allowance(owner, spender) as Promise<bigint>,
       (e) => {
@@ -113,7 +111,7 @@ export class ERC20RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
+    BlockchainCommonErrors | OFT20RewardContractError
   > {
     return this.writeToContract("approve", [spender, amount, overrides]);
   }
@@ -124,7 +122,7 @@ export class ERC20RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
+    BlockchainCommonErrors | OFT20RewardContractError
   > {
     return this.writeToContract("transfer", [recipient, amount, overrides]);
   }
@@ -136,7 +134,7 @@ export class ERC20RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
+    BlockchainCommonErrors | OFT20RewardContractError
   > {
     return this.writeToContract("transferFrom", [
       sender,
@@ -149,7 +147,7 @@ export class ERC20RewardContract
   public hasRole(
     role: keyof typeof ERewardRoles,
     address: EVMAccountAddress,
-  ): ResultAsync<boolean, ERC20ContractError | BlockchainCommonErrors> {
+  ): ResultAsync<boolean, OFT20RewardContractError | BlockchainCommonErrors> {
     return ResultAsync.fromPromise(
       this.contract.hasRole(ERewardRoles[role], address) as Promise<boolean>,
       (e) => {
@@ -164,7 +162,7 @@ export class ERC20RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
+    BlockchainCommonErrors | OFT20RewardContractError
   > {
     return this.writeToContract(
       "grantRole",
@@ -179,7 +177,7 @@ export class ERC20RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
+    BlockchainCommonErrors | OFT20RewardContractError
   > {
     return this.writeToContract(
       "revokeRole",
@@ -194,44 +192,12 @@ export class ERC20RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
+    BlockchainCommonErrors | OFT20RewardContractError
   > {
     return this.writeToContract(
       "renounceRole",
       [ERewardRoles[role], address],
       overrides,
-    );
-  }
-
-  public addDomain(
-    domain: DomainName,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
-  > {
-    return this.writeToContract("addDomain", [domain], overrides);
-  }
-
-  public removeDomain(
-    domain: DomainName,
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
-  > {
-    return this.writeToContract("removeDomain", [domain], overrides);
-  }
-
-  public checkDomain(
-    domain: DomainName,
-  ): ResultAsync<boolean, ERC20ContractError | BlockchainCommonErrors> {
-    return ResultAsync.fromPromise(
-      // returns array of domains
-      this.contract.checkDomain(domain) as Promise<boolean>,
-      (e) => {
-        return this.generateError(e, "Unable to call checkDomain()");
-      },
     );
   }
 
@@ -242,7 +208,7 @@ export class ERC20RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
+    BlockchainCommonErrors | OFT20RewardContractError
   > {
     return this.writeToContract(
       "redeem",
@@ -251,12 +217,14 @@ export class ERC20RewardContract
     );
   }
 
+  // TODO: Add crossChain function call when feature is needed.
+
   protected generateContractSpecificError(
     msg: string,
     e: IEthersContractError,
     transaction: ethers.Transaction | null,
-  ): ERC20ContractError {
-    return new ERC20ContractError(msg, e, transaction);
+  ): OFT20RewardContractError {
+    return new OFT20RewardContractError(msg, e, transaction);
   }
 
   public filters = {

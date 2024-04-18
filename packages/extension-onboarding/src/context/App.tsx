@@ -108,8 +108,10 @@ export const AppContextProvider: FC = ({ children }) => {
       onboardingState === EOnboardingState.COMPLETED &&
       linkedAccounts.length === 0
     ) {
-      setLinkAccountModalState({ chainFilters: [EChainTechnology.EVM] });
-      setAccountLinkingRequested(false);
+      setTimeout(() => {
+        setLinkAccountModalState({ chainFilters: [EChainTechnology.EVM] });
+        setAccountLinkingRequested(false);
+      }, 100);
     }
   }, [accountLinkingRequested, onboardingState, linkedAccounts.length]);
 
