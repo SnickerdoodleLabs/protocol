@@ -23,7 +23,7 @@ contract Snickerdoodle is
     }
 
     function initialize() public initializer {
-        __ERC20_init("Snickerdoodle", "DOODLE");
+        __ERC20_init("Snickerdoodle", "DOUGH");
         __ERC20Permit_init("Snickerdoodle");
         __ERC20Votes_init();
         __Ownable_init(msg.sender);

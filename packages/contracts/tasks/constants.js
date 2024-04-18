@@ -18,6 +18,17 @@ const BEACON = function () {
 };
 
 // dynamic artifact imports to prevent error when contracts are not compiled
+const ERC7529 = function () {
+  const artifactPath =
+    "./artifacts/contracts/erc7529/IERC7529.sol/IERC7529.json";
+  if (fs.existsSync(artifactPath)) {
+    return require("../" + artifactPath);
+  } else {
+    return null;
+  }
+};
+
+// dynamic artifact imports to prevent error when contracts are not compiled
 const CC = function () {
   const artifactPath = "./artifacts/contracts/consent/Consent.sol/Consent.json";
   if (fs.existsSync(artifactPath)) {
@@ -39,15 +50,6 @@ const CCFactory = function () {
 
 const CR = function () {
   const artifactPath = "./artifacts/contracts/registry/Crumbs.sol/Crumbs.json";
-  if (fs.existsSync(artifactPath)) {
-    return require("../" + artifactPath);
-  } else {
-    return null;
-  }
-};
-
-const SIFT = function () {
-  const artifactPath = "./artifacts/contracts/registry/Sift.sol/Sift.json";
   if (fs.existsSync(artifactPath)) {
     return require("../" + artifactPath);
   } else {
@@ -144,7 +146,7 @@ const consentFactory = function () {
   } else if (hre.hardhatArguments.network == "polygon") {
     return "";
   } else if (hre.hardhatArguments.network == "fuji") {
-    return "0x5540122e78241679Da8d07A04A74D3a7f52aED97";
+    return "0x5b6c961538E65b6EaCaf09Ec8E93D5f5f1d1afcC";
   } else if (hre.hardhatArguments.network == "avalanche") {
     return "";
   } else if (hre.hardhatArguments.network == "fantom") {
@@ -170,30 +172,15 @@ const consentFactory = function () {
   }
 };
 
-// might remove this function
-const countryCode = function () {
-  var data = fs.readFileSync("./tasks/iso_3166_country_codes.csv", "utf8");
-  data = data.split("\r\n");
-  let countryCode = {};
-  for (let i = 0; i < data.length; i++) {
-    const [country, code] = data[i].split(",");
-    countryCode[country] = parseInt(code);
-  }
-  return countryCode;
-};
-
 module.exports = {
   logTXDetails,
   BEACON,
+  ERC7529,
   CC,
   CCFactory,
   CR,
-  SIFT,
   consentBeacon,
   consentFactory,
   gasSettings,
-  countryCode,
-  crumbsContract,
-  siftContract,
   REWARD,
 };
