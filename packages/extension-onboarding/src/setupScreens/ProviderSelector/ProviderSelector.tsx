@@ -3,7 +3,7 @@ import {
   ISdlDataWalletProxy,
   IWindowWithSdlDataWallet,
 } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import { SDTypography } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useMemo } from "react";
 

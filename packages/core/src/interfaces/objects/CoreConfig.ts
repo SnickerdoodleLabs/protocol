@@ -1,3 +1,4 @@
+import { ICircutsSDKConfig } from "@snickerdoodlelabs/circuits-sdk";
 import { IIndexerConfig } from "@snickerdoodlelabs/indexers";
 import {
   ControlChainInformation,
@@ -14,7 +15,9 @@ import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
 import { MetatransactionGasAmounts } from "@core/interfaces/objects/MetatransactionGasAmounts.js";
 
-export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
+export class CoreConfig
+  implements IIndexerConfig, IPersistenceConfig, ICircutsSDKConfig
+{
   public constructor(
     public controlChainId: EChain,
     public controlChainInformation: ControlChainInformation,

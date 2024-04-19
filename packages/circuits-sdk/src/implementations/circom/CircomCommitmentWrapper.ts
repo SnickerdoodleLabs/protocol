@@ -2,24 +2,31 @@ import {
   CircomUtils,
   ICircomCommitmentInputs,
   ICircomCommitmentVerificationInputs,
-  commitmentCode,
   commitmentVerificationKey,
-  commitmentZKey,
   factoryCircomCommitmentVerificationInputs,
 } from "@snickerdoodlelabs/circuits";
+import {
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   Commitment,
   ZKProof,
   CircuitError,
   NullifierBNS,
   TrapdoorBNS,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
 import { ResultAsync } from "neverthrow";
 
+import { ICircutsSDKConfig } from "@circuits-sdk/ICircutsSDKConfig.js";
+import {
+  ICircutsSDKConfigProvider,
+  ICircutsSDKConfigProviderype,
+} from "@circuits-sdk/ICircutsSDKConfigProvider.js";
 import { CircomWrapper } from "@circuits-sdk/implementations/circom/CircomWrapper.js";
 import { ICommitmentWrapper } from "@circuits-sdk/interfaces/index.js";
-
 @injectable()
 export class CircomCommitmentWrapper
   extends CircomWrapper<
@@ -28,8 +35,18 @@ export class CircomCommitmentWrapper
   >
   implements ICommitmentWrapper
 {
-  public constructor() {
-    super(commitmentCode, commitmentZKey, commitmentVerificationKey);
+  public constructor(
+    @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ICircutsSDKConfigProviderype)
+    protected circutsSDKConfig: ICircutsSDKConfigProvider,
+  ) {
+    super(
+      ajaxUtils,
+      circutsSDKConfig,
+      commitmentVerificationKey,
+      IpfsCID("QmT5avnPx18LMdbzbHgVHJrkzUgwt7sFMoqhEHYBukF6eP"),
+      IpfsCID("QmesxcQYvng3crv34r557WiFTdnvGH3uzvxVRCcaftZWxa"),
+    );
   }
 
   public prove(

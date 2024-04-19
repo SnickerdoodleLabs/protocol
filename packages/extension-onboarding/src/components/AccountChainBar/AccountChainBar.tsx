@@ -2,7 +2,10 @@ import { useStyles } from "@extension-onboarding/components/AccountChainBar/Acco
 import Switch from "@extension-onboarding/components/v2/Switch";
 import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { Box, Grid, MenuItem, Select } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Grid from "@material-ui/core/Grid";
+import MenuItem from "@material-ui/core/MenuItem";
+import Select from "@material-ui/core/Select";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import {
   AccountAddress,

@@ -5,6 +5,12 @@
  * of SnickerdoodleCore.
  */
 import {
+  ICommitmentWrapper,
+  ICommitmentWrapperType,
+  IMembershipWrapper,
+  IMembershipWrapperType,
+} from "@snickerdoodlelabs/circuits-sdk";
+import {
   IMasterIndexer,
   IMasterIndexerType,
   indexersModule,
@@ -907,6 +913,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       ISocialMediaPollerType,
     );
 
+    const membershipWrapper = this.iocContainer.get<IMembershipWrapper>(
+      IMembershipWrapperType,
+    );
+
+    const commitmentWrapper = this.iocContainer.get<ICommitmentWrapper>(
+      ICommitmentWrapperType,
+    );
+
     const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
       IHeartbeatGeneratorType,
     );
@@ -942,7 +956,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         // Now the actual initialization!
         return accountService.initialize();
       })
-      .map(() => {});
+      .map(() => {
+        membershipWrapper.preFetch();
+        commitmentWrapper.preFetch();
+      });
   }
 
   public getConsentContractCID(

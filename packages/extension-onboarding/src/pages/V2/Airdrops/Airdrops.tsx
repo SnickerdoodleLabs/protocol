@@ -6,7 +6,7 @@ import Card from "@extension-onboarding/components/v2/Card";
 import CardTitle from "@extension-onboarding/components/v2/CardTitle";
 import EmptyItem from "@extension-onboarding/components/v2/EmptyItem";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import {
   AccountAddress,
   ChainId,

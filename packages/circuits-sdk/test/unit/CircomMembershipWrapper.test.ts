@@ -1,14 +1,16 @@
+import "reflect-metadata";
 import { CircomUtils } from "@snickerdoodlelabs/circuits";
+import { IAxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  BigNumberString,
   Commitment,
   IpfsCID,
   NullifierBNS,
   TrapdoorBNS,
 } from "@snickerdoodlelabs/objects";
+import * as td from "testdouble";
 
+import { ICircutsSDKConfigProvider } from "@circuits-sdk/ICircutsSDKConfigProvider.js";
 import { CircomMembershipWrapper } from "@circuits-sdk/implementations/circom/CircomMembershipWrapper.js";
-
 const signal = "Phoebe";
 const identityTrapdoor = TrapdoorBNS(1234567890n.toString());
 const identityNullifier = NullifierBNS(9876543210n.toString());
@@ -22,8 +24,13 @@ class CircomMembershipWrapperMocks {
   public anonymitySet: Commitment[];
   public commitment: Commitment;
   public signalNullifier: NullifierBNS;
+  public ajaxUtils: IAxiosAjaxUtils;
+  public configProvider: ICircutsSDKConfigProvider;
 
   public constructor(protected anonymitySetSize = 5) {
+    this.ajaxUtils = td.object<IAxiosAjaxUtils>();
+    this.configProvider = td.object<ICircutsSDKConfigProvider>();
+
     this.commitment = CircomUtils.getCommitment(
       identityTrapdoor,
       identityNullifier,
@@ -45,6 +52,10 @@ class CircomMembershipWrapperMocks {
       NullifierBNS(randomBigInt().toString()),
     );
   }
+
+  public factory(): CircomMembershipWrapper {
+    return new CircomMembershipWrapper(this.ajaxUtils, this.configProvider);
+  }
 }
 
 describe("CircomMembershipWrapper tests", () => {
@@ -58,7 +69,7 @@ describe("CircomMembershipWrapper tests", () => {
   test("Generates Proof, anonymity set does not include identity", async () => {
     // Arrange
     const mocks = new CircomMembershipWrapperMocks();
-    const membership = new CircomMembershipWrapper();
+    const membership = mocks.factory();
 
     // Act
     const proofResult = await membership.prove(
@@ -77,7 +88,7 @@ describe("CircomMembershipWrapper tests", () => {
   test("Generates Proof, anonymity set does include identity", async () => {
     // Arrange
     const mocks = new CircomMembershipWrapperMocks();
-    const membership = new CircomMembershipWrapper();
+    const membership = mocks.factory();
 
     mocks.anonymitySet.push(mocks.commitment);
 
@@ -98,7 +109,7 @@ describe("CircomMembershipWrapper tests", () => {
   test("Proof Validates", async () => {
     // Arrange
     const mocks = new CircomMembershipWrapperMocks();
-    const membership = new CircomMembershipWrapper();
+    const membership = mocks.factory();
 
     // Act
     const result = await membership

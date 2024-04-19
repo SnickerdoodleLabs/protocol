@@ -7,7 +7,7 @@ import { useDataWalletContext } from "@extension-onboarding/context/DataWalletCo
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import { getResponsivePopupProperties } from "@extension-onboarding/utils";
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import {
   ECloudStorageType,
   EOAuthProvider,

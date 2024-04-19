@@ -718,7 +718,6 @@ export class QueryService implements IQueryService {
           description,
           questionnaireIds,
           virtualQuestionnaires,
-          //TODO can be removen if not used by IP
           ObjectUtils.serialize(rewardParams),
           image,
         );
@@ -773,7 +772,6 @@ export class QueryService implements IQueryService {
     });
   }
 
-  //TODO can be removen if not used by IP
   protected getRewardParams(
     compensations: Map<SDQL_Name, AST_Compensation>,
     receivingAddress: AccountAddress | null,
@@ -789,6 +787,12 @@ export class QueryService implements IQueryService {
           type: ESolidityAbiParameterType.string,
           value: key,
         },
+        ...(_value?.callback?.data?.amount != null && {
+          amount: {
+            type: ESolidityAbiParameterType.uint,
+            value: _value.callback.data.amount as string,
+          },
+        }),
       });
     });
     return parameters;

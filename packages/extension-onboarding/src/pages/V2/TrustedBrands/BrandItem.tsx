@@ -1,8 +1,9 @@
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { Box, Theme, makeStyles } from "@material-ui/core";
-import { Skeleton } from "@material-ui/lab";
+import Box from "@material-ui/core/Box";
+import { Theme, makeStyles } from "@material-ui/core/styles";
+import Skeleton from "@material-ui/lab/Skeleton";
 import {
   EQueryProcessingStatus,
   EVMContractAddress,

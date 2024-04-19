@@ -1,6 +1,7 @@
 import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { Box, Dialog } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Dialog from "@material-ui/core/Dialog";
 import {
   NewQuestionnaireAnswer,
   QuestionnaireWithAnswers,

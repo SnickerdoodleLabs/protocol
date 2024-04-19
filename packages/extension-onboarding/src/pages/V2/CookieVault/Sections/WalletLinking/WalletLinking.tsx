@@ -3,7 +3,7 @@ import CardTitle from "@extension-onboarding/components/v2/CardTitle";
 import { Wallet } from "@extension-onboarding/components/v2/LinkedAccountItem";
 import { WalletMenu } from "@extension-onboarding/components/v2/LinkingAccountMenu";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import React, { Fragment } from "react";
 const WalletLinking = () => {
   const { linkedAccounts } = useAppContext();
