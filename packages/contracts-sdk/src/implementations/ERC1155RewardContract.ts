@@ -154,7 +154,7 @@ export class ERC1155RewardContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | ERC1155ContractError
   > {
-    return this.writeToContract("setTokenURI", [tokenId, newURI, overrides]);
+    return this.writeToContract("setTokenURI", [tokenId, newURI], overrides);
   }
 
   public balanceOf(

@@ -152,7 +152,7 @@ export class ONFT721RewardContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | ONFT721RewardContractError
   > {
-    return this.writeToContract("setBaseURI", [baseUri, overrides]);
+    return this.writeToContract("setBaseURI", [baseUri], overrides);
   }
 
   public balanceOf(
