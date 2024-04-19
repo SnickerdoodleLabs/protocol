@@ -1,52 +1,81 @@
-import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
-import { CircuitError, JSONString, ZKProof } from "@snickerdoodlelabs/objects";
+import { ObjectUtils, IAxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  CircuitError,
+  JSONString,
+  ZKProof,
+  IpfsCID,
+  AjaxError,
+} from "@snickerdoodlelabs/objects";
 import { injectable, unmanaged } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { CircuitSignals, Groth16Proof, PublicSignals, groth16 } from "snarkjs";
+import { urlJoin } from "url-join-ts";
 
+import { ICircutsSDKConfigProvider } from "@circuits-sdk/ICircutsSDKConfigProvider.js";
 @injectable()
 export abstract class CircomWrapper<
   TInput extends CircuitSignals,
   TVerifyInput extends PublicSignals,
 > {
-  protected wasmPromise: Promise<Uint8Array>;
-  protected zkeyPromise: Promise<Uint8Array>;
-
+  private _wasmPromise?: ResultAsync<Uint8Array, AjaxError | CircuitError>;
+  private _zkeyPromise?: ResultAsync<Uint8Array, AjaxError | CircuitError>;
   public constructor(
-    wasmLoader: () => Promise<Uint8Array>,
-    zkeyLoader: () => Promise<Uint8Array>,
+    @unmanaged() protected ajaxUtils: IAxiosAjaxUtils,
+    @unmanaged() protected circutsSDKConfig: ICircutsSDKConfigProvider,
     @unmanaged() protected vkey: Record<string, unknown>,
-  ) {
-    this.wasmPromise = wasmLoader();
-    this.zkeyPromise = zkeyLoader();
+    @unmanaged() protected wasmKey: IpfsCID,
+    @unmanaged() protected zkeyKey: IpfsCID,
+  ) {}
+
+  public preFetch(): ResultAsync<undefined, never> {
+    return this.circutsSDKConfig.getConfig().andThen((config) => {
+      const wasmUrl = new URL(urlJoin(config.ipfsFetchBaseUrl, this.wasmKey));
+      this.setWasmLoader(() =>
+        this.ajaxUtils.get<string>(wasmUrl).map((data) => {
+          return new Uint8Array(Buffer.from(data, "base64").buffer);
+        }),
+      );
+
+      const zkeyUrl = new URL(urlJoin(config.ipfsFetchBaseUrl, this.zkeyKey));
+      this.setZKeyLoader(() =>
+        this.ajaxUtils.get<string>(zkeyUrl).map((data) => {
+          return new Uint8Array(Buffer.from(data, "base64").buffer);
+        }),
+      );
+      return okAsync(undefined);
+    });
   }
 
-  private _loadResources(): ResultAsync<
-    [Uint8Array, Uint8Array],
-    CircuitError
+  protected setWasmLoader(
+    loader: () => ResultAsync<Uint8Array, AjaxError | CircuitError>,
+  ) {
+    this._wasmPromise = loader();
+  }
+
+  protected setZKeyLoader(
+    loader: () => ResultAsync<Uint8Array, AjaxError | CircuitError>,
+  ) {
+    this._zkeyPromise = loader();
+  }
+
+  protected get wasmPromise(): ResultAsync<
+    Uint8Array,
+    AjaxError | CircuitError
   > {
-    return ResultAsync.fromPromise(
-      Promise.allSettled([this.wasmPromise, this.zkeyPromise]).then(
-        (results) => {
-          const wasmResult = results[0];
-          const zkeyResult = results[1];
+    if (this._wasmPromise == null) {
+      return errAsync(new CircuitError("WASM loader has not been set"));
+    }
+    return this._wasmPromise;
+  }
 
-          if (wasmResult.status === "rejected") {
-            return Promise.reject(
-              new CircuitError("WASM loading failed: " + wasmResult.reason),
-            );
-          }
-          if (zkeyResult.status === "rejected") {
-            return Promise.reject(
-              new CircuitError("ZKey loading failed: " + zkeyResult.reason),
-            );
-          }
-
-          return Promise.resolve([wasmResult.value, zkeyResult.value]);
-        },
-      ),
-      () => new CircuitError("Error while loading WASM and Zkey Resources"),
-    );
+  protected get zkeyPromise(): ResultAsync<
+    Uint8Array,
+    AjaxError | CircuitError
+  > {
+    if (this._zkeyPromise == null) {
+      return errAsync(new CircuitError("ZKey loader has not been set"));
+    }
+    return this._zkeyPromise;
   }
 
   protected _prove(inputs: TInput): ResultAsync<ZKProof, CircuitError> {
@@ -77,5 +106,30 @@ export abstract class CircomWrapper<
         return new CircuitError("Unable to run groth16.verify", e);
       },
     );
+  }
+
+  private _loadResources(): ResultAsync<
+    [Uint8Array, Uint8Array],
+    CircuitError
+  > {
+    return ResultAsync.combine([this.wasmPromise, this.zkeyPromise])
+      .mapErr((errors) => {
+        let errorMessage = "Error while loading resources:";
+        if (Array.isArray(errors)) {
+          if (errors[0] instanceof CircuitError) {
+            errorMessage += " WASM loading failed: " + errors[0].message;
+          }
+          if (errors[1] instanceof CircuitError) {
+            errorMessage += " ZKey loading failed: " + errors[1].message;
+          }
+        } else {
+          errorMessage += errors.message;
+        }
+
+        return new CircuitError(errorMessage);
+      })
+      .map(([wasmData, zkeyData]) => {
+        return [wasmData, zkeyData];
+      });
   }
 }

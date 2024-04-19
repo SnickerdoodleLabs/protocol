@@ -98,7 +98,9 @@ export class TestHarnessMocks {
 
   public blockchain = new BlockchainStuff(this.devAccountKeys);
   public ipfs = new IPFSClient();
+  //@ts-ignore
   public membershipWrapper = new CircomMembershipWrapper();
+  //@ts-ignore
   public commitmentWrapper = new CircomCommitmentWrapper();
 
   public insightSimulator = new InsightPlatformSimulator(
