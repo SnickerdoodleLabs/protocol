@@ -1,5 +1,5 @@
 import LinkedAccountItem from "@extension-onboarding/components/v2/LinkedAccountItem/LinkedAccountItem";
-import { Box } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 import { DiscordProfile } from "@snickerdoodlelabs/objects";
 import {
   SDTypography,

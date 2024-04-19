@@ -1,14 +1,12 @@
 import Table from "@extension-onboarding/components/v2/Table";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useAccordionStyles } from "@extension-onboarding/styles/accordion.style";
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Grid,
-  makeStyles,
-} from "@material-ui/core";
+import Accordion from "@material-ui/core/Accordion";
+import AccordionDetails from "@material-ui/core/AccordionDetails";
+import AccordionSummary from "@material-ui/core/AccordionSummary";
+import Box from "@material-ui/core/Box";
+import Grid from "@material-ui/core/Grid";
+import { makeStyles } from "@material-ui/core/styles";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import {
   SiteVisit,

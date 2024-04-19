@@ -1,7 +1,9 @@
 import { useModalStyles } from "@extension-onboarding/components/Modals/Modal.style";
 import ProviderItem from "@extension-onboarding/components/v2/WalletProviderListItem";
 import { useAccountLinkingContext } from "@extension-onboarding/context/AccountLinkingContext";
-import { Box, Dialog } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import Dialog from "@material-ui/core/Dialog";
+import { EChainTechnology } from "@snickerdoodlelabs/objects";
 import {
   CloseButton,
   SDTypography,
@@ -9,9 +11,11 @@ import {
 import React, { FC } from "react";
 interface ILinkAccountModalProps {
   closeModal: () => void;
+  chainFilters?: EChainTechnology[];
 }
 const LinkAccountModal: FC<ILinkAccountModalProps> = ({
   closeModal,
+  chainFilters,
 }: ILinkAccountModalProps) => {
   const {
     detectedProviders,
@@ -41,7 +45,12 @@ const LinkAccountModal: FC<ILinkAccountModalProps> = ({
           </SDTypography>
           <CloseButton onClick={closeModal} />
         </Box>
-        {detectedProviders?.map((provider, index) => (
+        {(chainFilters
+          ? detectedProviders.filter((dp) =>
+              chainFilters.includes(dp.chainTech),
+            )
+          : detectedProviders
+        ).map((provider, index) => (
           <ProviderItem
             key={`d.${index}`}
             label={provider.name}
@@ -52,7 +61,10 @@ const LinkAccountModal: FC<ILinkAccountModalProps> = ({
             }}
           />
         ))}
-        {walletKits.map((walletKit, index) => (
+        {(chainFilters
+          ? walletKits.filter((wk) => chainFilters.includes(wk.chainTech))
+          : walletKits
+        ).map((walletKit, index) => (
           <ProviderItem
             key={`wk.${index}`}
             label={walletKit.label}
@@ -63,7 +75,12 @@ const LinkAccountModal: FC<ILinkAccountModalProps> = ({
             }}
           />
         ))}
-        {unDetectedProviders?.map((provider, index) => (
+        {(chainFilters
+          ? unDetectedProviders.filter((udp) =>
+              chainFilters.includes(udp.chainTech),
+            )
+          : unDetectedProviders
+        ).map((provider, index) => (
           <ProviderItem
             key={`ud.${index}`}
             label={provider.name}

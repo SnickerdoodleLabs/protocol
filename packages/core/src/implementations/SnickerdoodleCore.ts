@@ -525,11 +525,17 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return marketplaceService.getListingsTotalByTag(tag);
       },
 
-      getRecommendationsByListing: (listing: MarketplaceListing) => {
+      getRecommendationsByListing: (
+        listing: MarketplaceListing,
+        stakingToken: EVMContractAddress,
+      ) => {
         const marketplaceService = this.iocContainer.get<IMarketplaceService>(
           IMarketplaceServiceType,
         );
-        return marketplaceService.getRecommendationsByListing(listing);
+        return marketplaceService.getRecommendationsByListing(
+          listing,
+          stakingToken,
+        );
       },
 
       getEarnedRewardsByContractAddress: (

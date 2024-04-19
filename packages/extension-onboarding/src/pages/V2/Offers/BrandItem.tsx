@@ -2,8 +2,8 @@ import { useDataWalletContext } from "@extension-onboarding/context/DataWalletCo
 import OfferItem from "@extension-onboarding/pages/V2/Offers/OfferItem";
 import SingleQuestionnaireOffer from "@extension-onboarding/pages/V2/Offers/SingleQuestionnaireOffer";
 import SingleVirtualOffer from "@extension-onboarding/pages/V2/Offers/SingleVirtualOffer";
-import { Box } from "@material-ui/core";
-import { Skeleton } from "@material-ui/lab";
+import Box from "@material-ui/core/Box";
+import Skeleton from "@material-ui/lab/Skeleton";
 import {
   IOldUserAgreement,
   IUserAgreement,
