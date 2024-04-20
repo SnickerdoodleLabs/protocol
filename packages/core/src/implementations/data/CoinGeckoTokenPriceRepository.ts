@@ -33,8 +33,6 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
-import coinList from "@core/implementations/data/coinList.json" assert { type: "json" };
-import coinPrices from "@core/implementations/data/coinPrices.json" assert { type: "json" };
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
@@ -54,11 +52,19 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   >;
 
   private _initialized?: ResultAsync<void, AccountIndexingError>;
-  private _nativeIds: Map<ChainId, string>;
-  private _contractAddressMap: Map<TokenAddress, CoinGeckoTokenInfo>;
-  private _coinPricesMap: Map<string, CoinMarketDataResponse>;
 
-  private tokenMarketDataCache: Map<string, MarketDataCache>;
+  // #region async maps
+  private _contractAddressMap?: ResultAsync<
+    Map<TokenAddress, CoinGeckoTokenInfo>,
+    AccountIndexingError
+  >;
+  private _coinPricesMap?: ResultAsync<
+    Map<string, CoinMarketDataResponse>,
+    AccountIndexingError
+  >;
+  // #endregion
+
+  private _nativeIds: Map<ChainId, string>;
 
   public constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
@@ -74,15 +80,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         this._nativeIds.set(value.chainId, value.nativeCurrency.coinGeckoId);
       }
     });
-    this.tokenMarketDataCache = new Map();
-    this._contractAddressMap = new Map(Object.entries(coinList)) as Map<
-      TokenAddress,
-      CoinGeckoTokenInfo
-    >;
-    this._coinPricesMap = new Map(Object.entries(coinPrices)) as Map<
-      string,
-      CoinMarketDataResponse
-    >;
   }
 
   public getMarketDataForTokens(
@@ -167,26 +164,24 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         ),
       );
     }
-
-    const tokenInfo = this.getTokenInfoFromList(contractAddress);
-    if (tokenInfo == undefined) {
-      return okAsync(null);
-    }
-    return okAsync(
-      new TokenInfo(
+    return this.getTokenInfoFromList(contractAddress).map((tokenInfo) => {
+      if (tokenInfo == undefined) {
+        return null;
+      }
+      return new TokenInfo(
         tokenInfo.id,
         TickerSymbol(tokenInfo.symbol),
         tokenInfo.name,
         chainInfo.chain,
         contractAddress,
-      ),
-    );
+      );
+    });
   }
 
   public getTokenInfoFromList(
     contractAddress: TokenAddress,
-  ): CoinGeckoTokenInfo | undefined {
-    return this._contractAddressMap.get(contractAddress);
+  ): ResultAsync<CoinGeckoTokenInfo | undefined, AccountIndexingError> {
+    return this.contractAddressMap.map((res) => res.get(contractAddress));
   }
 
   private getTokenPriceFromList(
@@ -215,15 +210,20 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         console.warn(
           `Cannot GET Coingecko data - ${error}. Retrieving Data from Cache`,
         );
-
         const localJSONData: CoinMarketDataResponse[] = [];
-        protocols.map((protocol) => {
-          const marketData = this._coinPricesMap.get(protocol);
-          if (marketData !== undefined) {
-            localJSONData.push(marketData);
-          }
-        });
-        return okAsync(localJSONData);
+        return this.coinPricesMap
+          .map((res) => {
+            protocols.forEach((protocol) => {
+              const marketData = res.get(protocol);
+              if (marketData !== undefined) {
+                localJSONData.push(marketData);
+              }
+            });
+            return localJSONData;
+          })
+          .orElse((_) => {
+            return okAsync(localJSONData);
+          });
       });
   }
 
@@ -422,6 +422,51 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
 
     return this._assetPlatforms;
   }
+
+  private get contractAddressMap(): ResultAsync<
+    Map<TokenAddress, CoinGeckoTokenInfo>,
+    AccountIndexingError
+  > {
+    if (this._contractAddressMap) {
+      return this._contractAddressMap;
+    }
+
+    this._contractAddressMap = ResultAsync.fromPromise(
+      import("./coinList.json", {
+        assert: { type: "json" },
+      }).then((module) => module.default),
+      (error) =>
+        new AccountIndexingError(`Error importing coin list: ${error}`),
+    ).map((coinList) => {
+      return new Map(Object.entries(coinList)) as Map<
+        TokenAddress,
+        CoinGeckoTokenInfo
+      >;
+    });
+    return this._contractAddressMap;
+  }
+
+  private get coinPricesMap(): ResultAsync<
+    Map<string, CoinMarketDataResponse>,
+    AccountIndexingError
+  > {
+    if (this._coinPricesMap) {
+      return this._coinPricesMap;
+    }
+    this._coinPricesMap = ResultAsync.fromPromise(
+      import("./coinPrices.json", {
+        assert: { type: "json" },
+      }).then((module) => module.default),
+      (error) =>
+        new AccountIndexingError(`Error importing coin prices: ${error}`),
+    ).map((coinPrices) => {
+      return new Map(Object.entries(coinPrices)) as Map<
+        string,
+        CoinMarketDataResponse
+      >;
+    });
+    return this._coinPricesMap;
+  }
 }
 
 interface ITokenHistoryResponse {
@@ -487,35 +532,6 @@ interface CoinGeckoTokenInfo {
   protocols: string[];
 }
 
-interface PriceVsUSD {
-  id: string;
-  symbol: string;
-  name: string;
-  image: string;
-  current_price: string;
-  market_cap: string;
-  market_cap_rank: number;
-  fully_diluted_valuation: string;
-  total_volume: string;
-  high_24h: string;
-  low_24h: string;
-  price_change_24h: string;
-  price_change_percentage_24h: string;
-  market_cap_change_24h: string;
-  market_cap_change_percentage_24h: string;
-  circulating_supply: string;
-  total_supply: string;
-  max_supply: string;
-  ath: string;
-  ath_change_percentage: string;
-  ath_date: string;
-  atl: string;
-  atl_change_percentage: string;
-  atl_date: string;
-  roi: string;
-  last_updated: string;
-}
-
 interface CoinMarketDataResponse {
   id: string;
   symbol: TickerSymbol;
@@ -547,13 +563,6 @@ interface CoinMarketDataResponse {
     percentage: number;
   };
   last_updated: string;
-}
-
-interface CoinGeckoRateLimit {
-  status: {
-    error_code: number;
-    error_message: string;
-  };
 }
 
 interface IAssetPlatformResponseItem {
