@@ -65,9 +65,11 @@ export class InsightPlatformSimulator {
     });
 
     this.app = express();
-
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
+
+    this.membershipWrapper.preFetch();
+    this.commitmentWrapper.preFetch();
 
     const corsOptions = {
       origin: "*",

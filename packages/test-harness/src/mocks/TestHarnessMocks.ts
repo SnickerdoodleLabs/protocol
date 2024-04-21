@@ -18,6 +18,7 @@ import {
 } from "@snickerdoodlelabs/persistence";
 
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
+import { MockAjaxUtils } from "@test-harness/mocks/MockAjaxUtils.js";
 import {
   query1,
   query2,
@@ -98,10 +99,17 @@ export class TestHarnessMocks {
 
   public blockchain = new BlockchainStuff(this.devAccountKeys);
   public ipfs = new IPFSClient();
-  //@ts-ignore
-  public membershipWrapper = new CircomMembershipWrapper();
-  //@ts-ignore
-  public commitmentWrapper = new CircomCommitmentWrapper();
+  public mockAxios = new MockAjaxUtils();
+
+  public membershipWrapper = new CircomMembershipWrapper(
+    this.mockAxios,
+    this.configProvider,
+  );
+
+  public commitmentWrapper = new CircomCommitmentWrapper(
+    this.mockAxios,
+    this.configProvider,
+  );
 
   public insightSimulator = new InsightPlatformSimulator(
     this.blockchain,
