@@ -3,7 +3,7 @@
 	"compilerOptions": {
 		"outDir": "./dist",
 		"rootDir": "./src",
-		"jsx": "react",
+		"module": "ES2022",
 		"paths": {
 			"@shared-components/*": [
 				"./packages/shared-components/src/*"
