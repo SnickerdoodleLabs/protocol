@@ -1,13 +1,14 @@
-import { commitmentCode } from "@snickerdoodlelabs/circuits/src/commitment/commitment.wasm.js";
-import { commitmentZKey } from "@snickerdoodlelabs/circuits/src/commitment/commitment.zkey.js";
-import { semaphoreCode } from "@snickerdoodlelabs/circuits/src/semaphore/semaphore.wasm.js";
-import { semaphoreZKey } from "@snickerdoodlelabs/circuits/src/semaphore/semaphore.zkey.js";
 import {
   IAxiosAjaxUtils,
   IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import { AjaxError, JsonWebToken } from "@snickerdoodlelabs/objects";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
+
+import { commitmentCode } from "@test-harness/mocks/zk/commitment.wasm.js";
+import { commitmentZKey } from "@test-harness/mocks/zk/commitment.zkey.js";
+import { semaphoreCode } from "@test-harness/mocks/zk/semaphore.wasm.js";
+import { semaphoreZKey } from "@test-harness/mocks/zk/semaphore.zkey.js";
 export class MockAjaxUtils implements IAxiosAjaxUtils {
   post<T>(
     url: URL,
