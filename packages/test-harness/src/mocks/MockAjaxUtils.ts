@@ -1,7 +1,7 @@
-import { commitmentCode } from "@snickerdoodlelabs/circuits/src/circom/commitment/commitment.wasm.js";
-import { commitmentZKey } from "@snickerdoodlelabs/circuits/src/circom/commitment/commitment.zkey.js";
-import { semaphoreCode } from "@snickerdoodlelabs/circuits/src/circom/semaphore/semaphore.wasm.js";
-import { semaphoreZKey } from "@snickerdoodlelabs/circuits/src/circom/semaphore/semaphore.zkey.js";
+import { commitmentCode } from "@snickerdoodlelabs/circuits/src/commitment/commitment.wasm.js";
+import { commitmentZKey } from "@snickerdoodlelabs/circuits/src/commitment/commitment.zkey.js";
+import { semaphoreCode } from "@snickerdoodlelabs/circuits/src/semaphore/semaphore.wasm.js";
+import { semaphoreZKey } from "@snickerdoodlelabs/circuits/src/semaphore/semaphore.zkey.js";
 import {
   IAxiosAjaxUtils,
   IRequestConfig,

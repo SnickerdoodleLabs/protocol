@@ -1,4 +1,5 @@
 import "reflect-metadata";
+
 import { CircomUtils } from "@snickerdoodlelabs/circuits";
 import { IAxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
 import {
@@ -10,7 +11,8 @@ import {
 import * as td from "testdouble";
 
 import { ICircutsSDKConfigProvider } from "@circuits-sdk/ICircutsSDKConfigProvider.js";
-import { CircomMembershipWrapper } from "@circuits-sdk/implementations/circom/CircomMembershipWrapper.js";
+import { CircomMembershipWrapper } from "@circuits-sdk/implementations/CircomMembershipWrapper.js";
+
 const signal = "Phoebe";
 const identityTrapdoor = TrapdoorBNS(1234567890n.toString());
 const identityNullifier = NullifierBNS(9876543210n.toString());
