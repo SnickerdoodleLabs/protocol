@@ -1,16 +1,25 @@
 import "reflect-metadata";
+
 import { CircomUtils } from "@snickerdoodlelabs/circuits";
+import { commitmentCode } from "@snickerdoodlelabs/circuits/src/commitment/commitment.wasm.js";
+import { commitmentZKey } from "@snickerdoodlelabs/circuits/src/commitment/commitment.zkey.js";
+import { semaphoreCode } from "@snickerdoodlelabs/circuits/src/semaphore/semaphore.wasm.js";
+import { semaphoreZKey } from "@snickerdoodlelabs/circuits/src/semaphore/semaphore.zkey.js";
 import { IAxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
 import {
+  AjaxError,
   Commitment,
   IpfsCID,
   NullifierBNS,
   TrapdoorBNS,
+  URLString,
 } from "@snickerdoodlelabs/objects";
+import { errAsync, okAsync } from "neverthrow";
 import * as td from "testdouble";
 
 import { ICircutsSDKConfigProvider } from "@circuits-sdk/ICircutsSDKConfigProvider.js";
-import { CircomMembershipWrapper } from "@circuits-sdk/implementations/circom/CircomMembershipWrapper.js";
+import { CircomMembershipWrapper } from "@circuits-sdk/implementations/CircomMembershipWrapper.js";
+
 const signal = "Phoebe";
 const identityTrapdoor = TrapdoorBNS(1234567890n.toString());
 const identityNullifier = NullifierBNS(9876543210n.toString());
@@ -31,6 +40,26 @@ class CircomMembershipWrapperMocks {
     this.ajaxUtils = td.object<IAxiosAjaxUtils>();
     this.configProvider = td.object<ICircutsSDKConfigProvider>();
 
+    td.when(this.ajaxUtils.get(td.matchers.anything())).thenDo((url: URL) => {
+      const mockData = new Map<string, Uint8Array>([
+        ["QmT5avnPx18LMdbzbHgVHJrkzUgwt7sFMoqhEHYBukF6eP", commitmentCode],
+        ["QmesxcQYvng3crv34r557WiFTdnvGH3uzvxVRCcaftZWxa", commitmentZKey],
+        ["QmUSxnC3YNkH92HNkzqYxAWV2T8uioe2Uxm4Zfa7NbJNHs", semaphoreCode],
+        ["QmUk9mbuHQEir1uWMGweLdTVhGNVpxf4KrnkGj9Xwnhfbc", semaphoreZKey],
+      ]);
+
+      const key = url.pathname.split("/").pop();
+      if (key != null) {
+        return okAsync(mockData.get(key));
+      }
+      return errAsync(
+        new AjaxError("Invalid hash at CircomMembershipWrapper tests", 500),
+      );
+    });
+
+    td.when(this.configProvider.getConfig()).thenReturn(
+      okAsync({ ipfsFetchBaseUrl: URLString("http://sd/ipfs") }),
+    );
     this.commitment = CircomUtils.getCommitment(
       identityTrapdoor,
       identityNullifier,
@@ -70,7 +99,7 @@ describe("CircomMembershipWrapper tests", () => {
     // Arrange
     const mocks = new CircomMembershipWrapperMocks();
     const membership = mocks.factory();
-
+    await membership.preFetch();
     // Act
     const proofResult = await membership.prove(
       signal,
@@ -89,7 +118,7 @@ describe("CircomMembershipWrapper tests", () => {
     // Arrange
     const mocks = new CircomMembershipWrapperMocks();
     const membership = mocks.factory();
-
+    await membership.preFetch();
     mocks.anonymitySet.push(mocks.commitment);
 
     // Act
@@ -110,7 +139,7 @@ describe("CircomMembershipWrapper tests", () => {
     // Arrange
     const mocks = new CircomMembershipWrapperMocks();
     const membership = mocks.factory();
-
+    await membership.preFetch();
     // Act
     const result = await membership
       .prove(

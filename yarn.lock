@@ -9230,6 +9230,33 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snickerdoodlelabs/circuits-o1js-sdk@workspace:packages/circuits-o1js-sdk":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/circuits-o1js-sdk@workspace:packages/circuits-o1js-sdk"
+  dependencies:
+    "@snickerdoodlelabs/circuits-o1js": "workspace:^"
+    "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/objects": "workspace:^"
+    inversify: ^6.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
+    uuid: ^8.3.0
+  languageName: unknown
+  linkType: soft
+
+"@snickerdoodlelabs/circuits-o1js@workspace:^, @snickerdoodlelabs/circuits-o1js@workspace:packages/circuits-o1js":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/circuits-o1js@workspace:packages/circuits-o1js"
+  dependencies:
+    "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/objects": "workspace:^"
+    inversify: ^6.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
+    o1js: ^0.18.0
+  languageName: unknown
+  linkType: soft
+
 "@snickerdoodlelabs/circuits-sdk@workspace:^, @snickerdoodlelabs/circuits-sdk@workspace:packages/circuits-sdk":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/circuits-sdk@workspace:packages/circuits-sdk"
@@ -9254,7 +9281,6 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     "@zk-kit/circuits": ^1.0.0-beta
     "@zk-kit/imt": ^2.0.0-beta.4
-    circomlib: ^2.0.5
     ethers: ^6.10.0
     inversify: ^6.0.2
     neverthrow: ^5.1.0
@@ -16386,7 +16412,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"blakejs@npm:^1.1.0":
+"blakejs@npm:1.2.1, blakejs@npm:^1.1.0":
   version: 1.2.1
   resolution: "blakejs@npm:1.2.1"
   checksum: d699ba116cfa21d0b01d12014a03e484dd76d483133e6dc9eb415aa70a119f08beb3bcefb8c71840106a00b542cba77383f8be60cd1f0d4589cb8afb922eefbe
@@ -17174,6 +17200,13 @@ __metadata:
     normalize-url: ^6.0.1
     responselike: ^2.0.0
   checksum: 0de9df773fd4e7dd9bd118959878f8f2163867e2e1ab3575ffbecbe6e75e80513dd0c68ba30005e5e5a7b377cc6162bbc00ab1db019bb4e9cb3c2f3f7a6f1ee4
+  languageName: node
+  linkType: hard
+
+"cachedir@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "cachedir@npm:2.4.0"
+  checksum: 43198514eaa61f65b5535ed29ad651f22836fba3868ed58a6a87731f05462f317d39098fa3ac778801c25455483c9b7f32a2fcad1f690a978947431f12a0f4d0
   languageName: node
   linkType: hard
 
@@ -34984,6 +35017,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"o1js@npm:^0.18.0":
+  version: 0.18.0
+  resolution: "o1js@npm:0.18.0"
+  dependencies:
+    blakejs: 1.2.1
+    cachedir: ^2.4.0
+    isomorphic-fetch: ^3.0.0
+    js-sha256: ^0.9.0
+    reflect-metadata: ^0.1.13
+    tslib: ^2.3.0
+  bin:
+    snarky-run: src/build/run.js
+  checksum: 2af5dbb977682647fff91a77ac4165067537c030b9ce5e596e565935b9a9fddf6ca32f6b95efae54397d69f7b6691d623425aeaac483fc4537304ea04cb3496f
+  languageName: node
+  linkType: hard
+
 "o3@npm:^1.0.3":
   version: 1.0.3
   resolution: "o3@npm:1.0.3"
@@ -41924,6 +41973,7 @@ __metadata:
     case-sensitive-paths-webpack-plugin: ^2.3.0
     chai: ^4.3.4
     circomkit: ^0.0.24
+    circomlib: ^2.0.5
     clean-webpack-plugin: ^3.0.0
     concurrently: ^5.3.0
     copy-webpack-plugin: ^7.0.0
@@ -44609,7 +44659,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.3.1, tslib@npm:^2.5.0":
+"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.3.1, tslib@npm:^2.5.0":
   version: 2.6.2
   resolution: "tslib@npm:2.6.2"
   checksum: 329ea56123005922f39642318e3d1f0f8265d1e7fcb92c633e0809521da75eeaca28d2cf96d7248229deb40e5c19adf408259f4b9640afd20d13aecc1430f3ad
