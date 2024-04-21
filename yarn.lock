@@ -9408,11 +9408,8 @@ __metadata:
     "@material-ui/icons": 4.11.2
     "@material-ui/lab": 4.0.0-alpha.60
     "@snickerdoodlelabs/common-utils": "workspace:^"
-    "@snickerdoodlelabs/contracts-sdk": "workspace:^"
-    "@snickerdoodlelabs/node-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/shared-components": "workspace:^"
-    "@snickerdoodlelabs/signature-verification": "workspace:^"
     "@snickerdoodlelabs/web-integration": "workspace:^"
     "@suiet/wallet-adapter": ^0.0.19
     "@suiet/wallet-kit": ^0.2.19
@@ -9444,7 +9441,6 @@ __metadata:
     react-spring-carousel: ^2.0.19
     reflect-metadata: ^0.1.13
     url-join-ts: ^1.0.5
-    viem: ^1.18.1
     wagmi: ^1.4.5
     yup: 0.32.9
   languageName: unknown
@@ -46030,7 +46026,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:^1.0.0, viem@npm:^1.18.1":
+"viem@npm:^1.0.0":
   version: 1.18.1
   resolution: "viem@npm:1.18.1"
   dependencies:
