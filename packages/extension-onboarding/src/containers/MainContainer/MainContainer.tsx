@@ -7,6 +7,7 @@ import { NotificationContextProvider } from "@extension-onboarding/context/Notif
 import { ThemeContextProvider } from "@extension-onboarding/context/ThemeContext";
 import { ISdlDataWallet } from "@snickerdoodlelabs/objects";
 import React, { Suspense, lazy } from "react";
+import Loading from "@extension-onboarding/setupScreens/Loading";
 
 const LazyRouter = lazy(
   () => import("@extension-onboarding/containers/Router"),
@@ -25,7 +26,7 @@ const MainContainer: React.FC<IMainContainerProps> = ({ proxy }) => {
             <AppContextProvider>
               <LayoutProvider>
                 <AccountLinkingContextProvider>
-                  <Suspense fallback={null}>
+                  <Suspense fallback={<Loading />}>
                     <LazyRouter />
                   </Suspense>
                 </AccountLinkingContextProvider>
