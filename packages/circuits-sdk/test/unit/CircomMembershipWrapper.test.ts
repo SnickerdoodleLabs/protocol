@@ -1,10 +1,12 @@
 import "reflect-metadata";
 
-import { CircomUtils } from "@snickerdoodlelabs/circuits";
-import { commitmentCode } from "@snickerdoodlelabs/circuits/src/commitment/commitment.wasm.js";
-import { commitmentZKey } from "@snickerdoodlelabs/circuits/src/commitment/commitment.zkey.js";
-import { semaphoreCode } from "@snickerdoodlelabs/circuits/src/semaphore/semaphore.wasm.js";
-import { semaphoreZKey } from "@snickerdoodlelabs/circuits/src/semaphore/semaphore.zkey.js";
+import {
+  CircomUtils,
+  commitmentCode,
+  commitmentZKey,
+  semaphoreCode,
+  semaphoreZKey,
+} from "@snickerdoodlelabs/circuits";
 import { IAxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AjaxError,
@@ -99,7 +101,7 @@ describe("CircomMembershipWrapper tests", () => {
     // Arrange
     const mocks = new CircomMembershipWrapperMocks();
     const membership = mocks.factory();
-    await membership.preFetch();
+
     // Act
     const proofResult = await membership.prove(
       signal,
@@ -118,7 +120,7 @@ describe("CircomMembershipWrapper tests", () => {
     // Arrange
     const mocks = new CircomMembershipWrapperMocks();
     const membership = mocks.factory();
-    await membership.preFetch();
+
     mocks.anonymitySet.push(mocks.commitment);
 
     // Act
@@ -139,7 +141,7 @@ describe("CircomMembershipWrapper tests", () => {
     // Arrange
     const mocks = new CircomMembershipWrapperMocks();
     const membership = mocks.factory();
-    await membership.preFetch();
+
     // Act
     const result = await membership
       .prove(
