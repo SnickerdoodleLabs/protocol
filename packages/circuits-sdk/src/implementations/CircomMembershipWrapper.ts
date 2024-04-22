@@ -23,9 +23,9 @@ import { ResultAsync } from "neverthrow";
 import { poseidon2 } from "poseidon-lite";
 
 import {
-  ICircutsSDKConfigProvider,
-  ICircutsSDKConfigProviderype,
-} from "@circuits-sdk/ICircutsSDKConfigProvider.js";
+  ICircuitsSDKConfigProvider,
+  ICircuitsSDKConfigProviderype,
+} from "@circuits-sdk/ICircuitsSDKConfigProvider.js";
 import { CircomWrapper } from "@circuits-sdk/implementations/CircomWrapper.js";
 import { IMembershipWrapper } from "@circuits-sdk/interfaces/index.js";
 
@@ -39,14 +39,16 @@ export class CircomMembershipWrapper
 {
   public constructor(
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
-    @inject(ICircutsSDKConfigProviderype)
-    protected circutsSDKConfig: ICircutsSDKConfigProvider,
+    @inject(ICircuitsSDKConfigProviderype)
+    protected circutsSDKConfig: ICircuitsSDKConfigProvider,
   ) {
     super(
       ajaxUtils,
       circutsSDKConfig,
       semaphoreVerificationKey,
+      //semaphore wasm code
       IpfsCID("QmUSxnC3YNkH92HNkzqYxAWV2T8uioe2Uxm4Zfa7NbJNHs"),
+      //semaphore zkey wasm
       IpfsCID("QmUk9mbuHQEir1uWMGweLdTVhGNVpxf4KrnkGj9Xwnhfbc"),
     );
   }

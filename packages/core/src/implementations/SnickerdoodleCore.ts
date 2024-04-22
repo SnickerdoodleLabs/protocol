@@ -10,6 +10,7 @@ import {
   IMembershipWrapper,
   IMembershipWrapperType,
 } from "@snickerdoodlelabs/circuits-sdk";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   IMasterIndexer,
   IMasterIndexerType,
@@ -921,6 +922,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       ICommitmentWrapperType,
     );
 
+    const logUtils = this.iocContainer.get<ILogUtils>(ILogUtilsType);
+
     const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
       IHeartbeatGeneratorType,
     );
@@ -957,8 +960,19 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         return accountService.initialize();
       })
       .map(() => {
-        membershipWrapper.preFetch();
-        commitmentWrapper.preFetch();
+        membershipWrapper.preFetch().mapErr((e) => {
+          logUtils.error(
+            `Encountered error while fetching membership wasms`,
+            e,
+          );
+        });
+
+        commitmentWrapper.preFetch().mapErr((e) => {
+          logUtils.error(
+            `Encountered error while fetching commitments wasm`,
+            e,
+          );
+        });
       });
   }
 

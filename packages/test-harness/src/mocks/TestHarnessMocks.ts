@@ -2,7 +2,11 @@ import {
   CircomCommitmentWrapper,
   CircomMembershipWrapper,
 } from "@snickerdoodlelabs/circuits-sdk";
-import { LogUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  AxiosAjaxUtils,
+  LogUtils,
+  TimeUtils,
+} from "@snickerdoodlelabs/common-utils";
 import { ConfigProvider } from "@snickerdoodlelabs/core";
 import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
@@ -18,7 +22,6 @@ import {
 } from "@snickerdoodlelabs/persistence";
 
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
-import { MockAjaxUtils } from "@test-harness/mocks/MockAjaxUtils.js";
 import {
   query1,
   query2,
@@ -99,15 +102,15 @@ export class TestHarnessMocks {
 
   public blockchain = new BlockchainStuff(this.devAccountKeys);
   public ipfs = new IPFSClient();
-  public mockAxios = new MockAjaxUtils();
+  public axiosUtils = new AxiosAjaxUtils();
 
   public membershipWrapper = new CircomMembershipWrapper(
-    this.mockAxios,
+    this.axiosUtils,
     this.configProvider,
   );
 
   public commitmentWrapper = new CircomCommitmentWrapper(
-    this.mockAxios,
+    this.axiosUtils,
     this.configProvider,
   );
 

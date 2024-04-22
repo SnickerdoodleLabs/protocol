@@ -15,7 +15,7 @@ import {
 import { errAsync, okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import { ICircutsSDKConfigProvider } from "@circuits-sdk/ICircutsSDKConfigProvider";
+import { ICircuitsSDKConfigProvider } from "@circuits-sdk/ICircuitsSDKConfigProvider";
 import { CircomCommitmentWrapper } from "@circuits-sdk/implementations/CircomCommitmentWrapper.js";
 
 const signal =
@@ -30,11 +30,12 @@ const identityNullifier = NullifierBNS(
 class CircomCommitmentWrapperMocks {
   public commitment: Commitment;
   public ajaxUtils: IAxiosAjaxUtils;
-  public configProvider: ICircutsSDKConfigProvider;
+  public configProvider: ICircuitsSDKConfigProvider;
   public constructor() {
     this.ajaxUtils = td.object<IAxiosAjaxUtils>();
-    this.configProvider = td.object<ICircutsSDKConfigProvider>();
+    this.configProvider = td.object<ICircuitsSDKConfigProvider>();
     td.when(this.ajaxUtils.get(td.matchers.anything())).thenDo((url: URL) => {
+      //update node
       const mockData = new Map<string, Uint8Array>([
         ["QmT5avnPx18LMdbzbHgVHJrkzUgwt7sFMoqhEHYBukF6eP", commitmentCode],
         ["QmesxcQYvng3crv34r557WiFTdnvGH3uzvxVRCcaftZWxa", commitmentZKey],
@@ -52,7 +53,7 @@ class CircomCommitmentWrapperMocks {
     });
 
     td.when(this.configProvider.getConfig()).thenReturn(
-      okAsync({ ipfsFetchBaseUrl: URLString("http://sd/ipfs") }),
+      okAsync({ circuitsIpfsFetchBaseUrl: URLString("http://sd/ipfs") }),
     );
 
     this.commitment = CircomUtils.getCommitment(
@@ -71,9 +72,8 @@ describe("CommitmentCircuitWrapper tests", () => {
     // Arrange
     const mocks = new CircomCommitmentWrapperMocks();
     const Commitment = mocks.factory();
-    await Commitment.preFetch();
-    // Act
 
+    // Act
     const proofResult = await Commitment.prove(
       signal,
       identityTrapdoor,
@@ -89,7 +89,7 @@ describe("CommitmentCircuitWrapper tests", () => {
     // Arrange
     const mocks = new CircomCommitmentWrapperMocks();
     const Commitment = mocks.factory();
-    await Commitment.preFetch();
+
     // Act
     const result = await Commitment.prove(
       signal,

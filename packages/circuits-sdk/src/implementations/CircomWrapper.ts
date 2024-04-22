@@ -11,71 +11,85 @@ import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { CircuitSignals, Groth16Proof, PublicSignals, groth16 } from "snarkjs";
 import { urlJoin } from "url-join-ts";
 
-import { ICircutsSDKConfigProvider } from "@circuits-sdk/ICircutsSDKConfigProvider.js";
+import { ICircuitsSDKConfigProvider } from "@circuits-sdk/ICircuitsSDKConfigProvider.js";
+import { ICircomWrapper } from "@circuits-sdk/interfaces/ICircomWrapper.js";
 @injectable()
 export abstract class CircomWrapper<
   TInput extends CircuitSignals,
   TVerifyInput extends PublicSignals,
-> {
-  private _wasmPromise?: ResultAsync<Uint8Array, AjaxError | CircuitError>;
-  private _zkeyPromise?: ResultAsync<Uint8Array, AjaxError | CircuitError>;
+> implements ICircomWrapper
+{
+  private _wasmResult?: ResultAsync<Uint8Array, AjaxError | CircuitError>;
+  private _zkeyResult?: ResultAsync<Uint8Array, AjaxError | CircuitError>;
   public constructor(
     @unmanaged() protected ajaxUtils: IAxiosAjaxUtils,
-    @unmanaged() protected circutsSDKConfig: ICircutsSDKConfigProvider,
+    @unmanaged() protected circuitsSDKConfig: ICircuitsSDKConfigProvider,
     @unmanaged() protected vkey: Record<string, unknown>,
     @unmanaged() protected wasmKey: IpfsCID,
     @unmanaged() protected zkeyKey: IpfsCID,
   ) {}
 
   public preFetch(): ResultAsync<undefined, never> {
-    return this.circutsSDKConfig.getConfig().andThen((config) => {
-      const wasmUrl = new URL(urlJoin(config.ipfsFetchBaseUrl, this.wasmKey));
-      this.setWasmLoader(() =>
-        this.ajaxUtils.get<string>(wasmUrl).map((data) => {
-          return new Uint8Array(Buffer.from(data, "base64").buffer);
-        }),
+    return this.circuitsSDKConfig.getConfig().andThen((config) => {
+      const wasmUrl = new URL(
+        urlJoin(config.circuitsIpfsFetchBaseUrl, this.wasmKey),
+      );
+      const zkeyUrl = new URL(
+        urlJoin(config.circuitsIpfsFetchBaseUrl, this.zkeyKey),
       );
 
-      const zkeyUrl = new URL(urlJoin(config.ipfsFetchBaseUrl, this.zkeyKey));
-      this.setZKeyLoader(() =>
-        this.ajaxUtils.get<string>(zkeyUrl).map((data) => {
-          return new Uint8Array(Buffer.from(data, "base64").buffer);
-        }),
-      );
+      this._wasmResult = this.fetchResource(wasmUrl);
+      this._zkeyResult = this.fetchResource(zkeyUrl);
+
       return okAsync(undefined);
     });
   }
 
-  protected setWasmLoader(
-    loader: () => ResultAsync<Uint8Array, AjaxError | CircuitError>,
-  ) {
-    this._wasmPromise = loader();
+  private fetchResource(
+    url: URL,
+  ): ResultAsync<Uint8Array, AjaxError | CircuitError> {
+    return this.ajaxUtils
+      .get<string>(url)
+      .map((data) => {
+        return new Uint8Array(Buffer.from(data, "base64").buffer);
+      })
+      .mapErr(
+        (error) =>
+          new CircuitError(`Error fetching resource from ${url}`, error),
+      );
   }
 
-  protected setZKeyLoader(
-    loader: () => ResultAsync<Uint8Array, AjaxError | CircuitError>,
-  ) {
-    this._zkeyPromise = loader();
+  private getResourceUrl(key: IpfsCID): ResultAsync<URL, CircuitError> {
+    return this.circuitsSDKConfig
+      .getConfig()
+      .map((config) => {
+        return new URL(urlJoin(config.circuitsIpfsFetchBaseUrl, key));
+      })
+      .mapErr((error) => new CircuitError("Error fetching config", error));
   }
 
-  protected get wasmPromise(): ResultAsync<
+  protected get wasmResult(): ResultAsync<
     Uint8Array,
     AjaxError | CircuitError
   > {
-    if (this._wasmPromise == null) {
-      return errAsync(new CircuitError("WASM loader has not been set"));
+    if (this._wasmResult == null) {
+      this._wasmResult = this.getResourceUrl(this.wasmKey).andThen((url) =>
+        this.fetchResource(url),
+      );
     }
-    return this._wasmPromise;
+    return this._wasmResult;
   }
 
-  protected get zkeyPromise(): ResultAsync<
+  protected get zkeyResult(): ResultAsync<
     Uint8Array,
     AjaxError | CircuitError
   > {
-    if (this._zkeyPromise == null) {
-      return errAsync(new CircuitError("ZKey loader has not been set"));
+    if (this._zkeyResult == null) {
+      this._zkeyResult = this.getResourceUrl(this.zkeyKey).andThen((url) =>
+        this.fetchResource(url),
+      );
     }
-    return this._zkeyPromise;
+    return this._zkeyResult;
   }
 
   protected _prove(inputs: TInput): ResultAsync<ZKProof, CircuitError> {
@@ -112,7 +126,7 @@ export abstract class CircomWrapper<
     [Uint8Array, Uint8Array],
     CircuitError
   > {
-    return ResultAsync.combine([this.wasmPromise, this.zkeyPromise])
+    return ResultAsync.combine([this.wasmResult, this.zkeyResult])
       .mapErr((errors) => {
         let errorMessage = "Error while loading resources:";
         if (Array.isArray(errors)) {

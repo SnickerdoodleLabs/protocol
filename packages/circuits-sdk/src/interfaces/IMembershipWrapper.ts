@@ -7,7 +7,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export interface IMembershipWrapper {
+import { ICircomWrapper } from "@circuits-sdk/interfaces/ICircomWrapper.js";
+export interface IMembershipWrapper extends ICircomWrapper {
   /**
    * asdf
    * @param signal a string representing the signal to be proved
@@ -42,15 +43,6 @@ export interface IMembershipWrapper {
     signalNullifier: NullifierBNS,
     proof: ZKProof,
   ): ResultAsync<boolean, CircuitError>;
-
-  /**
-   * Initiates the loading of cryptographic resources (WASM and zkey files) needed for the zk operations.
-   * Method sets up asynchronous loaders to fetch and process these files and caches the results
-   * as promises within the class instance.
-   *
-   * This method should be called early in the application's lifecycle
-   */
-  preFetch(): ResultAsync<undefined, never>;
 }
 
 export const IMembershipWrapperType = Symbol.for("IMembershipWrapper");

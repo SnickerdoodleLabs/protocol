@@ -21,9 +21,9 @@ import { injectable, inject } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import {
-  ICircutsSDKConfigProvider,
-  ICircutsSDKConfigProviderype,
-} from "@circuits-sdk/ICircutsSDKConfigProvider.js";
+  ICircuitsSDKConfigProvider,
+  ICircuitsSDKConfigProviderype,
+} from "@circuits-sdk/ICircuitsSDKConfigProvider.js";
 import { CircomWrapper } from "@circuits-sdk/implementations/CircomWrapper.js";
 import { ICommitmentWrapper } from "@circuits-sdk/interfaces/index.js";
 @injectable()
@@ -36,14 +36,16 @@ export class CircomCommitmentWrapper
 {
   public constructor(
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
-    @inject(ICircutsSDKConfigProviderype)
-    protected circutsSDKConfig: ICircutsSDKConfigProvider,
+    @inject(ICircuitsSDKConfigProviderype)
+    protected circutsSDKConfig: ICircuitsSDKConfigProvider,
   ) {
     super(
       ajaxUtils,
       circutsSDKConfig,
       commitmentVerificationKey,
+      //commitment wasm code
       IpfsCID("QmT5avnPx18LMdbzbHgVHJrkzUgwt7sFMoqhEHYBukF6eP"),
+      //commitment zkey wasm
       IpfsCID("QmesxcQYvng3crv34r557WiFTdnvGH3uzvxVRCcaftZWxa"),
     );
   }

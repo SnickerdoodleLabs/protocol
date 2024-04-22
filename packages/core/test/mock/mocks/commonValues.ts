@@ -227,6 +227,7 @@ export const testCoreConfig = new CoreConfig(
   60, // maxStatsRetentionSeconds
   LanguageCode("en-pw"), // passwordLanguageCode
   100,
+  URLString("https://ipfs-gateway.snickerdoodle.com/ipfs/"),
 );
 
 const adContent1: AdContent = new AdContent(
