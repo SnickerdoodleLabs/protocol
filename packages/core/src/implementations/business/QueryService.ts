@@ -395,7 +395,6 @@ export class QueryService implements IQueryService {
     | BlockchainCommonErrors
     | EvaluationError
   > {
-    console.log(`Eyo`);
     this.logUtils.log(
       `QueryService.approveQuery: Approving processing query with CID ${queryCID}`,
     );
