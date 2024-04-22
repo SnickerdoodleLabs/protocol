@@ -1,4 +1,4 @@
-import { ICircutsSDKConfig } from "@snickerdoodlelabs/circuits-sdk";
+import { ICircuitsSDKConfig } from "@snickerdoodlelabs/circuits-sdk";
 import { IIndexerConfig } from "@snickerdoodlelabs/indexers";
 import {
   ControlChainInformation,
@@ -16,7 +16,7 @@ import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 import { MetatransactionGasAmounts } from "@core/interfaces/objects/MetatransactionGasAmounts.js";
 
 export class CoreConfig
-  implements IIndexerConfig, IPersistenceConfig, ICircutsSDKConfig
+  implements IIndexerConfig, IPersistenceConfig, ICircuitsSDKConfig
 {
   public constructor(
     public controlChainId: EChain,
@@ -54,5 +54,6 @@ export class CoreConfig
     public maxStatsRetentionSeconds: number,
     public passwordLanguageCode: LanguageCode,
     public queryPerformanceMetricsLimit: number,
+    public circuitsIpfsFetchBaseUrl: URLString,
   ) {}
 }

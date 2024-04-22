@@ -5,10 +5,7 @@ import {
   IMembershipWrapper,
 } from "@snickerdoodlelabs/circuits-sdk";
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
-import {
-  IDeliverInsightsParams,
-  IOptinParams,
-} from "@snickerdoodlelabs/insight-platform-api";
+import { IDeliverInsightsParams } from "@snickerdoodlelabs/insight-platform-api";
 import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
   ConsentContractError,
@@ -68,9 +65,7 @@ export class InsightPlatformSimulator {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
 
-    this.membershipWrapper.preFetch();
-    this.commitmentWrapper.preFetch();
-
+    //Opt In receipt Ok
     const corsOptions = {
       origin: "*",
       methods: ["POST", "GET", "PATCH", "DELETE", "OPTIONS"],

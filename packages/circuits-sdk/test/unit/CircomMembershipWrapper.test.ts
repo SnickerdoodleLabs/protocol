@@ -17,7 +17,7 @@ import {
 import { errAsync, okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import { ICircutsSDKConfigProvider } from "@circuits-sdk/ICircutsSDKConfigProvider.js";
+import { ICircuitsSDKConfigProvider } from "@circuits-sdk/ICircuitsSDKConfigProvider.js";
 import { CircomMembershipWrapper } from "@circuits-sdk/implementations/CircomMembershipWrapper.js";
 
 const signal = "Phoebe";
@@ -34,11 +34,11 @@ class CircomMembershipWrapperMocks {
   public commitment: Commitment;
   public signalNullifier: NullifierBNS;
   public ajaxUtils: IAxiosAjaxUtils;
-  public configProvider: ICircutsSDKConfigProvider;
+  public configProvider: ICircuitsSDKConfigProvider;
 
   public constructor(protected anonymitySetSize = 5) {
     this.ajaxUtils = td.object<IAxiosAjaxUtils>();
-    this.configProvider = td.object<ICircutsSDKConfigProvider>();
+    this.configProvider = td.object<ICircuitsSDKConfigProvider>();
 
     td.when(this.ajaxUtils.get(td.matchers.anything())).thenDo((url: URL) => {
       const mockData = new Map<string, Uint8Array>([
@@ -58,7 +58,7 @@ class CircomMembershipWrapperMocks {
     });
 
     td.when(this.configProvider.getConfig()).thenReturn(
-      okAsync({ ipfsFetchBaseUrl: URLString("http://sd/ipfs") }),
+      okAsync({ circuitsIpfsFetchBaseUrl: URLString("http://sd/ipfs") }),
     );
     this.commitment = CircomUtils.getCommitment(
       identityTrapdoor,
