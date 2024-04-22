@@ -65,7 +65,6 @@ export class InsightPlatformSimulator {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
 
-    //Opt In receipt Ok
     const corsOptions = {
       origin: "*",
       methods: ["POST", "GET", "PATCH", "DELETE", "OPTIONS"],
