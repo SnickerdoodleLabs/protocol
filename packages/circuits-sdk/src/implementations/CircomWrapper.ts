@@ -8,6 +8,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { injectable, unmanaged } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import { CircuitSignals, Groth16Proof, PublicSignals, groth16 } from "snarkjs";
 import { urlJoin } from "url-join-ts";
 
@@ -29,7 +30,7 @@ export abstract class CircomWrapper<
     @unmanaged() protected zkeyKey: IpfsCID,
   ) {}
 
-  public preFetch(): ResultAsync<undefined, never> {
+  public preFetch(): ResultAsync<void, AjaxError | CircuitError> {
     return this.circuitsSDKConfig.getConfig().andThen((config) => {
       const wasmUrl = new URL(
         urlJoin(config.circuitsIpfsFetchBaseUrl, this.wasmKey),
@@ -41,31 +42,10 @@ export abstract class CircomWrapper<
       this._wasmResult = this.fetchResource(wasmUrl);
       this._zkeyResult = this.fetchResource(zkeyUrl);
 
-      return okAsync(undefined);
-    });
-  }
-
-  private fetchResource(
-    url: URL,
-  ): ResultAsync<Uint8Array, AjaxError | CircuitError> {
-    return this.ajaxUtils
-      .get<string>(url)
-      .map((data) => {
-        return new Uint8Array(Buffer.from(data, "base64").buffer);
-      })
-      .mapErr(
-        (error) =>
-          new CircuitError(`Error fetching resource from ${url}`, error),
+      return ResultUtils.combine([this._wasmResult, this._zkeyResult]).map(
+        () => {},
       );
-  }
-
-  private getResourceUrl(key: IpfsCID): ResultAsync<URL, CircuitError> {
-    return this.circuitsSDKConfig
-      .getConfig()
-      .map((config) => {
-        return new URL(urlJoin(config.circuitsIpfsFetchBaseUrl, key));
-      })
-      .mapErr((error) => new CircuitError("Error fetching config", error));
+    });
   }
 
   protected get wasmResult(): ResultAsync<
@@ -126,8 +106,8 @@ export abstract class CircomWrapper<
     [Uint8Array, Uint8Array],
     CircuitError
   > {
-    return ResultAsync.combine([this.wasmResult, this.zkeyResult])
-      .mapErr((errors) => {
+    return ResultUtils.combine([this.wasmResult, this.zkeyResult]).mapErr(
+      (errors) => {
         let errorMessage = "Error while loading resources:";
         if (Array.isArray(errors)) {
           if (errors[0] instanceof CircuitError) {
@@ -141,9 +121,30 @@ export abstract class CircomWrapper<
         }
 
         return new CircuitError(errorMessage);
+      },
+    );
+  }
+
+  private fetchResource(
+    url: URL,
+  ): ResultAsync<Uint8Array, AjaxError | CircuitError> {
+    return this.ajaxUtils
+      .get<string>(url)
+      .map((data) => {
+        return new Uint8Array(Buffer.from(data, "base64").buffer);
       })
-      .map(([wasmData, zkeyData]) => {
-        return [wasmData, zkeyData];
-      });
+      .mapErr(
+        (error) =>
+          new CircuitError(`Error fetching resource from ${url}`, error),
+      );
+  }
+
+  private getResourceUrl(key: IpfsCID): ResultAsync<URL, CircuitError> {
+    return this.circuitsSDKConfig
+      .getConfig()
+      .map((config) => {
+        return new URL(urlJoin(config.circuitsIpfsFetchBaseUrl, key));
+      })
+      .mapErr((error) => new CircuitError("Error fetching config", error));
   }
 }

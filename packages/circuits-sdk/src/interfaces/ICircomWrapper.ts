@@ -1,3 +1,4 @@
+import { AjaxError, CircuitError } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface ICircomWrapper {
@@ -8,7 +9,7 @@ export interface ICircomWrapper {
    *
    * This method should be called early in the application's lifecycle
    */
-  preFetch(): ResultAsync<undefined, never>;
+  preFetch(): ResultAsync<void, AjaxError | CircuitError>;
 }
 
 export const ICircomWrapperType = Symbol.for("ICircomWrapper");
