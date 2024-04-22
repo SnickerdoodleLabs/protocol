@@ -1,6 +1,5 @@
 import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
 import { EModalSelectors } from "@extension-onboarding/components/Modals/";
-import LinkAccountModal from "@extension-onboarding/components/Modals/V2/LinkAccountModal";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
@@ -80,6 +79,10 @@ const LazySuietKit = lazy(
 const LazyWalletConnect = lazy(
   () =>
     import("@extension-onboarding/context/AccountLinkingContext/WalletConnect"),
+);
+
+const LazyLinkAccountModal = lazy(
+  () => import("@extension-onboarding/components/Modals/V2/LinkAccountModal"),
 );
 
 interface IAccountLinkingContext {
@@ -285,10 +288,12 @@ export const AccountLinkingContextProvider: FC = memo(({ children }) => {
       }}
     >
       {!!linkAccountModalState && (
-        <LinkAccountModal
-          chainFilters={linkAccountModalState.chainFilters}
-          closeModal={setLinkerModalClose}
-        />
+        <Suspense fallback={null}>
+          <LazyLinkAccountModal
+            chainFilters={linkAccountModalState.chainFilters}
+            closeModal={setLinkerModalClose}
+          />
+        </Suspense>
       )}
       {loadWalletConnect && walletConnectTrigger && (
         <Suspense fallback={null}>
