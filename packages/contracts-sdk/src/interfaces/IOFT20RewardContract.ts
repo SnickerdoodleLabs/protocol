@@ -1,7 +1,7 @@
 import {
   EVMAccountAddress,
   BlockchainCommonErrors,
-  ERC20ContractError,
+  OFT20RewardContractError,
   ERC7529ContractError,
   EVMContractAddress,
   TokenAmount,
@@ -17,33 +17,43 @@ import {
   IRBCContract,
   ContractOverrides,
   WrappedTransactionResponse,
+  IERC20RewardContract,
 } from "@contracts-sdk/interfaces/index.js";
 
-export interface IERC20RewardContract
+export interface IOFT20RewardContract
   extends IBaseContract,
-    IERC7529Contract<ERC20ContractError>,
-    IRBCContract<ERC20ContractError> {
+    IERC7529Contract<OFT20RewardContractError>,
+    IRBCContract<OFT20RewardContractError> {
   /**
    * Returns the name of the ERC20 token
    */
-  name(): ResultAsync<string, ERC20ContractError | BlockchainCommonErrors>;
+  name(): ResultAsync<
+    string,
+    OFT20RewardContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Returns the symbol of the ERC20 token
    */
-  symbol(): ResultAsync<string, ERC20ContractError | BlockchainCommonErrors>;
+  symbol(): ResultAsync<
+    string,
+    OFT20RewardContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Returns the decimals of the ERC20 token
    */
-  decimals(): ResultAsync<number, ERC20ContractError | BlockchainCommonErrors>;
+  decimals(): ResultAsync<
+    number,
+    OFT20RewardContractError | BlockchainCommonErrors
+  >;
 
   /**
    * Returns the total supply of the ERC20 token
    */
   totalSupply(): ResultAsync<
     bigint,
-    ERC20ContractError | BlockchainCommonErrors
+    OFT20RewardContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -52,7 +62,7 @@ export interface IERC20RewardContract
    */
   balanceOf(
     address: EVMAccountAddress | EVMContractAddress,
-  ): ResultAsync<bigint, ERC20ContractError | BlockchainCommonErrors>;
+  ): ResultAsync<bigint, OFT20RewardContractError | BlockchainCommonErrors>;
 
   /**
    * Returns the spending allowance of the EOA / contract address
@@ -62,7 +72,7 @@ export interface IERC20RewardContract
   allowance(
     owner: EVMAccountAddress | EVMContractAddress,
     spender: EVMAccountAddress | EVMContractAddress,
-  ): ResultAsync<bigint, ERC20ContractError | BlockchainCommonErrors>;
+  ): ResultAsync<bigint, OFT20RewardContractError | BlockchainCommonErrors>;
 
   /**
    * Allows caller to approve an amount of tokens for spender to transfer
@@ -75,7 +85,7 @@ export interface IERC20RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
+    BlockchainCommonErrors | OFT20RewardContractError
   >;
 
   /**
@@ -89,7 +99,7 @@ export interface IERC20RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
+    BlockchainCommonErrors | OFT20RewardContractError
   >;
 
   /**
@@ -105,7 +115,7 @@ export interface IERC20RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
+    BlockchainCommonErrors | OFT20RewardContractError
   >;
 
   redeem(
@@ -115,17 +125,19 @@ export interface IERC20RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC20ContractError
+    BlockchainCommonErrors | OFT20RewardContractError
   >;
 
-  filters: IERC20Filters;
+  filters: IOFT20RewardFilters;
 }
 
-export interface IERC20Filters {
+// TODO: Add crossChain function call when feature is needed.
+
+export interface IOFT20RewardFilters {
   Transfer(
     fromAddress: EVMAccountAddress | null,
     toAddress: EVMAccountAddress | null,
   ): ethers.DeferredTopicFilter;
 }
 
-export const IERC20ContractType = Symbol.for("IERC20Contract");
+export const IOFT20RewardContractType = Symbol.for("IOFT20RewardContract");

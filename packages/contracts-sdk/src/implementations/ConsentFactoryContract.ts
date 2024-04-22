@@ -444,11 +444,13 @@ export class ConsentFactoryContract
     ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.computeFee(slot) as Promise<BigNumberString>,
+      this.contract.computeFee(slot) as Promise<bigint>,
       (e) => {
         return this.generateError(e, "Unable to call computeFee()");
       },
-    );
+    ).map((fee) => {
+      return BigNumberString(fee.toString());
+    });
   }
 
   // External function meant to be called by anyone to boot an expired listing

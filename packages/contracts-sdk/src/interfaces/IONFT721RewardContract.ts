@@ -1,5 +1,5 @@
 import {
-  ERC721RewardContractError,
+  ONFT721RewardContractError,
   EVMAccountAddress,
   TokenId,
   TokenUri,
@@ -10,7 +10,7 @@ import {
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
-import { ERewardRoles } from "@contracts-sdk/interfaces/enums";
+import { ERewardRoles } from "@contracts-sdk/interfaces/enums/index.js";
 import {
   IBaseContract,
   IRBCContract,
@@ -21,23 +21,23 @@ import {
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
 
-export interface IERC721RewardContract
+export interface IONFT721RewardContract
   extends IBaseContract,
-    IERC7529Contract<ERC721RewardContractError>,
-    IRBCContract<ERC721RewardContractError> {
+    IERC7529Contract<ONFT721RewardContractError>,
+    IRBCContract<ONFT721RewardContractError> {
   getOwner(): ResultAsync<
     EVMAccountAddress,
-    ERC721RewardContractError | BlockchainCommonErrors
+    ONFT721RewardContractError | BlockchainCommonErrors
   >;
 
   getDefaultAdminRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ERC721RewardContractError | BlockchainCommonErrors
+    ONFT721RewardContractError | BlockchainCommonErrors
   >;
 
   getMinterRoleMembers(): ResultAsync<
     EVMAccountAddress[],
-    ERC721RewardContractError | BlockchainCommonErrors
+    ONFT721RewardContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -46,7 +46,7 @@ export interface IERC721RewardContract
    */
   balanceOf(
     address: EVMAccountAddress,
-  ): ResultAsync<number, ERC721RewardContractError | BlockchainCommonErrors>;
+  ): ResultAsync<number, ONFT721RewardContractError | BlockchainCommonErrors>;
 
   /**
    * Returns the owner account for a token Id
@@ -56,7 +56,7 @@ export interface IERC721RewardContract
     tokenId: TokenId,
   ): ResultAsync<
     EVMAccountAddress,
-    ERC721RewardContractError | BlockchainCommonErrors
+    ONFT721RewardContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -67,7 +67,7 @@ export interface IERC721RewardContract
     tokenId: TokenId,
   ): ResultAsync<
     TokenUri | null,
-    ERC721RewardContractError | BlockchainCommonErrors
+    ONFT721RewardContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -75,7 +75,7 @@ export interface IERC721RewardContract
    */
   baseURI(): ResultAsync<
     BaseURI,
-    ERC721RewardContractError | BlockchainCommonErrors
+    ONFT721RewardContractError | BlockchainCommonErrors
   >;
 
   /**
@@ -87,10 +87,10 @@ export interface IERC721RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC721RewardContractError
+    BlockchainCommonErrors | ONFT721RewardContractError
   >;
 
-  filters: IERC721Filters;
+  filters: IONFT721Filters;
 
   /**
    * Returns if operatorToApprove is approved to transfer tokens that belong to tokenOwnerAddress
@@ -98,7 +98,7 @@ export interface IERC721RewardContract
   isApprovedForAll(
     tokenOwnerAddress: EVMAccountAddress,
     operatorToApprove: EVMAccountAddress,
-  ): ResultAsync<boolean, ERC721RewardContractError | BlockchainCommonErrors>;
+  ): ResultAsync<boolean, ONFT721RewardContractError | BlockchainCommonErrors>;
 
   /**
    * Allows the token owner to approve the escrow wallet to transfer all token ids he owns on this rewards contract
@@ -110,7 +110,7 @@ export interface IERC721RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC721RewardContractError
+    BlockchainCommonErrors | ONFT721RewardContractError
   >;
 
   /**
@@ -123,15 +123,15 @@ export interface IERC721RewardContract
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | ERC721RewardContractError
+    BlockchainCommonErrors | ONFT721RewardContractError
   >;
 }
 
-export interface IERC721Filters {
+export interface IONFT721Filters {
   Transfer(
     fromAddress: EVMAccountAddress | null,
     toAddress: EVMAccountAddress | null,
   ): ethers.DeferredTopicFilter;
 }
 
-export const IERC721RewardContractType = Symbol.for("IERC721RewardContract");
+export const IONFT721RewardContractType = Symbol.for("IONFT721RewardContract");
