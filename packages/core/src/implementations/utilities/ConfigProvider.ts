@@ -186,6 +186,7 @@ export class ConfigProvider
       60 * 60 * 6, // maxStatsRetentionSeconds 6 hours
       LanguageCode("en"), // passwordLanguageCode
       100, // sets the size for query performance events, e.g. how many errors and durations will be stored, main metric object will not be effected
+      URLString("https://ipfs-gateway.snickerdoodle.com/ipfs/"),
     );
   }
 
@@ -233,6 +234,8 @@ export class ConfigProvider
     // The rest of the config is easier
     this.config.ipfsFetchBaseUrl =
       overrides.ipfsFetchBaseUrl ?? this.config.ipfsFetchBaseUrl;
+    this.config.circuitsIpfsFetchBaseUrl =
+      overrides.ipfsFetchBaseUrl ?? this.config.circuitsIpfsFetchBaseUrl;
     this.config.defaultInsightPlatformBaseUrl =
       overrides.defaultInsightPlatformBaseUrl ??
       this.config.defaultInsightPlatformBaseUrl;
