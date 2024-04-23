@@ -25,6 +25,7 @@
     "!src",
     "!tsconfig.json"
   ],
+  "sideEffects": false,
   "scripts": {
     "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
     "alias-with-copyfiles": "yarn copy-files && tsc-alias",

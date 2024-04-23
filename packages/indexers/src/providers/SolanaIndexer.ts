@@ -1,4 +1,3 @@
-import { Metaplex } from "@metaplex-foundation/js";
 import {
   ILogUtils,
   ILogUtilsType,
@@ -33,7 +32,6 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
   Connection,
   PublicKey,
-  LAMPORTS_PER_SOL,
   GetProgramAccountsFilter,
   AccountInfo,
   ParsedAccountData,
@@ -135,10 +133,12 @@ export class SolanaIndexer implements ISolanaIndexer {
     if (connection == null) {
       return okAsync([]);
     }
-    const [conn, metaplex] = connection;
-    return this.contextProvider
-      .getContext()
-      .andThen((context) => {
+
+    return ResultUtils.combine([
+      this.contextProvider.getContext(),
+      this._getMetaplexInstance(connection),
+    ])
+      .andThen(([context, metaplex]) => {
         context.privateEvents.onApiAccessed.next(EExternalApi.Solana);
         return ResultAsync.fromPromise(
           metaplex
@@ -258,7 +258,6 @@ export class SolanaIndexer implements ISolanaIndexer {
         ),
       );
     }
-    const [conn] = connection;
 
     return ResultUtils.combine([
       this._getFilters(accountAddress),
@@ -266,12 +265,15 @@ export class SolanaIndexer implements ISolanaIndexer {
     ])
       .andThen(([_filters, context]) => {
         context.privateEvents.onApiAccessed.next(EExternalApi.Solana);
-        return ResultAsync.fromPromise(conn.getBalance(publicKey), (e) => {
-          return new AccountIndexingError(
-            "Error getting Solana native balance",
-            e,
-          );
-        });
+        return ResultAsync.fromPromise(
+          connection.getBalance(publicKey),
+          (e) => {
+            return new AccountIndexingError(
+              "Error getting Solana native balance",
+              e,
+            );
+          },
+        );
       })
       .map((balance) => {
         const nativeBalance = new TokenBalance(
@@ -287,9 +289,7 @@ export class SolanaIndexer implements ISolanaIndexer {
       });
   }
 
-  private _getConnectionForChainId(
-    chain: EChain,
-  ): [Connection, Metaplex] | null {
+  private _getConnectionForChainId(chain: EChain): Connection | null {
     if (chain === EChain.Solana && this.solanaApiKey != null) {
       const mainnet = URLString(
         "https://solana-mainnet.g.alchemy.com/v2/" + this.solanaApiKey,
@@ -308,10 +308,10 @@ export class SolanaIndexer implements ISolanaIndexer {
     }
   }
 
-  private _getConnectionForEndpoint(endpoint: string): [Connection, Metaplex] {
+  private _getConnectionForEndpoint(endpoint: string): Connection {
     const connection = new Connection(endpoint);
-    const metaplex = new Metaplex(connection);
-    return [connection, metaplex];
+
+    return connection;
   }
 
   private _getParsedAccounts(
@@ -325,7 +325,6 @@ export class SolanaIndexer implements ISolanaIndexer {
     if (connection == null) {
       return okAsync([]);
     }
-    const [conn] = connection;
     return ResultUtils.combine([
       this._getFilters(accountAddress),
       this.contextProvider.getContext(),
@@ -333,7 +332,7 @@ export class SolanaIndexer implements ISolanaIndexer {
       .andThen(([filters, context]) => {
         context.privateEvents.onApiAccessed.next(EExternalApi.Solana);
         return ResultAsync.fromPromise(
-          conn.getParsedProgramAccounts(TOKEN_PROGRAM_ID, {
+          connection.getParsedProgramAccounts(TOKEN_PROGRAM_ID, {
             filters: filters,
           }),
           (e) => {
@@ -363,40 +362,17 @@ export class SolanaIndexer implements ISolanaIndexer {
     ];
     return okAsync(filters);
   }
-  private _lamportsToSol(lamports: number): BigNumberString {
-    return BigNumberString((lamports / LAMPORTS_PER_SOL).toString());
-  }
-}
-interface ISolClients {
-  mainnet: [Connection, Metaplex];
-  testnet: [Connection, Metaplex];
-}
 
-type ISolscanBalanceResponse = {
-  tokenAddress: SolanaTokenAddress;
-  tokenAmount: {
-    amount: BigNumberString;
-    decimals: number;
-    uiAmount: number;
-    uiAmountString: BigNumberString;
-  };
-  tokenAccount: string;
-  tokenName: string;
-  tokenIcon: URLString;
-  rentEpoch: number;
-  lamports: number;
-}[];
-type IAlchemyBalanceResponse = {
-  id: number;
-  jsonrpc: string;
-  result: {
-    context: {
-      slot: number;
-    };
-    value: {
-      amount: string;
-      decimals: number;
-      uiAmountString: string;
-    };
-  };
-};
+  // #region lazy import
+  private _getMetaplexInstance(connection: Connection) {
+    return ResultAsync.fromPromise(
+      import("@metaplex-foundation/js").then((module) => module.Metaplex),
+      (e) => {
+        return new AccountIndexingError("Error importing metaplex", e);
+      },
+    ).map((cls) => {
+      return new cls(connection);
+    });
+  }
+  // #endregion
+}

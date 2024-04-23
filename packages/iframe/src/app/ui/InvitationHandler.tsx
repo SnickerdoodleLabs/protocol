@@ -9,7 +9,6 @@ import {
 } from "@core-iframe/interfaces/objects/IFrameEvents";
 import { Theme, ThemeProvider } from "@material-ui/core/styles";
 import {
-  DataPermissions,
   EChain,
   EVMAccountAddress,
   EVMContractAddress,
@@ -22,21 +21,17 @@ import {
   IpfsCID,
   LinkedAccount,
   NewQuestionnaireAnswer,
-  PagingRequest,
   QueryStatus,
   Questionnaire,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
-  ConsentModal,
   EColorMode,
-  ModalContainer,
   createDefaultTheme,
   createThemeWithOverrides,
 } from "@snickerdoodlelabs/shared-components";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { ChildAPI } from "postmate";
 import React, {
   useMemo,
   useState,
@@ -44,8 +39,22 @@ import React, {
   FC,
   useRef,
   useCallback,
+  lazy,
+  Suspense,
 } from "react";
 import { Subscription } from "rxjs";
+
+const LazyModalContainer = lazy(() =>
+  import("@snickerdoodlelabs/shared-components").then((module) => ({
+    default: module.ModalContainer,
+  })),
+);
+
+const LazyConsentModal = lazy(() =>
+  import("@snickerdoodlelabs/shared-components").then((module) => ({
+    default: module.ConsentModal,
+  })),
+);
 
 interface IInvitationHandlerProps {
   core: ISnickerdoodleCore;
@@ -411,50 +420,52 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
           return null;
         case EAPP_STATE.INVITATION_PREVIEW:
           return (
-            <ConsentModal
-              onClose={clearInvitation}
-              key={currentInvitation.data.invitation.consentContractAddress}
-              open={true}
-              onOptinClicked={optIn}
-              consentContractAddress={
-                currentInvitation.data.invitation.consentContractAddress
-              }
-              invitationData={currentInvitation.data.metadata}
-              answerQuestionnaire={(
-                id: IpfsCID,
-                answers: NewQuestionnaireAnswer[],
-              ) => {
-                return core.questionnaire.answerQuestionnaire(
-                  id,
-                  answers,
-                  undefined,
-                );
-              }}
-              onRejectClick={() => {
-                rejectInvitation(false);
-              }}
-              onRejectWithTimestampClick={() => {
-                rejectInvitation(true);
-              }}
-              displayRejectButtons={[
-                EInvitationSourceType.CONSENT_ADDRESS,
-                EInvitationSourceType.DOMAIN,
-              ].includes(currentInvitation.type)}
-              getQueryStatuses={function (
-                contractAddress: EVMContractAddress,
-              ): ResultAsync<QueryStatus[], unknown> {
-                return core.getQueryStatusesByContractAddress(
-                  contractAddress,
-                  undefined,
-                );
-              }}
-              evmAccounts={evmAccounts!}
-              getQuestionnairesByCids={function (
-                cids: IpfsCID[],
-              ): ResultAsync<Questionnaire[], unknown> {
-                return core.questionnaire.getByCIDs(cids, undefined);
-              }}
-            />
+            <Suspense fallback={null}>
+              <LazyConsentModal
+                onClose={clearInvitation}
+                key={currentInvitation.data.invitation.consentContractAddress}
+                open={true}
+                onOptinClicked={optIn}
+                consentContractAddress={
+                  currentInvitation.data.invitation.consentContractAddress
+                }
+                invitationData={currentInvitation.data.metadata}
+                answerQuestionnaire={(
+                  id: IpfsCID,
+                  answers: NewQuestionnaireAnswer[],
+                ) => {
+                  return core.questionnaire.answerQuestionnaire(
+                    id,
+                    answers,
+                    undefined,
+                  );
+                }}
+                onRejectClick={() => {
+                  rejectInvitation(false);
+                }}
+                onRejectWithTimestampClick={() => {
+                  rejectInvitation(true);
+                }}
+                displayRejectButtons={[
+                  EInvitationSourceType.CONSENT_ADDRESS,
+                  EInvitationSourceType.DOMAIN,
+                ].includes(currentInvitation.type)}
+                getQueryStatuses={function (
+                  contractAddress: EVMContractAddress,
+                ): ResultAsync<QueryStatus[], unknown> {
+                  return core.getQueryStatusesByContractAddress(
+                    contractAddress,
+                    undefined,
+                  );
+                }}
+                evmAccounts={evmAccounts!}
+                getQuestionnairesByCids={function (
+                  cids: IpfsCID[],
+                ): ResultAsync<Questionnaire[], unknown> {
+                  return core.questionnaire.getByCIDs(cids, undefined);
+                }}
+              />
+            </Suspense>
           );
         default:
           return null;
@@ -470,7 +481,13 @@ export const InvitationHandler: FC<IInvitationHandlerProps> = ({
 
   return (
     <ThemeProvider theme={theme}>
-      <>{component && <ModalContainer>{component}</ModalContainer>}</>
+      <>
+        {component && (
+          <Suspense fallback={null}>
+            <LazyModalContainer>{component}</LazyModalContainer>
+          </Suspense>
+        )}
+      </>
     </ThemeProvider>
   );
 };
