@@ -212,7 +212,7 @@ export class ConsentFactoryContract
     return this.getTagTotal(tag, stakingToken).andThen((tagTotal) => {
       // The max slot
       const highestRankListingSlot = BigNumberString(
-        ethers.MaxUint256.toString(), //TODO SEAN: suspect here is the issue
+        ethers.MaxUint256.toString(),
       );
 
       // Fetch from the highest to lowest listings
