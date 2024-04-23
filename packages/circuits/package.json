@@ -56,6 +56,7 @@
   },
   "type": "module",
   "types": "dist/index.d.ts",
+  "sideEffects": false,
   "dependencies": {
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",

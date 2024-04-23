@@ -3,22 +3,29 @@ import {
   ICircomSemaphoreInputs,
   ICircomSemaphoreVerificationInputs,
   factoryCircomSemaphoreVerificationInputs,
-  semaphoreCode,
   semaphoreVerificationKey,
-  semaphoreZKey,
 } from "@snickerdoodlelabs/circuits";
+import {
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   Commitment,
   ZKProof,
   CircuitError,
   NullifierBNS,
   TrapdoorBNS,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { LeanIMT } from "@zk-kit/imt";
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { poseidon2 } from "poseidon-lite";
 
+import {
+  ICircuitsSDKConfigProvider,
+  ICircuitsSDKConfigProviderype,
+} from "@circuits-sdk/ICircuitsSDKConfigProvider.js";
 import { CircomWrapper } from "@circuits-sdk/implementations/CircomWrapper.js";
 import { IMembershipWrapper } from "@circuits-sdk/interfaces/index.js";
 
@@ -30,8 +37,20 @@ export class CircomMembershipWrapper
   >
   implements IMembershipWrapper
 {
-  public constructor() {
-    super(semaphoreCode, semaphoreZKey, semaphoreVerificationKey);
+  public constructor(
+    @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ICircuitsSDKConfigProviderype)
+    protected circutsSDKConfig: ICircuitsSDKConfigProvider,
+  ) {
+    super(
+      ajaxUtils,
+      circutsSDKConfig,
+      semaphoreVerificationKey,
+      //semaphore wasm code
+      IpfsCID("QmUSxnC3YNkH92HNkzqYxAWV2T8uioe2Uxm4Zfa7NbJNHs"),
+      //semaphore zkey wasm
+      IpfsCID("QmUk9mbuHQEir1uWMGweLdTVhGNVpxf4KrnkGj9Xwnhfbc"),
+    );
   }
 
   public MAX_DEPTH = 16;

@@ -103,7 +103,6 @@ export class DataWalletProfile {
               console.log(
                 `Recieved query for consentContract ${queryRequest.consentContractAddress} with id ${queryRequest.queryCID}`,
               );
-
               try {
                 await new ApproveQuery(env, queryRequest).start();
               } catch (e) {
