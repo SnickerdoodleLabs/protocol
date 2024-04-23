@@ -1,4 +1,3 @@
-import Router from "@extension-onboarding/containers/Router";
 import { AccountLinkingContextProvider } from "@extension-onboarding/context/AccountLinkingContext";
 import { AnalyticsContextProvider } from "@extension-onboarding/context/AnalyticsContext";
 import { AppContextProvider } from "@extension-onboarding/context/App";
@@ -6,9 +5,13 @@ import { DataWalletContextProvider } from "@extension-onboarding/context/DataWal
 import { LayoutProvider } from "@extension-onboarding/context/LayoutContext";
 import { NotificationContextProvider } from "@extension-onboarding/context/NotificationContext";
 import { ThemeContextProvider } from "@extension-onboarding/context/ThemeContext";
-import WalletKits from "@extension-onboarding/context/WalletKits";
 import { ISdlDataWallet } from "@snickerdoodlelabs/objects";
-import React from "react";
+import React, { Suspense, lazy } from "react";
+import Loading from "@extension-onboarding/setupScreens/Loading";
+
+const LazyRouter = lazy(
+  () => import("@extension-onboarding/containers/Router"),
+);
 
 interface IMainContainerProps {
   proxy?: ISdlDataWallet;
@@ -22,11 +25,11 @@ const MainContainer: React.FC<IMainContainerProps> = ({ proxy }) => {
           <NotificationContextProvider>
             <AppContextProvider>
               <LayoutProvider>
-                <WalletKits>
-                  <AccountLinkingContextProvider>
-                    <Router />
-                  </AccountLinkingContextProvider>
-                </WalletKits>
+                <AccountLinkingContextProvider>
+                  <Suspense fallback={<Loading />}>
+                    <LazyRouter />
+                  </Suspense>
+                </AccountLinkingContextProvider>
               </LayoutProvider>
             </AppContextProvider>
           </NotificationContextProvider>

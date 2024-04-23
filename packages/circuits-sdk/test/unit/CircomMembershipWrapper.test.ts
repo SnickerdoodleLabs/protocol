@@ -1,13 +1,26 @@
-import { CircomUtils } from "@snickerdoodlelabs/circuits";
+import "reflect-metadata";
+
 import {
-  BigNumberString,
+  CircomUtils,
+  commitmentCode,
+  commitmentZKey,
+  semaphoreCode,
+  semaphoreZKey,
+} from "@snickerdoodlelabs/circuits";
+import { IAxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  AjaxError,
   Commitment,
   IpfsCID,
   NullifierBNS,
   TrapdoorBNS,
+  URLString,
 } from "@snickerdoodlelabs/objects";
+import { errAsync, okAsync } from "neverthrow";
+import * as td from "testdouble";
 
-import { CircomMembershipWrapper } from "@circuits-sdk/implementations/circom/CircomMembershipWrapper.js";
+import { ICircuitsSDKConfigProvider } from "@circuits-sdk/ICircuitsSDKConfigProvider.js";
+import { CircomMembershipWrapper } from "@circuits-sdk/implementations/CircomMembershipWrapper.js";
 
 const signal = "Phoebe";
 const identityTrapdoor = TrapdoorBNS(1234567890n.toString());
@@ -22,8 +35,33 @@ class CircomMembershipWrapperMocks {
   public anonymitySet: Commitment[];
   public commitment: Commitment;
   public signalNullifier: NullifierBNS;
+  public ajaxUtils: IAxiosAjaxUtils;
+  public configProvider: ICircuitsSDKConfigProvider;
 
   public constructor(protected anonymitySetSize = 5) {
+    this.ajaxUtils = td.object<IAxiosAjaxUtils>();
+    this.configProvider = td.object<ICircuitsSDKConfigProvider>();
+
+    td.when(this.ajaxUtils.get(td.matchers.anything())).thenDo((url: URL) => {
+      const mockData = new Map<string, Uint8Array>([
+        ["QmT5avnPx18LMdbzbHgVHJrkzUgwt7sFMoqhEHYBukF6eP", commitmentCode],
+        ["QmesxcQYvng3crv34r557WiFTdnvGH3uzvxVRCcaftZWxa", commitmentZKey],
+        ["QmUSxnC3YNkH92HNkzqYxAWV2T8uioe2Uxm4Zfa7NbJNHs", semaphoreCode],
+        ["QmUk9mbuHQEir1uWMGweLdTVhGNVpxf4KrnkGj9Xwnhfbc", semaphoreZKey],
+      ]);
+
+      const key = url.pathname.split("/").pop();
+      if (key != null) {
+        return okAsync(mockData.get(key));
+      }
+      return errAsync(
+        new AjaxError("Invalid hash at CircomMembershipWrapper tests", 500),
+      );
+    });
+
+    td.when(this.configProvider.getConfig()).thenReturn(
+      okAsync({ circuitsIpfsFetchBaseUrl: URLString("http://sd/ipfs") }),
+    );
     this.commitment = CircomUtils.getCommitment(
       identityTrapdoor,
       identityNullifier,
@@ -45,6 +83,10 @@ class CircomMembershipWrapperMocks {
       NullifierBNS(randomBigInt().toString()),
     );
   }
+
+  public factory(): CircomMembershipWrapper {
+    return new CircomMembershipWrapper(this.ajaxUtils, this.configProvider);
+  }
 }
 
 describe("CircomMembershipWrapper tests", () => {
@@ -58,7 +100,7 @@ describe("CircomMembershipWrapper tests", () => {
   test("Generates Proof, anonymity set does not include identity", async () => {
     // Arrange
     const mocks = new CircomMembershipWrapperMocks();
-    const membership = new CircomMembershipWrapper();
+    const membership = mocks.factory();
 
     // Act
     const proofResult = await membership.prove(
@@ -77,7 +119,7 @@ describe("CircomMembershipWrapper tests", () => {
   test("Generates Proof, anonymity set does include identity", async () => {
     // Arrange
     const mocks = new CircomMembershipWrapperMocks();
-    const membership = new CircomMembershipWrapper();
+    const membership = mocks.factory();
 
     mocks.anonymitySet.push(mocks.commitment);
 
@@ -98,7 +140,7 @@ describe("CircomMembershipWrapper tests", () => {
   test("Proof Validates", async () => {
     // Arrange
     const mocks = new CircomMembershipWrapperMocks();
-    const membership = new CircomMembershipWrapper();
+    const membership = mocks.factory();
 
     // Act
     const result = await membership
