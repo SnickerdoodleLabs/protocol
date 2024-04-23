@@ -1,4 +1,6 @@
-import "reflect-metadata";
+import { WebIntegrationConfigProvider } from "@extension-onboarding/services/implementations/utilities";
+import { ISdlDataWalletProxy } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import Loading from "@extension-onboarding/setupScreens/Loading";
 import { ECoreProxyType, ISdlDataWallet } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
 import React, {
@@ -9,13 +11,16 @@ import React, {
   useState,
   useMemo,
   useCallback,
+  lazy,
+  Suspense,
 } from "react";
 
-import { WebIntegrationConfigProvider } from "@extension-onboarding/services/implementations/utilities";
-import { ISdlDataWalletProxy } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import InstallationRequired from "@extension-onboarding/setupScreens/InstallationRequired";
-import Loading from "@extension-onboarding/setupScreens/Loading";
-import ProviderSelector from "@extension-onboarding/setupScreens/ProviderSelector";
+const LazyInstallationRequired = lazy(
+  () => import("@extension-onboarding/setupScreens/InstallationRequired"),
+);
+const LazyProviderSelector = lazy(
+  () => import("@extension-onboarding/setupScreens/ProviderSelector"),
+);
 
 interface IDataWalletContext {
   sdlDataWallet: ISdlDataWallet;
@@ -100,14 +105,20 @@ export const DataWalletContextProvider: FC<IDataWalletContextProviderProps> = ({
         return <Loading />;
       case ESetupStatus.WAITING_PROVIDER_SELECTION:
         return (
-          <ProviderSelector
-            onProviderSelect={(provider) => {
-              setSdlDataWallet(provider);
-            }}
-          />
+          <Suspense fallback={<Loading />}>
+            <LazyProviderSelector
+              onProviderSelect={(provider) => {
+                setSdlDataWallet(provider);
+              }}
+            />
+          </Suspense>
         );
       case ESetupStatus.FAILED:
-        return <InstallationRequired />;
+        return (
+          <Suspense fallback={<Loading />}>
+            <LazyInstallationRequired />
+          </Suspense>
+        );
       case ESetupStatus.SUCCESS:
         return children;
       default:

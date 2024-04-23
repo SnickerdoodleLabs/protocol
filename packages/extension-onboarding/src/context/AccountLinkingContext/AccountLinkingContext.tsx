@@ -1,6 +1,5 @@
 import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
 import { EModalSelectors } from "@extension-onboarding/components/Modals/";
-import LinkAccountModal from "@extension-onboarding/components/Modals/V2/LinkAccountModal";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
@@ -22,13 +21,9 @@ import {
   defaultLanguageCode,
   EChain,
   ESocialType,
-  AccountAddress,
-  Signature,
   ECoreProxyType,
   EChainTechnology,
 } from "@snickerdoodlelabs/objects";
-import { ConnectModal, useWallet } from "@suiet/wallet-kit";
-import { useWeb3Modal } from "@web3modal/wagmi/react";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, {
@@ -40,8 +35,9 @@ import React, {
   useMemo,
   useState,
   memo,
+  lazy,
+  Suspense,
 } from "react";
-import { useAccount, useDisconnect, useSignMessage, useConnect } from "wagmi";
 
 export enum EWalletProviderKit {
   SUI = "SUI",
@@ -76,6 +72,19 @@ const WalletKitProviderList: IWalletProviderKit[] = [
   },
 ];
 
+const LazySuietKit = lazy(
+  () => import("@extension-onboarding/context/AccountLinkingContext/SuietKit"),
+);
+
+const LazyWalletConnect = lazy(
+  () =>
+    import("@extension-onboarding/context/AccountLinkingContext/WalletConnect"),
+);
+
+const LazyLinkAccountModal = lazy(
+  () => import("@extension-onboarding/components/Modals/V2/LinkAccountModal"),
+);
+
 interface IAccountLinkingContext {
   detectedProviders: IProvider[];
   unDetectedProviders: IProvider[];
@@ -102,52 +111,13 @@ export const AccountLinkingContextProvider: FC = memo(({ children }) => {
     socialMediaProviderList,
   } = useAppContext();
   const { setModal, setLoadingStatus } = useLayoutContext();
-  const [isSuiOpen, setIsSuiOpen] = useState(false);
-  const suiWallet = useWallet();
-
-  const { open } = useWeb3Modal();
-
-  const { address } = useAccount();
-  const { disconnect } = useDisconnect();
-  const { data, signMessage, reset, isError } = useSignMessage();
-
   const isMobile = useIsMobile();
+  const [loadSuietKit, setLoadSuietKit] = useState(false);
+  const [loadWalletConnect, setLoadWalletConnect] = useState(false);
+  const [isSuiOpen, setIsSuiOpen] = useState(false);
+  const [walletConnectTrigger, setWalletConnectTrigger] = useState<number>(0);
 
-  useEffect(() => {
-    if (address && data) {
-      setLoadingStatus(true, {
-        type: ELoadingIndicatorType.COMPONENT,
-        component: <AccountLinkingIndicator />,
-      });
-      sdlDataWallet.account
-        .addAccount(
-          address as AccountAddress,
-          Signature(data),
-          defaultLanguageCode,
-          EChain.EthereumMainnet,
-        )
-        .mapErr((e) => {
-          reset();
-          disconnect();
-          console.log("error adding account", e);
-          setLoadingStatus(false);
-        })
-        .map(() => {
-          reset();
-          disconnect();
-        });
-    }
-  }, [address, data]);
-
-  useEffect(() => {
-    if (isError) {
-      reset();
-      disconnect();
-      setLoadingStatus(false);
-    }
-  }, [isError]);
-
-  const openWarningModal = () => {
+  const openWarningModal = useCallback(() => {
     setModal({
       modalSelector: EModalSelectors.CONFIRMATION_MODAL,
       onPrimaryButtonClick: () => {},
@@ -158,36 +128,18 @@ export const AccountLinkingContextProvider: FC = memo(({ children }) => {
         showCancelButton: false,
       },
     });
-  };
+  }, [setModal]);
 
-  useEffect(() => {
-    if (address) {
-      if (
-        linkedAccounts.find(
-          (linkedAccount) =>
-            linkedAccount.sourceAccountAddress === address.toLowerCase(),
-        )
-      ) {
-        disconnect();
-        return openWarningModal();
-      }
+  const startLoadingIndicator = useCallback(() => {
+    setLoadingStatus(true, {
+      type: ELoadingIndicatorType.COMPONENT,
+      component: <AccountLinkingIndicator />,
+    });
+  }, [setLoadingStatus]);
 
-      sdlDataWallet.account
-        .getLinkAccountMessage(defaultLanguageCode)
-        .map((message) => {
-          signMessage({ message });
-        })
-        .mapErr((e) => {
-          console.log("error signing message", e);
-        });
-    }
-  }, [address]);
-
-  useEffect(() => {
-    if (suiWallet.connected) {
-      handleSuiWalletConnect();
-    }
-  }, [suiWallet.connected]);
+  const endLoadingIndicator = useCallback(() => {
+    setLoadingStatus(false);
+  }, [setLoadingStatus]);
 
   const { detectedProviders, unDetectedProviders } = useMemo(() => {
     if (isMobile) {
@@ -258,61 +210,6 @@ export const AccountLinkingContextProvider: FC = memo(({ children }) => {
       : EChain.EthereumMainnet;
   };
 
-  const handleSuiWalletConnect = useCallback(() => {
-    if (suiWallet.connected) {
-      if (
-        linkedAccounts?.find(
-          (linkedAccount) =>
-            linkedAccount.sourceAccountAddress ===
-            (suiWallet.account?.address || ""),
-        )
-      ) {
-        setIsSuiOpen(false);
-        suiWallet.disconnect();
-        return openWarningModal();
-      }
-      return sdlDataWallet.account
-        .getLinkAccountMessage(defaultLanguageCode)
-        .andThen((message) => {
-          return ResultAsync.fromPromise(
-            suiWallet.signMessage({
-              message: new TextEncoder().encode(message),
-            }),
-            () => new Error("Error signing message"),
-          ).andThen((signature) => {
-            setLoadingStatus(true, {
-              type: ELoadingIndicatorType.COMPONENT,
-              component: <AccountLinkingIndicator />,
-            });
-            return sdlDataWallet.account
-              .addAccount(
-                (suiWallet.account?.address || "") as AccountAddress,
-                signature.signature as Signature,
-                defaultLanguageCode,
-                EChain.Sui,
-              )
-              .mapErr((e) => {
-                console.error(e);
-                setLoadingStatus(false);
-              })
-              .map(() => {
-                setIsSuiOpen(false);
-                setLoadingStatus(false);
-              });
-          });
-        })
-        .mapErr(() => {
-          setIsSuiOpen(false);
-
-          suiWallet.disconnect();
-        })
-        .map(() => {
-          suiWallet.disconnect();
-        });
-    }
-    return;
-  }, [suiWallet, linkedAccounts]);
-
   const onProviderConnectClick = useCallback(
     (providerObj: IProvider) => {
       return ResultUtils.combine([
@@ -352,14 +249,31 @@ export const AccountLinkingContextProvider: FC = memo(({ children }) => {
     [linkedAccounts],
   );
 
-  const onWalletKitConnectClick = (walletKit: EWalletProviderKit) => {
-    if (walletKit === EWalletProviderKit.SUI) {
-      setIsSuiOpen(true);
-    }
-    if (walletKit === EWalletProviderKit.WEB3_MODAL) {
-      open({ view: "Connect" });
-    }
-  };
+  const onWalletKitConnectClick = useCallback(
+    (walletKit: EWalletProviderKit) => {
+      if (walletKit === EWalletProviderKit.SUI) {
+        if (!loadSuietKit) {
+          setLoadSuietKit(true);
+        }
+        setIsSuiOpen(true);
+      }
+      if (walletKit === EWalletProviderKit.WEB3_MODAL) {
+        if (!loadWalletConnect) {
+          setLoadWalletConnect(true);
+        }
+        setWalletConnectTrigger((prev) => prev + 1);
+      }
+    },
+    [
+      loadSuietKit,
+      loadWalletConnect,
+      setLoadSuietKit,
+      setLoadWalletConnect,
+      setIsSuiOpen,
+      walletConnectTrigger,
+      setWalletConnectTrigger,
+    ],
+  );
 
   return (
     <AccountLinkingContext.Provider
@@ -374,25 +288,39 @@ export const AccountLinkingContextProvider: FC = memo(({ children }) => {
       }}
     >
       {!!linkAccountModalState && (
-        <LinkAccountModal
-          chainFilters={linkAccountModalState.chainFilters}
-          closeModal={setLinkerModalClose}
-        />
+        <Suspense fallback={null}>
+          <LazyLinkAccountModal
+            chainFilters={linkAccountModalState.chainFilters}
+            closeModal={setLinkerModalClose}
+          />
+        </Suspense>
       )}
-      <ConnectModal
-        onOpenChange={() => {
-          setIsSuiOpen(false);
-        }}
-        open={isSuiOpen}
-      />
+      {loadWalletConnect && walletConnectTrigger && (
+        <Suspense fallback={null}>
+          <LazyWalletConnect
+            triggerConnect={walletConnectTrigger}
+            openWarningModal={openWarningModal}
+            startLoadingIndicator={startLoadingIndicator}
+            endLoadingIndicator={endLoadingIndicator}
+          />
+        </Suspense>
+      )}
+      {loadSuietKit && (
+        <Suspense fallback={null}>
+          <LazySuietKit
+            openWarningModal={openWarningModal}
+            isSuiOpen={isSuiOpen}
+            startLoadingIndicator={startLoadingIndicator}
+            endLoadingIndicator={endLoadingIndicator}
+            closeSui={() => {
+              setIsSuiOpen(false);
+            }}
+          />
+        </Suspense>
+      )}
       {children}
     </AccountLinkingContext.Provider>
   );
 });
 
 export const useAccountLinkingContext = () => useContext(AccountLinkingContext);
-
-export interface ISuiCredentials {
-  messageBytes: string;
-  publicKey: Uint8Array | undefined;
-}
