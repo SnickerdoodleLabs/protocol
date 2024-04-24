@@ -2,10 +2,8 @@ import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import {
   MetamaskWalletProvider,
   PhantomWalletProvider,
-  WalletConnectProvider,
   CoinbaseWalletProvider,
 } from "@extension-onboarding/services/blockChainWalletProviders/connectors";
-import { ConfigProvider } from "@extension-onboarding/services/blockChainWalletProviders/implementations/utilities";
 import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
 import { EChainTechnology } from "@snickerdoodlelabs/objects";
 
@@ -17,9 +15,6 @@ export interface IProvider {
   chainTech: EChainTechnology;
   installationUrl: string;
 }
-
-const configProvider = new ConfigProvider();
-const config = configProvider.getConfig();
 
 export const getProviderList = (): IProvider[] => {
   return [

@@ -5,7 +5,6 @@
     "rootDir": "./src",
     "baseUrl": "./src",
     "jsx": "react",
-    "target": "es5",
     "module": "ESNext",
     "lib": [
       "es5",
@@ -26,16 +25,7 @@
       "path": "../common-utils"
     },
     {
-      "path": "../contracts-sdk"
-    },
-    {
-      "path": "../node-utils"
-    },
-    {
       "path": "../objects"
-    },
-    {
-      "path": "../signatureVerification"
     },
     {
       "path": "../shared-components"

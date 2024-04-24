@@ -5,6 +5,13 @@
  * of SnickerdoodleCore.
  */
 import {
+  ICommitmentWrapper,
+  ICommitmentWrapperType,
+  IMembershipWrapper,
+  IMembershipWrapperType,
+} from "@snickerdoodlelabs/circuits-sdk";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
   IMasterIndexer,
   IMasterIndexerType,
   indexersModule,
@@ -907,6 +914,16 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       ISocialMediaPollerType,
     );
 
+    const membershipWrapper = this.iocContainer.get<IMembershipWrapper>(
+      IMembershipWrapperType,
+    );
+
+    const commitmentWrapper = this.iocContainer.get<ICommitmentWrapper>(
+      ICommitmentWrapperType,
+    );
+
+    const logUtils = this.iocContainer.get<ILogUtils>(ILogUtilsType);
+
     const heartbeatGenerator = this.iocContainer.get<IHeartbeatGenerator>(
       IHeartbeatGeneratorType,
     );
@@ -942,7 +959,21 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         // Now the actual initialization!
         return accountService.initialize();
       })
-      .map(() => {});
+      .map(() => {
+        membershipWrapper.preFetch().mapErr((e) => {
+          logUtils.error(
+            `Encountered error while fetching membership wasms`,
+            e,
+          );
+        });
+
+        commitmentWrapper.preFetch().mapErr((e) => {
+          logUtils.error(
+            `Encountered error while fetching commitments wasm`,
+            e,
+          );
+        });
+      });
   }
 
   public getConsentContractCID(

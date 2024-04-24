@@ -5,6 +5,8 @@ import {
   IMembershipWrapper,
   IMembershipWrapperType,
   CircomMembershipWrapper,
+  ICircuitsSDKConfigProvider,
+  ICircuitsSDKConfigProviderype,
 } from "@snickerdoodlelabs/circuits-sdk";
 import {
   AxiosAjaxUtils,
@@ -451,6 +453,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
     // Binding cloud storage manager
     bind<IPersistenceConfigProvider>(
       IPersistenceConfigProviderType,
+    ).toConstantValue(configProvider);
+
+    bind<ICircuitsSDKConfigProvider>(
+      ICircuitsSDKConfigProviderype,
     ).toConstantValue(configProvider);
 
     const contextProvider = new ContextProvider(new TimeUtils());

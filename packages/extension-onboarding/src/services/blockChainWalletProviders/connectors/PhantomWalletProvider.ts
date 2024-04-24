@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
 import { AccountAddress, Signature } from "@snickerdoodlelabs/objects";
 import { PublicKey } from "@solana/web3.js";
-import { ethers } from "ethers";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
-
-import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
 
 type DisplayEncoding = "utf8" | "hex";
 
@@ -54,6 +52,7 @@ export class PhantomWalletProvider implements IWalletProvider {
       return okAsync(account as AccountAddress);
     });
   }
+
   public getSignature(message: string): ResultAsync<Signature, unknown> {
     if (!this._provider) {
       return errAsync("Should call connect() first.");
@@ -67,11 +66,5 @@ export class PhantomWalletProvider implements IWalletProvider {
     ).andThen((signatureResult) => {
       return okAsync(Signature(signatureResult?.signature?.toString?.("hex")));
     });
-  }
-  public checkAndSwitchToControlChain(): ResultAsync<
-    ethers.BrowserProvider,
-    unknown
-  > {
-    throw new Error("Method not implemented.");
   }
 }
