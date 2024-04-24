@@ -125,6 +125,20 @@ const testDiscordConfig = {
   pollInterval: 2 * 1000, // days * hours * seconds * milliseconds
 };
 
+export const modelAliases = {
+  definitions: {
+    backupIndex:
+      "kjzl6cwe1jw149f06c8o6hgro45rerad83swxqn5nrijb4i271uc1g5dybjjk22",
+  },
+  schemas: {
+    BackupIndex:
+      "ceramic://k3y52l7qbv1frxm8elgkbtatgwkukhh7f3he8h6jarqy8szuq39x96heksob9hqtc",
+    DataWalletBackup:
+      "ceramic://k3y52l7qbv1frxmf8dp0byvefkkj7j9f4hztn82r85lmpsrln5195njzlaw6zq680",
+  },
+  tiles: {},
+};
+
 const testTwitterConfig = {
   apiKey: "IksHLFQGjifiBzswDKpdjtyqW",
   apiSecretKey: TokenSecret(
@@ -228,6 +242,8 @@ export const testCoreConfig = new CoreConfig(
   LanguageCode("en-pw"), // passwordLanguageCode
   100,
   URLString("https://ipfs-gateway.snickerdoodle.com/ipfs/"),
+  modelAliases, // ceramicModelAliases
+  URLString("http://ceramicNodeURL"), // ceramicNodeURL
 );
 
 const adContent1: AdContent = new AdContent(

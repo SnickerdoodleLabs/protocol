@@ -70,6 +70,8 @@ import {
   IPersistenceContextProviderType,
   NullCloudStorage,
   INullCloudStorageType,
+  ICeramicCloudStorageType,
+  CeramicCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IQueryObjectFactory,
@@ -552,6 +554,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ICloudStorage>(IDropboxCloudStorageType)
       .to(DropboxCloudStorage)
       .inSingletonScope();
+
+    // bind<ICloudStorage>(ICeramicCloudStorageType)
+    //   .to(CeramicCloudStorage)
+    //   .inSingletonScope();
 
     // ZK Circuits -------------------------------------------------------
     bind<IMembershipWrapper>(IMembershipWrapperType)

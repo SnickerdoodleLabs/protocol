@@ -62,6 +62,19 @@ export class ConfigProvider
       );
     }
 
+    const modelAliases = {
+      definitions: {
+        backupIndex:
+          "kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k",
+      },
+      schemas: {
+        DataWalletBackup:
+          "ceramic://k3y52l7qbv1fryeqpnu3xx9st37h6soh7cosvpskp59r6wj8ag4zl2n3u3283xrsw",
+        BackupIndex:
+          "ceramic://k3y52l7qbv1fryk2h9xhsf2mai9wsiga2eld67pn8vgo3845yad3bn9plleei53pc",
+      },
+      tiles: {},
+    };
     const discordConfig = {
       clientId: "1089994449830027344",
       clientSecret: TokenSecret("uqIyeAezm9gkqdudoPm9QB-Dec7ZylWQ"),
@@ -187,6 +200,8 @@ export class ConfigProvider
       LanguageCode("en"), // passwordLanguageCode
       100, // sets the size for query performance events, e.g. how many errors and durations will be stored, main metric object will not be effected
       URLString("https://ipfs-gateway.snickerdoodle.com/ipfs/"),
+      modelAliases, // ceramicModelAliases
+      URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
     );
   }
 
@@ -380,5 +395,11 @@ export class ConfigProvider
     this.config.queryPerformanceMetricsLimit =
       overrides.queryPerformanceMetricsLimit ??
       this.config.queryPerformanceMetricsLimit;
+
+    //Ceramic
+    this.config.ceramicNodeURL =
+      overrides.ceramicNodeURL ?? this.config.ceramicNodeURL;
+    this.config.ceramicModelAliases =
+      overrides.ceramicModelAliases ?? this.config.ceramicModelAliases;
   }
 }

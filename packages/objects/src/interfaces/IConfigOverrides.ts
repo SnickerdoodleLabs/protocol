@@ -1,11 +1,13 @@
+import { MapModelTypes } from "@glazed/types";
+
 import {
   DiscordConfig,
   SpaceAndTimeConfig,
   TwitterConfig,
 } from "@objects/businessObjects/index.js";
 import { EChain } from "@objects/enum/index.js";
+import { ModelTypes } from "@objects/interfaces";
 import { ProviderUrl, URLString } from "@objects/primitives/index.js";
-
 export interface IConfigOverrides {
   controlChainId?: EChain;
   ipfsFetchBaseUrl?: URLString;
@@ -70,4 +72,7 @@ export interface IConfigOverrides {
   iframeURL?: URLString;
   debug?: boolean;
   queryPerformanceMetricsLimit?: number;
+
+  ceramicModelAliases?: MapModelTypes<ModelTypes, string>;
+  ceramicNodeURL?: URLString;
 }

@@ -1,5 +1,5 @@
-import { URLString } from "@snickerdoodlelabs/objects";
-
+import { ModelAliases } from "@glazed/types";
+import { ModelTypes, URLString } from "@snickerdoodlelabs/objects";
 export interface IPersistenceConfig {
   accountBalancePollingIntervalMS: number;
   accountNFTPollingIntervalMS: number;
@@ -14,4 +14,7 @@ export interface IPersistenceConfig {
   dropboxAppKey: string;
   dropboxAppSecret: string;
   dropboxRedirectUri: string;
+
+  ceramicModelAliases: ModelAliases<ModelTypes>;
+  ceramicNodeURL: URLString;
 }
