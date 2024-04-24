@@ -39,6 +39,10 @@ import { Subscription } from "rxjs";
 interface ILinkAccountModalState {
   chainFilters?: EChainTechnology[];
 }
+
+interface ILinkAccountModalState {
+  chainFilters?: EChainTechnology[];
+}
 export interface IAppContext {
   apiGateway: ApiGateway;
   linkedAccounts: LinkedAccount[];
