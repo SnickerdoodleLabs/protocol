@@ -104,12 +104,30 @@ const WalletConnectLogic: FC<IProps> = ({
   const { address } = useAccount();
   const { disconnect } = useDisconnect();
   const { data, signMessage, reset, isError } = useSignMessage();
+  const [screenFocused, setScreenFocused] = React.useState(true);
 
   useEffect(() => {
+    window.addEventListener("focus", _setFocused);
+    window.addEventListener("blur", _setUnfocused);
+  }, []);
+
+  const _setFocused = () => {
+    setScreenFocused(true);
+  };
+
+  const _setUnfocused = () => {
+    setScreenFocused(false);
+  };
+
+  useEffect(() => {
+    localStorage.clear();
     open({ view: "Connect" });
   }, [triggerConnect]);
 
   useEffect(() => {
+    if (!screenFocused) {
+      return;
+    }
     if (address) {
       if (
         linkedAccounts.find(
@@ -130,7 +148,7 @@ const WalletConnectLogic: FC<IProps> = ({
           console.log("error signing message", e);
         });
     }
-  }, [address]);
+  }, [address, screenFocused]);
 
   useEffect(() => {
     if (address && data) {
