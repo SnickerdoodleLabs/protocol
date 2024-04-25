@@ -5,13 +5,19 @@ import { DIDDataStore } from "@glazed/did-datastore";
 import { TileLoader } from "@glazed/tile-loader";
 import { CryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/node-utils";
 import {
+  AuthenticatedStorageSettings,
+  BackupFileName,
   BackupIndex,
   BackupIndexEntry,
   CeramicStreamID,
+  DataWalletBackup,
+  DataWalletBackupID,
+  ECloudStorageType,
   EVMPrivateKey,
   IDataWalletBackup,
   ModelTypes,
   PersistenceError,
+  StorageKey,
 } from "@snickerdoodlelabs/objects";
 import { DID } from "dids";
 import { inject, injectable } from "inversify";
@@ -27,8 +33,7 @@ import {
 } from "@persistence/IPersistenceConfigProvider.js";
 
 @injectable()
-//TODO implements ICloudStorage
-export class CeramicCloudStorage {
+export class CeramicCloudStorage implements ICloudStorage {
   private _ceramic?: CeramicClient;
 
   private _loader?: TileLoader;
@@ -50,228 +55,47 @@ export class CeramicCloudStorage {
       this._resolveUnlock = resolve;
     });
   }
-
-  public clear(): ResultAsync<void, PersistenceError> {
-    return this._init().andThen(({ store, client }) => {
-      return this._getBackupIndex().andThen((entries) => {
-        return ResultUtils.combine(
-          entries.map((entry) => {
-            return ResultAsync.fromPromise(
-              client.pin.rm(StreamID.fromString(entry.id)),
-              (e) => new PersistenceError("Error pinning stream", e),
-            );
-          }),
-        ).andThen(() => this._putBackupIndex([]));
-      });
-    });
+  name(): ECloudStorageType {
+    throw new Error("Method not implemented.");
   }
-
-  protected waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
-    return ResultAsync.fromSafePromise(this._unlockPromise);
+  putBackup(
+    backup: DataWalletBackup,
+  ): ResultAsync<DataWalletBackupID, PersistenceError> {
+    throw new Error("Method not implemented.");
   }
-
-  public unlock(
-    derivedKey: EVMPrivateKey,
+  pollBackups(
+    restored: Set<DataWalletBackupID>,
+  ): ResultAsync<DataWalletBackup[], PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  saveCredentials(
+    credentials: AuthenticatedStorageSettings,
   ): ResultAsync<void, PersistenceError> {
-    // Store the result
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this._resolveUnlock!(derivedKey);
-    return okAsync(undefined);
+    throw new Error("Method not implemented.");
   }
-
-  private _getCeramic(): ResultAsync<CeramicClient, PersistenceError> {
-    if (this._ceramic) {
-      return okAsync(this._ceramic);
-    }
-
-    return this._configProvider.getConfig().andThen((config) => {
-      const ceramic = new CeramicClient(config.ceramicNodeURL);
-      return this.waitForUnlock().andThen((privateKey) => {
-        return this._cryptoUtils
-          .deriveCeramicSeedFromEVMPrivateKey(privateKey)
-          .andThen((seed) => {
-            return this._authenticateDID(seed).andThen((did) => {
-              ceramic.did = did;
-              this._ceramic = ceramic;
-              return okAsync(this._ceramic);
-            });
-          });
-      });
-    });
+  clearCredentials(): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
   }
-
-  private _authenticateDID(
-    seed: Uint8Array,
-  ): ResultAsync<DID, PersistenceError> {
-    const provider = new Ed25519Provider(seed);
-    const did = new DID({ provider, resolver: getResolver() });
-    return ResultAsync.fromPromise(
-      did.authenticate(),
-      (e) => new PersistenceError("error authenticated ceramic DID", e),
-    ).andThen((_) => okAsync(did));
+  pollByStorageType(
+    restored: Set<DataWalletBackupID>,
+    recordKey: StorageKey,
+  ): ResultAsync<DataWalletBackup[], PersistenceError> {
+    throw new Error("Method not implemented.");
   }
-
-  private _init(): ResultAsync<
-    {
-      client: CeramicClient;
-      store: DIDDataStore<ModelTypes>;
-      model: DataModel<ModelTypes>;
-      loader: TileLoader;
-    },
-    PersistenceError
-  > {
-    return ResultUtils.combine([
-      this._getCeramic(),
-      this._configProvider.getConfig(),
-    ]).andThen(([ceramic, config]) => {
-      if (
-        this._dataStore != undefined &&
-        this._dataModel != undefined &&
-        this._loader != undefined
-      ) {
-        return okAsync({
-          store: this._dataStore,
-          model: this._dataModel,
-          loader: this._loader,
-          client: ceramic,
-        });
-      }
-
-      this._loader = new TileLoader({ ceramic });
-      this._dataModel = new DataModel({
-        ceramic,
-        aliases: config.ceramicModelAliases,
-      });
-      this._dataStore = new DIDDataStore({
-        ceramic,
-        loader: this._loader,
-        model: this._dataModel,
-      });
-
-      return okAsync({
-        store: this._dataStore,
-        model: this._dataModel,
-        loader: this._loader,
-        client: ceramic,
-      });
-    });
+  getLatestBackup(
+    storageKey: StorageKey,
+  ): ResultAsync<DataWalletBackup | null, PersistenceError> {
+    throw new Error("Method not implemented.");
   }
-
-  public putBackup(
-    backup: IDataWalletBackup,
-  ): ResultAsync<void, PersistenceError> {
-    return this._init().andThen(({ model, client }) => {
-      return ResultAsync.fromPromise(
-        model.createTile("DataWalletBackup", backup),
-        (e) => new PersistenceError("error creating backup tile", e),
-      ).andThen((doc) => {
-        return ResultAsync.fromPromise(
-          client.pin.add(doc.id, true),
-          (e) => new PersistenceError("unable to pin backup tile", e),
-        ).andThen(() => {
-          // only index if pin was successful
-          const id = doc.id.toUrl();
-          return this._getBackupIndex().andThen((backups) => {
-            const index = [
-              ...backups,
-              { id: id, timestamp: backup.header.timestamp },
-            ];
-
-            return this._putBackupIndex(index).map((_) => {
-              console.debug("CloudStorage", `Backup placed: ${id}`);
-              this._restored.add(id);
-              // return CeramicStreamID(id);
-            });
-          });
-        });
-      });
-    });
+  clear(): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
   }
-
-  private _putBackupIndex(
-    backups: BackupIndexEntry[],
-  ): ResultAsync<void, PersistenceError> {
-    const payload = {
-      backups: backups,
-    };
-
-    return this._init().andThen(({ store }) => {
-      return this.waitForUnlock().andThen((key) => {
-        return this._cryptoUtils
-          .deriveAESKeyFromEVMPrivateKey(key)
-          .andThen((aesKey) => {
-            return this._cryptoUtils
-              .encryptString(JSON.stringify(payload), aesKey)
-              .andThen((encrypted) => {
-                return ResultAsync.fromPromise(
-                  store.set("backupIndex", encrypted),
-                  (e) => new PersistenceError("error putting backup index", e),
-                ).map(() => undefined);
-              });
-          });
-      });
-    });
+  listFileNames(): ResultAsync<BackupFileName[], PersistenceError> {
+    throw new Error("Method not implemented.");
   }
-
-  public pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
-    return this._getBackupIndex().andThen((backups) => {
-      const recent = backups.map((record) => record.id);
-      const found = [...recent].filter((x) => !this._restored.has(x));
-
-      // console.debug("CloudStorage", `${found.length} new backups found`);
-      return ResultUtils.combine(
-        found.map((backupID) => this._getBackup(backupID)),
-      ).map((fetched) => {
-        this._restored = new Set(recent);
-        return fetched;
-      });
-    });
-  }
-
-  private _getBackup(
-    id: string,
-  ): ResultAsync<IDataWalletBackup, PersistenceError> {
-    return this._init().andThen(({ loader }) => {
-      return ResultAsync.fromPromise(
-        loader.load<IDataWalletBackup>(id),
-        (e) => new PersistenceError("error loading backup", e),
-      ).map((tileDoc) => {
-        const retVal = tileDoc.content;
-        retVal.header.hash = tileDoc.id.toUrl();
-        return retVal;
-      });
-    });
-  }
-
-  private _getBackupIndex(): ResultAsync<BackupIndexEntry[], PersistenceError> {
-    return this._init().andThen(({ store }) => {
-      return ResultAsync.fromPromise(
-        store.get("backupIndex"),
-        (e) => new PersistenceError("unable to get backup index", e),
-      )
-        .andThen((encrypted) => {
-          if (encrypted == null) {
-            return okAsync(null);
-          }
-
-          return this.waitForUnlock().andThen((key) => {
-            return this._cryptoUtils
-              .deriveAESKeyFromEVMPrivateKey(key)
-              .andThen((aesKey) => {
-                return this._cryptoUtils
-                  .decryptAESEncryptedString(encrypted, aesKey)
-                  .andThen((decrypted) => {
-                    return okAsync(JSON.parse(decrypted) as BackupIndex);
-                  });
-              });
-          });
-        })
-        .map((backups) => {
-          if (backups == null) {
-            return [];
-          }
-          return Object.values(backups.backups);
-        });
-    });
+  fetchBackup(
+    backupHeader: string,
+  ): ResultAsync<DataWalletBackup[], PersistenceError> {
+    throw new Error("Method not implemented.");
   }
 }

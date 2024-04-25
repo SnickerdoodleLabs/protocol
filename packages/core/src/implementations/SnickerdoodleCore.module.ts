@@ -555,9 +555,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(DropboxCloudStorage)
       .inSingletonScope();
 
-    // bind<ICloudStorage>(ICeramicCloudStorageType)
-    //   .to(CeramicCloudStorage)
-    //   .inSingletonScope();
+    bind<ICloudStorage>(ICeramicCloudStorageType)
+      .to(CeramicCloudStorage)
+      .inSingletonScope();
 
     // ZK Circuits -------------------------------------------------------
     bind<IMembershipWrapper>(IMembershipWrapperType)

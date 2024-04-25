@@ -19,6 +19,7 @@ export function getMinimalForwarderSigningDomain(
 }
 
 export * from "@signatureVerification/addCrumbTypes";
+export * from "@signatureVerification/authorizationBackupTypes";
 export * from "@signatureVerification/clearCloudBackupsTypes";
 export * from "@signatureVerification/signedUrlTypes";
 export * from "@signatureVerification/executeMetatransactionTypes";
