@@ -208,15 +208,15 @@ describe("Consent Contract and Factory Tests", function () {
       const base = 1.0001;
 
       // To calculate the number of tokens to stake, the ContentFactory's computeFee does 1.0001^(slot)
-      // So to determine the max slot given the maximum output of a uint256, we can use a reverse exponential calculation formula
+      // So to determine the max slot given the maximum output of a uint256, we can do a logarithm calculation
       // Using base of 1.0001 and maxUintTokens gives us a max slot value of 1774545.503594127
-      function reverseExponent(base, result) {
+      function logarithm(base, result) {
         return Math.log(result) / Math.log(base);
       }
 
       console.log(
         "Theoratical max slot value for max uint256 token amount",
-        Math.floor(reverseExponent(base, Number(maxUintTokens))),
+        Math.floor(logarithm(base, Number(maxUintTokens))),
       );
 
       // However, in trying to pass this slot to computeFee, the transaction reverts.
