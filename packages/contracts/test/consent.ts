@@ -196,6 +196,97 @@ describe("Consent Contract and Factory Tests", function () {
       );
     });
 
+    // Use it.only to only run this specific test to determine the limits batchOptIn and fetchAnonymitySet
+    // To run this test:
+    // 1. Update hardhat.config.ts for localhost network to use:
+    //    - 30,000,000 gas (a full block's gas limit)
+    //    - 30 gwei (average gas price for Avalanche chain)
+    // 2. Change xit to it.only
+    // 3. On a separate terminal, run npx hardhat node, this spins up a local blockchain node
+    // 4. In the .env file, include the localhost's wallet private key: ETH_PRIVATE_KEY = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+    // 5. Adjust sizeBatchPerCall to test the limit of batchOptIn
+    // 6. Adjust totalCommitments to test the limit of fetchAnonymitySet
+    // 7. Run npx hardhat run --network localhost
+
+    xit("Testing batchOptIn and fetchAnonymitySet fetch limit", async function () {
+      const { consentFactory, token, owner, otherAccount } = await loadFixture(
+        deployConsentStack,
+      );
+
+      // add snickerdoodle.com to the token contract
+      await expect(
+        consentFactory.createConsent(owner.address, "snickerdoodle.com"),
+      )
+        .to.emit(consentFactory, "ConsentContractDeployed")
+        .withArgs(owner.address, anyValue);
+
+      // read the event logs to find the contract address
+      const filter = await consentFactory.filters.ConsentContractDeployed(
+        owner.address,
+      );
+      const events = await consentFactory.queryFilter(filter);
+
+      // get a contract handle on the deployed contract
+      const consentContract = await ethers.getContractAt(
+        "Consent",
+        events[0].args[1],
+      );
+
+      // For batchOptIn, 629 is the max commitment batch size before erroring out.
+      const sizeBatchPerCall = 629;
+
+      // For fetchAnonymitySet, 11184 commitments was its max before erroring out.
+      const totalCommitments = 11184;
+
+      let totalCommitmentsRemaining = totalCommitments;
+
+      const arrayOfBatches: string[][] = [];
+
+      while (totalCommitmentsRemaining > sizeBatchPerCall) {
+        const commitmentBatch: string[] = [];
+        for (let i = 0; i < sizeBatchPerCall; i++) {
+          commitmentBatch.push(`0x${generateRandomHex(32)}`);
+        }
+        arrayOfBatches.push(commitmentBatch);
+
+        const remainingCommitment =
+          totalCommitmentsRemaining - sizeBatchPerCall;
+
+        // If the remainder is greater than the max batch size per call, just batch the remainder, push in the array of batches and exit the loop
+        if (remainingCommitment < sizeBatchPerCall) {
+          const remainingCommitmentBatch: string[] = [];
+
+          for (let i = 0; i < remainingCommitment; i++) {
+            remainingCommitmentBatch.push(`0x${generateRandomHex(32)}`);
+          }
+
+          arrayOfBatches.push(remainingCommitmentBatch);
+          break;
+        }
+
+        totalCommitmentsRemaining = remainingCommitment;
+      }
+
+      // make an arbitrary commitment of 32 bytes
+      for (let j = 0; j < arrayOfBatches.length; j++) {
+        await consentContract.batchOptIn(arrayOfBatches[j]);
+      }
+
+      expect(await consentContract.totalSupply()).to.equal(totalCommitments);
+
+      console.log("TOTAL COMMITMENTS", totalCommitments);
+      console.log("FETCHING ANONYMITYSET...");
+      const output = await consentContract.fetchAnonymitySet(
+        0,
+        totalCommitments,
+      );
+
+      console.log("COMMITMENT COUNT", output.length);
+      expect(
+        await consentContract.fetchAnonymitySet(0, totalCommitments),
+      ).to.eql(arrayOfBatches.flat());
+    });
+
     // Change xit to it.only to test
     xit("Testing computeFee limit", async function () {
       const { consentFactory, token, owner, otherAccount } = await loadFixture(
