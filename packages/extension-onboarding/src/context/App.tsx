@@ -1,23 +1,20 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import { ALERT_MESSAGES } from "@extension-onboarding/constants";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import {
-  EOnboardingState,
-  IUIState,
-} from "@extension-onboarding/objects/interfaces/IUState";
+import { EOnboardingState } from "@extension-onboarding/objects/interfaces/IUState";
 import {
   getProviderList as getChainProviderList,
   IProvider,
 } from "@extension-onboarding/services/blockChainWalletProviders";
 import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
-import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
 import {
   getProviderList as getSocialMediaProviderList,
   ISocialMediaWrapper,
 } from "@extension-onboarding/services/socialMediaProviders";
+import Loading from "@extension-onboarding/setupScreens/Loading";
+import { UIStateUtils } from "@extension-onboarding/utils/UIStateUtils";
 import {
   BigNumberString,
   EarnedReward,
@@ -39,16 +36,8 @@ import React, {
   useCallback,
 } from "react";
 import { Subscription } from "rxjs";
-import Loading from "@extension-onboarding/setupScreens/Loading";
-import { okAsync } from "neverthrow";
-import { UIStateUtils } from "@extension-onboarding/utils/UIStateUtils";
-
-export interface IInvitationInfo {
-  consentAddress: EVMContractAddress | undefined;
-  tokenId: BigNumberString | undefined;
-  signature: Signature | undefined;
-  // temporary
-  rewardImage: URLString | undefined;
+interface ILinkAccountModalState {
+  chainFilters?: EChainTechnology[];
 }
 
 interface ILinkAccountModalState {
@@ -56,7 +45,6 @@ interface ILinkAccountModalState {
 }
 export interface IAppContext {
   apiGateway: ApiGateway;
-  dataWalletGateway: DataWalletGateway;
   linkedAccounts: LinkedAccount[];
   providerList: IProvider[];
   earnedRewards: EarnedReward[] | undefined;
@@ -76,7 +64,7 @@ export const AppContextProvider: FC = ({ children }) => {
   const { sdlDataWallet } = useDataWalletContext();
   const [chainProviderList, setChainProviderList] = useState<IProvider[]>([]);
   const [linkedAccounts, setLinkedAccounts] = useState<LinkedAccount[]>([]);
-  const { setAlert, setVisualAlert } = useNotificationContext();
+  const { setAlert } = useNotificationContext();
   const [earnedRewards, setEarnedRewards] = useState<EarnedReward[]>();
   const [optedInContracts, setOptedInContracts] =
     useState<Map<EVMContractAddress, IpfsCID>>();
@@ -108,8 +96,10 @@ export const AppContextProvider: FC = ({ children }) => {
       onboardingState === EOnboardingState.COMPLETED &&
       linkedAccounts.length === 0
     ) {
-      setLinkAccountModalState({ chainFilters: [EChainTechnology.EVM] });
-      setAccountLinkingRequested(false);
+      setTimeout(() => {
+        setLinkAccountModalState({ chainFilters: [EChainTechnology.EVM] });
+        setAccountLinkingRequested(false);
+      }, 100);
     }
   }, [accountLinkingRequested, onboardingState, linkedAccounts.length]);
 
@@ -265,7 +255,6 @@ export const AppContextProvider: FC = ({ children }) => {
         uiStateUtils: uiStateUtils as UIStateUtils,
         optedInContracts,
         apiGateway: new ApiGateway(),
-        dataWalletGateway: new DataWalletGateway(sdlDataWallet),
         providerList: chainProviderList,
         socialMediaProviderList: getSocialMediaProviderList(sdlDataWallet),
         linkedAccounts,

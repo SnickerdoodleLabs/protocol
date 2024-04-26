@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/circuits",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "ZK-Snickerdoodle circuits for Snickerdoodle Protocol",
   "license": "MIT",
   "repository": {
@@ -15,7 +15,8 @@
   "keywords": [
     "ZK-Snarks",
     "Snickerdoodle",
-    "Crypto"
+    "Crypto",
+    "Circom"
   ],
   "main": "dist/index.js",
   "module": "./dist/index.js",
@@ -38,29 +39,29 @@
     "prepublish": "yarn build",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests --detectOpenHandles",
     "convert-binary": "yarn convert-binary-semaphore && yarn convert-binary-commitment",
-    "convert-binary-semaphore": "npx tsx ./scripts/binaryToTypescript.ts src/circom/semaphore/semaphore_js/semaphore.wasm src/circom/semaphore/semaphore.wasm.ts semaphoreCode && npx tsx ./scripts/binaryToTypescript.ts src/circom/semaphore/semaphore.zkey src/circom/semaphore/semaphore.zkey.ts semaphoreZKey",
-    "convert-binary-commitment": "npx tsx ./scripts/binaryToTypescript.ts src/circom/commitment/commitment_js/commitment.wasm src/circom/commitment/commitment.wasm.ts commitmentCode && npx tsx ./scripts/binaryToTypescript.ts src/circom/commitment/commitment.zkey src/circom/commitment/commitment.zkey.ts commitmentZKey",
+    "convert-binary-semaphore": "npx tsx ./scripts/binaryToTypescript.ts src/semaphore/semaphore_js/semaphore.wasm src/semaphore/semaphore.wasm.ts semaphoreCode && npx tsx ./scripts/binaryToTypescript.ts src/semaphore/semaphore.zkey src/semaphore/semaphore.zkey.ts semaphoreZKey",
+    "convert-binary-commitment": "npx tsx ./scripts/binaryToTypescript.ts src/commitment/commitment_js/commitment.wasm src/commitment/commitment.wasm.ts commitmentCode && npx tsx ./scripts/binaryToTypescript.ts src/commitment/commitment.zkey src/commitment/commitment.zkey.ts commitmentZKey",
     "convert-json": "yarn convert-json-semaphore && yarn convert-json-commitment",
-    "convert-json-semaphore": "npx tsx ./scripts/jsonToTypescript.ts src/circom/semaphore/semaphore.verificationkey.json src/circom/semaphore/semaphore.verificationkey.ts semaphoreVerificationKey",
-    "convert-json-commitment": "npx tsx ./scripts/jsonToTypescript.ts src/circom/commitment/commitment.verificationkey.json src/circom/commitment/commitment.verificationkey.ts commitmentVerificationKey",
+    "convert-json-semaphore": "npx tsx ./scripts/jsonToTypescript.ts src/semaphore/semaphore.verificationkey.json src/semaphore/semaphore.verificationkey.ts semaphoreVerificationKey",
+    "convert-json-commitment": "npx tsx ./scripts/jsonToTypescript.ts src/commitment/commitment.verificationkey.json src/commitment/commitment.verificationkey.ts commitmentVerificationKey",
     "compile-circuits": "yarn compile-semaphore && yarn compile-commitment",
-    "compile-semaphore": "docker run --rm -e CIRCUIT=semaphore --mount \"type=bind,source=$(pwd)/src/circom/semaphore,destination=/root/circuits\" snickerdoodlelabs/circom:latest",
-    "compile-commitment": "docker run --rm -e CIRCUIT=commitment --mount \"type=bind,source=$(pwd)/src/circom/commitment,destination=/root/circuits\" snickerdoodlelabs/circom:latest",
+    "compile-semaphore": "docker run --rm -e CIRCUIT=semaphore --mount \"type=bind,source=$(pwd)/src/semaphore,destination=/root/circuits\" snickerdoodlelabs/circom:latest",
+    "compile-commitment": "docker run --rm -e CIRCUIT=commitment --mount \"type=bind,source=$(pwd)/src/commitment,destination=/root/circuits\" snickerdoodlelabs/circom:latest",
     "create-zkey": "yarn create-zkey-semaphore && yarn create-zkey-commitment",
-    "create-zkey-semaphore": "npx snarkjs groth16 setup src/circom/semaphore/semaphore.r1cs src/circom/pot14_final.ptau src/circom/semaphore/semaphore.zkey",
-    "create-zkey-commitment": "npx snarkjs groth16 setup src/circom/commitment/commitment.r1cs src/circom/pot14_final.ptau src/circom/commitment/commitment.zkey",
+    "create-zkey-semaphore": "npx snarkjs groth16 setup src/semaphore/semaphore.r1cs src/pot14_final.ptau src/semaphore/semaphore.zkey",
+    "create-zkey-commitment": "npx snarkjs groth16 setup src/commitment/commitment.r1cs src/pot14_final.ptau src/commitment/commitment.zkey",
     "create-verification-key": "yarn create-verification-key-semaphore && yarn create-verification-key-commitment",
-    "create-verification-key-semaphore": "npx snarkjs zkey export verificationkey src/circom/semaphore/semaphore.zkey src/circom/semaphore/semaphore.verificationkey.json",
-    "create-verification-key-commitment": "npx snarkjs zkey export verificationkey src/circom/commitment/commitment.zkey src/circom/commitment/commitment.verificationkey.json"
+    "create-verification-key-semaphore": "npx snarkjs zkey export verificationkey src/semaphore/semaphore.zkey src/semaphore/semaphore.verificationkey.json",
+    "create-verification-key-commitment": "npx snarkjs zkey export verificationkey src/commitment/commitment.zkey src/commitment/commitment.verificationkey.json"
   },
   "type": "module",
   "types": "dist/index.d.ts",
+  "sideEffects": false,
   "dependencies": {
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@zk-kit/circuits": "^1.0.0-beta",
     "@zk-kit/imt": "^2.0.0-beta.4",
-    "circomlib": "^2.0.5",
     "ethers": "^6.10.0",
     "inversify": "^6.0.2",
     "neverthrow": "^5.1.0",

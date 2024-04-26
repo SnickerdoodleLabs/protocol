@@ -24,6 +24,9 @@
       "path": "../circuits-sdk"
     },
     {
+      "path": "../circuits"
+    },
+    {
       "path": "../common-utils"
     },
     {

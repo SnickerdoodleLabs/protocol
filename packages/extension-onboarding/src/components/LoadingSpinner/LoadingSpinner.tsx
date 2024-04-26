@@ -1,11 +1,8 @@
 import Box from "@material-ui/core/Box";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import React from "react";
-import Lottie from "react-lottie";
 
-import * as defaultLoading from "@extension-onboarding/assets/lotties/loading.json";
 import { useStyles } from "@extension-onboarding/components/LoadingSpinner/LoadingSpinner.style";
-import { LOTTIE_DEFAULT_OPTIONS } from "@extension-onboarding/constants/lottieDefaults";
 import {
   ELoadingIndicatorType,
   useLayoutContext,
@@ -24,18 +21,6 @@ const LoadingSpinner: React.FC = () => {
           loaderInfo.component
         ) : (
           <CircularProgress />
-        );
-      }
-      case ELoadingIndicatorType.LOTTIE: {
-        return (
-          <Box width={200}>
-            <Lottie
-              options={{
-                ...LOTTIE_DEFAULT_OPTIONS,
-                animationData: loaderInfo?.file ?? defaultLoading,
-              }}
-            />
-          </Box>
         );
       }
       default: {

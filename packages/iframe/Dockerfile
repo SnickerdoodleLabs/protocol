@@ -138,4 +138,4 @@ FROM nginx:latest AS server
 
 # Copy over the dist files
 COPY --from=builder /build/packages/iframe/dist/bundle /usr/share/nginx/html
-
+COPY --from=builder /build/packages/iframe/nginx.conf /etc/nginx/conf.d/default.conf

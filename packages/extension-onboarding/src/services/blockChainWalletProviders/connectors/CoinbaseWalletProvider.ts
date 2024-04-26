@@ -1,13 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { AccountAddress, Signature } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
-import { ResultAsync, okAsync, errAsync } from "neverthrow";
-
 import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
+import { AccountAddress, Signature } from "@snickerdoodlelabs/objects";
+import { ResultAsync, okAsync, errAsync } from "neverthrow";
 
 export class CoinbaseWalletProvider implements IWalletProvider {
   protected _provider;
-  protected _web3Provider: ethers.BrowserProvider | null = null;
 
   constructor() {
     this._provider = this.provider;
@@ -17,8 +14,7 @@ export class CoinbaseWalletProvider implements IWalletProvider {
     return (
       window?.ethereum?.providers?.find?.(
         (provider) => provider.isWalletLink,
-      ) ??
-      (window?.ethereum?.isWalletLink && window.ethereum)
+      ) ?? (window?.ethereum?.isWalletLink ? window.ethereum : null)
     );
   }
 
@@ -47,26 +43,32 @@ export class CoinbaseWalletProvider implements IWalletProvider {
       })
       .andThen((accounts) => {
         const account = accounts?.[0];
-        this._web3Provider = new ethers.BrowserProvider(this._provider);
         return okAsync(account as AccountAddress);
       });
   }
 
   public getSignature(message: string): ResultAsync<Signature, unknown> {
-    if (!this._web3Provider) {
+    if (!this._provider) {
       return errAsync("Should call connect() first.");
     }
-    return ResultAsync.fromPromise(this._web3Provider.getSigner(), (e) => {
-      return e;
-    })
-      .andThen((signer) => {
-        return ResultAsync.fromPromise(signer.signMessage(message), (e) => {});
+
+    return ResultAsync.fromPromise(
+      this._provider.request({
+        method: "eth_requestAccounts",
+      }) as Promise<AccountAddress[]>,
+      (e) => errAsync(new Error("User cancelled")),
+    )
+      .andThen((accounts) => {
+        const account = accounts?.[0];
+        return ResultAsync.fromPromise(
+          this._provider.request({
+            method: "personal_sign",
+            params: [message, account],
+          }) as Promise<string>,
+          (e) => errAsync(new Error("Signing failed")),
+        );
       })
-      .map((signature) => {
-        // below method can be used to disconnect but it requires reload
-        // this._provider.close();
-        return Signature(signature);
-      });
+      .map((signature) => Signature(signature));
   }
 }
 
