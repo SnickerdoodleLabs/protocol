@@ -332,7 +332,7 @@ export class InvitationService implements IInvitationService {
                       this.logUtils.info(
                         `Commitment index could not be found within ${maxtAttempts} attempts; skipping`,
                       );
-                      resolve(undefined);
+                      return resolve(undefined);
                     }
                     return this.consentRepo
                       .getCommitmentIndex(invitation.consentContractAddress)

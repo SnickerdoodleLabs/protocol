@@ -3,8 +3,6 @@ name: Build and Push to GCR
 on:
   push:
     branches: develop
-
-
 env:
   GITHUB_SHA: ${{ github.sha }} 
   GITHUB_REF: ${{ github.ref }} 

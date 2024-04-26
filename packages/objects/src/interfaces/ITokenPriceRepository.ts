@@ -40,7 +40,7 @@ export interface ITokenPriceRepository {
 
   getTokenInfoFromList(
     contractAddress: TokenAddress,
-  ): CoinGeckoTokenInfo | undefined;
+  ): ResultAsync<CoinGeckoTokenInfo | undefined, AccountIndexingError>;
 }
 
 export const ITokenPriceRepositoryType = Symbol.for("ITokenPriceRepository");

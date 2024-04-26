@@ -115,7 +115,7 @@ export class ERC20RewardContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | ERC20ContractError
   > {
-    return this.writeToContract("approve", [spender, amount, overrides]);
+    return this.writeToContract("approve", [spender, amount], overrides);
   }
 
   public transfer(
@@ -126,7 +126,7 @@ export class ERC20RewardContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | ERC20ContractError
   > {
-    return this.writeToContract("transfer", [recipient, amount, overrides]);
+    return this.writeToContract("transfer", [recipient, amount], overrides);
   }
 
   public transferFrom(
@@ -138,12 +138,11 @@ export class ERC20RewardContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | ERC20ContractError
   > {
-    return this.writeToContract("transferFrom", [
-      sender,
-      recipient,
-      amount,
+    return this.writeToContract(
+      "transferFrom",
+      [sender, recipient, amount],
       overrides,
-    ]);
+    );
   }
 
   public hasRole(
