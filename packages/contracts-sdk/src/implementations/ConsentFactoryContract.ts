@@ -220,12 +220,8 @@ export class ConsentFactoryContract
         tag,
         stakingToken,
         highestRankListingSlot,
-        // Since we do not have getListing anymore, we wont immediately be able to get the highest slot (ie. .next of uint256)
-        // So to get the whole list, we start with uint256 and work our way down
-        // getListingsForward() on the contract returns from first slot queried and works its way down
-        // So we need to add one more slot to account for all tags as the first one will be taken by uint256
-        // this.getListingsForward function then filters out uint256 and 0 slot values by checking its .next and .previous values.
-        tagTotal + 1,
+        // getListingsForward now returns the highest ranking slot if we pass in max uint256.
+        tagTotal,
         removeExpired,
       );
     });
@@ -374,14 +370,10 @@ export class ConsentFactoryContract
           return new MarketplaceListing(
             BigNumberString(listing.previous.toString()),
             BigNumberString(listing.next.toString()),
-            listing.consentContract,
+            listing.contentObject,
             UnixTimestamp(Number(listing.timeExpiring)),
             IpfsCID(cids[index]),
-            listings[index + 1] != null && listing.next != 0n
-              ? BigNumberString(listings[index + 1].previous.toString())
-              : listings[index - 1] != null
-              ? BigNumberString(listings[index - 1].next.toString())
-              : startingSlot,
+            BigNumberString(listing.stake.toString()),
             tag,
           );
         })
@@ -419,14 +411,10 @@ export class ConsentFactoryContract
           return new MarketplaceListing(
             BigNumberString(listing.previous.toString()),
             BigNumberString(listing.next.toString()),
-            listing.consentContract,
+            listing.contentObject,
             UnixTimestamp(Number(listing.timeExpiring)),
             IpfsCID(cids[index]),
-            listings[index + 1] != null && listing.previous != ethers.MaxUint256
-              ? BigNumberString(listings[index + 1].next.toString())
-              : listings[index - 1] != null
-              ? BigNumberString(listings[index - 1].previous.toString())
-              : startingSlot,
+            BigNumberString(listing.stake.toString()),
             tag,
           );
         })
@@ -519,7 +507,8 @@ export class ConsentFactoryContract
 interface IListingStruct {
   previous: bigint;
   next: bigint;
-  consentContract: EVMContractAddress;
+  contentObject: EVMContractAddress;
+  stake: bigint;
   timeExpiring: bigint;
 }
 
