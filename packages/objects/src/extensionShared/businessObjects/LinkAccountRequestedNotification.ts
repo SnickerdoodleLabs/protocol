@@ -1,5 +1,5 @@
-import { BaseNotification } from "@objects/extensionShared/businessObjects/BaseNotification";
-import { ENotificationTypes } from "@objects/extensionShared/enums/notification";
+import { BaseNotification } from "@objects/extensionShared/businessObjects/BaseNotification.js";
+import { ENotificationTypes } from "@objects/extensionShared/enums/notification.js";
 
 export class LinkAccountRequestedNotification extends BaseNotification<undefined> {
   constructor() {

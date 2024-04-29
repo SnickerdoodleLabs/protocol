@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 
-import { ENotificationTypes } from "@objects/extensionShared/enums/notification";
-import { UUID } from "@objects/primitives/UUID";
+import { ENotificationTypes } from "@objects/extensionShared/enums/notification.js";
+import { UUID } from "@objects/primitives/UUID.js";
 
 export class BaseNotification<T = any> {
   public key: UUID;

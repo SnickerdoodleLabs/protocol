@@ -5,7 +5,7 @@ import {
   ControlChainInformation,
   LinkedAccount,
   NativeCurrencyInformation,
-} from "@objects/businessObjects";
+} from "@objects/businessObjects/index.js";
 import { EChain, EChainTechnology, EChainType } from "@objects/enum/index.js";
 import { AccountIndexingError } from "@objects/errors/index.js";
 import {
