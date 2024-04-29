@@ -36,6 +36,7 @@
     "prepublish": "yarn build",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests"
   },
+  "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
     "ethers": "^6.10.0",
