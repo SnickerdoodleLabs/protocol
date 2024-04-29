@@ -12,6 +12,7 @@ import { IBigNumberUtils } from "@common-utils/interfaces/index.js";
 export class BigNumberUtils implements IBigNumberUtils {
   constructor() {}
 
+  //#region Math
   public multiply(
     bn: bigint | BigNumberString,
     number: number,
@@ -35,7 +36,9 @@ export class BigNumberUtils implements IBigNumberUtils {
 
     return (bnForSure * oneBN) / divisorBN;
   }
+  //#endregion Math
 
+  //#region DST
   /* Conversion from decimal string to big number and big number string */
   public DSToBN(decimalString: DecimalString, decimals = 18): bigint {
     return ethers.parseUnits(decimalString, decimals);
@@ -49,9 +52,22 @@ export class BigNumberUtils implements IBigNumberUtils {
       ethers.parseUnits(decimalString, decimals).toString(),
     );
   }
-  /* End region of decimal string conversions */
+  //#endregion DST
 
+  //#region BN
   /* Conversion from big number to big number string and decimal string */
+  public BNtoBuffer(bigint: bigint, byteLength: number): Buffer {
+    let hexString = bigint.toString(16);
+
+    // Ensure the hex string takes the required number of bytes
+    //    each byte is represented by 2 hex characters
+    const requiredLength = byteLength * 2;
+    while (hexString.length < requiredLength) {
+      hexString = "0" + hexString;
+    }
+    return Buffer.from(hexString, "hex");
+  }
+
   public BNToBNS(bigint: bigint): BigNumberString {
     return BigNumberString(BigInt(bigint).toString());
   }
@@ -59,7 +75,15 @@ export class BigNumberUtils implements IBigNumberUtils {
   public BNToDS(bigNumber: bigint, decimals = 18): DecimalString {
     return DecimalString(ethers.formatUnits(bigNumber, decimals || 18));
   }
-  /* End region of big number conversions */
+  //#endregion BN
+
+  //#region BNS
+  public BNStoBuffer(
+    bigNumberString: BigNumberString,
+    byteLength: number,
+  ): Buffer {
+    return this.BNtoBuffer(this.BNSToBN(bigNumberString), byteLength);
+  }
 
   /* Conversion from big number string to big number and decimal string */
   public BNSToBN(bigNumberString: BigNumberString): bigint {
@@ -86,12 +110,30 @@ export class BigNumberUtils implements IBigNumberUtils {
       ethers.toBeHex(this.BNSToBN(bigNumberString)).substring(2),
     );
   }
+  //#endregion BNS
 
-  public HexString32NoPrefixToBNS(hexString: HexString32): BigNumberString {
-    return BigNumberString(BigInt(`0x${hexString}`).toString());
+  //#region Buffer
+  public bufferToBN(buffer: Buffer): bigint {
+    const hexString = HexString32(buffer.toString("hex"));
+    return this.HexString32NoPrefixToBN(hexString);
   }
-  /* End region of big number string conversions */
 
+  public bufferToBNS(buffer: Buffer): BigNumberString {
+    const hexString = HexString32(buffer.toString("hex"));
+    return this.HexString32NoPrefixToBNS(hexString);
+  }
+  //#endregion Buffer
+
+  //#region HexString32
+  public HexString32NoPrefixToBN(hexString: HexString32): bigint {
+    return BigInt(`0x${hexString}`);
+  }
+  public HexString32NoPrefixToBNS(hexString: HexString32): BigNumberString {
+    return BigNumberString(this.HexString32NoPrefixToBN(hexString).toString());
+  }
+  //#endregion HexString32
+
+  //#region Validation
   /**
    * This method returns true if the bigNumberString is a
    * @param bigNumberString
@@ -105,4 +147,5 @@ export class BigNumberUtils implements IBigNumberUtils {
       return false;
     }
   }
+  //#endregion Validation
 }
