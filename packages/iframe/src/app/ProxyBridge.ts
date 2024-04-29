@@ -30,7 +30,6 @@ import {
   IConsentCapacity,
   IDynamicRewardParameter,
   INftProxyMethods,
-  IOldUserAgreement,
   IProxyAccountMethods,
   IProxyDiscordMethods,
   IProxyIntegrationMethods,
@@ -90,7 +89,6 @@ export class ProxyBridge implements IProxyBridge {
   private sourceDomain = undefined;
   public requestDashboardView = undefined;
   public formFactorEvents: FormFactorEvents;
-
 
   constructor(
     private core: ISnickerdoodleCore,
@@ -377,7 +375,7 @@ export class ProxyBridge implements IProxyBridge {
   }
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {
+  ): ResultAsync<IUserAgreement, ProxyError> {
     return this.call(this.core.invitation.getInvitationMetadataByCID(ipfsCID));
   }
 

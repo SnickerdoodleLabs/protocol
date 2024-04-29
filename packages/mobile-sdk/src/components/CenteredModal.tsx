@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
-import { IOldUserAgreement, Invitation } from "@snickerdoodlelabs/objects";
+import { IUserAgreement, Invitation } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 import { useCoreContext } from "@snickerdoodlelabs/mobile-integration";
 import CustomSwitch from "./CustomSwitch";
 interface CenteredModalProps {
   invitation: Invitation;
-  invitationMetadata: IOldUserAgreement | null;
+  invitationMetadata: IUserAgreement | null;
   handleVisible: (visible: boolean) => void;
 }
 

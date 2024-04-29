@@ -11,7 +11,6 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  IOldUserAgreement,
   IpfsCID,
   LinkedAccount,
   DataWalletAddress,
@@ -451,7 +450,7 @@ export class ExternalCoreGateway {
 
   public getInvitationMetadataByCID(
     params: GetInvitationMetadataByCIDParams,
-  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {
+  ): ResultAsync<IUserAgreement, ProxyError> {
     return this._handler.call(params);
   }
 
@@ -676,7 +675,7 @@ export class ExternalCoreGateway {
 
   public requestLinkAccount = (): ResultAsync<void, ProxyError> => {
     return this._handler.call(new LinkAccountRequestParams());
-  }
+  };
 
   public setUIState(state: JSONString): ResultAsync<void, ProxyError> {
     return this._handler.call(new SetUIStateParams(state));

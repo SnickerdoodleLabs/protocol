@@ -18,7 +18,7 @@ import {
   PermissionSelectionWidget,
   ConsentModal,
 } from "@shared-components/v2";
-import { IOldUserAgreement } from "@snickerdoodlelabs/objects";
+import { IUserAgreement } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 import React from "react";
 import ReactDOM from "react-dom";
@@ -304,7 +304,7 @@ const App = () => {
             onCancelClick={() => {}}
             onContinueClick={() => {}}
             onSetPermissions={() => {}}
-            invitationData={{} as IOldUserAgreement}
+            invitationData={{} as IUserAgreement}
             onRejectClick={() => {}}
           />
           <Box mb={2} />

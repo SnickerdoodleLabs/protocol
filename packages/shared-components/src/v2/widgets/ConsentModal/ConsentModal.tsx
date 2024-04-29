@@ -41,7 +41,6 @@ import {
   EVMContractAddress,
   EWalletDataType,
   IDynamicRewardParameter,
-  IOldUserAgreement,
   IUserAgreement,
   IpfsCID,
   JSONString,
@@ -60,7 +59,7 @@ interface IConsentModalProps {
   open: boolean;
   onOptinClicked: (params: IOptInParams) => void;
   consentContractAddress: EVMContractAddress;
-  invitationData: IOldUserAgreement | IUserAgreement;
+  invitationData: IUserAgreement;
   answerQuestionnaire: (
     id: IpfsCID,
     answers: NewQuestionnaireAnswer[],
@@ -713,11 +712,9 @@ export const ConsentModal = ({
   ]);
 
   const agreementPolicy = useMemo(() => {
-    const agreementTitle = invitationData["attributes"]
-      ? (invitationData as IUserAgreement).attributes.find(
-          (attr) => attr.trait_type === "title",
-        )?.value
-      : (invitationData as IOldUserAgreement).title ?? "Your Data, Your Choice";
+    const agreementTitle = (invitationData as IUserAgreement).attributes.find(
+      (attr) => attr.trait_type === "title",
+    )?.value;
     const descriptionText = invitationData.description;
 
     if (!descriptionText) {

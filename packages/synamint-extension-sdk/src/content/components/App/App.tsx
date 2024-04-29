@@ -11,7 +11,6 @@ import {
   EVMContractAddress,
   EWalletDataType,
   IDynamicRewardParameter,
-  IOldUserAgreement,
   IPaletteOverrides,
   IUserAgreement,
   Invitation,
@@ -161,7 +160,7 @@ enum EInvitationSourceType {
 
 interface IInvitaionData {
   invitation: Invitation;
-  metadata: IOldUserAgreement | IUserAgreement;
+  metadata: IUserAgreement;
 }
 
 interface ICurrentInvitation {
@@ -305,7 +304,7 @@ const App: FC<IAppProps> = ({ paletteOverrides }) => {
   ): ResultAsync<
     {
       invitation: Invitation;
-      metadata: IOldUserAgreement | IUserAgreement;
+      metadata: IUserAgreement;
     } | null,
     ProxyError
   > => {

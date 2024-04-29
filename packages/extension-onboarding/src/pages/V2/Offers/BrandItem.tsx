@@ -5,7 +5,6 @@ import SingleVirtualOffer from "@extension-onboarding/pages/V2/Offers/SingleVirt
 import Box from "@material-ui/core/Box";
 import Skeleton from "@material-ui/lab/Skeleton";
 import {
-  IOldUserAgreement,
   IUserAgreement,
   IpfsCID,
   QueryStatus,
@@ -42,9 +41,7 @@ const BrandItem: FC<IBrandItemProps> = ({
   reCalculateOffers,
 }) => {
   const { sdlDataWallet } = useDataWalletContext();
-  const [agreementData, setAgreementData] = useSafeState<
-    IOldUserAgreement | IUserAgreement
-  >();
+  const [agreementData, setAgreementData] = useSafeState<IUserAgreement>();
   const getAgreementData = () => {
     return sdlDataWallet.getInvitationMetadataByCID(ipfsCID).map((data) => {
       setAgreementData(data);
@@ -101,7 +98,7 @@ const BrandItem: FC<IBrandItemProps> = ({
       const brandName =
         agreementData["brandInformation"]?.["name"] ?? "Unknown";
       const brandLogo =
-        agreementData["brandInformation"]?.["image"] ??
+        agreementData["brandInformation"]?.["logoImage"] ??
         agreementData.image ??
         "";
       return {

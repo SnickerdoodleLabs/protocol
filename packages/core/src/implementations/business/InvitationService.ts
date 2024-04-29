@@ -18,7 +18,6 @@ import {
   EInvitationStatus,
   EVMContractAddress,
   Invitation,
-  IOldUserAgreement,
   IpfsCID,
   IPFSError,
   LinkedAccount,
@@ -505,7 +504,7 @@ export class InvitationService implements IInvitationService {
 
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement | IUserAgreement, IPFSError> {
+  ): ResultAsync<IUserAgreement, IPFSError> {
     return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
   }
 

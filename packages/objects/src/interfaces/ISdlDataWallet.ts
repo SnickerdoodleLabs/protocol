@@ -26,7 +26,6 @@ import {
 } from "@objects/enum/index.js";
 import { ProxyError } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
-import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
 import {
   IAccountMethods,
   ICoreDiscordMethods,
@@ -278,7 +277,7 @@ export interface ISdlDataWallet {
   >;
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError>;
+  ): ResultAsync<IUserAgreement, ProxyError>;
 
   leaveCohort(
     consentContractAddress: EVMContractAddress,

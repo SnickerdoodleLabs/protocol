@@ -79,7 +79,6 @@ import {
   ServerRewardError,
   QuestionnairesContractError,
 } from "@objects/errors/index.js";
-import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
 import { IQueryPermissions } from "@objects/interfaces/IQueryPermissions.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
@@ -619,10 +618,7 @@ export interface IInvitationMethods {
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<
-    IOldUserAgreement | IUserAgreement,
-    IPFSError | UnauthorizedError
-  >;
+  ): ResultAsync<IUserAgreement, IPFSError | UnauthorizedError>;
 }
 
 export interface IMetricsMethods {

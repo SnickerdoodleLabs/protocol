@@ -5,7 +5,6 @@ import {
   EInvitationStatus,
   PageInvitation,
   EVMContractAddress,
-  IOldUserAgreement,
   IpfsCID,
   EWalletDataType,
   MarketplaceListing,
@@ -94,7 +93,7 @@ export class InvitationService implements IInvitationService {
 
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement | IUserAgreement, SnickerDoodleCoreError> {
+  ): ResultAsync<IUserAgreement, SnickerDoodleCoreError> {
     return this.invitationRepository.getInvitationMetadataByCID(ipfsCID);
   }
 

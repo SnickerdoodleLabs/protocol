@@ -10,7 +10,6 @@ export * from "@objects/interfaces/IFormFactorInternalEvents.js";
 export * from "@objects/interfaces/IIFrameConfigOverrides.js";
 export * from "@objects/interfaces/IInsightWithProof.js";
 export * from "@objects/interfaces/INFT.js";
-export * from "@objects/interfaces/IOldUserAgreement.js";
 export * from "@objects/interfaces/IPaletteOverrides.js";
 export * from "@objects/interfaces/IQueryDeliveryAds.js";
 export * from "@objects/interfaces/IQueryDeliveryInsights.js";
