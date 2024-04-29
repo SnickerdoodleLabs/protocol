@@ -287,6 +287,50 @@ describe("Consent Contract and Factory Tests", function () {
       ).to.eql(arrayOfBatches.flat());
     });
 
+    // Change xit to it.only to test
+    xit("Testing computeFee limit", async function () {
+      const { consentFactory, token, owner, otherAccount } = await loadFixture(
+        deployConsentStack,
+      );
+
+      // ComputeFee's max returnable value is a uint256
+      // We can then try to figure out what is the max slot that it can take as an input
+      const maxUintTokens = ethers.MaxUint256;
+      const base = 1.0001;
+
+      // To calculate the number of tokens to stake, the ContentFactory's computeFee does 1.0001^(slot)
+      // So to determine the max slot given the maximum output of a uint256, we can do a logarithm calculation
+      // Using base of 1.0001 and maxUintTokens gives us a max slot value of 1774545.503594127
+      function logarithm(base, result) {
+        return Math.log(result) / Math.log(base);
+      }
+
+      console.log(
+        "Theoratical max slot value for max uint256 token amount",
+        Math.floor(logarithm(base, Number(maxUintTokens))),
+      );
+
+      // However, in trying to pass this slot to computeFee, the transaction reverts.
+      // So we decrement one step at a time to figure out what value computeFee will take.
+      const maxSlot = 1774545;
+
+      // To reduce testing cycle, logged a value closer to the correct target
+      for (let i = 945577; i > 0; i--) {
+        try {
+          console.log("trying slot:", i);
+          const fee = await consentFactory.computeFee(i);
+          console.log(
+            `success! found max slot of: ${i}, computed fee (max token amount stakable): ${fee} DOUGH (wei units)`,
+          );
+          return;
+        } catch {
+          console.log("failed");
+          continue;
+        }
+      }
+      // From the loop, found that max slot of: 945573, computed fee (max token amount stakable): 115787176816616750269246295769565309095447339220652412811694 DOUGH (wei units)
+    });
+
     it("Restricted single optin", async function () {
       const { consentFactory, token, owner, otherAccount } = await loadFixture(
         deployConsentStack,
