@@ -160,11 +160,6 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
 
         bytes32 LLKey = keccak256(abi.encodePacked(tag));
 
-        // if the user passes in (2^256)-1, automatically jump to the highest staked slot
-        if (_startingSlot == type(uint256).max) {
-            _startingSlot = $.listings[LLKey][stakingToken][_startingSlot].next;
-        }
-
         for (uint i = 0; i < numSlots; i++) {
             Listing memory listing = $.listings[LLKey][stakingToken][
                 _startingSlot
