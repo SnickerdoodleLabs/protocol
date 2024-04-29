@@ -370,22 +370,17 @@ export class ConsentFactoryContract
         return this.generateError(e, "Unable to call getListingsForward()");
       },
     ).map(([cids, listings]) => {
-      return listings
-        .map((listing, index) => {
-          return new MarketplaceListing(
-            BigNumberString(listing.previous.toString()),
-            BigNumberString(listing.next.toString()),
-            listing.contentObject,
-            UnixTimestamp(Number(listing.timeExpiring)),
-            IpfsCID(cids[index]),
-            BigNumberString(listing.stake.toString()),
-            tag,
-          );
-        })
-        .filter((listing) => {
-          // Filter out slots with previous and next zeros
-          return listing.previous != "0" || listing.next != "0";
-        });
+      return listings.map((listing, index) => {
+        return new MarketplaceListing(
+          BigNumberString(listing.previous.toString()),
+          BigNumberString(listing.next.toString()),
+          listing.contentObject,
+          UnixTimestamp(Number(listing.timeExpiring)),
+          IpfsCID(cids[index]),
+          BigNumberString(listing.stake.toString()),
+          tag,
+        );
+      });
     });
   }
 
@@ -400,7 +395,7 @@ export class ConsentFactoryContract
     ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.getListingsForward(
+      this.contract.getListingsBackward(
         tag,
         stakingToken,
         startingSlot,
@@ -408,7 +403,7 @@ export class ConsentFactoryContract
         removeExpired,
       ) as Promise<[string[], IListingStruct[]]>,
       (e) => {
-        return this.generateError(e, "Unable to call getListingsForward()");
+        return this.generateError(e, "Unable to call getListingsBackward()");
       },
     ).map(([cids, listings]) => {
       return listings
