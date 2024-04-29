@@ -467,7 +467,6 @@ export class ConsentContract
         return new Tag(
           tag.slot ? BigNumberString(tag.slot.toString()) : null,
           tag.tag,
-          tag.staker,
         );
       });
     });
@@ -701,5 +700,4 @@ export class ConsentContract
 interface ITagStruct {
   slot: bigint | null;
   tag: string | null;
-  staker: EVMAccountAddress | null;
 }
