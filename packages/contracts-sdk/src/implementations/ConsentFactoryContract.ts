@@ -215,13 +215,18 @@ export class ConsentFactoryContract
         ethers.MaxUint256.toString(),
       );
 
+      // If there are no listings for this tags, return empty array
+      if (tagTotal == 0) {
+        return okAsync([]);
+      }
+
       // Fetch from the highest to lowest listings
       return this.getListingsForward(
         tag,
         stakingToken,
         highestRankListingSlot,
-        // getListingsForward now returns the highest ranking slot if we pass in max uint256.
-        tagTotal,
+        // getListingsForward now includes the max uint256 value in order to obtain its .next that points to the slot of the highest rank listing
+        tagTotal + 1, // Add 1 to account for first slot being the uint256 listing (eg. if there is only 1 listing, it needs 2 slots for uint256 => highestRankingSlot)
         removeExpired,
       );
     });
