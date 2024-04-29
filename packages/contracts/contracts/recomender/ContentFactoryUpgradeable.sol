@@ -169,19 +169,26 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
             Listing memory listing = $.listings[LLKey][stakingToken][
                 _startingSlot
             ];
-            require(listing.timeExpiring > 0, "Content Factory: invalid slot"); // ensure the listing is valid by looking at the timestamp
-            if (
-                (filterActive == true) &&
-                (listing.timeExpiring < block.timestamp)
-            ) {
-                _startingSlot = listing.next; // Move on to downstream slot
-                if (_startingSlot == 0) {
-                    // slot 0 is the EOL tail slot
-                    break;
-                }
-                continue;
-            } // don't include expired listings if filtering enabled
-            cids[i] = IConsent(listing.contentObject).baseURI(); // grab the invitation details from the consent contract
+
+            // If starting slot is max uint, set it as the first item in the slot, the move down the list
+            // If it is not max uint, carry out the required checks before moving down the list
+            if(_startingSlot != type(uint256).max) {
+                require(listing.timeExpiring > 0, "Content Factory: invalid slot"); // ensure the listing is valid by looking at the timestamp
+
+                if (
+                    (filterActive == true) &&
+                    (listing.timeExpiring < block.timestamp)
+                ) {
+                    _startingSlot = listing.next; // Move on to downstream slot
+                    if (_startingSlot == 0) {
+                        // slot 0 is the EOL tail slot
+                        break;
+                    }
+                    continue;
+                } // don't include expired listings if filtering enabled
+                cids[i] = IConsent(listing.contentObject).baseURI(); // grab the invitation details from the consent contract
+            }
+
             sources[i] = listing; // also grab the complete listing details
             _startingSlot = listing.next;
             if (_startingSlot == 0) {
