@@ -1,6 +1,6 @@
-import { BaseNotification } from "@objects/extensionShared/businessObjects/BaseNotification";
-import { ENotificationTypes } from "@objects/extensionShared/enums/notification";
-import { DataWalletAddress } from "@objects/primitives/DataWalletAddress";
+import { BaseNotification } from "@objects/extensionShared/businessObjects/BaseNotification.js";
+import { ENotificationTypes } from "@objects/extensionShared/enums/notification.js";
+import { DataWalletAddress } from "@objects/primitives/DataWalletAddress.js";
 
 export class AccountInitializedNotification extends BaseNotification<DataWalletAddress> {
   constructor(protected dataWalletAddress: DataWalletAddress) {
