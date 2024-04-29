@@ -7,7 +7,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export interface IMembershipWrapper {
+import { ICircomWrapper } from "@circuits-sdk/interfaces/ICircomWrapper.js";
+export interface IMembershipWrapper extends ICircomWrapper {
   /**
    * asdf
    * @param signal a string representing the signal to be proved

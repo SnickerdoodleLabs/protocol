@@ -12,6 +12,7 @@
   },
   "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/objects#readme",
   "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
+  "sideEffects": false,
   "keywords": [
     "Blockchain",
     "Snickerdoodle"

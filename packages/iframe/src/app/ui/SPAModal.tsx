@@ -1,8 +1,6 @@
 import { IFrameEvents } from "@core-iframe/interfaces/objects";
-import Box from "@material-ui/core/Box";
 import CloseIcon from "@material-ui/icons/Close";
 import { ISdlDataWallet } from "@snickerdoodlelabs/objects";
-import { ModalContainer } from "@snickerdoodlelabs/shared-components";
 import React, {
   useState,
   useMemo,
@@ -14,6 +12,11 @@ import React, {
   Suspense,
 } from "react";
 import { Subscription } from "rxjs";
+const LazyModalContainer = lazy(() =>
+  import("@snickerdoodlelabs/shared-components").then((module) => ({
+    default: module.ModalContainer,
+  })),
+);
 const LazySPA = lazy(() => import("@snickerdoodlelabs/extension-onboarding"));
 
 interface ISPAModalProps {
@@ -67,15 +70,25 @@ export const SPAModal: FC<ISPAModalProps> = ({
   const component = useMemo(() => {
     if (appState === EAPP_STATE.VISIBLE && !awaitRender) {
       return (
-        <Box
-          boxShadow="rgb(38, 57, 77) 0px 20px 30px -10px"
-          borderRadius={12}
-          margin="auto"
-          width="100%"
-          height="90vh"
-          position="relative"
+        <div
+          style={{
+            boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px",
+            borderRadius: 12,
+            margin: "auto",
+            width: "100%",
+            height: "90vh",
+            position: "relative",
+          }}
         >
-          <Box position="absolute" mx="auto" top={-20} right={-20} zIndex={1}>
+          <div
+            style={{
+              position: "absolute",
+              margin: "auto",
+              top: -20,
+              right: -20,
+              zIndex: 1,
+            }}
+          >
             <CloseIcon
               onClick={() => {
                 onClose();
@@ -83,21 +96,29 @@ export const SPAModal: FC<ISPAModalProps> = ({
               fontSize="large"
               style={{ cursor: "pointer", color: "#000" }}
             />
-          </Box>
-          <Box width="100%" height="100%" overflow="auto">
+          </div>
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              overflow: "auto",
+            }}
+          >
             <Suspense
               fallback={
-                <Box
-                  width="fill-available"
-                  height="fill-available"
-                  bgcolor="rgb(250, 250, 250)"
+                <div
+                  style={{
+                    width: "fill-available",
+                    height: "fill-available",
+                    backgroundColor: "rgb(250, 250, 250)",
+                  }}
                 />
               }
             >
               <LazySPA proxy={proxy} />
             </Suspense>
-          </Box>
-        </Box>
+          </div>
+        </div>
       );
     }
     return null;
@@ -105,7 +126,11 @@ export const SPAModal: FC<ISPAModalProps> = ({
 
   return (
     <>
-      {component && <ModalContainer allowOverflow>{component}</ModalContainer>}
+      {component && (
+        <Suspense fallback={null}>
+          <LazyModalContainer allowOverflow>{component}</LazyModalContainer>
+        </Suspense>
+      )}
     </>
   );
 };

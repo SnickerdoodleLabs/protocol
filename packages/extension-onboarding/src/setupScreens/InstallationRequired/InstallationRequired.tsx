@@ -1,16 +1,15 @@
-import Box from "@material-ui/core/Box";
-import Typography from "@material-ui/core/Typography";
-import Grid from "@material-ui/core/Grid";
-import { SDButton } from "@snickerdoodlelabs/shared-components";
-import React, { useEffect, useState } from "react";
-
 import { SDLogoCircle } from "@extension-onboarding/assets";
+import Container from "@extension-onboarding/components/v2/Container";
 import {
   DOWNLOAD_URL,
   PRODUCT_VIDEO_URL,
 } from "@extension-onboarding/constants";
 import { useStyles } from "@extension-onboarding/setupScreens/InstallationRequired/InstallationRequired.style";
-import Container from "@extension-onboarding/components/v2/Container";
+import Box from "@material-ui/core/Box";
+import Grid from "@material-ui/core/Grid";
+import Typography from "@material-ui/core/Typography";
+import { SDButton } from "@snickerdoodlelabs/shared-components";
+import React, { useEffect, useState } from "react";
 
 const InstallationRequired = () => {
   const [pageFocused, setPageFocused] = useState<boolean>(false);

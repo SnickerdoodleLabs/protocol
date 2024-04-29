@@ -2,7 +2,6 @@ import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert
 import Card from "@extension-onboarding/components/v2/Card";
 import CardTitle from "@extension-onboarding/components/v2/CardTitle";
 import YearSelector from "@extension-onboarding/components/v2/YearSelector";
-import { countries } from "@extension-onboarding/constants/countries";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import Box from "@material-ui/core/Box";
@@ -14,7 +13,11 @@ import CreateIcon from "@material-ui/icons/Create";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import TodayIcon from "@material-ui/icons/Today";
 import { CountryCode, Gender, UnixTimestamp } from "@snickerdoodlelabs/objects";
-import { SDButton, SDTypography } from "@snickerdoodlelabs/shared-components";
+import {
+  SDButton,
+  SDTypography,
+  COUNTRIES,
+} from "@snickerdoodlelabs/shared-components";
 import { okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { useCallback, useEffect, useRef } from "react";
@@ -49,7 +52,7 @@ const items: Item[] = [
     title: "Country",
     valueKey: "countryCode",
     displayValue: (value: CountryCode | null) =>
-      value ? countries.find((c) => c.code === value)?.name ?? null : null,
+      value ? COUNTRIES.find((c) => c.code === value)?.name ?? null : null,
   },
   {
     title: "Gender",
@@ -263,7 +266,7 @@ const PersonalInfo = () => {
                 <KeyboardArrowDownIcon />
               </IconButton>
               <Menu {...menuProps}>
-                {countries.map((country) => (
+                {COUNTRIES.map((country) => (
                   <MenuItem
                     onClick={() => {
                       setValuesByKey(item.valueKey, country.code);

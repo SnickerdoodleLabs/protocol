@@ -2,7 +2,11 @@ import {
   CircomCommitmentWrapper,
   CircomMembershipWrapper,
 } from "@snickerdoodlelabs/circuits-sdk";
-import { LogUtils, TimeUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  AxiosAjaxUtils,
+  LogUtils,
+  TimeUtils,
+} from "@snickerdoodlelabs/common-utils";
 import { ConfigProvider } from "@snickerdoodlelabs/core";
 import { CryptoUtils } from "@snickerdoodlelabs/node-utils";
 import {
@@ -98,8 +102,17 @@ export class TestHarnessMocks {
 
   public blockchain = new BlockchainStuff(this.devAccountKeys);
   public ipfs = new IPFSClient();
-  public membershipWrapper = new CircomMembershipWrapper();
-  public commitmentWrapper = new CircomCommitmentWrapper();
+  public axiosUtils = new AxiosAjaxUtils();
+
+  public membershipWrapper = new CircomMembershipWrapper(
+    this.axiosUtils,
+    this.configProvider,
+  );
+
+  public commitmentWrapper = new CircomCommitmentWrapper(
+    this.axiosUtils,
+    this.configProvider,
+  );
 
   public insightSimulator = new InsightPlatformSimulator(
     this.blockchain,
