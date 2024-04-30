@@ -88,6 +88,14 @@ describe("BigNumberUtils class", () => {
     expect(BNSValue).toBe("10");
   });
 
+  test("BNToDS should convert decimals 0 if 0 is passed", () => {
+    const BNValue = BigInt("10");
+    const decimals = 0;
+    const decimalString = bigNumberUtils.BNToDS(BNValue, decimals);
+
+    expect(decimalString).toBe("10");
+  });
+
   test("BNSToDS should convert decimals 0 if 0 is passed", () => {
     const BNSValue = BigNumberString("10");
     const decimals = 0;

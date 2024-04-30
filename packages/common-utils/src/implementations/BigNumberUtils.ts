@@ -73,8 +73,10 @@ export class BigNumberUtils implements IBigNumberUtils {
     return BigNumberString(BigInt(bigint).toString());
   }
 
-  public BNToDS(bigNumber: bigint, decimals = 18): DecimalString {
-    return DecimalString(ethers.formatUnits(bigNumber, decimals || 18));
+  public BNToDS(bigNumber: bigint, decimals?: number): DecimalString {
+    return DecimalString(
+      ethers.formatUnits(bigNumber, decimals != undefined ? decimals : 18),
+    );
   }
 
   public BNtoUint8Array(bigint: bigint): Uint8Array {
@@ -104,11 +106,7 @@ export class BigNumberUtils implements IBigNumberUtils {
     bigNumberString: BigNumberString,
     decimals?: number,
   ): DecimalString {
-    const valueBigNumber = BigInt(bigNumberString);
-
-    return DecimalString(
-      ethers.formatUnits(valueBigNumber, decimals != undefined ? decimals : 18),
-    );
+    return this.BNToDS(this.BNSToBN(bigNumberString), decimals);
   }
 
   public BNStoHexString32(bigNumberString: BigNumberString): HexString32 {
