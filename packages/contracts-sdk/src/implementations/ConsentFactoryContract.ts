@@ -370,17 +370,66 @@ export class ConsentFactoryContract
         return this.generateError(e, "Unable to call getListingsForward()");
       },
     ).map(([cids, listings]) => {
-      return listings.map((listing, index) => {
-        return new MarketplaceListing(
-          BigNumberString(listing.previous.toString()),
-          BigNumberString(listing.next.toString()),
-          listing.contentObject,
-          UnixTimestamp(Number(listing.timeExpiring)),
-          IpfsCID(cids[index]),
-          BigNumberString(listing.stake.toString()),
+      // Setup an array for marketplace listings that includes slots
+      const marketplaceListings: MarketplaceListing[] = [];
+
+      // If the there is only one listing is only 1, it is the startingSlot know which slot you are querying
+      if (listings.length == 1) {
+        return [
+          new MarketplaceListing(
+            startingSlot,
+            BigNumberString(listings[0].previous.toString()),
+            BigNumberString(listings[0].next.toString()),
+            listings[0].contentObject,
+            UnixTimestamp(Number(listings[0].timeExpiring.toString())),
+            IpfsCID(cids[0]),
+            BigNumberString(listings[0].stake.toString()),
+            tag,
+          ),
+        ];
+      }
+
+      for (let i = 0; i < listings.length; i++) {
+        // IListingStruct that mimics the contract's Listing object does not have 'slot' property
+        // Initiate a MarketplaceListing with IListingStruct info
+        const marketplaceListing = new MarketplaceListing(
+          BigNumberString("0"), // initiate with a 0 slot, it will be populated below
+          BigNumberString(listings[i].previous.toString()),
+          BigNumberString(listings[i].next.toString()),
+          listings[i].contentObject,
+          UnixTimestamp(Number(listings[i].timeExpiring)),
+          IpfsCID(cids[i]),
+          BigNumberString(listings[i].stake.toString()),
           tag,
         );
-      });
+
+        // Fix listing gets its slot from the second listing's previous value
+        if (i == 0) {
+          // Handle case where the startingSlot happens to be one position before 0
+          if (listings[i + 1].previous == BigInt("0")) {
+            marketplaceListing.slot = BigNumberString(startingSlot.toString());
+          } else {
+            marketplaceListing.slot = BigNumberString(
+              listings[i + 1].previous.toString(),
+            );
+          }
+
+          marketplaceListings.push(marketplaceListing);
+
+          continue;
+        }
+
+        // Subsequent listings get their slots from the previous listing's next value
+        marketplaceListing.slot = BigNumberString(
+          listings[i - 1].next.toString(),
+        );
+        marketplaceListings.push(marketplaceListing);
+      }
+
+      // Remove those that have .previous of 0, keep those with next 0 as the last position item will have .next of 0
+      return marketplaceListings.filter(
+        (listing) => listing.previous != BigNumberString("0"),
+      );
     });
   }
 
@@ -406,22 +455,63 @@ export class ConsentFactoryContract
         return this.generateError(e, "Unable to call getListingsBackward()");
       },
     ).map(([cids, listings]) => {
-      return listings
-        .map((listing, index) => {
-          return new MarketplaceListing(
-            BigNumberString(listing.previous.toString()),
-            BigNumberString(listing.next.toString()),
-            listing.contentObject,
-            UnixTimestamp(Number(listing.timeExpiring)),
-            IpfsCID(cids[index]),
-            BigNumberString(listing.stake.toString()),
+      const marketplaceListingsBackwards: MarketplaceListing[] = [];
+
+      // If the length is only 1, you know which slot you are querying
+      if (listings.length == 1) {
+        return [
+          new MarketplaceListing(
+            BigNumberString("0"),
+            BigNumberString(listings[0].previous.toString()),
+            BigNumberString(listings[0].next.toString()),
+            listings[0].contentObject,
+            UnixTimestamp(Number(listings[0].timeExpiring)),
+            IpfsCID(cids[0]),
+            BigNumberString(listings[0].stake.toString()),
             tag,
-          );
-        })
-        .filter((listing) => {
-          // Filter out slots with previous and next zeros
-          return listing.previous != "0" || listing.next != "0";
-        });
+          ),
+        ];
+      }
+
+      for (let i = 0; i < listings.length; i++) {
+        // For the first item, get the slot from the second's next
+        const marketplaceListing = new MarketplaceListing(
+          BigNumberString("0"),
+          BigNumberString(listings[i].previous.toString()),
+          BigNumberString(listings[i].next.toString()),
+          listings[i].contentObject,
+          UnixTimestamp(Number(listings[i].timeExpiring)),
+          IpfsCID(cids[i]),
+          BigNumberString(listings[i].stake.toString()),
+          tag,
+        );
+
+        // First listing gets its slot from the second listing's previous value
+        if (i == 0) {
+          // Handle case where the startingSlot is one position before uint256
+          if (listings[i + 1].next == BigInt(0)) {
+            marketplaceListing.slot = BigNumberString(startingSlot.toString());
+          } else {
+            marketplaceListing.slot = BigNumberString(
+              listings[i + 1].next.toString(),
+            );
+          }
+
+          marketplaceListingsBackwards.push(marketplaceListing);
+
+          continue;
+        }
+
+        // Subsequent listings get their slots from the previous listing's next value
+        marketplaceListing.slot = BigNumberString(
+          listings[i - 1].previous.toString(),
+        );
+        marketplaceListingsBackwards.push(marketplaceListing);
+      }
+
+      return marketplaceListingsBackwards.filter(
+        (listing) => listing.previous != "0",
+      );
     });
   }
 

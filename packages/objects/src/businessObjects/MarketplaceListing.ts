@@ -8,6 +8,7 @@ import {
 
 export class MarketplaceListing {
   public constructor(
+    public slot: BigNumberString,
     public previous: BigNumberString,
     public next: BigNumberString,
     public consentContract: EVMContractAddress,
