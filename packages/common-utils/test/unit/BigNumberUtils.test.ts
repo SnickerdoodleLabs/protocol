@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { BigNumberString, HexString32 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 
