@@ -9,6 +9,7 @@ import { fromString, toString } from "uint8arrays";
 
 import { IBigNumberUtils } from "@common-utils/interfaces/index.js";
 
+export const BigNumberBytes = 32;
 @injectable()
 export class BigNumberUtils implements IBigNumberUtils {
   constructor() {}
@@ -80,8 +81,8 @@ export class BigNumberUtils implements IBigNumberUtils {
     let hexString = bigint.toString(16);
     // Ensure the hex string takes the required number of bytes
     //    each byte is represented by 2 hex characters
-    //    so we need 16 bytes * 2 hex characters = 32 hex characters
-    const requiredLength = 32;
+    //    so we need 32 bytes * 2 hex characters = 64 hex characters
+    const requiredLength = BigNumberBytes * 2;
     while (hexString.length < requiredLength) {
       hexString = "0" + hexString;
     }
@@ -101,15 +102,19 @@ export class BigNumberUtils implements IBigNumberUtils {
 
   public BNSToDS(
     bigNumberString: BigNumberString,
-    decimals = 18,
+    decimals?: number,
   ): DecimalString {
     const valueBigNumber = BigInt(bigNumberString);
 
-    return DecimalString(ethers.formatUnits(valueBigNumber, decimals || 18));
+    return DecimalString(
+      ethers.formatUnits(valueBigNumber, decimals != undefined ? decimals : 18),
+    );
   }
 
   public BNStoHexString32(bigNumberString: BigNumberString): HexString32 {
-    return HexString32(ethers.toBeHex(this.BNSToBN(bigNumberString), 32));
+    return HexString32(
+      ethers.toBeHex(this.BNSToBN(bigNumberString), BigNumberBytes),
+    );
   }
 
   public BNStoHexString32NoPrefix(
