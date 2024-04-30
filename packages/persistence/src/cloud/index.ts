@@ -1,3 +1,4 @@
+export * from "@persistence/cloud/CeramicCloudStorage.js";
 export * from "@persistence/cloud/CloudStorageManager.js";
 export * from "@persistence/cloud/DropboxCloudStorage.js";
 export * from "@persistence/cloud/GoogleCloudStorage.js";

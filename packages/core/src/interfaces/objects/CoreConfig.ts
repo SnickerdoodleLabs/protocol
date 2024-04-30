@@ -1,3 +1,4 @@
+import { MapModelTypes } from "@glazed/types";
 import { ICircuitsSDKConfig } from "@snickerdoodlelabs/circuits-sdk";
 import { IIndexerConfig } from "@snickerdoodlelabs/indexers";
 import {
@@ -10,6 +11,7 @@ import {
   ProviderUrl,
   LanguageCode,
   IApiKeys,
+  ModelTypes,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
@@ -55,5 +57,8 @@ export class CoreConfig
     public passwordLanguageCode: LanguageCode,
     public queryPerformanceMetricsLimit: number,
     public circuitsIpfsFetchBaseUrl: URLString,
+
+    public ceramicModelAliases: MapModelTypes<ModelTypes, string>,
+    public ceramicNodeURL: URLString,
   ) {}
 }
