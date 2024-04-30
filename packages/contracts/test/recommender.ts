@@ -270,7 +270,7 @@ describe("Stake for Ranking tests", function () {
       );
     });
 
-    it.only("Try inserting a listing upstream of existing listing", async function () {
+    it("Try inserting a listing upstream of existing listing", async function () {
       const {
         consentFactory,
         consentContract,
