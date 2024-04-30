@@ -4,7 +4,6 @@ export class Tag {
   public constructor(
     public slot: BigNumberString | null = null,
     public tag: string | null = null,
-    public staker: EVMAccountAddress | null = null,
   ) {}
 }
 

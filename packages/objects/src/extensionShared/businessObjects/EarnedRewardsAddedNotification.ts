@@ -1,6 +1,6 @@
-import { EarnedReward } from "@objects/businessObjects/rewards/EarnedReward";
-import { BaseNotification } from "@objects/extensionShared/businessObjects/BaseNotification";
-import { ENotificationTypes } from "@objects/extensionShared/enums/notification";
+import { EarnedReward } from "@objects/businessObjects/rewards/EarnedReward.js";
+import { BaseNotification } from "@objects/extensionShared/businessObjects/BaseNotification.js";
+import { ENotificationTypes } from "@objects/extensionShared/enums/notification.js";
 
 export class EarnedRewardsAddedNotification extends BaseNotification<
   EarnedReward[]
