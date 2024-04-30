@@ -1,6 +1,6 @@
-import { BaseNotification } from "@objects/extensionShared/businessObjects/BaseNotification";
-import { EProfileFieldType } from "@objects/extensionShared/enums/EProfileFieldType";
-import { ENotificationTypes } from "@objects/extensionShared/enums/notification";
+import { BaseNotification } from "@objects/extensionShared/businessObjects/BaseNotification.js";
+import { EProfileFieldType } from "@objects/extensionShared/enums/EProfileFieldType.js";
+import { ENotificationTypes } from "@objects/extensionShared/enums/notification.js";
 
 export class ProfileFieldChangedNotification extends BaseNotification<ProfileFieldUpdate> {
   constructor(public update: ProfileFieldUpdate) {

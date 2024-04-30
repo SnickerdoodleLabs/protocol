@@ -29,7 +29,7 @@ export * from "@objects/errors/ProxyError.js";
 export * from "@objects/errors/QueryExpiredError.js";
 export * from "@objects/errors/QueryFormatError.js";
 export * from "@objects/errors/ServerRewardError.js";
-export * from "@objects/errors/TransactionResponseError";
+export * from "@objects/errors/TransactionResponseError.js";
 export * from "@objects/errors/TwitterError.js";
 export * from "@objects/errors/UnauthorizedError.js";
 export * from "@objects/errors/UninitializedError.js";
