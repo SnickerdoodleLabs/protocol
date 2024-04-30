@@ -31,7 +31,7 @@ async function start() {
         const integration = new SnickerdoodleWebIntegration(
           {
             primaryInfuraKey: "a8ae124ed6aa44bb97a7166cda30f1bc",
-            iframeURL: URLString("http://localhost:9010"),
+            iframeURL: URLString("https://localhost:9010"),
             debug: true,
             palette: { background: "red" },
             discordOverrides: {

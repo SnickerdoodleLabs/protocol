@@ -18,7 +18,7 @@ var compiler = webpack(config);
 
 var server = new WebpackDevServer(
   {
-    https: false,
+    https: true,
     static: {
       directory: path.join(__dirname, "./"),
     },

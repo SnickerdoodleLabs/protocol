@@ -28,7 +28,7 @@ ENV __IPFS_FETCH_BASE_URL__ $IPFS_FETCH_BASE_URL
 ARG INFURA_ID="a6271a49218848a7ad939ee62d225914"
 ENV __PRIMARY_INFURA_KEY__ $INFURA_ID
 
-ARG IFRAME_URL="http://localhost:9010"
+ARG IFRAME_URL="https://localhost:9010"
 ENV __IFRAME_URL__ $IFRAME_URL
 
 RUN cd packages/extension-onboarding && yarn postCompile

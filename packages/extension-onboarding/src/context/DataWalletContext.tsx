@@ -1,6 +1,7 @@
 import { WebIntegrationConfigProvider } from "@extension-onboarding/services/implementations/utilities";
 import { ISdlDataWalletProxy } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import Loading from "@extension-onboarding/setupScreens/Loading";
+import { PasskeyUtils } from "@extension-onboarding/utils";
 import { ECoreProxyType, ISdlDataWallet } from "@snickerdoodlelabs/objects";
 import { SnickerdoodleWebIntegration } from "@snickerdoodlelabs/web-integration";
 import React, {
@@ -72,6 +73,18 @@ export const DataWalletContextProvider: FC<IDataWalletContextProviderProps> = ({
           return waitAndInitializeExtensionInjectedProxy(sdlDataWallet);
         }
         return setSdlDataWallet(sdlDataWallet);
+      })
+      .map(() => {
+        console.log("CHARLIE creating passkey");
+        const passkeyUtils = new PasskeyUtils();
+        passkeyUtils
+          .createDIDSession("CHARLIE")
+          .map((didSession) => {
+            console.log("CHARLIE created did", didSession);
+          })
+          .mapErr((e) => {
+            console.log("CHARLIE error creating DID", e);
+          });
       })
       .mapErr((err) => {
         return setSetupStatus(ESetupStatus.FAILED);

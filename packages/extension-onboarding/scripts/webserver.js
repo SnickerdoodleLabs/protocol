@@ -9,7 +9,7 @@ process.env.__HOTJAR_SNIPPET_VERSION__ = "";
 process.env.__IPFS_FETCH_BASE_URL__ =
   "https://ipfs-gateway.snickerdoodle.com/ipfs/";
 process.env.__PRIMARY_INFURA_KEY__ = "a6271a49218848a7ad939ee62d225914";
-process.env.__IFRAME_URL__ = "http://localhost:9010";
+process.env.__IFRAME_URL__ = "https://localhost:9010";
 process.env.__GOOGLE_CLOUD_BUCKET__ = "";
 
 var WebpackDevServer = require("webpack-dev-server"),
