@@ -218,19 +218,24 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
             Listing memory listing = $.listings[LLKey][stakingToken][
                 _startingSlot
             ];
-            require(listing.timeExpiring > 0, "Content Factory: invalid slot"); // ensure the listing is valid by looking at the timestamp
-            if (
-                (filterActive == true) &&
-                (listing.timeExpiring < block.timestamp)
-            ) {
-                _startingSlot = listing.previous; // Move on to upstream slot
-                if (listing.previous == type(uint256).max) {
-                    // slot 2^256-1 is the EOL head slot
-                    break;
-                }
-                continue;
-            } // don't include expired listings if filtering enabled
-            cids[i] = IConsent(listing.contentObject).baseURI(); // grab the invitation details from the consent contract
+
+            if (_startingSlot != 0) {
+                require(listing.timeExpiring > 0, "Content Factory: invalid slot"); // ensure the listing is valid by looking at the timestamp
+                if (
+                    (filterActive == true) &&
+                    (listing.timeExpiring < block.timestamp)
+                ) {
+                    _startingSlot = listing.previous; // Move on to upstream slot
+                    if (listing.previous == type(uint256).max) {
+                        // slot 2^256-1 is the EOL head slot
+                        break;
+                    }
+                    continue;
+                } // don't include expired listings if filtering enabled
+
+                cids[i] = IConsent(listing.contentObject).baseURI(); // grab the invitation details from the consent contract
+            } 
+            
             sources[i] = listing; // also grab the complete listing details
             _startingSlot = listing.previous;
             if (listing.previous == type(uint256).max) {
