@@ -685,6 +685,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
 
     /// @notice returns amount of token to pull for a given slot based on 1.0001^_slot
     /// @dev you can call this function from the client to compute the amount of token to allow this contract
+    /// @dev the max calculated _slot value is 945573
     /// @param _slot integer representing the slot in the global linked list to acquire
     function computeFee(uint256 _slot) external pure returns (uint256) {
         return _computeFee(_slot);

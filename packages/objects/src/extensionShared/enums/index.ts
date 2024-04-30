@@ -1,2 +1,2 @@
-export * from "@objects/extensionShared/enums/EProfileFieldType";
-export * from "@objects/extensionShared/enums/notification";
+export * from "@objects/extensionShared/enums/EProfileFieldType.js";
+export * from "@objects/extensionShared/enums/notification.js";

@@ -1,8 +1,6 @@
-import { CloudStorageActivatedEvent } from "@objects/businessObjects";
-import { EarnedReward } from "@objects/businessObjects/rewards/EarnedReward";
-import { ECloudStorageType } from "@objects/enum";
-import { BaseNotification } from "@objects/extensionShared/businessObjects/BaseNotification";
-import { ENotificationTypes } from "@objects/extensionShared/enums/notification";
+import { CloudStorageActivatedEvent } from "@objects/businessObjects/events/CloudStorageActivatedEvent.js";
+import { BaseNotification } from "@objects/extensionShared/businessObjects/BaseNotification.js";
+import { ENotificationTypes } from "@objects/extensionShared/enums/notification.js";
 
 export class CloudProviderActivatedNotification extends BaseNotification<CloudStorageActivatedEvent> {
   constructor(protected event: CloudStorageActivatedEvent) {

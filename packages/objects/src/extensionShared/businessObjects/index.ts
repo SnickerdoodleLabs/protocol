@@ -1,14 +1,14 @@
-export * from "@objects/extensionShared/businessObjects/AccountAddedNotification";
-export * from "@objects/extensionShared/businessObjects/AccountInitializedNotification";
-export * from "@objects/extensionShared/businessObjects/AccountRemovedNotification";
-export * from "@objects/extensionShared/businessObjects/BaseNotification";
+export * from "@objects/extensionShared/businessObjects/AccountAddedNotification.js";
+export * from "@objects/extensionShared/businessObjects/AccountInitializedNotification.js";
+export * from "@objects/extensionShared/businessObjects/AccountRemovedNotification.js";
+export * from "@objects/extensionShared/businessObjects/BaseNotification.js";
 
-export * from "@objects/extensionShared/businessObjects/CloudProviderActivatedNotification";
+export * from "@objects/extensionShared/businessObjects/CloudProviderActivatedNotification.js";
 
-export * from "@objects/extensionShared/businessObjects/EarnedRewardsAddedNotification";
-export * from "@objects/extensionShared/businessObjects/LinkAccountRequestedNotification";
-export * from "@objects/extensionShared/businessObjects/CohortJoinedNotification";
-export * from "@objects/extensionShared/businessObjects/CohortLeftNotification";
-export * from "@objects/extensionShared/businessObjects/ProfileFieldChangedNotification";
-export * from "@objects/extensionShared/businessObjects/QueryPostedNotification";
-export * from "@objects/extensionShared/businessObjects/SocialProfileLinkedNotification";
+export * from "@objects/extensionShared/businessObjects/EarnedRewardsAddedNotification.js";
+export * from "@objects/extensionShared/businessObjects/LinkAccountRequestedNotification.js";
+export * from "@objects/extensionShared/businessObjects/CohortJoinedNotification.js";
+export * from "@objects/extensionShared/businessObjects/CohortLeftNotification.js";
+export * from "@objects/extensionShared/businessObjects/ProfileFieldChangedNotification.js";
+export * from "@objects/extensionShared/businessObjects/QueryPostedNotification.js";
+export * from "@objects/extensionShared/businessObjects/SocialProfileLinkedNotification.js";
