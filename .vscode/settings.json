@@ -50,6 +50,7 @@
     "tldts",
     "tsbuildinfo",
     "verificationkey",
+    "Webauthn",
     "zkey",
     "zksync"
   ]

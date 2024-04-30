@@ -37,6 +37,8 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@ceramicnetwork/http-client": "^5.9.0",
+    "@didtools/key-webauthn": "^2.0.2",
     "@snickerdoodlelabs/circuits-sdk": "workspace:^",
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/contracts-sdk": "workspace:^",
@@ -47,6 +49,7 @@
     "@snickerdoodlelabs/persistence": "workspace:^",
     "@snickerdoodlelabs/query-parser": "workspace:^",
     "@snickerdoodlelabs/signature-verification": "workspace:^",
+    "did-session": "^3.1.0",
     "ethers": "^6.10.0",
     "inversify": "^6.0.2",
     "jsonwebtoken": "^9.0.0",
