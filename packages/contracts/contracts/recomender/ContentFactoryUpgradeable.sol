@@ -165,7 +165,7 @@ abstract contract ContentFactoryUpgradeable is IContentFactory, Initializable {
                 _startingSlot
             ];
 
-            // If starting slot is max uint, set it as the first item in the slot, the move down the list
+            // If starting slot is max uint, set it as the first item in the slot, then move down the list
             // If it is not max uint, carry out the required checks before moving down the list
             if(_startingSlot != type(uint256).max) {
                 require(listing.timeExpiring > 0, "Content Factory: invalid slot"); // ensure the listing is valid by looking at the timestamp

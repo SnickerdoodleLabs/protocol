@@ -373,7 +373,7 @@ export class ConsentFactoryContract
       // Setup an array for marketplace listings that includes slots
       const marketplaceListings: MarketplaceListing[] = [];
 
-      // If the there is only one listing is only 1, it is the startingSlot know which slot you are querying
+      // If the there is only one listing, slot is the startingSlot that is being queried
       if (listings.length == 1) {
         return [
           new MarketplaceListing(
@@ -390,8 +390,8 @@ export class ConsentFactoryContract
       }
 
       for (let i = 0; i < listings.length; i++) {
-        // IListingStruct that mimics the contract's Listing object does not have 'slot' property
-        // Initiate a MarketplaceListing with IListingStruct info
+        // IListingStruct that mirrors the contract's ListingStruct does not have 'slot' property
+        // Initiate a MarketplaceListing with IListingStruct's info
         const marketplaceListing = new MarketplaceListing(
           BigNumberString("0"), // initiate with a 0 slot, it will be populated below
           BigNumberString(listings[i].previous.toString()),
@@ -403,9 +403,9 @@ export class ConsentFactoryContract
           tag,
         );
 
-        // Fix listing gets its slot from the second listing's previous value
+        // First listing gets its slot from the second listing's previous value
         if (i == 0) {
-          // Handle case where the startingSlot happens to be one position before 0
+          // Handle case where the startingSlot happens to be position before 0
           if (listings[i + 1].previous == BigInt("0")) {
             marketplaceListing.slot = BigNumberString(startingSlot.toString());
           } else {
@@ -457,7 +457,7 @@ export class ConsentFactoryContract
     ).map(([cids, listings]) => {
       const marketplaceListingsBackwards: MarketplaceListing[] = [];
 
-      // If the length is only 1, you know which slot you are querying
+      // If the there is only one listing, slot is the startingSlot that is being queried
       if (listings.length == 1) {
         return [
           new MarketplaceListing(
@@ -474,7 +474,8 @@ export class ConsentFactoryContract
       }
 
       for (let i = 0; i < listings.length; i++) {
-        // For the first item, get the slot from the second's next
+        // IListingStruct that mirrors the contract's ListingStruct does not have 'slot' property
+        // Initiate a MarketplaceListing with IListingStruct's info
         const marketplaceListing = new MarketplaceListing(
           BigNumberString("0"),
           BigNumberString(listings[i].previous.toString()),
@@ -486,7 +487,7 @@ export class ConsentFactoryContract
           tag,
         );
 
-        // First listing gets its slot from the second listing's previous value
+        // First listing gets its slot from the second listing's next value
         if (i == 0) {
           // Handle case where the startingSlot is one position before uint256
           if (listings[i + 1].next == BigInt(0)) {
