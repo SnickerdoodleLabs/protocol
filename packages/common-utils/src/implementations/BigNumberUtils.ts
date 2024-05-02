@@ -5,13 +5,16 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
+import { fromString, toString } from "uint8arrays";
 
 import { IBigNumberUtils } from "@common-utils/interfaces/index.js";
 
+export const BigNumberBytes = 32;
 @injectable()
 export class BigNumberUtils implements IBigNumberUtils {
   constructor() {}
 
+  //#region Math
   public multiply(
     bn: bigint | BigNumberString,
     number: number,
@@ -35,7 +38,9 @@ export class BigNumberUtils implements IBigNumberUtils {
 
     return (bnForSure * oneBN) / divisorBN;
   }
+  //#endregion Math
 
+  //#region DST
   /* Conversion from decimal string to big number and big number string */
   public DSToBN(decimalString: DecimalString, decimals = 18): bigint {
     return ethers.parseUnits(decimalString, decimals);
@@ -49,49 +54,110 @@ export class BigNumberUtils implements IBigNumberUtils {
       ethers.parseUnits(decimalString, decimals).toString(),
     );
   }
-  /* End region of decimal string conversions */
+  //#endregion DST
 
+  //#region BN
   /* Conversion from big number to big number string and decimal string */
+  public BNtoBuffer(bigint: bigint): Buffer {
+    const uint8Array = this.BNtoUint8Array(bigint);
+    // Create a buffer from the Uint8Array in place
+    //	 if we don't specify the byteOffset and byteLength we will copy data
+    return Buffer.from(
+      uint8Array,
+      uint8Array.byteOffset,
+      uint8Array.byteLength,
+    );
+  }
+
   public BNToBNS(bigint: bigint): BigNumberString {
     return BigNumberString(BigInt(bigint).toString());
   }
 
-  public BNToDS(bigNumber: bigint, decimals = 18): DecimalString {
-    return DecimalString(ethers.formatUnits(bigNumber, decimals || 18));
+  public BNToDS(bigNumber: bigint, decimals?: number): DecimalString {
+    return DecimalString(
+      ethers.formatUnits(bigNumber, decimals != undefined ? decimals : 18),
+    );
   }
-  /* End region of big number conversions */
 
+  public BNtoUint8Array(bigint: bigint): Uint8Array {
+    let hexString = bigint.toString(16);
+    // Ensure the hex string takes the required number of bytes
+    //    each byte is represented by 2 hex characters
+    //    so we need 32 bytes * 2 hex characters = 64 hex characters
+    const requiredLength = BigNumberBytes * 2;
+    while (hexString.length < requiredLength) {
+      hexString = "0" + hexString;
+    }
+    return fromString(hexString, "base16");
+  }
+  //#endregion BN
+
+  //#region BNS
   /* Conversion from big number string to big number and decimal string */
+  public BNStoBuffer(bigNumberString: BigNumberString): Buffer {
+    return this.BNtoBuffer(this.BNSToBN(bigNumberString));
+  }
+
   public BNSToBN(bigNumberString: BigNumberString): bigint {
     return BigInt(bigNumberString);
   }
 
   public BNSToDS(
     bigNumberString: BigNumberString,
-    decimals = 18,
+    decimals?: number,
   ): DecimalString {
-    const valueBigNumber = BigInt(bigNumberString);
-
-    return DecimalString(ethers.formatUnits(valueBigNumber, decimals || 18));
+    return this.BNToDS(this.BNSToBN(bigNumberString), decimals);
   }
 
   public BNStoHexString32(bigNumberString: BigNumberString): HexString32 {
-    return HexString32(ethers.toBeHex(this.BNSToBN(bigNumberString)));
+    return HexString32(
+      ethers.toBeHex(this.BNSToBN(bigNumberString), BigNumberBytes),
+    );
   }
 
   public BNStoHexString32NoPrefix(
     bigNumberString: BigNumberString,
   ): HexString32 {
-    return HexString32(
-      ethers.toBeHex(this.BNSToBN(bigNumberString)).substring(2),
-    );
+    return HexString32(this.BNStoHexString32(bigNumberString).substring(2));
   }
 
+  public BNStoUint8Array(bigNumberString: BigNumberString): Uint8Array {
+    return this.BNtoUint8Array(this.BNSToBN(bigNumberString));
+  }
+  //#endregion BNS
+
+  //#region Bytes
+  public bufferToBN(buffer: Buffer): bigint {
+    const hexString = HexString32(buffer.toString("hex"));
+    return this.HexString32NoPrefixToBN(hexString);
+  }
+
+  public bufferToBNS(buffer: Buffer): BigNumberString {
+    const hexString = HexString32(buffer.toString("hex"));
+    return this.HexString32NoPrefixToBNS(hexString);
+  }
+
+  public uint8ArrayToBN(uint8Array: Uint8Array): bigint {
+    const hexString = HexString32(toString(uint8Array, "base16"));
+    return this.HexString32NoPrefixToBN(hexString);
+  }
+
+  public uint8ArrayToBNS(uint8Array: Uint8Array): BigNumberString {
+    const hexString = HexString32(toString(uint8Array, "base16"));
+    return this.HexString32NoPrefixToBNS(hexString);
+  }
+  //#endregion Bytes
+
+  //#region HexString32
+  public HexString32NoPrefixToBN(hexString: HexString32): bigint {
+    return BigInt(`0x${hexString}`);
+  }
   public HexString32NoPrefixToBNS(hexString: HexString32): BigNumberString {
-    return BigNumberString(BigInt(`0x${hexString}`).toString());
+    return BigNumberString(this.HexString32NoPrefixToBN(hexString).toString());
   }
-  /* End region of big number string conversions */
+  //#endregion HexString32
 
+  //#region Validation
   /**
    * This method returns true if the bigNumberString is a
    * @param bigNumberString
@@ -105,4 +171,5 @@ export class BigNumberUtils implements IBigNumberUtils {
       return false;
     }
   }
+  //#endregion Validation
 }
