@@ -17,7 +17,6 @@ import {
 } from "@snickerdoodlelabs/shared-components";
 import { Field, Form, Formik } from "formik";
 import { TextField } from "formik-material-ui";
-import { debounce } from "lodash";
 import { ResultAsync } from "neverthrow";
 import React, { useMemo, useState } from "react";
 
@@ -33,6 +32,21 @@ interface FileExplorerProps {
   onFolderSelect: (path: string) => void;
   onCancel: () => void;
 }
+
+const debounce = <T extends (...args: any[]) => void>(
+  func: T,
+  delay: number,
+): ((...args: Parameters<T>) => void) => {
+  let timerId: ReturnType<typeof setTimeout>;
+
+  return (...args: Parameters<T>) => {
+    clearTimeout(timerId);
+
+    timerId = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
+};
 
 const FileExplorer: React.FC<FileExplorerProps> = ({
   folders,

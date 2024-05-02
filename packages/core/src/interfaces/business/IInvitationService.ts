@@ -2,7 +2,6 @@ import {
   AjaxError,
   BlockchainProviderError,
   Invitation,
-  DataPermissions,
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
@@ -17,9 +16,7 @@ import {
   IOldUserAgreement,
   ConsentFactoryContractError,
   IpfsCID,
-  HexString32,
   AccountAddress,
-  IConsentCapacity,
   UnixTimestamp,
   BlockchainCommonErrors,
   OptInInfo,
@@ -53,6 +50,8 @@ export interface IInvitationService {
     | InvalidParametersError
     | CircuitError
     | ConsentError
+    | ConsentContractError
+    | BlockchainCommonErrors
   >;
 
   rejectInvitation(

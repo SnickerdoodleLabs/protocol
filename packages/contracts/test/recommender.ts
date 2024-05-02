@@ -322,6 +322,31 @@ describe("Stake for Ranking tests", function () {
       expect(
         await consentContract2.getNumberOfStakedTags(await token.getAddress()),
       ).to.equal(1);
+
+      // Check that getListingsForward and getListingsBackward returns full list correctly
+      const listingsForward = await consentFactory.getListingsForward(
+        "NFT",
+        await token.getAddress(),
+        ethers.MaxUint256,
+        3,
+        true,
+      );
+
+      // Compare the next values for forward list
+      expect(listingsForward[1][0][1]).to.greaterThan(listingsForward[1][1][1]);
+      expect(listingsForward[1][1][1]).to.greaterThan(listingsForward[1][2][1]);
+
+      const listingsBackward = await consentFactory.getListingsBackward(
+        "NFT",
+        await token.getAddress(),
+        0,
+        3,
+        true,
+      );
+
+      // Compare the previous values for backward list
+      expect(listingsBackward[1][0][0]).to.lessThan(listingsBackward[1][1][0]);
+      expect(listingsBackward[1][1][0]).to.lessThan(listingsBackward[1][2][0]);
     });
 
     it("Try inserting a listing downstream of existing listing", async function () {

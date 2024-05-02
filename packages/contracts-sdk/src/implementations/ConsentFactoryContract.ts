@@ -215,17 +215,18 @@ export class ConsentFactoryContract
         ethers.MaxUint256.toString(),
       );
 
+      // If there are no listings for this tags, return empty array
+      if (tagTotal == 0) {
+        return okAsync([]);
+      }
+
       // Fetch from the highest to lowest listings
       return this.getListingsForward(
         tag,
         stakingToken,
         highestRankListingSlot,
-        // Since we do not have getListing anymore, we wont immediately be able to get the highest slot (ie. .next of uint256)
-        // So to get the whole list, we start with uint256 and work our way down
-        // getListingsForward() on the contract returns from first slot queried and works its way down
-        // So we need to add one more slot to account for all tags as the first one will be taken by uint256
-        // this.getListingsForward function then filters out uint256 and 0 slot values by checking its .next and .previous values.
-        tagTotal + 1,
+        // getListingsForward now includes the max uint256 value in order to obtain its .next that points to the slot of the highest rank listing
+        tagTotal + 1, // Add 1 to account for first slot being the uint256 listing (eg. if there is only 1 listing, it needs 2 slots for uint256 => highestRankingSlot)
         removeExpired,
       );
     });
@@ -369,26 +370,66 @@ export class ConsentFactoryContract
         return this.generateError(e, "Unable to call getListingsForward()");
       },
     ).map(([cids, listings]) => {
-      return listings
-        .map((listing, index) => {
-          return new MarketplaceListing(
-            BigNumberString(listing.previous.toString()),
-            BigNumberString(listing.next.toString()),
-            listing.consentContract,
-            UnixTimestamp(Number(listing.timeExpiring)),
-            IpfsCID(cids[index]),
-            listings[index + 1] != null && listing.next != 0n
-              ? BigNumberString(listings[index + 1].previous.toString())
-              : listings[index - 1] != null
-              ? BigNumberString(listings[index - 1].next.toString())
-              : startingSlot,
+      // Setup an array for marketplace listings that includes slots
+      const marketplaceListings: MarketplaceListing[] = [];
+
+      // If the there is only one listing, slot is the startingSlot that is being queried
+      if (listings.length == 1) {
+        return [
+          new MarketplaceListing(
+            startingSlot,
+            BigNumberString(listings[0].previous.toString()),
+            BigNumberString(listings[0].next.toString()),
+            listings[0].contentObject,
+            UnixTimestamp(Number(listings[0].timeExpiring.toString())),
+            IpfsCID(cids[0]),
+            BigNumberString(listings[0].stake.toString()),
             tag,
-          );
-        })
-        .filter((listing) => {
-          // Filter out slots with previous and next zeros
-          return listing.previous != "0" || listing.next != "0";
-        });
+          ),
+        ];
+      }
+
+      for (let i = 0; i < listings.length; i++) {
+        // IListingStruct that mirrors the contract's ListingStruct does not have 'slot' property
+        // Initiate a MarketplaceListing with IListingStruct's info
+        const marketplaceListing = new MarketplaceListing(
+          BigNumberString("0"), // initiate with a 0 slot, it will be populated below
+          BigNumberString(listings[i].previous.toString()),
+          BigNumberString(listings[i].next.toString()),
+          listings[i].contentObject,
+          UnixTimestamp(Number(listings[i].timeExpiring)),
+          IpfsCID(cids[i]),
+          BigNumberString(listings[i].stake.toString()),
+          tag,
+        );
+
+        // First listing gets its slot from the second listing's previous value
+        if (i == 0) {
+          // Handle case where the startingSlot happens to be position before 0
+          if (listings[i + 1].previous == BigInt("0")) {
+            marketplaceListing.slot = BigNumberString(startingSlot.toString());
+          } else {
+            marketplaceListing.slot = BigNumberString(
+              listings[i + 1].previous.toString(),
+            );
+          }
+
+          marketplaceListings.push(marketplaceListing);
+
+          continue;
+        }
+
+        // Subsequent listings get their slots from the previous listing's next value
+        marketplaceListing.slot = BigNumberString(
+          listings[i - 1].next.toString(),
+        );
+        marketplaceListings.push(marketplaceListing);
+      }
+
+      // Remove those that have .previous of 0, keep those with next 0 as the last position item will have .next of 0
+      return marketplaceListings.filter(
+        (listing) => listing.previous != BigNumberString("0"),
+      );
     });
   }
 
@@ -403,7 +444,7 @@ export class ConsentFactoryContract
     ConsentFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.getListingsForward(
+      this.contract.getListingsBackward(
         tag,
         stakingToken,
         startingSlot,
@@ -411,29 +452,67 @@ export class ConsentFactoryContract
         removeExpired,
       ) as Promise<[string[], IListingStruct[]]>,
       (e) => {
-        return this.generateError(e, "Unable to call getListingsForward()");
+        return this.generateError(e, "Unable to call getListingsBackward()");
       },
     ).map(([cids, listings]) => {
-      return listings
-        .map((listing, index) => {
-          return new MarketplaceListing(
-            BigNumberString(listing.previous.toString()),
-            BigNumberString(listing.next.toString()),
-            listing.consentContract,
-            UnixTimestamp(Number(listing.timeExpiring)),
-            IpfsCID(cids[index]),
-            listings[index + 1] != null && listing.previous != ethers.MaxUint256
-              ? BigNumberString(listings[index + 1].next.toString())
-              : listings[index - 1] != null
-              ? BigNumberString(listings[index - 1].previous.toString())
-              : startingSlot,
+      const marketplaceListingsBackwards: MarketplaceListing[] = [];
+
+      // If the there is only one listing, slot is the startingSlot that is being queried
+      if (listings.length == 1) {
+        return [
+          new MarketplaceListing(
+            BigNumberString("0"),
+            BigNumberString(listings[0].previous.toString()),
+            BigNumberString(listings[0].next.toString()),
+            listings[0].contentObject,
+            UnixTimestamp(Number(listings[0].timeExpiring)),
+            IpfsCID(cids[0]),
+            BigNumberString(listings[0].stake.toString()),
             tag,
-          );
-        })
-        .filter((listing) => {
-          // Filter out slots with previous and next zeros
-          return listing.previous != "0" || listing.next != "0";
-        });
+          ),
+        ];
+      }
+
+      for (let i = 0; i < listings.length; i++) {
+        // IListingStruct that mirrors the contract's ListingStruct does not have 'slot' property
+        // Initiate a MarketplaceListing with IListingStruct's info
+        const marketplaceListing = new MarketplaceListing(
+          BigNumberString("0"),
+          BigNumberString(listings[i].previous.toString()),
+          BigNumberString(listings[i].next.toString()),
+          listings[i].contentObject,
+          UnixTimestamp(Number(listings[i].timeExpiring)),
+          IpfsCID(cids[i]),
+          BigNumberString(listings[i].stake.toString()),
+          tag,
+        );
+
+        // First listing gets its slot from the second listing's next value
+        if (i == 0) {
+          // Handle case where the startingSlot is one position before uint256
+          if (listings[i + 1].next == BigInt(0)) {
+            marketplaceListing.slot = BigNumberString(startingSlot.toString());
+          } else {
+            marketplaceListing.slot = BigNumberString(
+              listings[i + 1].next.toString(),
+            );
+          }
+
+          marketplaceListingsBackwards.push(marketplaceListing);
+
+          continue;
+        }
+
+        // Subsequent listings get their slots from the previous listing's next value
+        marketplaceListing.slot = BigNumberString(
+          listings[i - 1].previous.toString(),
+        );
+        marketplaceListingsBackwards.push(marketplaceListing);
+      }
+
+      return marketplaceListingsBackwards.filter(
+        (listing) => listing.previous != "0",
+      );
     });
   }
 
@@ -519,7 +598,8 @@ export class ConsentFactoryContract
 interface IListingStruct {
   previous: bigint;
   next: bigint;
-  consentContract: EVMContractAddress;
+  contentObject: EVMContractAddress;
+  stake: bigint;
   timeExpiring: bigint;
 }
 

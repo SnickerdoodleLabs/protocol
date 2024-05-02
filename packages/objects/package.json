@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/objects",
-  "version": "3.0.9",
+  "version": "3.0.10",
   "description": "Objects and types shared by the Snickerdoodle Protocol",
   "license": "MIT",
   "repository": {
@@ -12,6 +12,7 @@
   },
   "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/objects#readme",
   "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
+  "sideEffects": false,
   "keywords": [
     "Blockchain",
     "Snickerdoodle"
@@ -35,6 +36,7 @@
     "prepublish": "yarn build",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests"
   },
+  "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
     "ethers": "^6.10.0",

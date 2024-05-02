@@ -11,7 +11,6 @@ import React, {
 import CustomizedAlert, {
   EAlertSeverity,
 } from "@extension-onboarding/components/CustomizedAlert";
-import VisualAlert from "@extension-onboarding/components/VisualAlert";
 
 export interface IAlert {
   message: string | null;
@@ -24,7 +23,6 @@ export interface IVisualAlert {
 }
 interface INotificationContext {
   setAlert: (alert: IAlert) => void;
-  setVisualAlert: (value: boolean, path?: string) => void;
 }
 const initialAlertState: IAlert = { message: null, severity: null };
 
@@ -34,18 +32,8 @@ const NotificationContext = createContext<INotificationContext>(
 
 export const NotificationContextProvider: FC = memo(({ children }) => {
   const [alert, _setAlert] = useState<IAlert>(initialAlertState);
-  const [visualAlert, _setVisualAlert] = useState<IVisualAlert>();
-
   const setAlert = useCallback((alert: IAlert) => {
     _setAlert(alert);
-  }, []);
-
-  const setVisualAlert = useCallback((value: boolean, path?: string) => {
-    if (!value) {
-      _setVisualAlert(undefined);
-    } else {
-      _setVisualAlert({ display: true, path });
-    }
   }, []);
 
   const alertComponent = useMemo(() => {
@@ -62,8 +50,7 @@ export const NotificationContextProvider: FC = memo(({ children }) => {
   }, [JSON.stringify(alert)]);
 
   return (
-    <NotificationContext.Provider value={{ setAlert, setVisualAlert }}>
-      {visualAlert && <VisualAlert />}
+    <NotificationContext.Provider value={{ setAlert }}>
       {alertComponent}
       {children}
     </NotificationContext.Provider>

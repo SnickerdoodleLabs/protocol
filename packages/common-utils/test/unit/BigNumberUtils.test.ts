@@ -66,7 +66,9 @@ describe("BigNumberUtils class", () => {
     const hexValue = bigNumberUtils.BNStoHexString32(BNSValue);
 
     expect(hexValue.startsWith("0x")).toBe(true);
-    expect(hexValue).toBe("0x0a");
+    expect(hexValue).toBe(
+      "0x000000000000000000000000000000000000000000000000000000000000000a",
+    );
   });
 
   test("BNStoHexString32NoPrefix should convert BigNumberString to HexString32 without '0x' prefix", () => {
@@ -74,7 +76,9 @@ describe("BigNumberUtils class", () => {
     const hexValue = bigNumberUtils.BNStoHexString32NoPrefix(BNSValue);
 
     expect(hexValue.startsWith("0x")).toBe(false);
-    expect(hexValue).toBe("0a");
+    expect(hexValue).toBe(
+      "000000000000000000000000000000000000000000000000000000000000000a",
+    );
   });
 
   test("HexString32NoPrefixToBNS should convert HexString32 without '0x' prefix to BigNumberString", () => {
@@ -82,5 +86,43 @@ describe("BigNumberUtils class", () => {
     const BNSValue = bigNumberUtils.HexString32NoPrefixToBNS(hexString);
 
     expect(BNSValue).toBe("10");
+  });
+
+  test("BNToDS should convert decimals 0 if 0 is passed", () => {
+    const BNValue = BigInt("10");
+    const decimals = 0;
+    const decimalString = bigNumberUtils.BNToDS(BNValue, decimals);
+
+    expect(decimalString).toBe("10");
+  });
+
+  test("BNSToDS should convert decimals 0 if 0 is passed", () => {
+    const BNSValue = BigNumberString("10");
+    const decimals = 0;
+    const decimalString = bigNumberUtils.BNSToDS(BNSValue, decimals);
+
+    expect(decimalString).toBe("10");
+  });
+
+  test("BNtoUint8Array should convert properly", () => {
+    const BNValue = BigInt("10");
+    const uint8Array = bigNumberUtils.BNtoUint8Array(BNValue);
+
+    expect(uint8Array).toEqual(
+      Uint8Array.from([
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 10,
+      ]),
+    );
+  });
+
+  test("uint8ArrayToBN should convert properly", () => {
+    const uint8Array = Uint8Array.from([
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 10,
+    ]);
+    const BNValue = bigNumberUtils.uint8ArrayToBN(uint8Array);
+
+    expect(BNValue).toEqual(BigInt("10"));
   });
 });

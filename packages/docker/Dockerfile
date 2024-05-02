@@ -11,6 +11,8 @@ COPY packages/browserExtension/package.json /build/packages/browserExtension/pac
 COPY packages/common-utils/package.json /build/packages/common-utils/package.json
 COPY packages/circuits/package.json /build/packages/circuits/package.json
 COPY packages/circuits-sdk/package.json /build/packages/circuits-sdk/package.json
+COPY packages/circuits-o1js/package.json /build/packages/circuits-o1js/package.json
+COPY packages/circuits-o1js-sdk/package.json /build/packages/circuits-o1js-sdk/package.json
 COPY packages/contracts/package.json /build/packages/contracts/package.json
 COPY packages/contracts-sdk/package.json /build/packages/contracts-sdk/package.json
 COPY packages/core/package.json /build/packages/core/package.json

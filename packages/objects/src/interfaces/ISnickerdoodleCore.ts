@@ -520,6 +520,8 @@ export interface IInvitationMethods {
     | InvalidParametersError
     | CircuitError
     | ConsentError
+    | ConsentContractError
+    | BlockchainCommonErrors
   >;
 
   /**

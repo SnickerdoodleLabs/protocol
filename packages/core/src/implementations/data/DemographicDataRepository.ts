@@ -23,6 +23,8 @@ import {
 
 @injectable()
 export class DemographicDataRepository implements IDemographicDataRepository {
+  private _timeZoneList?: ResultAsync<ITimeZoneObject, PersistenceError>;
+
   public constructor(
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
@@ -101,10 +103,19 @@ export class DemographicDataRepository implements IDemographicDataRepository {
           if (timezone === "" || !timezone) {
             return okAsync(null);
           }
-          const _country = timezoneList[timezone].c[0];
-          return this.setLocation(CountryCode(_country)).andThen(() => {
-            return okAsync(CountryCode(_country));
-          });
+          return this.timezoneList
+            .andThen((timezoneList) => {
+              const _country = timezoneList?.[timezone]?.c?.[0];
+              if (!_country) {
+                return okAsync(null);
+              }
+              return this.setLocation(CountryCode(_country)).andThen(() => {
+                return okAsync(CountryCode(_country));
+              });
+            })
+            .mapErr((error) => {
+              return error;
+            });
         }
         return okAsync(location);
       })
@@ -112,4 +123,25 @@ export class DemographicDataRepository implements IDemographicDataRepository {
         return error;
       });
   }
+
+  private get timezoneList() {
+    if (this._timeZoneList) {
+      return this._timeZoneList;
+    }
+    this._timeZoneList = ResultAsync.fromPromise(
+      import("./timezoneList.json", {
+        assert: { type: "json" },
+      }).then((module) => module.default as ITimeZoneObject),
+      (error) =>
+        new PersistenceError(`Error importing timezone list: ${error}`),
+    );
+    return this._timeZoneList;
+  }
+}
+
+interface ITimeZoneObject {
+  [key: string]: {
+    c?: string[];
+    [key: number | string]: any;
+  };
 }
