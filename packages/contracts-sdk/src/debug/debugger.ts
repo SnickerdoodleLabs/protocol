@@ -22,6 +22,7 @@ import {
 } from "@contracts-sdk/debug/constants.js";
 import { Contracts } from "@contracts-sdk/debug/contracts.js";
 import { ConsentContract } from "@contracts-sdk/implementations/ConsentContract.js";
+import { ERC20RewardContract } from "@contracts-sdk/implementations/ERC20RewardContract.js";
 import {
   EConsentRoles,
   ContractOverrides,
@@ -426,13 +427,31 @@ const tempOptIn = async () => {
   }
 };
 
+const getAccountBalanceForErc20 = async (
+  contract: EVMContractAddress,
+  account: EVMAccountAddress,
+) => {
+  try {
+    const erc20Contract = new ERC20RewardContract(signer, contract);
+    erc20Contract.balanceOf(account).then((balance) => {
+      console.log("balance: ", balance);
+    });
+  } catch (e) {
+    console.log("getAccountBalances e: ", e);
+  }
+};
+
 const init = async () => {
   console.log("Initializing...");
   await getLatestBlock();
   // await createConsent();
   // await sendFunds();
   // await renounceRole();
-  await grantRole();
+  await getAccountBalanceForErc20(
+    EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"),
+    EVMAccountAddress("0x0F9Deb936F279625C13b1d3E3ef8c94734cEd12c"),
+  );
+  // await grantRole();
   // await getBaseUri();
   // await setBaseUri();
   // await getBaseUri();
