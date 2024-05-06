@@ -1,3 +1,18 @@
+import Box from "@material-ui/core/Box";
+import Hidden from "@material-ui/core/Hidden";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
+import { makeStyles, Theme } from "@material-ui/core/styles";
+import Toolbar from "@material-ui/core/Toolbar";
+import { ECoreProxyType } from "@snickerdoodlelabs/objects";
+import {
+  SDTypography,
+  colors,
+  shadows,
+} from "@snickerdoodlelabs/shared-components";
+import React, { Fragment, useEffect, memo, FC } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import { MobileMenuIcon } from "@extension-onboarding/assets";
 import {
   CookieVaultIcon,
@@ -9,20 +24,6 @@ import {
 } from "@extension-onboarding/components/v2/Icons";
 import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import Box from "@material-ui/core/Box";
-import Hidden from "@material-ui/core/Hidden";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
-import Toolbar from "@material-ui/core/Toolbar";
-import { makeStyles, Theme } from "@material-ui/core/styles";
-import { ECoreProxyType } from "@snickerdoodlelabs/objects";
-import {
-  SDTypography,
-  colors,
-  shadows,
-} from "@snickerdoodlelabs/shared-components";
-import React, { Fragment, useEffect, memo } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) => ({
   appbar: {
@@ -219,6 +220,27 @@ const NavigationBar = () => {
         </Box>
       </Toolbar>
     </>
+  );
+};
+
+interface IUnauthNavigationBarProps {
+  component: React.ReactNode;
+}
+export const UnAuthNavigationBar: FC<IUnauthNavigationBarProps> = ({
+  component,
+}) => {
+  const classes = useStyles();
+  const navigate = useNavigate();
+  return (
+    <Toolbar className={classes.toolbar}>
+      <img
+        onClick={() => navigate(EPathsV2.HOME)}
+        className={classes.pointer}
+        src="https://storage.googleapis.com/dw-assets/spa/icons-v2/sdl-circle.svg"
+      />
+
+      {component}
+    </Toolbar>
   );
 };
 

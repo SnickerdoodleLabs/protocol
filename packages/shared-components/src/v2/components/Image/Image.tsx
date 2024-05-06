@@ -1,11 +1,12 @@
-import  Skeleton  from "@material-ui/lab/Skeleton";
-import { useSafeState } from "@shared-components/v2/hooks";
+import Skeleton from "@material-ui/lab/Skeleton";
 import React, { FC, useEffect, useMemo, useState } from "react";
+
+import { useSafeState } from "@shared-components/v2/hooks";
 
 interface IImageProps {
   src: string;
-  width?: number;
-  height?: number;
+  width?: number | string;
+  height?: number | string;
   alt?: string;
   style?: React.CSSProperties;
   errorImageSrc?: string;
@@ -23,7 +24,7 @@ export const ImageComponent: FC<IImageProps> = ({
 }) => {
   const [state, setState] = useState({
     isError: false,
-    isLoading: true
+    isLoading: true,
   });
 
   const formattedUrl = useMemo(() => {
@@ -35,6 +36,7 @@ export const ImageComponent: FC<IImageProps> = ({
 
   useEffect(() => {
     // Reset loading and error states when src changes
+    if (!formattedUrl) return;
     setState({ isError: false, isLoading: true });
 
     // Load image
@@ -51,7 +53,9 @@ export const ImageComponent: FC<IImageProps> = ({
   }, [src, formattedUrl]);
 
   if (state.isLoading) {
-    return <Skeleton variant="rect" width={width} height={height} />;
+    return (
+      <Skeleton variant="rect" width={width} height={height} style={style} />
+    );
   }
 
   if (state.isError) {

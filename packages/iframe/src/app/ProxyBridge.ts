@@ -1,5 +1,3 @@
-import { IFrameEvents } from "@core-iframe/interfaces/objects";
-import { IProxyBridge } from "@core-iframe/interfaces/IProxyBridge";
 import {
   AccountAddress,
   Age,
@@ -20,14 +18,12 @@ import {
   EInvitationStatus,
   EQueryProcessingStatus,
   EVMContractAddress,
-  EWalletDataType,
   EarnedReward,
   EmailAddressString,
   FamilyName,
   FormFactorEvents,
   Gender,
   GivenName,
-  IConsentCapacity,
   IDynamicRewardParameter,
   INftProxyMethods,
   IProxyAccountMethods,
@@ -38,7 +34,6 @@ import {
   IProxyStorageMethods,
   IProxyTwitterMethods,
   IQueryPermissions,
-  ISdlDataWallet,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   IUserAgreement,
@@ -77,7 +72,15 @@ import {
 import { TypedDataDomain, TypedDataField } from "ethers";
 import { ResultAsync, okAsync } from "neverthrow";
 
+import { IProxyBridge } from "@core-iframe/interfaces/IProxyBridge";
+import {
+  IFrameControlConfig,
+  IFrameEvents,
+} from "@core-iframe/interfaces/objects";
+
 export class ProxyBridge implements IProxyBridge {
+  private sourceDomain = undefined;
+
   public account: IProxyAccountMethods;
   public discord: IProxyDiscordMethods;
   public integration: IProxyIntegrationMethods;
@@ -86,7 +89,7 @@ export class ProxyBridge implements IProxyBridge {
   public twitter: IProxyTwitterMethods = {} as IProxyTwitterMethods;
   public nft: INftProxyMethods;
   public questionnaire: IProxyQuestionnaireMethods;
-  private sourceDomain = undefined;
+
   public requestDashboardView = undefined;
   public formFactorEvents: FormFactorEvents;
 
@@ -94,6 +97,7 @@ export class ProxyBridge implements IProxyBridge {
     private core: ISnickerdoodleCore,
     public events: ISnickerdoodleCoreEvents,
     public iframeEvents: IFrameEvents,
+    public controlConfig: IFrameControlConfig,
   ) {
     this.formFactorEvents = new FormFactorEvents();
     this.account = {
@@ -356,9 +360,15 @@ export class ProxyBridge implements IProxyBridge {
       },
     };
   }
+  getDefaultContractAddress(): ResultAsync<
+    EVMContractAddress | null,
+    ProxyError
+  > {
+    return okAsync(this.controlConfig.defaultConsentContract ?? null);
+  }
   requestLinkAccount() {
     this.formFactorEvents.onLinkAccountRequested.next();
-  } 
+  }
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     ProxyError

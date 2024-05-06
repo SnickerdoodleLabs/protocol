@@ -22,6 +22,7 @@ import {
   ICoreListener,
   ICoreListenerType,
 } from "@core-iframe/interfaces/api/index";
+import { IProxyBridge } from "@core-iframe/interfaces/IProxyBridge";
 import {
   IFrameConfig,
   IFrameControlConfig,
@@ -35,7 +36,6 @@ import {
   IIFrameContextProvider,
   IIFrameContextProviderType,
 } from "@core-iframe/interfaces/utilities/index";
-import { IProxyBridge } from "@core-iframe/interfaces/IProxyBridge";
 
 export class IFrameFormFactor {
   protected iocContainer = new Container();
@@ -94,6 +94,7 @@ export class IFrameFormFactor {
                   core,
                   events,
                   contextProvider.getEvents(),
+                  contextProvider.getConfig(),
                 ),
                 childApi,
                 iframeEvents: contextProvider.getEvents(),

@@ -143,6 +143,7 @@ import {
   GetQuestionnairesByCIDSParams,
   GetQueryStatusesByContractAddressParams,
   LinkAccountRequestParams,
+  GetDefaultContractAddressParams,
 } from "@synamint-extension-sdk/shared";
 
 @injectable()
@@ -411,7 +412,15 @@ export class RpcCallHandler implements IRpcCallHandler {
         );
       },
     ),
-
+    new CoreActionHandler<GetDefaultContractAddressParams>(
+      GetDefaultContractAddressParams.getCoreAction(),
+      (_params) => {
+        return okAsync(
+          this.configProvider.getExtensionConfig().defaulConsentContract ??
+            null,
+        );
+      },
+    ),
     new CoreActionHandler<GetConsentContractCIDParams>(
       GetConsentContractCIDParams.getCoreAction(),
       (params) => {

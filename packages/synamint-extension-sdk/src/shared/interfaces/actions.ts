@@ -1000,3 +1000,12 @@ export class GetRecommendedConsentContractsParams extends CoreActionParams<
     return ECoreActions.GET_RECOMMENDED_CONSENT_CONTRACTS;
   }
 }
+
+export class GetDefaultContractAddressParams extends CoreActionParams<EVMContractAddress | null> {
+  public constructor() {
+    super(GetDefaultContractAddressParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_DEFAULT_CONTRACT_ADDRESS;
+  }
+}

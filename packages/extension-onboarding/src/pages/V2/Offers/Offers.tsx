@@ -1,9 +1,4 @@
-import Container from "@extension-onboarding/components/v2/Container";
-import PageBanners from "@extension-onboarding/components/v2/PageBanners";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import BrandItem from "@extension-onboarding/pages/V2/Offers/BrandItem";
-import  Box  from "@material-ui/core/Box";
+import Box from "@material-ui/core/Box";
 import {
   EQueryProcessingStatus,
   EVMContractAddress,
@@ -15,6 +10,12 @@ import { SDTypography, colors } from "@snickerdoodlelabs/shared-components";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { useCallback, useEffect, useMemo } from "react";
 import { Subscription } from "rxjs";
+
+import Container from "@extension-onboarding/components/v2/Container";
+import PageBanners from "@extension-onboarding/components/v2/PageBanners";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import BrandItem from "@extension-onboarding/pages/V2/Offers/BrandItem";
 
 interface OfferItem {
   contractAddress: EVMContractAddress;

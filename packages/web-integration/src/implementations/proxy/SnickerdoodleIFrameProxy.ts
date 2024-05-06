@@ -287,6 +287,13 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("initialize", null);
   }
 
+  public getDefaultContractAddress(): ResultAsync<
+    EVMContractAddress | null,
+    ProxyError
+  > {
+    return this._createCall("getDefaultContractAddress", null);
+  }
+
   public checkURLForInvitation(url: URLString): ResultAsync<void, ProxyError> {
     return this._createCall("checkURLForInvitation", { url });
   }

@@ -156,6 +156,7 @@ import {
   ApproveQueryParams,
   GetQueryStatusesByContractAddressParams,
   LinkAccountRequestParams,
+  GetDefaultContractAddressParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -435,6 +436,12 @@ export class ExternalCoreGateway {
         rejectUntil,
       ),
     );
+  }
+
+  public getDefaultContractAddress(
+    params: GetDefaultContractAddressParams,
+  ): ResultAsync<EVMContractAddress | null, ProxyError> {
+    return this._handler.call(params);
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<

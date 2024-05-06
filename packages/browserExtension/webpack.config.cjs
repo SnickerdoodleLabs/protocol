@@ -48,7 +48,7 @@ var options = {
   },
   target: "webworker",
   // mode: env.NODE_ENV || "development",
-  mode: "development",
+  mode: "production",
   entry: {
     popup: path.join(__dirname, "src", "popup", "index.tsx"),
     background: path.join(__dirname, "src", "background", "index.ts"),
@@ -348,16 +348,7 @@ var options = {
 };
 
 if (env.NODE_ENV === "development") {
-  options.devtool = "cheap-module-source-map";
-} else {
-  options.optimization = {
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        extractComments: false,
-      }),
-    ],
-  };
+  options.devtool = false;
 }
 
 module.exports = options;

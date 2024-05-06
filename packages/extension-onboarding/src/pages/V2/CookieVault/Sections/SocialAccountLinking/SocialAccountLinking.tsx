@@ -1,13 +1,3 @@
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import Card from "@extension-onboarding/components/v2/Card";
-import CardTitle from "@extension-onboarding/components/v2/CardTitle";
-import { Social } from "@extension-onboarding/components/v2/LinkedAccountItem";
-import { SocialMenu } from "@extension-onboarding/components/v2/LinkingAccountMenu";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import { useCookieVaultContext } from "@extension-onboarding/pages/V2/CookieVault/CookieVault.context";
-import { getResponsivePopupProperties } from "@extension-onboarding/utils";
 import Box from "@material-ui/core/Box";
 import {
   DiscordProfile,
@@ -17,11 +7,20 @@ import {
 import { errAsync } from "neverthrow";
 import React, { FC, Fragment, useEffect } from "react";
 
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import Card from "@extension-onboarding/components/v2/Card";
+import CardTitle from "@extension-onboarding/components/v2/CardTitle";
+import { Social } from "@extension-onboarding/components/v2/LinkedAccountItem";
+import { SocialMenu } from "@extension-onboarding/components/v2/LinkingAccountMenu";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import { useCookieVaultContext } from "@extension-onboarding/pages/V2/CookieVault/CookieVault.context";
+import { getResponsivePopupProperties } from "@extension-onboarding/utils";
+
 interface ISocialAccountLinkingProps {}
 
 const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({}) => {
   const { sdlDataWallet } = useDataWalletContext();
-  const { uiStateUtils } = useAppContext();
   const { setAlert } = useNotificationContext();
   const connectionWindowRef = React.useRef<Window | null>(null);
   const { discordAccounts, fetchDiscordAccounts } = useCookieVaultContext();
@@ -58,7 +57,6 @@ const SocialAccountLinking: FC<ISocialAccountLinkingProps> = ({}) => {
     return sdlDataWallet.discord
       .initializeUserWithAuthorizationCode(OAuthAuthorizationCode(code))
       .map(() => {
-        uiStateUtils.onSocialAccountLinked();
         setAlert({
           severity: EAlertSeverity.SUCCESS,
           message: "Your account has successfully been linked. ",

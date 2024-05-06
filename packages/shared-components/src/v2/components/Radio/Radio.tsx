@@ -1,10 +1,10 @@
 import Box from "@material-ui/core/Box";
 import { makeStyles } from "@material-ui/core/styles";
-import { SDTypography } from "@shared-components/v2/components/Typograpy";
-import { colors } from "@shared-components/v2/theme";
-
 import clsx from "clsx";
 import React, { memo, useMemo } from "react";
+
+import { SDTypography } from "@shared-components/v2/components/Typograpy";
+import { colors } from "@shared-components/v2/theme";
 
 interface RadioProps {
   label?: string | number | React.ReactNode;
@@ -30,6 +30,8 @@ const useStyles = makeStyles((theme) => ({
   outerCircle: {
     width: (props: { size: number; disabled?: boolean }) => props.size,
     height: (props: { size: number; disabled?: boolean }) => props.size,
+    minWidth: (props: { size: number; disabled?: boolean }) => props.size,
+    minHeight: (props: { size: number; disabled?: boolean }) => props.size,
     borderRadius: "50%",
     display: "flex",
     justifyContent: "center",
@@ -57,15 +59,19 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "transparent",
   },
   left: {
+    alignItems: "flex-start",
     flexDirection: "row-reverse",
   },
   right: {
+    alignItems: "flex-start",
     flexDirection: "row",
   },
   top: {
+    alignItems: "center",
     flexDirection: "column-reverse",
   },
   bottom: {
+    alignItems: "center",
     flexDirection: "column",
   },
 }));
@@ -106,7 +112,6 @@ export const SDRadio: React.FC<RadioProps> = memo(
         display="flex"
         width="fit-content"
         height="fit-content"
-        alignItems="center"
         flexDirection={flexDirection}
         onClick={() => {
           !disabled && onChange();
