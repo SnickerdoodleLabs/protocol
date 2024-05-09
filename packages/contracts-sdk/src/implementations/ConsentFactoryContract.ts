@@ -406,7 +406,7 @@ export class ConsentFactoryContract
         // First listing gets its slot from the second listing's previous value
         if (i == 0) {
           // Handle case where the startingSlot happens to be position before 0
-          if (listings[i + 1].previous == BigInt("0")) {
+          if (listings[i + 1].previous == 0n) {
             marketplaceListing.slot = BigNumberString(startingSlot.toString());
           } else {
             marketplaceListing.slot = BigNumberString(

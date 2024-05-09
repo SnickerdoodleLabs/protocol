@@ -24,7 +24,7 @@
     "@openzeppelin/contracts": "^5.0.2",
     "@openzeppelin/contracts-upgradeable": "^5.0.2",
     "@prb/math": "^4.0.2",
-    "@snickerdoodlelabs/erc7529": "2.0.1",
+    "@snickerdoodlelabs/erc7529": "workspace:^",
     "dotenv": "^16.0.1",
     "fs": "^0.0.1-security",
     "it-all": "^1.0.6",

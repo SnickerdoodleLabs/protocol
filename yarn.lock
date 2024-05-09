@@ -9107,7 +9107,7 @@ __metadata:
     "@openzeppelin/contracts-upgradeable": ^5.0.2
     "@openzeppelin/hardhat-upgrades": ^3.0.4
     "@prb/math": ^4.0.2
-    "@snickerdoodlelabs/erc7529": 2.0.1
+    "@snickerdoodlelabs/erc7529": "workspace:^"
     dotenv: ^16.0.1
     fs: ^0.0.1-security
     hardhat: ^2.21.0
@@ -9177,7 +9177,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/erc7529@2.0.1, @snickerdoodlelabs/erc7529@workspace:packages/erc7529":
+"@snickerdoodlelabs/erc7529@workspace:^, @snickerdoodlelabs/erc7529@workspace:packages/erc7529":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/erc7529@workspace:packages/erc7529"
   dependencies:

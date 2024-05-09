@@ -6,6 +6,19 @@ import {
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
+/* Testing Notes: 
+
+1. getListingsForward and getListingsBackwards returns an array of CIDs and Listings (string[] memory, Listing[] memory) 
+2. For Listings, its properties are returned in an array rather than an object:- 
+    [
+        uint256 previous, // pointer to the next higher ranked active slot
+        uint256 next, // pointer to the next lower ranked active slot
+        address contentObject, // address of the target content object
+        uint stake, // the amount staked for the slot
+        uint256 timeExpiring, // unix timestamp when the listing expires and can be replaced
+    ]
+ */
+
 describe("Stake for Ranking tests", function () {
   // We define a fixture to reuse the same setup in every test.
   // We use loadFixture to run this setup once, snapshot that state,
@@ -182,9 +195,11 @@ describe("Stake for Ranking tests", function () {
         true,
       );
 
+      const listingsForward = listings[1];
+
       // check that the fee is held by the consent factory
       expect(await token.balanceOf(await consentFactory.getAddress())).to.equal(
-        listings[1][0][3],
+        listingsForward[0][3],
       );
 
       // now destake the listing
@@ -333,8 +348,11 @@ describe("Stake for Ranking tests", function () {
       );
 
       // Compare the next values for forward list
-      expect(listingsForward[1][0][1]).to.greaterThan(listingsForward[1][1][1]);
-      expect(listingsForward[1][1][1]).to.greaterThan(listingsForward[1][2][1]);
+      // listingsForward[0] = cids
+      const forwardListings = listingsForward[1];
+
+      expect(forwardListings[0][1]).to.greaterThan(forwardListings[1][1]);
+      expect(forwardListings[1][1]).to.greaterThan(forwardListings[2][1]);
 
       const listingsBackward = await consentFactory.getListingsBackward(
         "NFT",
@@ -344,9 +362,10 @@ describe("Stake for Ranking tests", function () {
         true,
       );
 
+      const backwardListings = listingsBackward[1];
       // Compare the previous values for backward list
-      expect(listingsBackward[1][0][0]).to.lessThan(listingsBackward[1][1][0]);
-      expect(listingsBackward[1][1][0]).to.lessThan(listingsBackward[1][2][0]);
+      expect(backwardListings[0][0]).to.lessThan(backwardListings[1][0]);
+      expect(backwardListings[1][0]).to.lessThan(backwardListings[2][0]);
     });
 
     it("Try inserting a listing downstream of existing listing", async function () {
@@ -435,10 +454,12 @@ describe("Stake for Ranking tests", function () {
       );
 
       // should be the baseURI of the content object
-      expect(listingsForward[0][0]).to.equal("snickerdoodle.com");
+      const forwardListings = listingsForward[1];
+      const forwardCids = listingsForward[0];
+      expect(forwardCids[0]).to.equal("snickerdoodle.com");
 
       // should be equal to the address of the content object
-      expect(listingsForward[1][0][2]).to.equal(
+      expect(forwardListings[0][2]).to.equal(
         await consentContract.getAddress(),
       );
 
@@ -454,8 +475,10 @@ describe("Stake for Ranking tests", function () {
         true,
       );
 
+      const expiredListingsForwardCids = expiredListingsForward[0];
+
       // should be empty element because the listing is expired
-      expect(expiredListingsForward[0][0]).to.equal("");
+      expect(expiredListingsForwardCids[0]).to.equal("");
 
       // now restake the listing
       await consentContract.restakeExpiredListing(
@@ -475,7 +498,7 @@ describe("Stake for Ranking tests", function () {
 
       // should be the baseURI of the content object
       expect(restakedListingsForward[0][0]).to.equal("snickerdoodle.com");
-      expect(listingsForward[1][0][2]).to.equal(
+      expect(forwardListings[0][2]).to.equal(
         await consentContract.getAddress(),
       );
     });
