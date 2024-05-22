@@ -41,4 +41,5 @@ export * from "@objects/enum/ETimePeriods.js";
 export * from "@objects/enum/EWalletDataType.js";
 export * from "@objects/enum/StorageKey.js";
 export * from "@objects/enum/EPermissionType.js";
-
+export * from "@objects/enum/ETokenType.js";
+export * from "@objects/enum/ESupportedTokenName.js";
