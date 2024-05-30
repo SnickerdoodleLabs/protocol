@@ -157,7 +157,7 @@ export const testCoreConfig = new CoreConfig(
     alchemyApiKeys: {
       Arbitrum: null,
       Astar: null,
-      Mumbai: null,
+      Amoy: null,
       Optimism: null,
       Polygon: null,
       Solana: null,
@@ -203,7 +203,7 @@ export const testCoreConfig = new CoreConfig(
     [EChain.Solana, URLString("AlchemySolanaEndpoint")],
     [EChain.SolanaTestnet, URLString("AlchemySolanaTestnetEndpoint")],
     [EChain.Polygon, URLString("AlchemyPolygonEndpoint")],
-    [EChain.Mumbai, URLString("AlchemyMumbaiEndpoint")],
+    [EChain.Amoy, URLString("AlchemyAmoyEndpoint")],
     [EChain.Arbitrum, URLString("AlchemyArbitrumEndpoint")],
     [EChain.Optimism, URLString("AlchemyOptimismEndpoint")],
     [EChain.Astar, URLString("AlchemyAstroEndpoint")],

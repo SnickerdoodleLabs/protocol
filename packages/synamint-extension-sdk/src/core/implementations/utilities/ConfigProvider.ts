@@ -46,7 +46,7 @@ const defaultCoreConfigs: IConfigOverrides = {
   alchemyApiKeys: {
     Arbitrum: "_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
     Astar: "Tk2NcwnHwrmRvzZCkqgSr6fOYIgH7xh7",
-    Mumbai: "UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf",
+    Amoy: "", //TODOSEAN check if we need alchemy api key?
     Optimism: "f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
     Polygon: "el_YkQK0DMQqqGlgXPO5gm8g6WmpdNfX",
     Solana: "pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",

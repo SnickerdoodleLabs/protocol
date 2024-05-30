@@ -9,7 +9,7 @@ export interface IApiKeys {
   alchemyApiKeys: {
     Arbitrum: string | null;
     Astar: string | null;
-    Mumbai: string | null;
+    Amoy: string | null;
     Optimism: string | null;
     Polygon: string | null;
     Solana: string | null;

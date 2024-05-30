@@ -107,7 +107,7 @@ export class ConfigProvider
         alchemyApiKeys: {
           Arbitrum: null,
           Astar: null,
-          Mumbai: null,
+          Amoy: null,
           Optimism: null,
           Polygon: null,
           Solana: null,
@@ -161,7 +161,7 @@ export class ConfigProvider
           EChain.Polygon,
           URLString("https://polygon-mainnet.g.alchemy.com/v2/"),
         ],
-        [EChain.Mumbai, URLString("https://polygon-mumbai.g.alchemy.com/v2/")],
+        [EChain.Amoy, URLString("https://polygon-amoy.g.alchemy.com/v2/")],
         [EChain.Arbitrum, URLString("https://arb-mainnet.g.alchemy.com/v2/")],
         [EChain.Optimism, URLString("https://opt-mainnet.g.alchemy.com/v2/")],
         [EChain.Astar, URLString("https://astar-mainnet.g.alchemy.com/v2/")],
@@ -275,9 +275,8 @@ export class ConfigProvider
     this.config.apiKeys.alchemyApiKeys.Astar =
       overrides.alchemyApiKeys?.Astar ??
       this.config.apiKeys.alchemyApiKeys.Astar;
-    this.config.apiKeys.alchemyApiKeys.Mumbai =
-      overrides.alchemyApiKeys?.Mumbai ??
-      this.config.apiKeys.alchemyApiKeys.Mumbai;
+    this.config.apiKeys.alchemyApiKeys.Amoy =
+      overrides.alchemyApiKeys?.Amoy ?? this.config.apiKeys.alchemyApiKeys.Amoy;
     this.config.apiKeys.alchemyApiKeys.Optimism =
       overrides.alchemyApiKeys?.Optimism ??
       this.config.apiKeys.alchemyApiKeys.Optimism;

@@ -66,10 +66,7 @@ export class AlchemyIndexer implements IEVMIndexer {
       new IndexerSupportSummary(EChain.Polygon, true, false, false),
     ],
     [EChain.Astar, new IndexerSupportSummary(EChain.Astar, true, false, false)],
-    [
-      EChain.Mumbai,
-      new IndexerSupportSummary(EChain.Mumbai, true, false, false),
-    ],
+    [EChain.Amoy, new IndexerSupportSummary(EChain.Amoy, true, false, false)],
     [
       EChain.Base,
       new IndexerSupportSummary(EChain.Base, false, false, false),
@@ -81,7 +78,7 @@ export class AlchemyIndexer implements IEVMIndexer {
   protected chainToApiMap = new Map<EChain, EExternalApi>([
     [EChain.Arbitrum, EExternalApi.AlchemyArbitrum],
     [EChain.Astar, EExternalApi.AlchemyAstar],
-    [EChain.Mumbai, EExternalApi.AlchemyMumbai],
+    [EChain.Amoy, EExternalApi.AlchemyAmoy],
     [EChain.Optimism, EExternalApi.AlchemyOptimism],
     [EChain.Solana, EExternalApi.AlchemySolana],
     [EChain.Polygon, EExternalApi.AlchemyPolygon],
@@ -100,7 +97,7 @@ export class AlchemyIndexer implements IEVMIndexer {
   ) {
     this._alchemyNonNativeSupport = new Map([
       [EChain.Astar, false],
-      [EChain.Mumbai, false],
+      [EChain.Amoy, false],
       [EChain.Arbitrum, true],
       [EChain.Optimism, true],
       [EChain.Solana, true],
@@ -212,7 +209,7 @@ export class AlchemyIndexer implements IEVMIndexer {
           TickerSymbol("MATIC"),
           EChain.Polygon,
         ];
-      case EChain.Mumbai:
+      case EChain.Amoy:
         return [
           JSON.stringify({
             id: 1,
@@ -221,7 +218,7 @@ export class AlchemyIndexer implements IEVMIndexer {
             method: "eth_getBalance",
           }),
           TickerSymbol("MATIC"),
-          EChain.Mumbai,
+          EChain.Amoy,
         ];
       case EChain.Astar:
         return [

@@ -335,7 +335,7 @@ export class CovalentEVMTransactionRepository implements IEVMIndexer {
     const supportedChains = [
       EChain.Arbitrum,
       EChain.EthereumMainnet,
-      EChain.Mumbai,
+      EChain.Amoy,
       EChain.Optimism,
       EChain.Polygon,
       EChain.Solana,

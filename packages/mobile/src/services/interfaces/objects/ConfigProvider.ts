@@ -131,9 +131,9 @@ export class ConfigProvider
           ),
         ],
         [
-          EChain.Mumbai,
+          EChain.Amoy,
           URLString(
-            "https://polygon-mumbai.g.alchemy.com/v2/UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf",
+            "https://polygon-amoy.g.alchemy.com/v2/", // TODOSEAN: see if we need alchemy?
           ),
         ],
       ]),

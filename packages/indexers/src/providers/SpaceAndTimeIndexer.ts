@@ -84,8 +84,8 @@ export class SpaceAndTimeIndexer implements IEVMIndexer {
     // ],
     // [EChain.Sui, new IndexerSupportSummary(EChain.Sui, false, false, false)],
     // [
-    //   EChain.Mumbai,
-    //   new IndexerSupportSummary(EChain.Mumbai, false, false, false),
+    //   EChain.Amoy,
+    //   new IndexerSupportSummary(EChain.Amoy, false, false, false),
     // ],
   ]);
 
