@@ -1,3 +1,4 @@
+import { PANIC_CODES } from "@nomicfoundation/hardhat-chai-matchers/panic";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import {
   mine,
@@ -80,6 +81,8 @@ describe("Stake for Ranking tests", function () {
       otherAccount,
     };
   }
+
+  const oneSlotAboveMaxSlot = 945573 + 1;
 
   describe("Staking mechanics", function () {
     it("Only registered content objects can stake in the factory", async function () {
@@ -285,6 +288,8 @@ describe("Stake for Ranking tests", function () {
       );
     });
 
+    // Within this unit test, we also test 2 functions that call computeFee() internally and check if it reverts if the given slot is above the maximum possible slot of 945573
+    // initializeTag, insertUpstream
     it("Try inserting a listing upstream of existing listing", async function () {
       const {
         consentFactory,
@@ -316,6 +321,16 @@ describe("Stake for Ranking tests", function () {
       await consentContract.depositStake(await token.getAddress(), ownerFee);
       await consentContract2.depositStake(await token.getAddress(), otherFee);
 
+      // Test passing in the beyond the max slot - tests initializeTag
+      await expect(
+        consentContract.newGlobalTag(
+          "NFT",
+          await token.getAddress(),
+          ownerFee,
+          oneSlotAboveMaxSlot,
+        ),
+      ).to.revertedWithPanic(PANIC_CODES.ARITHMETIC_OVERFLOW);
+
       // then initialize a tag in the first consent contract
       await consentContract.newGlobalTag(
         "NFT",
@@ -323,6 +338,17 @@ describe("Stake for Ranking tests", function () {
         ownerFee,
         ownerSlot,
       );
+
+      // Test passing in the beyond the max slot - tests insertUpstream
+      await expect(
+        consentContract2.newLocalTagUpstream(
+          "NFT",
+          await token.getAddress(),
+          otherFee,
+          oneSlotAboveMaxSlot,
+          ownerSlot,
+        ),
+      ).to.revertedWithPanic(PANIC_CODES.ARITHMETIC_OVERFLOW);
 
       // then initialize a tag in the other consent contract upstream of existing slot
       await consentContract2.newLocalTagUpstream(
@@ -368,6 +394,8 @@ describe("Stake for Ranking tests", function () {
       expect(backwardListings[1][0]).to.lessThan(backwardListings[2][0]);
     });
 
+    // Within this unit test, we also test 1 function that calls computeFee() internally and check if it reverts if the given slot is above the maximum possible slot of 945573
+    // insertDownstream
     it("Try inserting a listing downstream of existing listing", async function () {
       const {
         consentFactory,
@@ -407,7 +435,19 @@ describe("Stake for Ranking tests", function () {
         ownerSlot,
       );
 
-      // then initialize a tag in the other consent contract upstream of existing slot
+      // Test passing in the beyond the max slot - tests insert downstream
+      // This is not a realistic scenario params but just to ensure the error is triggered from computeFee() check
+      await expect(
+        consentContract2.newLocalTagDownstream(
+          "NFT",
+          await token.getAddress(),
+          otherFee,
+          oneSlotAboveMaxSlot + 1,
+          oneSlotAboveMaxSlot,
+        ),
+      ).to.revertedWithPanic(PANIC_CODES.ARITHMETIC_OVERFLOW);
+
+      // then initialize a tag in the other consent contract downstream of existing slot
       await consentContract2.newLocalTagDownstream(
         "NFT",
         await token.getAddress(),
@@ -582,6 +622,8 @@ describe("Stake for Ranking tests", function () {
       expect(listings[0][0]).to.equal("example.com");
     });
 
+    // Within this unit test, we also test 1 function that calls computeFee() internally and check if it reverts if the given slot is above the maximum possible slot of 945573
+    // moveUpstream
     it("Try upping the stake on an existing listing", async function () {
       const { consentFactory, consentContract, token, owner, otherAccount } =
         await loadFixture(deployConsentStack);
@@ -614,6 +656,17 @@ describe("Stake for Ranking tests", function () {
       await expect(
         consentContract.depositStake(await token.getAddress(), deltaFee),
       ).changeTokenBalance(token, consentContract, deltaFee);
+
+      // Test passing in the beyond the max slot - tests moveUpstream
+      await expect(
+        consentContract.moveExistingListingUpstream(
+          "NFT",
+          await token.getAddress(),
+          finalFee,
+          oneSlotAboveMaxSlot,
+          0,
+        ),
+      ).to.revertedWithPanic(PANIC_CODES.ARITHMETIC_OVERFLOW);
 
       // then move the listing up the chart
       await consentContract.moveExistingListingUpstream(
