@@ -5,6 +5,7 @@ export * from "@shared-components/v2/components/Button";
 export * from "@shared-components/v2/components/Checkbox";
 export * from "@shared-components/v2/components/CloseButton";
 export * from "@shared-components/v2/components/CustomSelect";
+export * from "@shared-components/v2/components/CustomSwitch";
 export * from "@shared-components/v2/components/FooterPointItem";
 export * from "@shared-components/v2/components/Image";
 export * from "@shared-components/v2/components/ModalContainer";

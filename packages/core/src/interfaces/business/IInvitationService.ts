@@ -13,7 +13,6 @@ import {
   UninitializedError,
   PageInvitation,
   IPFSError,
-  IOldUserAgreement,
   ConsentFactoryContractError,
   IpfsCID,
   AccountAddress,
@@ -134,7 +133,7 @@ export interface IInvitationService {
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement | IUserAgreement, IPFSError>;
+  ): ResultAsync<IUserAgreement, IPFSError>;
 
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,

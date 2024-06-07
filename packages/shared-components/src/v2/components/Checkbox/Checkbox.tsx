@@ -1,9 +1,11 @@
-import { darken, makeStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
-import { SDTypography } from "@shared-components/v2/components/Typograpy";
-import { colors } from "@shared-components/v2/theme";
+import { darken, makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import React, { useMemo, memo } from "react";
+
+import { SDTypography } from "@shared-components/v2/components/Typograpy";
+import { colors } from "@shared-components/v2/theme";
+
 interface CheckboxProps {
   label?: string | number | React.ReactNode;
   align?: "center" | "flex-start" | "flex-end" | "baseline" | "stretch";
@@ -49,6 +51,8 @@ const useStyles = makeStyles((theme) => ({
   checkboxIcon: {
     width: (props: StyleProps) => props.size,
     height: (props: StyleProps) => props.size,
+    minWidth: (props: StyleProps) => props.size,
+    minHeight: (props: StyleProps) => props.size,
     borderRadius: "4px",
     backgroundColor: darken(theme.palette.cardBgColor, 0.0175),
     border: `1px solid ${darken(theme.palette.borderColor, 0.155)}`,

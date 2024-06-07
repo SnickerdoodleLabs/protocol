@@ -1,11 +1,6 @@
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import OfferItem from "@extension-onboarding/pages/V2/Offers/OfferItem";
-import SingleQuestionnaireOffer from "@extension-onboarding/pages/V2/Offers/SingleQuestionnaireOffer";
-import SingleVirtualOffer from "@extension-onboarding/pages/V2/Offers/SingleVirtualOffer";
 import Box from "@material-ui/core/Box";
 import Skeleton from "@material-ui/lab/Skeleton";
 import {
-  IOldUserAgreement,
   IUserAgreement,
   IpfsCID,
   QueryStatus,
@@ -14,15 +9,19 @@ import {
   useSafeState,
   SDTypography,
   Image,
-  QueryQuestionType,
   ISingleQuestionnaireItem,
   IMultiQuestionItem,
-} from "@snickerdoodlelabs/shared-components";
-import {
   ISingleVirtualQuestionnaireItem,
-  getQueryStatusItemsForRender,
 } from "@snickerdoodlelabs/shared-components";
 import React, { FC, useEffect, useMemo } from "react";
+
+import {
+  CombinedOfferItem,
+  SingleQuestionnaireOfferItem,
+  SingleVirtualQuestionnaireOfferItem,
+} from "@extension-onboarding/components/v2/OfferItems";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { calculateOffers } from "@extension-onboarding/utils/OfferUtils";
 
 interface IBrandItemProps {
   ipfsCID: IpfsCID;
@@ -42,9 +41,7 @@ const BrandItem: FC<IBrandItemProps> = ({
   reCalculateOffers,
 }) => {
   const { sdlDataWallet } = useDataWalletContext();
-  const [agreementData, setAgreementData] = useSafeState<
-    IOldUserAgreement | IUserAgreement
-  >();
+  const [agreementData, setAgreementData] = useSafeState<IUserAgreement>();
   const getAgreementData = () => {
     return sdlDataWallet.getInvitationMetadataByCID(ipfsCID).map((data) => {
       setAgreementData(data);
@@ -56,30 +53,7 @@ const BrandItem: FC<IBrandItemProps> = ({
     questionnaireQueries,
     multiQuestionQueries,
   } = useMemo(() => {
-    const items = getQueryStatusItemsForRender(offers);
-    return items.reduce(
-      (acc, item) => {
-        if (
-          item.questionType === QueryQuestionType.SINGLE_VIRTUAL_QUESTIONNAIRE
-        ) {
-          acc.virtualQuestionnaireQueries.push(
-            item as ISingleVirtualQuestionnaireItem,
-          );
-        } else if (
-          item.questionType === QueryQuestionType.SINGLE_QUESTIONNAIRE
-        ) {
-          acc.questionnaireQueries.push(item as ISingleQuestionnaireItem);
-        } else if (item.questionType === QueryQuestionType.MULTI_QUESTION) {
-          acc.multiQuestionQueries.push(item);
-        }
-        return acc;
-      },
-      {
-        virtualQuestionnaireQueries: [],
-        questionnaireQueries: [],
-        multiQuestionQueries: [],
-      } as IQueryStatusesState,
-    );
+    return calculateOffers(offers);
   }, [offers]);
 
   useEffect(() => {
@@ -101,7 +75,7 @@ const BrandItem: FC<IBrandItemProps> = ({
       const brandName =
         agreementData["brandInformation"]?.["name"] ?? "Unknown";
       const brandLogo =
-        agreementData["brandInformation"]?.["image"] ??
+        agreementData["brandInformation"]?.["logoImage"] ??
         agreementData.image ??
         "";
       return {
@@ -134,27 +108,27 @@ const BrandItem: FC<IBrandItemProps> = ({
         {icon} {name}
       </Box>
       {multiQuestionQueries.map((offer) => (
-        <OfferItem
+        <CombinedOfferItem
           key={offer.queryStatus.queryCID}
           brandImage={imageUrl}
           offer={offer}
-          reCalculateOffers={reCalculateOffers}
+          onProcceed={reCalculateOffers}
         />
       ))}
       {questionnaireQueries.map((offer) => (
-        <SingleQuestionnaireOffer
+        <SingleQuestionnaireOfferItem
           key={offer.queryStatus.queryCID}
           brandImage={imageUrl}
           offer={offer}
-          reCalculateOffers={reCalculateOffers}
+          onProcceed={reCalculateOffers}
         />
       ))}
       {virtualQuestionnaireQueries.map((offer) => (
-        <SingleVirtualOffer
+        <SingleVirtualQuestionnaireOfferItem
           key={offer.queryStatus.queryCID}
           brandImage={imageUrl}
           offer={offer}
-          reCalculateOffers={reCalculateOffers}
+          onProcceed={reCalculateOffers}
         />
       ))}
     </Box>

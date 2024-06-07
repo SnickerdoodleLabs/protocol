@@ -14,7 +14,6 @@ import {
   EVMContractAddress,
   EWalletDataType,
   IDynamicRewardParameter,
-  IOldUserAgreement,
   ISnickerdoodleCore,
   IUserAgreement,
   Invitation,
@@ -75,7 +74,7 @@ export enum EAPP_STATE {
 
 interface IInvitation {
   invitation: Invitation;
-  metadata: IOldUserAgreement | IUserAgreement;
+  metadata: IUserAgreement;
 }
 
 interface ICurrentInvitation {

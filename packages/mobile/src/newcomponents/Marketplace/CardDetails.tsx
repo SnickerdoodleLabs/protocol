@@ -7,7 +7,7 @@ import {
   Signature,
   TokenId,
   EWalletDataType,
-  IOldUserAgreement,
+  IUserAgreement,
   MarketplaceListing,
   PossibleReward,
   QueryTypePermissionMap,
@@ -51,7 +51,7 @@ export interface IInvitationParams {
 }
 
 interface ICardDetailsProps {
-  metaData: IOldUserAgreement;
+  metaData: IUserAgreement;
   marketplaceListing: MarketplaceListing;
 }
 

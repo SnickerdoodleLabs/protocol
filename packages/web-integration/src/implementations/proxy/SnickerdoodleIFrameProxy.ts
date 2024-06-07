@@ -23,7 +23,6 @@ import {
   GivenName,
   IConfigOverrides,
   IConsentCapacity,
-  IOldUserAgreement,
   IProxyMetricsMethods,
   IProxyDiscordMethods,
   IProxyTwitterMethods,
@@ -288,6 +287,13 @@ export class SnickerdoodleIFrameProxy
     return this._createCall("initialize", null);
   }
 
+  public getDefaultContractAddress(): ResultAsync<
+    EVMContractAddress | null,
+    ProxyError
+  > {
+    return this._createCall("getDefaultContractAddress", null);
+  }
+
   public checkURLForInvitation(url: URLString): ResultAsync<void, ProxyError> {
     return this._createCall("checkURLForInvitation", { url });
   }
@@ -420,7 +426,7 @@ export class SnickerdoodleIFrameProxy
 
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {
+  ): ResultAsync<IUserAgreement, ProxyError> {
     return this._createCall("getInvitationMetadataByCID", {
       ipfsCID,
     });

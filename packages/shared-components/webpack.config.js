@@ -5,6 +5,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const webpack = require("webpack");
 const configFilePath = require.resolve("./tsconfig.json");
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 
 module.exports = {
   externals: {},
@@ -53,6 +54,7 @@ module.exports = {
   devtool:
     process.env.__BUILD_ENV__ === "dev" ? "eval-source-map" : "source-map",
   plugins: [
+    new NodePolyfillPlugin(),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "index.html"),
     }),

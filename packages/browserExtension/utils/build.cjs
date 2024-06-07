@@ -18,8 +18,6 @@ require(`./envVars/${buildEnv}-env.cjs`);
 
 var config = require("../webpack.config.cjs");
 
-config.mode = "development";
-
 webpack(config, function (err, stats) {
   if (err) {
     console.log(err);

@@ -38,6 +38,7 @@ export const useDialogStyles = makeStyles((theme: Theme) => ({
     "& .MuiDialog-paper": {
       borderRadius: 12,
       maxWidth: (props: DialogStylesProps) => props.maxWidth ?? 640,
+      transition: "max-width 0.05s",
       [theme.breakpoints.down("xs")]: {
         margin: 8,
       },

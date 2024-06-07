@@ -17,7 +17,6 @@ import {
   EWalletDataType,
   AccountAddress,
   TokenAddress,
-  IOldUserAgreement,
   LinkedAccount,
   TokenBalance,
   TokenMarketData,
@@ -256,9 +255,7 @@ export class LeaveCohortParams extends CoreActionParams<void> {
   }
 }
 
-export class GetInvitationMetadataByCIDParams extends CoreActionParams<
-  IOldUserAgreement | IUserAgreement
-> {
+export class GetInvitationMetadataByCIDParams extends CoreActionParams<IUserAgreement> {
   public constructor(public ipfsCID: IpfsCID) {
     super(GetInvitationMetadataByCIDParams.getCoreAction());
   }
@@ -1001,5 +998,14 @@ export class GetRecommendedConsentContractsParams extends CoreActionParams<
   }
   static getCoreAction(): ECoreActions {
     return ECoreActions.GET_RECOMMENDED_CONSENT_CONTRACTS;
+  }
+}
+
+export class GetDefaultContractAddressParams extends CoreActionParams<EVMContractAddress | null> {
+  public constructor() {
+    super(GetDefaultContractAddressParams.getCoreAction());
+  }
+  static getCoreAction(): ECoreActions {
+    return ECoreActions.GET_DEFAULT_CONTRACT_ADDRESS;
   }
 }

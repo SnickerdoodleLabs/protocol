@@ -54,11 +54,12 @@ export const FF_SUPPORTED_PERMISSIONS: {
 export const FF_SUPPORTED_ALL_PERMISSIONS: EWalletDataType[] =
   FF_SUPPORTED_PERMISSIONS.map((item) => item.key).flat();
 
-enum EWalletDataTypeGroup {
+export enum EWalletDataTypeGroup {
   SOCIAL,
   WALLET,
   PERSONAL,
   BROWSER_ACTIVITY,
+  UNKNOWN,
 }
 
 export const DataTypeGroupProperties = {

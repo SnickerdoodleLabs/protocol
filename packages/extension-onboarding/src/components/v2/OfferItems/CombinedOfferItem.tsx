@@ -1,21 +1,22 @@
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import RenderOfferItem from "@extension-onboarding/pages/V2/Offers/RenderOfferItem";
 import { EChain } from "@snickerdoodlelabs/objects";
 import { IMultiQuestionItem } from "@snickerdoodlelabs/shared-components";
 import React, { useCallback } from "react";
 
-interface IOfferItemProps {
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import { IOfferItemCommonProps } from "@extension-onboarding/components/v2/OfferItems/OfferItemCommon.interface";
+import Renderer from "@extension-onboarding/components/v2/OfferItems/Renderer";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+
+interface IOfferItemProps extends IOfferItemCommonProps {
   offer: IMultiQuestionItem;
-  reCalculateOffers: () => void;
-  brandImage?: string;
 }
 
-const OfferItem: React.FC<IOfferItemProps> = ({
+export const CombinedOfferItem: React.FC<IOfferItemProps> = ({
   offer,
-  reCalculateOffers,
+  onProcceed,
   brandImage,
+  ...props
 }) => {
   const { setModal } = useLayoutContext();
   const { linkedAccounts, setLinkerModalOpen } = useAppContext();
@@ -31,13 +32,14 @@ const OfferItem: React.FC<IOfferItemProps> = ({
     }
     setModal({
       modalSelector: EModalSelectors.OFFER_MODAL,
-      onPrimaryButtonClick: reCalculateOffers,
+      onPrimaryButtonClick: () => onProcceed(offer.queryStatus.queryCID),
       customProps: { offer: offer.queryStatus, brandImage },
     });
   }, [linkedAccounts, brandImage]);
 
   return (
-    <RenderOfferItem
+    <Renderer
+      {...props}
       brandImage={brandImage || ""}
       points={offer.queryStatus.points}
       name={offer.queryStatus.name}
@@ -47,5 +49,3 @@ const OfferItem: React.FC<IOfferItemProps> = ({
     />
   );
 };
-
-export default OfferItem;
