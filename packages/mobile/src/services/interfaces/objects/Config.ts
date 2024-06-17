@@ -28,7 +28,7 @@ export const coreConfig = {
   alchemyApiKeys: {
     Arbitrum: "_G9cUGHUQqvD2ro5zDaTAFXeaTcNgQiF",
     Astar: "Tk2NcwnHwrmRvzZCkqgSr6fOYIgH7xh7",
-    Amoy: "", //TODOSEAN see if we need alchemy api key?
+    Amoy: "h3o0snS-vpDnDsrDpupcB6d3ddag-8Lj",
     Optimism: "f3mMgv03KKiX8h-pgOc9ZZyu7F9ECcHG",
     Polygon: "el_YkQK0DMQqqGlgXPO5gm8g6WmpdNfX",
     Solana: "pci9xZCiwGcS1-_jWTzi2Z1LqAA7Ikeg",

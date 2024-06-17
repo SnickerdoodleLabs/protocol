@@ -133,7 +133,7 @@ export class ConfigProvider
         [
           EChain.Amoy,
           URLString(
-            "https://polygon-amoy.g.alchemy.com/v2/", // TODOSEAN: see if we need alchemy?
+            "https://polygon-amoy.g.alchemy.com/v2/h3o0snS-vpDnDsrDpupcB6d3ddag-8Lj",
           ),
         ],
       ]),

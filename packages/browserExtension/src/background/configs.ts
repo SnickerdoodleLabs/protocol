@@ -27,7 +27,7 @@ declare const __ETHERSCAN_FUJI_API_KEY__: string;
 
 declare const __ALCHEMY_ARBITRUM_API_KEY__: string;
 declare const __ALCHEMY_ASTAR_API_KEY__: string;
-declare const __ALCHEMY_MUMBAI_API_KEY__: string;
+declare const __ALCHEMY_AMOY_API_KEY__: string;
 declare const __ALCHEMY_OPTIMISM_API_KEY__: string;
 declare const __ALCHEMY_POLYGON_API_KEY__: string;
 declare const __ALCHEMY_SOLANA_API_KEY__: string;
@@ -196,10 +196,10 @@ export const config: IExtensionSdkConfigOverrides = {
       !!__ALCHEMY_ASTAR_API_KEY__
         ? __ALCHEMY_ASTAR_API_KEY__
         : "",
-    Mumbai:
-      typeof __ALCHEMY_MUMBAI_API_KEY__ !== "undefined" &&
-      !!__ALCHEMY_MUMBAI_API_KEY__
-        ? __ALCHEMY_MUMBAI_API_KEY__
+    Amoy:
+      typeof __ALCHEMY_AMOY_API_KEY__ !== "undefined" &&
+      !!__ALCHEMY_AMOY_API_KEY__
+        ? __ALCHEMY_AMOY_API_KEY__
         : "",
     Optimism:
       typeof __ALCHEMY_OPTIMISM_API_KEY__ !== "undefined" &&
