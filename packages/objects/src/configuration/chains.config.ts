@@ -106,6 +106,22 @@ export const chainConfig = new Map<EChain, ChainInformation>([
     ),
   ],
   [
+    EChain.Palm,
+    new ChainInformation(
+      "Palm",
+      ChainId(EChain.Palm),
+      EChain.Palm,
+      EChainTechnology.EVM,
+      true,
+      "palm-network",
+      10000,
+      new NativeCurrencyInformation("PALM", 18, "PALM", undefined),
+      EChainType.Mainnet,
+      "https://www.ondora.xyz/network/palm/interactions/",
+      getExplorerUrl,
+    ),
+  ],
+  [
     EChain.Polygon,
     new ChainInformation(
       "Polygon",
