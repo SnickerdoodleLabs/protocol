@@ -10,7 +10,6 @@ import {
   AccountIndexingError,
   AjaxError,
   BigNumberString,
-  ChainTransaction,
   compareComponentStatus,
   EChain,
   EChainTechnology,
@@ -25,7 +24,9 @@ import {
   MethodSupportError,
   PersistenceError,
   SolanaAccountAddress,
+  SolanaTransaction,
   SuiAccountAddress,
+  SuiTransaction,
   TokenAddress,
   TokenBalance,
   UnixTimestamp,
@@ -380,7 +381,7 @@ export class MasterIndexer implements IMasterIndexer {
     timestamp: UnixTimestamp,
     chain: EChain,
   ): ResultAsync<
-    ChainTransaction[],
+    (EVMTransaction | SuiTransaction | SolanaTransaction)[],
     | AccountIndexingError
     | AjaxError
     | MethodSupportError
