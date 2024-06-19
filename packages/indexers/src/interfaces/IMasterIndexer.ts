@@ -2,12 +2,14 @@ import {
   AccountAddress,
   AccountIndexingError,
   AjaxError,
-  ChainTransaction,
   EChain,
   EIndexerMethod,
+  EVMTransaction,
   InvalidParametersError,
   MethodSupportError,
   PersistenceError,
+  SolanaTransaction,
+  SuiTransaction,
   TokenBalance,
   UnixTimestamp,
   WalletNFT,
@@ -43,7 +45,7 @@ export interface IMasterIndexer {
     timestamp: UnixTimestamp,
     chain: EChain,
   ): ResultAsync<
-    ChainTransaction[],
+    (EVMTransaction | SuiTransaction | SolanaTransaction)[],
     | AccountIndexingError
     | AjaxError
     | MethodSupportError
