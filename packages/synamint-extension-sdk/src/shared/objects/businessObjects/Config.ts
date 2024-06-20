@@ -22,7 +22,7 @@ export class ExtensionConfig {
       alchemyApiKeys?: {
         Arbitrum: string;
         Astar: string;
-        Mumbai: string;
+        Amoy: string;
         Optimism: string;
         Polygon: string;
         Solana: string;

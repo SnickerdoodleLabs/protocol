@@ -172,8 +172,8 @@ var options = {
       __ALCHEMY_ASTAR_API_KEY__: JSON.stringify(
         process.env.__ALCHEMY_ASTAR_API_KEY__,
       ),
-      __ALCHEMY_MUMBAI_API_KEY__: JSON.stringify(
-        process.env.__ALCHEMY_MUMBAI_API_KEY__,
+      __ALCHEMY_AMOY_API_KEY__: JSON.stringify(
+        process.env.__ALCHEMY_AMOY_API_KEY__,
       ),
       __ALCHEMY_OPTIMISM_API_KEY__: JSON.stringify(
         process.env.__ALCHEMY_OPTIMISM_API_KEY__,

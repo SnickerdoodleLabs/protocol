@@ -79,9 +79,9 @@ export class CoreProvider implements ICoreProvider {
     config.alchemyApiKeys.Astar =
       config.alchemyApiKeys.Astar ??
       immutableConfig.defaultKeys.alchemyApiKeys.Astar;
-    config.alchemyApiKeys.Mumbai =
-      config.alchemyApiKeys.Mumbai ??
-      immutableConfig.defaultKeys.alchemyApiKeys.Mumbai;
+    config.alchemyApiKeys.Amoy =
+      config.alchemyApiKeys.Amoy ??
+      immutableConfig.defaultKeys.alchemyApiKeys.Amoy;
     config.alchemyApiKeys.Optimism =
       config.alchemyApiKeys.Optimism ??
       immutableConfig.defaultKeys.alchemyApiKeys.Optimism;

@@ -25,7 +25,7 @@ declare const __SECONDARY_INFURA_KEY__: string;
 declare const __SECONDARY_RPC_PROVIDER_URL__: ProviderUrl;
 declare const __ALCHEMY_ARBITRUM_API_KEY__: string;
 declare const __ALCHEMY_ASTAR_API_KEY__: string;
-declare const __ALCHEMY_MUMBAI_API_KEY__: string;
+declare const __ALCHEMY_AMOY_API_KEY__: string;
 declare const __ALCHEMY_OPTIMISM_API_KEY__: string;
 declare const __ALCHEMY_POLYGON_API_KEY__: string;
 declare const __ALCHEMY_SOLANA_API_KEY__: string;
@@ -110,10 +110,8 @@ export class ConfigProvider implements IConfigProvider {
               : __ALCHEMY_ARBITRUM_API_KEY__,
           Astar:
             __ALCHEMY_ASTAR_API_KEY__ == "" ? null : __ALCHEMY_ASTAR_API_KEY__,
-          Mumbai:
-            __ALCHEMY_MUMBAI_API_KEY__ == ""
-              ? null
-              : __ALCHEMY_MUMBAI_API_KEY__,
+          Amoy:
+            __ALCHEMY_AMOY_API_KEY__ == "" ? null : __ALCHEMY_AMOY_API_KEY__,
           Optimism:
             __ALCHEMY_OPTIMISM_API_KEY__ == ""
               ? null

@@ -102,7 +102,7 @@ export class ConfigProvider
         [ChainId(1), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
         [ChainId(5), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
         [ChainId(137), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
-        [ChainId(80001), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
+        [ChainId(80002), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
         [ChainId(43114), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
         [ChainId(43113), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
         [ChainId(100), "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE"],
@@ -131,9 +131,9 @@ export class ConfigProvider
           ),
         ],
         [
-          EChain.Mumbai,
+          EChain.Amoy,
           URLString(
-            "https://polygon-mumbai.g.alchemy.com/v2/UA7tIJ6CdCE1351h24CQUE-MNCIV3DSf",
+            "https://polygon-amoy.g.alchemy.com/v2/h3o0snS-vpDnDsrDpupcB6d3ddag-8Lj",
           ),
         ],
       ]),

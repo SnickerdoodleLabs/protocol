@@ -6,7 +6,7 @@ export enum EChain {
   DevDoodle = 31337,
   Avalanche = 43114,
   Fuji = 43113,
-  Mumbai = 80001,
+  Amoy = 80002,
   Solana = -1,
   SolanaTestnet = -2,
   Gnosis = 100,

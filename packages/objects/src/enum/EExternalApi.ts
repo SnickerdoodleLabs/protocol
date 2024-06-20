@@ -3,7 +3,7 @@ export enum EExternalApi {
   SecondaryControl = "Secondary Control Chain",
   AlchemyArbitrum = "Alchemy Arbitrum",
   AlchemyAstar = "Alchemy Astar",
-  AlchemyMumbai = "Alchemy Mumbai",
+  AlchemyAmoy = "Alchemy Amoy",
   AlchemyOptimism = "Alchemy Optimism",
   AlchemyPolygon = "Alchemy Polygon",
   AlchemySolana = "Alchemy Solana",
