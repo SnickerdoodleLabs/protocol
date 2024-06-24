@@ -5,6 +5,11 @@ import ERC20Abi from "@contracts-sdk/interfaces/objects/abi/ERC20Abi.js";
 import ERC20RewardAbi from "@contracts-sdk/interfaces/objects/abi/ERC20RewardAbi.js";
 import ERC721RewardAbi from "@contracts-sdk/interfaces/objects/abi/ERC721RewardAbi.js";
 import ERC7529Abi from "@contracts-sdk/interfaces/objects/abi/ERC7529Abi.js";
+import FarcasterBundlerAbi from "@contracts-sdk/interfaces/objects/abi/FarcasterBundlerAbi";
+import FarcasterIdGatewayAbi from "@contracts-sdk/interfaces/objects/abi/FarcasterIdGatewayAbi";
+import FarcasterIdRegistryAbi from "@contracts-sdk/interfaces/objects/abi/FarcasterIdRegistryAbi";
+import FarcasterKeyGatewayAbi from "@contracts-sdk/interfaces/objects/abi/FarcasterKeyGatewayAbi";
+import FarcasterKeyRegistryAbi from "@contracts-sdk/interfaces/objects/abi/FarcasterKeyRegistryAbi";
 import OFT20RewardAbi from "@contracts-sdk/interfaces/objects/abi/OFT20RewardAbi.js";
 import ONFT721RewardAbi from "@contracts-sdk/interfaces/objects/abi/ONFT721RewardAbi.js";
 import QuestionnairesAbi from "@contracts-sdk/interfaces/objects/abi/QuestionnairesAbi.js";
@@ -21,4 +26,9 @@ export const ContractsAbis = {
   OFT20Reward: OFT20RewardAbi,
   ONFT721Reward: ONFT721RewardAbi,
   QuestionnairesAbi: QuestionnairesAbi,
+  FarcasterBundlerAbi: FarcasterBundlerAbi,
+  FarcasterIdGatewayAbi: FarcasterIdGatewayAbi,
+  FarcasterIdRegistryAbi: FarcasterIdRegistryAbi,
+  FarcasterKeyGatewayAbi: FarcasterKeyGatewayAbi,
+  FarcasterKeyRegistryAbi: FarcasterKeyRegistryAbi,
 };

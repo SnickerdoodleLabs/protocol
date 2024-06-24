@@ -25,3 +25,8 @@ export * from "@objects/errors/blockchain/ERC20ContractError.js";
 export * from "@objects/errors/blockchain/ERC1155ContractError.js";
 export * from "@objects/errors/blockchain/OFT20RewardContractError.js";
 export * from "@objects/errors/blockchain/ONFT721RewardContractError.js";
+export * from "@objects/errors/blockchain/FarcasterBundlerContractError.js";
+export * from "@objects/errors/blockchain/FarcasterIdGatewayContractError.js";
+export * from "@objects/errors/blockchain/FarcasterIdRegistryContractError.js";
+export * from "@objects/errors/blockchain/FarcasterKeyGatewayContractError.js";
+export * from "@objects/errors/blockchain/FarcasterKeyRegistryContractError.js";

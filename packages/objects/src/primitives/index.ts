@@ -42,6 +42,7 @@ export * from "@objects/primitives/EVMPrivateKey.js";
 export * from "@objects/primitives/EVMToken.js";
 export * from "@objects/primitives/EVMTransactionHash.js";
 export * from "@objects/primitives/FamilyName.js";
+export * from "@objects/primitives/FarcasterId.js";
 export * from "@objects/primitives/Gender.js";
 export * from "@objects/primitives/GivenName.js";
 export * from "@objects/primitives/HostName.js";
