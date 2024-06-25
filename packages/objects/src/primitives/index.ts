@@ -113,3 +113,7 @@ export * from "@objects/primitives/Version.js";
 export * from "@objects/primitives/VolatileStorageKey.js";
 export * from "@objects/primitives/Web2Credential.js";
 export * from "@objects/primitives/ZKProof.js";
+export * from "@objects/primitives/SignedKeyRequestSignature.js";
+export * from "@objects/primitives/EncodedSignedKeyRequestMetadata.js";
+export * from "@objects/primitives/SignedRegisterSignature.js";
+export * from "@objects/primitives/SignedAddSignature.js";

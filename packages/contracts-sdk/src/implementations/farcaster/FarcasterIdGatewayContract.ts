@@ -1,14 +1,15 @@
+import { ID_GATEWAY_EIP_712_TYPES } from "@farcaster/hub-nodejs";
 import {
   EVMAccountAddress,
   EVMContractAddress,
   BlockchainCommonErrors,
   FarcasterIdGatewayContractError,
-  Signature,
   UnixTimestamp,
+  SignedRegisterSignature,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
+import { TypedDataField, ethers } from "ethers";
 import { injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
@@ -35,28 +36,34 @@ export class FarcasterIdGatewayContract
     );
   }
 
-  public price(): ResultAsync<
+  public price(
+    extraStorage?: bigint,
+  ): ResultAsync<
     bigint,
     FarcasterIdGatewayContractError | BlockchainCommonErrors
   > {
+    // If extraStorage was provided, call price with it, otherwise call without
+    // https://optimistic.etherscan.io/address/0x00000000fc25870c6ed6b6c7e41fb078b7656f69#code#F2#L64
     return ResultAsync.fromPromise(
-      this.contract.price() as Promise<bigint>,
+      extraStorage
+        ? (this.contract.price(extraStorage) as Promise<bigint>)
+        : (this.contract.price() as Promise<bigint>),
       (e) => {
         return this.generateError(e, "Unable to call price()");
       },
     );
   }
 
-  public priceWithExtraStorage(
-    extraStorage: bigint,
+  public nonces(
+    address: EVMAccountAddress,
   ): ResultAsync<
     bigint,
     FarcasterIdGatewayContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.price(extraStorage) as Promise<bigint>,
+      this.contract.nonces(address) as Promise<bigint>,
       (e) => {
-        return this.generateError(e, "Unable to call price()");
+        return this.generateError(e, "Unable to call nonces()");
       },
     );
   }
@@ -86,39 +93,100 @@ export class FarcasterIdGatewayContract
     );
   }
 
+  // Called by Admin EW to register for on behalf of a user's EW
   public registerFor(
     ownerAddress: EVMAccountAddress,
     recoveryAddress: EVMAccountAddress,
     deadline: UnixTimestamp,
-    signature: Signature,
+    signature: SignedRegisterSignature, // EIP-712 'Register' signature from fidOwner obtained from getRegisterSignature()
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     FarcasterIdGatewayContractError | BlockchainCommonErrors
   > {
-    return this.writeToContract(
-      "registerFor",
-      [ownerAddress, recoveryAddress, deadline, signature],
-      overrides,
-    );
+    return this.price().andThen((registerPrice) => {
+      // If there overrides provided, update its value to registerPrice.
+      // If no override passed, create a new one ContractOverrides and update its value with registerPrice.
+      const overridesToUpdate = overrides
+        ? overrides
+        : ({} as ContractOverrides);
+
+      overridesToUpdate.value = registerPrice;
+
+      return this.writeToContract(
+        "registerFor",
+        [ownerAddress, recoveryAddress, deadline, signature],
+        overridesToUpdate,
+      );
+    });
   }
 
+  // Called by Admin EW to register for on behalf of a user's EW
   public registerForWithExtraStorage(
     ownerAddress: EVMAccountAddress,
     recoveryAddress: EVMAccountAddress,
     deadline: UnixTimestamp,
-    signature: Signature,
+    signature: SignedRegisterSignature, // EIP-712 'Register' signature from fidOwner obtained from getRegisterSignature()
     extraStorage: bigint,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     FarcasterIdGatewayContractError | BlockchainCommonErrors
   > {
-    return this.writeToContract(
-      "registerFor",
-      [ownerAddress, recoveryAddress, deadline, signature, extraStorage],
-      overrides,
+    return this.price(extraStorage).andThen((registerPrice) => {
+      // If overrides provided, update its value to registerPrice.
+      // If no override passed, create a new ContractOverrides and update its value with registerPrice.
+      const overridesToUpdate = overrides
+        ? overrides
+        : ({} as ContractOverrides);
+
+      overridesToUpdate.value = registerPrice;
+      return this.writeToContract(
+        "registerFor",
+        [ownerAddress, recoveryAddress, deadline, signature, extraStorage],
+        overrides,
+      );
+    });
+  }
+
+  // Called by the owner's EW to sign a 'Register' signature
+  public getRegisterSignature(
+    ownerAddress: EVMAccountAddress,
+    recoveryAddress: EVMAccountAddress,
+    nonce: bigint,
+    deadline: UnixTimestamp,
+  ): ResultAsync<
+    SignedRegisterSignature,
+    FarcasterIdGatewayContractError | BlockchainCommonErrors
+  > {
+    // message should be RegistrationParams struct
+    //    https://docs.farcaster.xyz/reference/contracts/reference/id-gateway#register-signature
+    //    Needs to be a EIP712 signature
+    const message = {
+      to: ownerAddress,
+      recovery: recoveryAddress,
+      nonce: nonce,
+      deadline: deadline,
+    };
+
+    const signer = this.providerOrSigner as ethers.Signer;
+
+    return ResultAsync.fromPromise(
+      signer.signTypedData(
+        ID_GATEWAY_EIP_712_TYPES.domain,
+        this.removeReadonlyFromReadonlyTypes(ID_GATEWAY_EIP_712_TYPES.types),
+        message,
+      ) as Promise<SignedRegisterSignature>,
+      (e) => {
+        return e as FarcasterIdGatewayContractError;
+      },
     );
+  }
+
+  protected removeReadonlyFromReadonlyTypes<T>(
+    obj: T,
+  ): Record<string, TypedDataField[]> {
+    return obj as Record<string, TypedDataField[]>;
   }
 
   protected generateContractSpecificError(

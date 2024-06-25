@@ -2,7 +2,7 @@ import {
   BlockchainCommonErrors,
   EVMAccountAddress,
   FarcasterIdGatewayContractError,
-  Signature,
+  SignedRegisterSignature,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -16,24 +16,26 @@ import {
 
 export interface IFarcasterIdGatewayContract extends IBaseContract {
   /**
-   * @notice Calculate the total price to register, equal to 1 storage unit.
+   * @notice Calculate the total price to register, equal to 1 storage unit or with extra storage
    *
    * @return Total price in wei.
    */
-  price(): ResultAsync<
+  price(
+    extraStorage?: bigint,
+  ): ResultAsync<
     bigint,
     FarcasterIdGatewayContractError | BlockchainCommonErrors
   >;
 
   /**
-   * @notice Calculate the total price to register, including additional storage.
+   * @notice Get the next unused nonce for an address. Used for generating an EIP-712 Register signature for registerFor.
    *
-   * @param extraStorage Number of additional storage units to rent.
+   * @return Next unused nonce for address
    *
-   * @return Total price in wei.
+   *  https://optimistic.etherscan.io/address/0x00000000fc25870c6ed6b6c7e41fb078b7656f69#code#F16#L18
    */
-  priceWithExtraStorage(
-    extraStorage: bigint,
+  nonces(
+    address: EVMAccountAddress,
   ): ResultAsync<
     bigint,
     FarcasterIdGatewayContractError | BlockchainCommonErrors
@@ -88,7 +90,7 @@ export interface IFarcasterIdGatewayContract extends IBaseContract {
     ownerAddress: EVMAccountAddress,
     recoveryAddress: EVMAccountAddress,
     deadline: UnixTimestamp,
-    signature: Signature,
+    signature: SignedRegisterSignature,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -112,11 +114,32 @@ export interface IFarcasterIdGatewayContract extends IBaseContract {
     ownerAddress: EVMAccountAddress,
     recoveryAddress: EVMAccountAddress,
     deadline: UnixTimestamp,
-    signature: Signature,
+    signature: SignedRegisterSignature,
     extraStorage: bigint,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
+    FarcasterIdGatewayContractError | BlockchainCommonErrors
+  >;
+
+  /**
+   * @notice Returns a signature of the Register function signed by the function caller
+   *         https://docs.farcaster.xyz/reference/contracts/reference/id-gateway#register-signature
+   *
+   * @param ownerAddress Address which will own the fid.
+   * @param recovery     Address which can recover the fid. Set to zero to disable recovery.
+   * @param nonce        The next unused nonce on the Id Gateway contract, obtained via nonces()
+   * @param deadline     Expiration timestamp of the signature.
+   *
+   * @return Signature of a the Register function call.
+   */
+  getRegisterSignature(
+    ownerAddress: EVMAccountAddress,
+    recoveryAddress: EVMAccountAddress,
+    nonce: bigint,
+    deadline: UnixTimestamp,
+  ): ResultAsync<
+    SignedRegisterSignature,
     FarcasterIdGatewayContractError | BlockchainCommonErrors
   >;
 }
