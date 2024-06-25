@@ -7,8 +7,10 @@ import {
 import { ethers } from "ethers";
 
 // #region export constants
-export const chainId = ChainId(31337);
-export const providerUrl = URLString("http://localhost:8545");
+export const chainId = ChainId(10);
+export const providerUrl = URLString(
+  "https://optimism-mainnet.infura.io/v3/a6271a49218848a7ad939ee62d225914",
+);
 
 // This is the private key of the account that A. deployed the contracts and B. has all the token
 // #0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
