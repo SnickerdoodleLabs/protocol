@@ -1,15 +1,14 @@
 import {
   EVMContractAddress,
   BlockchainCommonErrors,
-  FarcasterBundlerContractError,
   EChain,
   ChainId,
   getChainInfoByChain,
+  UnexpectedNetworkError,
 } from "@snickerdoodlelabs/objects";
 import { Network, ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
-import { UnexpectedNetworkError } from "packages/objects/src/errors/blockchain/UnexpectedNetworkError";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 @injectable()

@@ -30,3 +30,4 @@ export * from "@objects/errors/blockchain/FarcasterIdGatewayContractError.js";
 export * from "@objects/errors/blockchain/FarcasterIdRegistryContractError.js";
 export * from "@objects/errors/blockchain/FarcasterKeyGatewayContractError.js";
 export * from "@objects/errors/blockchain/FarcasterKeyRegistryContractError.js";
+export * from "@objects/errors/blockchain/UnexpectedNetworkError.js";

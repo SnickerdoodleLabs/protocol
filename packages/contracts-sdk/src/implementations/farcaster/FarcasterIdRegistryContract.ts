@@ -4,6 +4,7 @@ import {
   BlockchainCommonErrors,
   FarcasterIdRegistryContractError,
   FarcasterUserId,
+  EVMAccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -28,7 +29,7 @@ export class FarcasterIdRegistryContract
   }
 
   public idOf(
-    ownerAddress: EVMContractAddress,
+    ownerAddress: EVMAccountAddress,
   ): ResultAsync<
     FarcasterUserId | null,
     FarcasterIdRegistryContractError | BlockchainCommonErrors

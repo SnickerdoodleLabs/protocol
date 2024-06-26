@@ -15,6 +15,8 @@ import {
   FarcasterAddSignature,
   FarcasterKey,
   SignerUnavailableError,
+  UnauthorizedError,
+  UnexpectedNetworkError,
 } from "@snickerdoodlelabs/objects";
 import { ParamType, TypedDataField, ethers } from "ethers";
 import { injectable } from "inversify";
@@ -208,9 +210,19 @@ export class FarcasterKeyGatewayContract
           type: "tuple",
         });
 
+        if (metadataStructType.components == null) {
+          return errAsync(
+            new UnexpectedNetworkError(
+              "fail to encode",
+              "getSignedKeyRequestSignatureAndEncodedMetadata",
+            ),
+          );
+        }
+
+        console.log("SEANHERE", metadataStructType.components.length);
         const encodedMetadataStruct = ethers.AbiCoder.defaultAbiCoder().encode(
-          [metadataStructType],
-          [metadataStruct],
+          metadataStructType.components,
+          [ownerFid, keyToAdd, metadataSignature, deadline],
         );
 
         return okAsync(
@@ -241,7 +253,7 @@ export class FarcasterKeyGatewayContract
       const metadataMessage = {
         requestFid: ownerFid,
         key: keyToAdd,
-        deadline,
+        deadline: deadline,
       };
 
       return ResultAsync.fromPromise(

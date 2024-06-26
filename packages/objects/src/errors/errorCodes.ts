@@ -75,6 +75,7 @@ const errorCodes = {
   FarcasterIdRegistryContractError: "ERR_FARCASTER_ID_REGISTRY_CONTRACT",
   FarcasterKeyGatewayContractError: "ERR_FARCASTER_KEY_GATEWAY_CONTRACT",
   FarcasterKeyRegistryContractError: "ERR_FARCASTER_KEY_REGISTRY_CONTRACT",
+  UnexpectedNetworkError: "ERR_UNEXPECTED_NETWORK",
 };
 
 export default errorCodes;

@@ -18,7 +18,7 @@ export interface IFarcasterIdRegistryContract extends IBaseContract {
    * @return The farcaster id
    */
   idOf(
-    ownerAddress: EVMAccountAddress | EVMContractAddress,
+    ownerAddress: EVMAccountAddress,
   ): ResultAsync<
     FarcasterUserId | null,
     FarcasterIdRegistryContractError | BlockchainCommonErrors
