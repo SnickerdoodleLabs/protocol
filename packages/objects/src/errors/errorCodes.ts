@@ -70,7 +70,12 @@ const errorCodes = {
   AuthenticationError: "ERR_AUTHENTICATION",
   ERC721RewardContractError: "ERR_ERC721_REWARD_CONTRACT",
   ERC20ContractError: "ERR_ERC20_CONTRACT",
-  QuestionnairesContractError: "ERR_QUESTIONNAIRES_CONTRACT",
+  FarcasterBundlerContractError: "ERR_BUNDLER_CONTRACT",
+  FarcasterIdGatewayContractError: "ERR_FARCASTER_ID_GATEWAY_CONTRACT",
+  FarcasterIdRegistryContractError: "ERR_FARCASTER_ID_REGISTRY_CONTRACT",
+  FarcasterKeyGatewayContractError: "ERR_FARCASTER_KEY_GATEWAY_CONTRACT",
+  FarcasterKeyRegistryContractError: "ERR_FARCASTER_KEY_REGISTRY_CONTRACT",
+  UnexpectedNetworkError: "ERR_UNEXPECTED_NETWORK",
 };
 
 export default errorCodes;

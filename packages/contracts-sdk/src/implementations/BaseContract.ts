@@ -7,7 +7,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { errAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import {
   BlockchainErrorMapper,
@@ -46,6 +46,19 @@ export abstract class BaseContract<TContractSpecificError>
     return this.contract;
   }
 
+  protected ensureHasSigner(
+    functionName: string,
+  ): ResultAsync<void, BlockchainCommonErrors> {
+    if (!this.hasSigner) {
+      return errAsync(
+        new SignerUnavailableError(
+          `Cannot writeToContract function ${functionName}, no signer available. Contract wrapper is in read-only mode.`,
+        ),
+      );
+    }
+    return okAsync(undefined);
+  }
+
   protected generateError(
     error: unknown,
     errorMessage: string,
@@ -72,37 +85,35 @@ export abstract class BaseContract<TContractSpecificError>
     WrappedTransactionResponse,
     BlockchainCommonErrors | TContractSpecificError
   > {
-    if (!this.hasSigner) {
-      return errAsync(
-        new SignerUnavailableError(
-          `Cannot writeToContract function ${functionName}, no signer available. Contract wrapper is in read-only mode.`,
-        ),
-      );
-    }
-
-    return ResultAsync.fromPromise(
-      this.contract[functionName](...functionParams, {
-        ...overrides,
-      }) as Promise<ethers.TransactionResponse>,
-      (e) => {
-        return e as IEthersContractError;
-      },
-    )
-      .map((transactionResponse) => {
-        return BaseContract.buildWrappedTransactionResponse(
-          transactionResponse,
-          this.contractAddress,
-          EVMAccountAddress((this.providerOrSigner as ethers.Wallet)?.address),
-          functionName,
-          functionParams,
-          this.contractAbi,
-        );
-      })
-      .mapErr((e) => {
-        return BlockchainErrorMapper.buildBlockchainError(e, (msg, reason, e) =>
-          this.generateContractSpecificError(msg, reason, e || null),
-        );
-      });
+    return this.ensureHasSigner(functionName).andThen(() => {
+      return ResultAsync.fromPromise(
+        this.contract[functionName](...functionParams, {
+          ...overrides,
+        }) as Promise<ethers.TransactionResponse>,
+        (e) => {
+          return e as IEthersContractError;
+        },
+      )
+        .map((transactionResponse) => {
+          return BaseContract.buildWrappedTransactionResponse(
+            transactionResponse,
+            this.contractAddress,
+            EVMAccountAddress(
+              (this.providerOrSigner as ethers.Wallet)?.address,
+            ),
+            functionName,
+            functionParams,
+            this.contractAbi,
+          );
+        })
+        .mapErr((e) => {
+          return BlockchainErrorMapper.buildBlockchainError(
+            e,
+            (msg, reason, e) =>
+              this.generateContractSpecificError(msg, reason, e || null),
+          );
+        });
+    });
   }
 
   // Function to return the correct error type based on mapping of error message

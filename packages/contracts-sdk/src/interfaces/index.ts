@@ -11,6 +11,7 @@ export * from "@contracts-sdk/interfaces/IOFT20RewardContract.js";
 export * from "@contracts-sdk/interfaces/IONFT721RewardContract.js";
 export * from "@contracts-sdk/interfaces/IQuestionnairesContract.js";
 
+export * from "@contracts-sdk/interfaces/farcaster/index.js";
 export * from "@contracts-sdk/interfaces/objects/index.js";
 export * from "@contracts-sdk/interfaces/enums/index.js";
 export * from "@contracts-sdk/interfaces/factory/index.js";
