@@ -219,7 +219,6 @@ export class FarcasterKeyGatewayContract
           );
         }
 
-        console.log("SEANHERE", metadataStructType.components.length);
         const encodedMetadataStruct = ethers.AbiCoder.defaultAbiCoder().encode(
           metadataStructType.components,
           [ownerFid, keyToAdd, metadataSignature, deadline],
