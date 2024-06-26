@@ -2,7 +2,7 @@ import {
   BlockchainCommonErrors,
   EVMAccountAddress,
   FarcasterIdGatewayContractError,
-  SignedRegisterSignature,
+  FarcasterRegisterSignature,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -90,7 +90,7 @@ export interface IFarcasterIdGatewayContract extends IBaseContract {
     ownerAddress: EVMAccountAddress,
     recoveryAddress: EVMAccountAddress,
     deadline: UnixTimestamp,
-    signature: SignedRegisterSignature,
+    signature: FarcasterRegisterSignature,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -114,7 +114,7 @@ export interface IFarcasterIdGatewayContract extends IBaseContract {
     ownerAddress: EVMAccountAddress,
     recoveryAddress: EVMAccountAddress,
     deadline: UnixTimestamp,
-    signature: SignedRegisterSignature,
+    signature: FarcasterRegisterSignature,
     extraStorage: bigint,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -139,7 +139,7 @@ export interface IFarcasterIdGatewayContract extends IBaseContract {
     nonce: bigint,
     deadline: UnixTimestamp,
   ): ResultAsync<
-    SignedRegisterSignature,
+    FarcasterRegisterSignature,
     FarcasterIdGatewayContractError | BlockchainCommonErrors
   >;
 }

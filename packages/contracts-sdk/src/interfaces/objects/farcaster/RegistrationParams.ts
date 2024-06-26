@@ -1,15 +1,17 @@
 import {
   EVMAccountAddress,
-  Signature,
+  FarcasterRegisterSignature,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects/src/primitives/index.js";
 
-// Combining Farcaster's Signed Key Request signature and encoded metadata
+// Farcaster's Bundler's Registration param
+// https://docs.farcaster.xyz/reference/contracts/reference/bundler#register
 
 export class RegistrationParams {
   public constructor(
     public to: EVMAccountAddress,
     public recovery: EVMAccountAddress,
-    public sig: Signature,
-    public deadline: bigint,
+    public sig: FarcasterRegisterSignature,
+    public deadline: UnixTimestamp,
   ) {}
 }

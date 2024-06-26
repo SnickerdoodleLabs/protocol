@@ -2,20 +2,12 @@ import {
   BlockchainCommonErrors,
   EVMAccountAddress,
   EVMContractAddress,
-  FarcasterId,
-  FarcasterIdGatewayContractError,
+  FarcasterUserId,
   FarcasterIdRegistryContractError,
-  Signature,
-  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { IBaseContract } from "../IBaseContract";
-
-import {
-  ContractOverrides,
-  WrappedTransactionResponse,
-} from "@contracts-sdk/index";
 
 export interface IFarcasterIdRegistryContract extends IBaseContract {
   /**
@@ -28,7 +20,7 @@ export interface IFarcasterIdRegistryContract extends IBaseContract {
   idOf(
     ownerAddress: EVMAccountAddress | EVMContractAddress,
   ): ResultAsync<
-    FarcasterId,
+    FarcasterUserId | null,
     FarcasterIdRegistryContractError | BlockchainCommonErrors
   >;
 }

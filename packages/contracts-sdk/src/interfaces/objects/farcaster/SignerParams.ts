@@ -1,19 +1,19 @@
 import {
   EVMAccountAddress,
-  EncodedSignedKeyRequestMetadata,
-  Signature,
-  SignedKeyRequestSignature,
+  FarcasterEncodedSignedKeyRequestMetadata,
+  FarcasterSignedKeyRequestSignature,
 } from "@snickerdoodlelabs/objects/src/primitives/index.js";
 
-// Combining Farcaster's Signed Key Request signature and encoded metadata
+// Farcaster's Bundler's Signer param
+// https://docs.farcaster.xyz/reference/contracts/reference/bundler#register
 
 export class SignerParams {
   public constructor(
     public keyType: number,
     public key: EVMAccountAddress,
     public metadataType: number,
-    public metadata: EncodedSignedKeyRequestMetadata,
-    public signature: SignedKeyRequestSignature,
+    public metadata: FarcasterEncodedSignedKeyRequestMetadata,
+    public signature: FarcasterSignedKeyRequestSignature,
     public deadline: bigint,
   ) {}
 }

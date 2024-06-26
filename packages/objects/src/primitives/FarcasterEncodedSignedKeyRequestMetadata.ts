@@ -3,9 +3,9 @@ import { Brand, make } from "ts-brand";
 // Encoded version of Farcaster's SignedKeyRequestMetadata
 // https://docs.farcaster.xyz/reference/contracts/reference/signed-key-request-validator#signedkeyrequestmetadata-struct
 
-export type EncodedSignedKeyRequestMetadata = Brand<
+export type FarcasterEncodedSignedKeyRequestMetadata = Brand<
   string,
-  "EncodedSignedKeyRequestMetadata"
+  "FarcasterEncodedSignedKeyRequestMetadata"
 >;
-export const EncodedSignedKeyRequestMetadata =
-  make<EncodedSignedKeyRequestMetadata>();
+export const FarcasterEncodedSignedKeyRequestMetadata =
+  make<FarcasterEncodedSignedKeyRequestMetadata>();

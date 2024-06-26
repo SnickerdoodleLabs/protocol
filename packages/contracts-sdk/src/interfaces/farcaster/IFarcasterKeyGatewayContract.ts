@@ -1,13 +1,15 @@
 import {
   BlockchainCommonErrors,
   EVMAccountAddress,
-  EncodedSignedKeyRequestMetadata,
-  FarcasterId,
+  FarcasterEncodedSignedKeyRequestMetadata,
+  FarcasterUserId,
   FarcasterKeyGatewayContractError,
-  SignedAddSignature,
-  SignedKeyRequestSignature,
+  FarcasterAddSignature,
+  FarcasterSignedKeyRequestSignature,
   UnixTimestamp,
+  FarcasterKey,
 } from "@snickerdoodlelabs/objects";
+import { Block } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import { IBaseContract } from "../IBaseContract";
@@ -40,7 +42,7 @@ export interface IFarcasterKeyGatewayContract extends IBaseContract {
     keyToAdd: string,
     encodedMetadata: string,
     deadline: UnixTimestamp,
-    signature: SignedAddSignature,
+    signature: FarcasterAddSignature,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -50,22 +52,28 @@ export interface IFarcasterKeyGatewayContract extends IBaseContract {
   getAddSignature(
     ownerAddress: EVMAccountAddress,
     keyToAdd: EVMAccountAddress,
-    encodedMetadata: EncodedSignedKeyRequestMetadata,
+    encodedMetadata: FarcasterEncodedSignedKeyRequestMetadata,
     deadline: UnixTimestamp,
   ): ResultAsync<
-    SignedAddSignature,
+    FarcasterAddSignature,
     FarcasterKeyGatewayContractError | BlockchainCommonErrors
   >;
 
   getSignedKeyRequestSignatureAndEncodedMetadata(
-    ownerFid: FarcasterId,
-    keyToAdd: EVMAccountAddress, // key to be tied to account
+    ownerFid: FarcasterUserId,
+    keyToAdd: FarcasterKey, // key to be tied to account
     deadline: UnixTimestamp,
-  ): ResultAsync<SignedKeyRequest, FarcasterKeyGatewayContractError>;
+  ): ResultAsync<
+    SignedKeyRequest,
+    FarcasterKeyGatewayContractError | BlockchainCommonErrors
+  >;
 
   getSignedKeyRequestSignature(
-    ownerFid: FarcasterId,
-    keyToAdd: EVMAccountAddress, // key to be tied to account
+    ownerFid: FarcasterUserId,
+    keyToAdd: FarcasterKey, // key to be tied to account
     deadline: UnixTimestamp,
-  ): ResultAsync<SignedKeyRequestSignature, FarcasterKeyGatewayContractError>;
+  ): ResultAsync<
+    FarcasterSignedKeyRequestSignature,
+    FarcasterKeyGatewayContractError | BlockchainCommonErrors
+  >;
 }

@@ -3,8 +3,9 @@ import { Brand, make } from "ts-brand";
 // Fascaster's SignedKeyRequest signature
 // https://docs.farcaster.xyz/reference/contracts/reference/signed-key-request-validator#signedkeyrequest-signature
 
-export type SignedKeyRequestSignature = Brand<
+export type FarcasterSignedKeyRequestSignature = Brand<
   string,
-  "SignedKeyRequestSignature"
+  "FarcasterSignedKeyRequestSignature"
 >;
-export const SignedKeyRequestSignature = make<SignedKeyRequestSignature>();
+export const FarcasterSignedKeyRequestSignature =
+  make<FarcasterSignedKeyRequestSignature>();
