@@ -10,7 +10,7 @@ import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
-import { FarcasterContractBase } from "@contracts-sdk/implementations/farcaster/FarcasterContractBase.js";
+import { FarcasterBaseContract } from "@contracts-sdk/implementations/farcaster/FarcasterBaseContract.js";
 import {
   ContractOverrides,
   IFarcasterBundlerContract,
@@ -21,7 +21,7 @@ import { SignerParams } from "@contracts-sdk/interfaces/objects/farcaster/Signer
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 @injectable()
 export class FarcasterBundlerContract
-  extends FarcasterContractBase<FarcasterBundlerContractError>
+  extends FarcasterBaseContract<FarcasterBundlerContractError>
   implements IFarcasterBundlerContract
 {
   constructor(protected providerOrSigner: ethers.Provider | ethers.Signer) {

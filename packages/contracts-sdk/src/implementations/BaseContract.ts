@@ -48,7 +48,7 @@ export abstract class BaseContract<TContractSpecificError>
 
   protected ensureHasSigner(
     functionName: string,
-  ): ResultAsync<void, BlockchainCommonErrors> {
+  ): ResultAsync<ethers.Signer, BlockchainCommonErrors> {
     if (!this.hasSigner) {
       return errAsync(
         new SignerUnavailableError(
@@ -56,7 +56,7 @@ export abstract class BaseContract<TContractSpecificError>
         ),
       );
     }
-    return okAsync(undefined);
+    return okAsync(this.providerOrSigner as ethers.Signer);
   }
 
   protected generateError(

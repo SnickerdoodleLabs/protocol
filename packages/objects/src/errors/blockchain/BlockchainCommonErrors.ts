@@ -28,4 +28,4 @@ export type BlockchainCommonErrors =
   | NetworkUnreachableError
   | SignerUnavailableError
   | BlockchainTransactionErrors
-  | UnexpectedNetworkError;
+  | UnexpectedNetworkError

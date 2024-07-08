@@ -1,15 +1,15 @@
 import {
   BlockchainCommonErrors,
   EVMAccountAddress,
-  EVMContractAddress,
   FarcasterUserId,
   FarcasterIdRegistryContractError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { IBaseContract } from "../IBaseContract";
+import { IFarcasterBaseContract } from "@contracts-sdk/interfaces/farcaster/IFarcasterBaseContract.js";
 
-export interface IFarcasterIdRegistryContract extends IBaseContract {
+export interface IFarcasterIdRegistryContract
+  extends IFarcasterBaseContract<FarcasterIdRegistryContractError> {
   /**
    * @notice Calls the idOf mapping in the registry contract
    *

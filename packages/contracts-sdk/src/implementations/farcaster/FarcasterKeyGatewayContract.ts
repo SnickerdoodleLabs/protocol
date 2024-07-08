@@ -13,10 +13,8 @@ import {
   FarcasterSignedKeyRequestSignature,
   FarcasterEncodedSignedKeyRequestMetadata,
   FarcasterAddSignature,
-  FarcasterKey,
-  SignerUnavailableError,
-  UnauthorizedError,
   UnexpectedNetworkError,
+  ED25519PublicKey,
 } from "@snickerdoodlelabs/objects";
 import { ParamType, TypedDataField, ethers } from "ethers";
 import { injectable } from "inversify";
@@ -24,7 +22,7 @@ import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
-import { FarcasterContractBase } from "@contracts-sdk/implementations/farcaster/FarcasterContractBase.js";
+import { FarcasterBaseContract } from "@contracts-sdk/implementations/farcaster/FarcasterBaseContract.js";
 import {
   ContractOverrides,
   IFarcasterKeyGatewayContract,
@@ -37,7 +35,7 @@ import {
 
 @injectable()
 export class FarcasterKeyGatewayContract
-  extends FarcasterContractBase<FarcasterKeyGatewayContractError>
+  extends FarcasterBaseContract<FarcasterKeyGatewayContractError>
   implements IFarcasterKeyGatewayContract
 {
   constructor(protected providerOrSigner: ethers.Provider | ethers.Signer) {
@@ -65,7 +63,7 @@ export class FarcasterKeyGatewayContract
   }
 
   public add(
-    keyToAdd: FarcasterKey,
+    keyToAdd: ED25519PublicKey,
     encodedMetadata: FarcasterEncodedSignedKeyRequestMetadata, // obtained from getEncodedSignedKeyRequestMetadata()
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -80,7 +78,12 @@ export class FarcasterKeyGatewayContract
     ]).andThen(() => {
       return this.writeToContract(
         "add",
-        [1, keyToAdd, 1, encodedMetadata],
+        [
+          1,
+          ethers.hexlify(ethers.toUtf8Bytes(keyToAdd)),
+          1,
+          ethers.hexlify(ethers.toUtf8Bytes(encodedMetadata)),
+        ],
         overrides,
       );
     });
@@ -91,7 +94,7 @@ export class FarcasterKeyGatewayContract
   // The signature and encodedMetadata for the 'Add' function must first be obtained using the wallet owning the fid via getSignedKeyRequestSignatureAndEncodedMetadata()
   public addFor(
     fidOwnerAddress: EVMAccountAddress,
-    keyToAdd: FarcasterKey,
+    keyToAdd: ED25519PublicKey,
     encodedMetadata: FarcasterEncodedSignedKeyRequestMetadata,
     deadline: UnixTimestamp,
     signature: FarcasterAddSignature,
@@ -115,8 +118,8 @@ export class FarcasterKeyGatewayContract
           keyToAdd, // the key to be registered - doesn't have to be same key as mainUser, could be a newly generated key
           1, // 1 is the only key type for now
           encodedMetadata,
-          signature,
           deadline,
+          signature,
         ],
         overrides,
       );
@@ -125,7 +128,7 @@ export class FarcasterKeyGatewayContract
 
   public getAddSignature(
     ownerAddress: EVMAccountAddress,
-    keyToAdd: EVMAccountAddress,
+    keyToAdd: ED25519PublicKey,
     encodedMetadata: FarcasterEncodedSignedKeyRequestMetadata,
     deadline: UnixTimestamp,
   ): ResultAsync<
@@ -165,7 +168,8 @@ export class FarcasterKeyGatewayContract
 
   public getSignedKeyRequestSignatureAndEncodedMetadata(
     ownerFid: FarcasterUserId,
-    keyToAdd: FarcasterKey,
+    ownerEVMAddress: EVMAccountAddress,
+    keyToAdd: ED25519PublicKey,
     deadline: UnixTimestamp,
   ): ResultAsync<
     SignedKeyRequest,
@@ -182,7 +186,7 @@ export class FarcasterKeyGatewayContract
       ).andThen((metadataSignature) => {
         const metadataStruct = {
           requestFid: ownerFid,
-          requestSigner: keyToAdd,
+          requestSigner: ownerEVMAddress,
           signature: metadataSignature,
           deadline: deadline,
         };
@@ -220,8 +224,8 @@ export class FarcasterKeyGatewayContract
         }
 
         const encodedMetadataStruct = ethers.AbiCoder.defaultAbiCoder().encode(
-          metadataStructType.components,
-          [ownerFid, keyToAdd, metadataSignature, deadline],
+          [metadataStructType],
+          [metadataStruct],
         );
 
         return okAsync(
@@ -237,7 +241,7 @@ export class FarcasterKeyGatewayContract
   // Returns SignedKeyRequestSignature
   public getSignedKeyRequestSignature(
     ownerFid: FarcasterUserId,
-    keyToAdd: FarcasterKey, // key to be tied to account
+    keyToAdd: ED25519PublicKey, // key to be tied to account
     deadline: UnixTimestamp,
   ): ResultAsync<
     FarcasterSignedKeyRequestSignature,
@@ -245,10 +249,11 @@ export class FarcasterKeyGatewayContract
   > {
     return ResultUtils.combine([
       this.ensureOptimism(),
-      this.ensureHasSigner("getSignedKeyRequestSignatureAndEncodedMetadata"),
+      this.ensureHasSigner("getSignedKeyRequestSignature"),
     ]).andThen(() => {
       //    https://docs.farcaster.xyz/reference/contracts/reference/signed-key-request-validator#signedkeyrequestmetadata-struct
       //    Needs to be a EIP712 signature
+
       const metadataMessage = {
         requestFid: ownerFid,
         key: keyToAdd,

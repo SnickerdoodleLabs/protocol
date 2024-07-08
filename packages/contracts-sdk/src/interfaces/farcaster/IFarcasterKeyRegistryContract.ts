@@ -1,7 +1,5 @@
 import {
   BlockchainCommonErrors,
-  EVMAccountAddress,
-  EVMContractAddress,
   FarcasterUserId,
   FarcasterKeyRegistryContractError,
   EFarcasterKeyState,
@@ -9,9 +7,10 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { IBaseContract } from "../IBaseContract";
+import { IFarcasterBaseContract } from "@contracts-sdk/interfaces/farcaster/IFarcasterBaseContract.js";
 
-export interface IFarcasterKeyRegistryContract extends IBaseContract {
+export interface IFarcasterKeyRegistryContract
+  extends IFarcasterBaseContract<FarcasterKeyRegistryContractError> {
   /**
    * @notice Return number of active keys for a given fid.
    *

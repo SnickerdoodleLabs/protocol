@@ -20840,6 +20840,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"elliptic@npm:^6.5.5":
+  version: 6.5.5
+  resolution: "elliptic@npm:6.5.5"
+  dependencies:
+    bn.js: ^4.11.9
+    brorand: ^1.1.0
+    hash.js: ^1.0.0
+    hmac-drbg: ^1.0.1
+    inherits: ^2.0.4
+    minimalistic-assert: ^1.0.1
+    minimalistic-crypto-utils: ^1.0.1
+  checksum: ec9105e4469eb3b32b0ee2579756c888ddf3f99d259aa0d65fccb906ee877768aaf8880caae73e3e669c9a4adeb3eb1945703aa974ec5000d2d33a239f4567eb
+  languageName: node
+  linkType: hard
+
 "eme-encryption-scheme-polyfill@npm:^2.0.1":
   version: 2.1.1
   resolution: "eme-encryption-scheme-polyfill@npm:2.1.1"
@@ -41667,6 +41682,7 @@ __metadata:
     copyfiles: ^2.3.0
     css-loader: ^5.0.1
     cucumber-tsflow: ^4.0.0-rc.7
+    elliptic: ^6.5.5
     env-cmd: ^10.1.0
     eslint: ^8.8.0
     eslint-config-prettier: ^7.2.0

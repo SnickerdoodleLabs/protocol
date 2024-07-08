@@ -7,14 +7,14 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { IBaseContract } from "../IBaseContract";
-
 import {
   ContractOverrides,
+  IFarcasterBaseContract,
   WrappedTransactionResponse,
 } from "@contracts-sdk/index";
 
-export interface IFarcasterIdGatewayContract extends IBaseContract {
+export interface IFarcasterIdGatewayContract
+  extends IFarcasterBaseContract<FarcasterIdGatewayContractError> {
   /**
    * @notice Calculate the total price to register, equal to 1 storage unit or with extra storage
    *

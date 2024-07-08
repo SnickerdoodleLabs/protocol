@@ -5,14 +5,15 @@ import {
 import { ResultAsync } from "neverthrow";
 
 import {
-  IBaseContract,
   ContractOverrides,
   WrappedTransactionResponse,
   RegistrationParams,
   SignerParams,
 } from "@contracts-sdk/index.js";
+import { IFarcasterBaseContract } from "@contracts-sdk/interfaces/farcaster/IFarcasterBaseContract.js";
 
-export interface IFarcasterBundlerContract extends IBaseContract {
+export interface IFarcasterBundlerContract
+  extends IFarcasterBaseContract<FarcasterBundlerContractError> {
   /**
    * @notice Calculate the total price of a registration.
    *

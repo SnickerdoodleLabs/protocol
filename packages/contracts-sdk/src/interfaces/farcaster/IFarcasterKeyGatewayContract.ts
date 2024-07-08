@@ -8,19 +8,19 @@ import {
   FarcasterSignedKeyRequestSignature,
   UnixTimestamp,
   FarcasterKey,
+  ED25519PublicKey,
 } from "@snickerdoodlelabs/objects";
-import { Block } from "ethers";
 import { ResultAsync } from "neverthrow";
-
-import { IBaseContract } from "../IBaseContract";
 
 import {
   ContractOverrides,
   SignedKeyRequest,
   WrappedTransactionResponse,
 } from "@contracts-sdk/index";
+import { IFarcasterBaseContract } from "@contracts-sdk/interfaces/farcaster/IFarcasterBaseContract.js";
 
-export interface IFarcasterKeyGatewayContract extends IBaseContract {
+export interface IFarcasterKeyGatewayContract
+  extends IFarcasterBaseContract<FarcasterKeyGatewayContractError> {
   nonces(
     address: EVMAccountAddress,
   ): ResultAsync<
@@ -51,7 +51,7 @@ export interface IFarcasterKeyGatewayContract extends IBaseContract {
 
   getAddSignature(
     ownerAddress: EVMAccountAddress,
-    keyToAdd: EVMAccountAddress,
+    keyToAdd: ED25519PublicKey,
     encodedMetadata: FarcasterEncodedSignedKeyRequestMetadata,
     deadline: UnixTimestamp,
   ): ResultAsync<
@@ -61,7 +61,8 @@ export interface IFarcasterKeyGatewayContract extends IBaseContract {
 
   getSignedKeyRequestSignatureAndEncodedMetadata(
     ownerFid: FarcasterUserId,
-    keyToAdd: FarcasterKey, // key to be tied to account
+    ownerEVMAddress: EVMAccountAddress,
+    keyToAdd: ED25519PublicKey, // key to be tied to account
     deadline: UnixTimestamp,
   ): ResultAsync<
     SignedKeyRequest,
@@ -70,7 +71,7 @@ export interface IFarcasterKeyGatewayContract extends IBaseContract {
 
   getSignedKeyRequestSignature(
     ownerFid: FarcasterUserId,
-    keyToAdd: FarcasterKey, // key to be tied to account
+    keyToAdd: ED25519PublicKey, // key to be tied to account
     deadline: UnixTimestamp,
   ): ResultAsync<
     FarcasterSignedKeyRequestSignature,

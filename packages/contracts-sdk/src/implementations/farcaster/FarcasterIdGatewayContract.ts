@@ -9,15 +9,14 @@ import {
   FarcasterIdGatewayContractError,
   UnixTimestamp,
   FarcasterRegisterSignature,
-  SignerUnavailableError,
 } from "@snickerdoodlelabs/objects";
 import { TypedDataField, ethers } from "ethers";
 import { injectable } from "inversify";
-import { ResultAsync, errAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
-import { FarcasterContractBase } from "@contracts-sdk/implementations/farcaster/FarcasterContractBase.js";
+import { FarcasterBaseContract } from "@contracts-sdk/implementations/farcaster/FarcasterBaseContract.js";
 import {
   ContractOverrides,
   IFarcasterIdGatewayContract,
@@ -27,7 +26,7 @@ import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export class FarcasterIdGatewayContract
-  extends FarcasterContractBase<FarcasterIdGatewayContractError>
+  extends FarcasterBaseContract<FarcasterIdGatewayContractError>
   implements IFarcasterIdGatewayContract
 {
   constructor(protected providerOrSigner: ethers.Provider | ethers.Signer) {
