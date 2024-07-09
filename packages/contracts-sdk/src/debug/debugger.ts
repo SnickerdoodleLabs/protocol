@@ -28,9 +28,11 @@ import {
 import { Contracts } from "@contracts-sdk/debug/contracts.js";
 import { ConsentContract } from "@contracts-sdk/implementations/ConsentContract.js";
 import { ERC20RewardContract } from "@contracts-sdk/implementations/ERC20RewardContract.js";
-import { FarcasterIdRegistryContract } from "@contracts-sdk/implementations/farcaster/FarcasterIdRegistryContract.js";
-import { FarcasterKeyGatewayContract } from "@contracts-sdk/implementations/farcaster/FarcasterKeyGatewayContract.js";
-import { FarcasterKeyRegistryContract } from "@contracts-sdk/implementations/farcaster/FarcasterKeyRegistryContract.js";
+import {
+  FarcasterIdRegistryContract,
+  FarcasterKeyRegistryContract,
+  FarcasterKeyGatewayContract,
+} from "@contracts-sdk/implementations/farcaster/index.js";
 import {
   EConsentRoles,
   ContractOverrides,
