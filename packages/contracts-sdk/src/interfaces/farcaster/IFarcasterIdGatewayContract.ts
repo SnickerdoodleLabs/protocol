@@ -2,7 +2,7 @@ import {
   BlockchainCommonErrors,
   EVMAccountAddress,
   FarcasterIdGatewayContractError,
-  FarcasterRegisterSignature,
+  FarcasterIDGatewayRegisterIdSignature,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -90,7 +90,7 @@ export interface IFarcasterIdGatewayContract
     ownerAddress: EVMAccountAddress,
     recoveryAddress: EVMAccountAddress,
     deadline: UnixTimestamp,
-    signature: FarcasterRegisterSignature,
+    signature: FarcasterIDGatewayRegisterIdSignature,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -114,7 +114,7 @@ export interface IFarcasterIdGatewayContract
     ownerAddress: EVMAccountAddress,
     recoveryAddress: EVMAccountAddress,
     deadline: UnixTimestamp,
-    signature: FarcasterRegisterSignature,
+    signature: FarcasterIDGatewayRegisterIdSignature,
     extraStorage: bigint,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -139,7 +139,11 @@ export interface IFarcasterIdGatewayContract
     nonce: bigint,
     deadline: UnixTimestamp,
   ): ResultAsync<
-    FarcasterRegisterSignature,
+    FarcasterIDGatewayRegisterIdSignature,
     FarcasterIdGatewayContractError | BlockchainCommonErrors
   >;
 }
+
+export const IFarcasterIdGatewayContractType = Symbol.for(
+  "IFarcasterIdGatewayContract",
+);

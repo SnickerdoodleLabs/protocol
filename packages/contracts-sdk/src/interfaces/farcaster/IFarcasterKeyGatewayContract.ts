@@ -4,10 +4,9 @@ import {
   FarcasterEncodedSignedKeyRequestMetadata,
   FarcasterUserId,
   FarcasterKeyGatewayContractError,
-  FarcasterAddSignature,
+  FarcasterKeyGatewayAddKeySignature,
   FarcasterSignedKeyRequestSignature,
   UnixTimestamp,
-  FarcasterKey,
   ED25519PublicKey,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -42,7 +41,7 @@ export interface IFarcasterKeyGatewayContract
     keyToAdd: string,
     encodedMetadata: string,
     deadline: UnixTimestamp,
-    signature: FarcasterAddSignature,
+    signature: FarcasterKeyGatewayAddKeySignature,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -55,7 +54,7 @@ export interface IFarcasterKeyGatewayContract
     encodedMetadata: FarcasterEncodedSignedKeyRequestMetadata,
     deadline: UnixTimestamp,
   ): ResultAsync<
-    FarcasterAddSignature,
+    FarcasterKeyGatewayAddKeySignature,
     FarcasterKeyGatewayContractError | BlockchainCommonErrors
   >;
 
@@ -78,3 +77,7 @@ export interface IFarcasterKeyGatewayContract
     FarcasterKeyGatewayContractError | BlockchainCommonErrors
   >;
 }
+
+export const IFarcasterKeyGatewayContractType = Symbol.for(
+  "IFarcasterKeyGatewayContract",
+);

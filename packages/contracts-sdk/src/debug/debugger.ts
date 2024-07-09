@@ -9,7 +9,7 @@ import {
   EFarcasterKeyState,
   EVMAccountAddress,
   EVMContractAddress,
-  FarcasterAddSignature,
+  FarcasterKeyGatewayAddKeySignature,
   FarcasterEncodedSignedKeyRequestMetadata,
   FarcasterUserId,
   MarketplaceTag,
@@ -450,11 +450,12 @@ const getAccountBalanceForErc20 = async (
 };
 
 // Function to get the ED25519 public key of the wallet we want to add
-const getNobleED25519SignerPublicKey = async (ethersWallet) => {
+const getNobleED25519SignerPublicKey = async (signer) => {
   try {
-    const keyGateway = new FarcasterKeyGatewayContract(signer1);
-    keyGateway
-      .getNobleED25519SignerPublicKKey(ethersWallet)
+    const nobleSigner = cryptoUtils.getNobleED25519Signer(signer.privateKey);
+
+    await cryptoUtils
+      .getNobleED25519SignerPublicKey(nobleSigner)
       .then((ed255519PublicKey) => {
         console.log("ed255519PublicKey: ", ed255519PublicKey);
         return ed255519PublicKey.isOk();
@@ -593,7 +594,7 @@ const keyGatewayAddFor = async (
   keyToAdd: ED25519PublicKey,
   encodedMetadata: FarcasterEncodedSignedKeyRequestMetadata,
   deadline: UnixTimestamp,
-  addSignature: FarcasterAddSignature,
+  addSignature: FarcasterKeyGatewayAddKeySignature,
 ): Promise<void> => {
   try {
     const keyGateway = new FarcasterKeyGatewayContract(signer);
@@ -649,7 +650,7 @@ const init = async () => {
 
   await getKeysOf(FarcasterUserId(678015), EFarcasterKeyState.Added);
 
-  //await getNobleED25519SignerPublicKey(signer1);
+  //await getNobleED25519SignerPublicKey(signer);
 
   /* await getSignedKeyRequestSignatureAndEncodedMetadata(
     FarcasterUserId(678015),
@@ -680,7 +681,7 @@ const init = async () => {
       "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000a587f0000000000000000000000000f9deb936f279625c13b1d3e3ef8c94734ced12c00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000066a4b2b200000000000000000000000000000000000000000000000000000000000000414aa99acf1d6d7fce1ceb27ee7e2a918cd7c38e7225df6b4e1f2f891149eab6d4281211ea5aa00b1b0ac5b3a30109c223be0cb7064b0a5468b80e5fc4dcac7b0c1b00000000000000000000000000000000000000000000000000000000000000",
     ),
     UnixTimestamp(deadline),
-    FarcasterAddSignature(
+    FarcasterKeyGatewayAddKeySignature(
       "0x74169c6c625b04cb29b31058f829c07607b74abf4bfe9c4f02f54001616aaf296a3280b0c4eaddb61cf3dc2107cf9480382ce519109e47c254b40aa4176715dc1c",
     ),
   ); */

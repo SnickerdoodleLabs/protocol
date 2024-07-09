@@ -1,6 +1,6 @@
 import {
   EVMAccountAddress,
-  FarcasterRegisterSignature,
+  FarcasterIDGatewayRegisterIdSignature,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects/src/primitives/index.js";
 
@@ -11,7 +11,7 @@ export class RegistrationParams {
   public constructor(
     public to: EVMAccountAddress,
     public recovery: EVMAccountAddress,
-    public sig: FarcasterRegisterSignature,
+    public sig: FarcasterIDGatewayRegisterIdSignature,
     public deadline: UnixTimestamp,
   ) {}
 }

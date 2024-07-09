@@ -7,21 +7,22 @@ import {
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
-import { FarcasterBaseContract } from "@contracts-sdk/implementations/farcaster/FarcasterBaseContract.js";
 import {
   ContractOverrides,
   IFarcasterBundlerContract,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/index.js";
 import { RegistrationParams } from "@contracts-sdk/interfaces/objects/farcaster/RegistrationParams.js";
-import { SignerParams } from "@contracts-sdk/interfaces/objects/farcaster/SignerParams.js";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
+import {
+  ContractsAbis,
+  FarcasterBundlerSignerParams,
+} from "@contracts-sdk/interfaces/objects/index.js";
 @injectable()
 export class FarcasterBundlerContract
-  extends FarcasterBaseContract<FarcasterBundlerContractError>
+  extends BaseContract<FarcasterBundlerContractError>
   implements IFarcasterBundlerContract
 {
   constructor(protected providerOrSigner: ethers.Provider | ethers.Signer) {
@@ -39,29 +40,25 @@ export class FarcasterBundlerContract
     FarcasterBundlerContractError | BlockchainCommonErrors
   > {
     // https://optimistic.etherscan.io/address/0x00000000fc04c910a0b5fea33b03e0447ad0b0aa#code#F1#L60
-    return this.ensureOptimism().andThen(() => {
-      return ResultAsync.fromPromise(
-        this.contract.price(extraStorage) as Promise<bigint>,
-        (e) => {
-          return this.generateError(e, "Unable to call price()");
-        },
-      );
-    });
+
+    return ResultAsync.fromPromise(
+      this.contract.price(extraStorage) as Promise<bigint>,
+      (e) => {
+        return this.generateError(e, "Unable to call price()");
+      },
+    );
   }
 
   public register(
     registrationParams: RegistrationParams,
-    signerParams: SignerParams[],
+    signerParams: FarcasterBundlerSignerParams[],
     extraStorage: bigint,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     FarcasterBundlerContractError | BlockchainCommonErrors
   > {
-    return ResultUtils.combine([
-      this.ensureOptimism(),
-      this.ensureHasSigner("register"),
-    ]).andThen(() => {
+    return this.assureSigner("register").andThen(() => {
       return this.writeToContract(
         "register",
         [registrationParams, signerParams, extraStorage],

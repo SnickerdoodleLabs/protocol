@@ -24,3 +24,7 @@ export interface IFarcasterIdRegistryContract
     FarcasterIdRegistryContractError | BlockchainCommonErrors
   >;
 }
+
+export const IFarcasterIdRegistryContractType = Symbol.for(
+  "IFarcasterIdRegistryContract",
+);

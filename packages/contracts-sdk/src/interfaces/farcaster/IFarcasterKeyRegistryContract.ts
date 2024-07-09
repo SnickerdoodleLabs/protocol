@@ -3,7 +3,7 @@ import {
   FarcasterUserId,
   FarcasterKeyRegistryContractError,
   EFarcasterKeyState,
-  FarcasterKey,
+  ED25519PublicKey,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -42,7 +42,11 @@ export interface IFarcasterKeyRegistryContract
     fid: FarcasterUserId,
     keyState: EFarcasterKeyState,
   ): ResultAsync<
-    FarcasterKey[],
+    ED25519PublicKey[],
     FarcasterKeyRegistryContractError | BlockchainCommonErrors
   >;
 }
+
+export const IFarcasterKeyRegistryContractType = Symbol.for(
+  "IFarcasterKeyRegistryContract",
+);

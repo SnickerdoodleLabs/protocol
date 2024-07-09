@@ -8,15 +8,15 @@ import {
   BlockchainCommonErrors,
   FarcasterIdGatewayContractError,
   UnixTimestamp,
-  FarcasterRegisterSignature,
+  FarcasterIDGatewayRegisterIdSignature,
 } from "@snickerdoodlelabs/objects";
 import { TypedDataField, ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
-import { FarcasterBaseContract } from "@contracts-sdk/implementations/farcaster/FarcasterBaseContract.js";
 import {
   ContractOverrides,
   IFarcasterIdGatewayContract,
@@ -26,7 +26,7 @@ import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export class FarcasterIdGatewayContract
-  extends FarcasterBaseContract<FarcasterIdGatewayContractError>
+  extends BaseContract<FarcasterIdGatewayContractError>
   implements IFarcasterIdGatewayContract
 {
   constructor(protected providerOrSigner: ethers.Provider | ethers.Signer) {
@@ -45,16 +45,15 @@ export class FarcasterIdGatewayContract
   > {
     // If extraStorage was provided, call price with it, otherwise call without
     // https://optimistic.etherscan.io/address/0x00000000fc25870c6ed6b6c7e41fb078b7656f69#code#F2#L64
-    return this.ensureOptimism().andThen(() => {
-      return ResultAsync.fromPromise(
-        extraStorage != undefined
-          ? (this.contract.price(extraStorage) as Promise<bigint>)
-          : (this.contract.price() as Promise<bigint>),
-        (e) => {
-          return this.generateError(e, "Unable to call price()");
-        },
-      );
-    });
+
+    return ResultAsync.fromPromise(
+      extraStorage != undefined
+        ? (this.contract.price(extraStorage) as Promise<bigint>)
+        : (this.contract.price() as Promise<bigint>),
+      (e) => {
+        return this.generateError(e, "Unable to call price()");
+      },
+    );
   }
 
   public nonces(
@@ -63,14 +62,12 @@ export class FarcasterIdGatewayContract
     bigint,
     FarcasterIdGatewayContractError | BlockchainCommonErrors
   > {
-    return this.ensureOptimism().andThen(() => {
-      return ResultAsync.fromPromise(
-        this.contract.nonces(address) as Promise<bigint>,
-        (e) => {
-          return this.generateError(e, "Unable to call nonces()");
-        },
-      );
-    });
+    return ResultAsync.fromPromise(
+      this.contract.nonces(address) as Promise<bigint>,
+      (e) => {
+        return this.generateError(e, "Unable to call nonces()");
+      },
+    );
   }
 
   public register(
@@ -80,10 +77,7 @@ export class FarcasterIdGatewayContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | FarcasterIdGatewayContractError
   > {
-    return ResultUtils.combine([
-      this.ensureOptimism(),
-      this.ensureHasSigner("register"),
-    ]).andThen(() => {
+    return this.assureSigner("register").andThen(() => {
       return this.writeToContract("register", [recoveryAddress], overrides);
     });
   }
@@ -96,10 +90,7 @@ export class FarcasterIdGatewayContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | FarcasterIdGatewayContractError
   > {
-    return ResultUtils.combine([
-      this.ensureOptimism(),
-      this.ensureHasSigner("register"),
-    ]).andThen(() => {
+    return this.assureSigner("register").andThen(() => {
       return this.writeToContract(
         "register",
         [recoveryAddress, extraStorage],
@@ -113,16 +104,13 @@ export class FarcasterIdGatewayContract
     ownerAddress: EVMAccountAddress,
     recoveryAddress: EVMAccountAddress,
     deadline: UnixTimestamp,
-    signature: FarcasterRegisterSignature, // EIP-712 'Register' signature from fidOwner obtained from getRegisterSignature()
+    signature: FarcasterIDGatewayRegisterIdSignature, // EIP-712 'Register' signature from fidOwner obtained from getRegisterSignature()
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     FarcasterIdGatewayContractError | BlockchainCommonErrors
   > {
-    return ResultUtils.combine([
-      this.ensureOptimism(),
-      this.ensureHasSigner("registerFor"),
-    ]).andThen(() => {
+    return this.assureSigner("registerFor").andThen(() => {
       return this.price().andThen((registerPrice) => {
         // If there overrides provided, update its value to registerPrice.
         // If no override passed, create a new one ContractOverrides and update its value with registerPrice.
@@ -146,17 +134,14 @@ export class FarcasterIdGatewayContract
     ownerAddress: EVMAccountAddress,
     recoveryAddress: EVMAccountAddress,
     deadline: UnixTimestamp,
-    signature: FarcasterRegisterSignature, // EIP-712 'Register' signature from fidOwner obtained from getRegisterSignature()
+    signature: FarcasterIDGatewayRegisterIdSignature, // EIP-712 'Register' signature from fidOwner obtained from getRegisterSignature()
     extraStorage: bigint,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     FarcasterIdGatewayContractError | BlockchainCommonErrors
   > {
-    return ResultUtils.combine([
-      this.ensureOptimism(),
-      this.ensureHasSigner("registerFor"),
-    ]).andThen(() => {
+    return this.assureSigner("registerFor").andThen(() => {
       return this.price(extraStorage).andThen((registerPrice) => {
         // If overrides provided, update its value to registerPrice.
         // If no override passed, create a new ContractOverrides and update its value with registerPrice.
@@ -181,13 +166,10 @@ export class FarcasterIdGatewayContract
     nonce: bigint,
     deadline: UnixTimestamp,
   ): ResultAsync<
-    FarcasterRegisterSignature,
+    FarcasterIDGatewayRegisterIdSignature,
     FarcasterIdGatewayContractError | BlockchainCommonErrors
   > {
-    return ResultUtils.combine([
-      this.ensureOptimism(),
-      this.ensureHasSigner("getRegisterSignature"),
-    ]).andThen(() => {
+    return this.assureSigner("getRegisterSignature").andThen((signer) => {
       // message should be RegistrationParams struct
       //    https://docs.farcaster.xyz/reference/contracts/reference/id-gateway#register-signature
       //    Needs to be a EIP712 signature
@@ -199,11 +181,11 @@ export class FarcasterIdGatewayContract
       };
 
       return ResultAsync.fromPromise(
-        (this.providerOrSigner as ethers.Signer).signTypedData(
+        signer.signTypedData(
           ID_GATEWAY_EIP_712_TYPES.domain,
           this.removeReadonlyFromReadonlyTypes(ID_GATEWAY_EIP_712_TYPES.types),
           message,
-        ) as Promise<FarcasterRegisterSignature>,
+        ) as Promise<FarcasterIDGatewayRegisterIdSignature>,
         (e) => {
           return e as FarcasterIdGatewayContractError;
         },

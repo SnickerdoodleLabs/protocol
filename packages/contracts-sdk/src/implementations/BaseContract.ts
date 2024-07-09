@@ -46,7 +46,7 @@ export abstract class BaseContract<TContractSpecificError>
     return this.contract;
   }
 
-  protected ensureHasSigner(
+  protected assureSigner(
     functionName: string,
   ): ResultAsync<ethers.Signer, BlockchainCommonErrors> {
     if (!this.hasSigner) {
@@ -85,7 +85,7 @@ export abstract class BaseContract<TContractSpecificError>
     WrappedTransactionResponse,
     BlockchainCommonErrors | TContractSpecificError
   > {
-    return this.ensureHasSigner(functionName).andThen(() => {
+    return this.assureSigner(functionName).andThen(() => {
       return ResultAsync.fromPromise(
         this.contract[functionName](...functionParams, {
           ...overrides,

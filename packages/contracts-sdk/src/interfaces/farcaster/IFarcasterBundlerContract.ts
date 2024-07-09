@@ -8,7 +8,7 @@ import {
   ContractOverrides,
   WrappedTransactionResponse,
   RegistrationParams,
-  SignerParams,
+  FarcasterBundlerSignerParams,
 } from "@contracts-sdk/index.js";
 import { IFarcasterBaseContract } from "@contracts-sdk/interfaces/farcaster/IFarcasterBaseContract.js";
 
@@ -41,7 +41,7 @@ export interface IFarcasterBundlerContract
    */
   register(
     registrationParams: RegistrationParams,
-    signerParams: SignerParams[],
+    signerParams: FarcasterBundlerSignerParams[],
     extraStorage: bigint,
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -49,3 +49,7 @@ export interface IFarcasterBundlerContract
     FarcasterBundlerContractError | BlockchainCommonErrors
   >;
 }
+
+export const IFarcasterBundlerContractType = Symbol.for(
+  "IFarcasterBundlerContract",
+);

@@ -12,17 +12,16 @@ import {
   FarcasterUserId,
   FarcasterSignedKeyRequestSignature,
   FarcasterEncodedSignedKeyRequestMetadata,
-  FarcasterAddSignature,
+  FarcasterKeyGatewayAddKeySignature,
   UnexpectedNetworkError,
   ED25519PublicKey,
 } from "@snickerdoodlelabs/objects";
 import { ParamType, TypedDataField, ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
+import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
-import { FarcasterBaseContract } from "@contracts-sdk/implementations/farcaster/FarcasterBaseContract.js";
 import {
   ContractOverrides,
   IFarcasterKeyGatewayContract,
@@ -35,7 +34,7 @@ import {
 
 @injectable()
 export class FarcasterKeyGatewayContract
-  extends FarcasterBaseContract<FarcasterKeyGatewayContractError>
+  extends BaseContract<FarcasterKeyGatewayContractError>
   implements IFarcasterKeyGatewayContract
 {
   constructor(protected providerOrSigner: ethers.Provider | ethers.Signer) {
@@ -52,14 +51,12 @@ export class FarcasterKeyGatewayContract
     bigint,
     FarcasterKeyGatewayContractError | BlockchainCommonErrors
   > {
-    return this.ensureOptimism().andThen(() => {
-      return ResultAsync.fromPromise(
-        this.contract.nonces(address) as Promise<bigint>,
-        (e) => {
-          return this.generateError(e, "Unable to call nonces()");
-        },
-      );
-    });
+    return ResultAsync.fromPromise(
+      this.contract.nonces(address) as Promise<bigint>,
+      (e) => {
+        return this.generateError(e, "Unable to call nonces()");
+      },
+    );
   }
 
   public add(
@@ -72,10 +69,7 @@ export class FarcasterKeyGatewayContract
   > {
     // Based on the docs, only keyType and metadataType of 1 is supported at the moment
     // https://docs.farcaster.xyz/reference/contracts/reference/key-gateway#add
-    return ResultUtils.combine([
-      this.ensureOptimism(),
-      this.ensureHasSigner("add"),
-    ]).andThen(() => {
+    return this.assureSigner("add").andThen(() => {
       return this.writeToContract(
         "add",
         [
@@ -97,7 +91,7 @@ export class FarcasterKeyGatewayContract
     keyToAdd: ED25519PublicKey,
     encodedMetadata: FarcasterEncodedSignedKeyRequestMetadata,
     deadline: UnixTimestamp,
-    signature: FarcasterAddSignature,
+    signature: FarcasterKeyGatewayAddKeySignature,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -106,10 +100,7 @@ export class FarcasterKeyGatewayContract
     // Based on the docs, only keyType and metadataType of 1 are supported at the moment
     // https://docs.farcaster.xyz/reference/contracts/reference/key-gateway#addfor
 
-    return ResultUtils.combine([
-      this.ensureOptimism(),
-      this.ensureHasSigner("addFor"),
-    ]).andThen(() => {
+    return this.assureSigner("addFor").andThen(() => {
       return this.writeToContract(
         "addFor",
         [
@@ -132,13 +123,10 @@ export class FarcasterKeyGatewayContract
     encodedMetadata: FarcasterEncodedSignedKeyRequestMetadata,
     deadline: UnixTimestamp,
   ): ResultAsync<
-    FarcasterAddSignature,
+    FarcasterKeyGatewayAddKeySignature,
     FarcasterKeyGatewayContractError | BlockchainCommonErrors
   > {
-    return ResultUtils.combine([
-      this.ensureOptimism(),
-      this.ensureHasSigner("getAddSignature"),
-    ]).andThen(() => {
+    return this.assureSigner("getAddSignature").andThen((signer) => {
       return this.nonces(ownerAddress).andThen((latestNonce) => {
         const addKeyMessage = {
           owner: ownerAddress,
@@ -151,13 +139,13 @@ export class FarcasterKeyGatewayContract
         };
 
         return ResultAsync.fromPromise(
-          (this.providerOrSigner as ethers.Signer).signTypedData(
+          signer.signTypedData(
             KEY_GATEWAY_EIP_712_TYPES.domain,
             this.removeReadonlyFromReadonlyTypes(
               KEY_GATEWAY_EIP_712_TYPES.types,
             ),
             addKeyMessage,
-          ) as Promise<FarcasterAddSignature>,
+          ) as Promise<FarcasterKeyGatewayAddKeySignature>,
           (e) => {
             return e as FarcasterKeyGatewayContractError;
           },
@@ -175,10 +163,9 @@ export class FarcasterKeyGatewayContract
     SignedKeyRequest,
     FarcasterKeyGatewayContractError | BlockchainCommonErrors
   > {
-    return ResultUtils.combine([
-      this.ensureOptimism(),
-      this.ensureHasSigner("getSignedKeyRequestSignatureAndEncodedMetadata"),
-    ]).andThen(() => {
+    return this.assureSigner(
+      "getSignedKeyRequestSignatureAndEncodedMetadata",
+    ).andThen(() => {
       return this.getSignedKeyRequestSignature(
         ownerFid,
         keyToAdd,
@@ -247,32 +234,31 @@ export class FarcasterKeyGatewayContract
     FarcasterSignedKeyRequestSignature,
     FarcasterKeyGatewayContractError | BlockchainCommonErrors
   > {
-    return ResultUtils.combine([
-      this.ensureOptimism(),
-      this.ensureHasSigner("getSignedKeyRequestSignature"),
-    ]).andThen(() => {
-      //    https://docs.farcaster.xyz/reference/contracts/reference/signed-key-request-validator#signedkeyrequestmetadata-struct
-      //    Needs to be a EIP712 signature
+    return this.assureSigner("getSignedKeyRequestSignature").andThen(
+      (signer) => {
+        //    https://docs.farcaster.xyz/reference/contracts/reference/signed-key-request-validator#signedkeyrequestmetadata-struct
+        //    Needs to be a EIP712 signature
 
-      const metadataMessage = {
-        requestFid: ownerFid,
-        key: keyToAdd,
-        deadline: deadline,
-      };
+        const metadataMessage = {
+          requestFid: ownerFid,
+          key: keyToAdd,
+          deadline: deadline,
+        };
 
-      return ResultAsync.fromPromise(
-        (this.providerOrSigner as ethers.Signer).signTypedData(
-          SIGNED_KEY_REQUEST_VALIDATOR_EIP_712_TYPES.domain,
-          this.removeReadonlyFromReadonlyTypes(
-            SIGNED_KEY_REQUEST_VALIDATOR_EIP_712_TYPES.types,
-          ),
-          metadataMessage,
-        ) as Promise<FarcasterSignedKeyRequestSignature>,
-        (e) => {
-          return e as FarcasterKeyGatewayContractError;
-        },
-      );
-    });
+        return ResultAsync.fromPromise(
+          signer.signTypedData(
+            SIGNED_KEY_REQUEST_VALIDATOR_EIP_712_TYPES.domain,
+            this.removeReadonlyFromReadonlyTypes(
+              SIGNED_KEY_REQUEST_VALIDATOR_EIP_712_TYPES.types,
+            ),
+            metadataMessage,
+          ) as Promise<FarcasterSignedKeyRequestSignature>,
+          (e) => {
+            return e as FarcasterKeyGatewayContractError;
+          },
+        );
+      },
+    );
   }
 
   protected removeReadonlyFromReadonlyTypes<T>(

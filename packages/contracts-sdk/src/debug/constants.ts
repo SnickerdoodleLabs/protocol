@@ -19,6 +19,7 @@ export const providerUrl = URLString("https://mainnet.optimism.io");
   "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
 ); */
 
+// WARNING: Pushed to git, do not reuse or place funds!
 // 0x0F9Deb936F279625C13b1d3E3ef8c94734cEd12c
 export const privateKey = EVMPrivateKey(
   "46cb718f767d331ac76f04dc8771adf96f9ab21132545dd0c7797524684d0d63",

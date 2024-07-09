@@ -7,7 +7,7 @@ import {
 // Farcaster's Bundler's Signer param
 // https://docs.farcaster.xyz/reference/contracts/reference/bundler#register
 
-export class SignerParams {
+export class FarcasterBundlerSignerParams {
   public constructor(
     public keyType: number,
     public key: EVMAccountAddress,
