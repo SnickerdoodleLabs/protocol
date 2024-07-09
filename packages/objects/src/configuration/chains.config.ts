@@ -156,6 +156,22 @@ export const chainConfig = new Map<EChain, ChainInformation>([
     ),
   ],
   [
+    EChain.Celo,
+    new ChainInformation(
+      "Celo",
+      ChainId(EChain.Celo),
+      EChain.Celo,
+      EChainTechnology.EVM,
+      true,
+      "celo",
+      5000, // ~5 seconds block time https://celoscan.io/chart/blocktime
+      new NativeCurrencyInformation("CELO", 18, "CELO", undefined),
+      EChainType.Mainnet,
+      "https://celoscan.io/tx/",
+      getExplorerUrl,
+    ),
+  ],
+  [
     EChain.Fuji,
     new ControlChainInformation(
       "Fuji",
