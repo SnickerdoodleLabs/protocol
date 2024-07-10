@@ -612,7 +612,7 @@ export class CryptoUtils implements ICryptoUtils {
       },
     ).andThen((signerKey) => {
       if (signerKey.isOk()) {
-        return okAsync(ED25519PublicKey(ethers.hexlify(signerKey.value)));
+    return okAsync(ED25519PublicKey(ethers.hexlify(signerKey.value)));
       }
       return errAsync(
         new SignerUnavailableError(

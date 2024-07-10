@@ -16,7 +16,7 @@ import {
   IBaseContract,
   SignedKeyRequest,
   WrappedTransactionResponse,
-} from "@contracts-sdk/index.js";
+} from "@contracts-sdk/interfaces/index.js";
 export interface IFarcasterKeyGatewayContract extends IBaseContract {
   nonces(
     address: EVMAccountAddress,

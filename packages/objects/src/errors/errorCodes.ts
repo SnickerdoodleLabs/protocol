@@ -1,4 +1,4 @@
-import { Questionnaire, QuestionnairesContractError } from "..";
+import { Questionnaire, QuestionnairesContractError, SignerUnavailableError } from "..";
 
 const errorCodes = {
   AccountIndexingError: "ERR_ACCOUNT_INDEXER",
@@ -79,6 +79,7 @@ const errorCodes = {
   FarcasterKeyGatewayContractError: "ERR_FARCASTER_KEY_GATEWAY_CONTRACT",
   FarcasterKeyRegistryContractError: "ERR_FARCASTER_KEY_REGISTRY_CONTRACT",
   UnexpectedNetworkError: "ERR_UNEXPECTED_NETWORK",
+  SignerUnavailableError: "ERR_SIGNER_UNAVAILABLE",
 };
 
 export default errorCodes;
