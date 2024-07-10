@@ -1,3 +1,5 @@
+import { Questionnaire, QuestionnairesContractError } from "..";
+
 const errorCodes = {
   AccountIndexingError: "ERR_ACCOUNT_INDEXER",
   AjaxError: "ERR_AJAX",
@@ -70,6 +72,7 @@ const errorCodes = {
   AuthenticationError: "ERR_AUTHENTICATION",
   ERC721RewardContractError: "ERR_ERC721_REWARD_CONTRACT",
   ERC20ContractError: "ERR_ERC20_CONTRACT",
+  QuestionnairesContractError: "ERR_QUESTIONNAIRES_CONTRACT",
   FarcasterBundlerContractError: "ERR_BUNDLER_CONTRACT",
   FarcasterIdGatewayContractError: "ERR_FARCASTER_ID_GATEWAY_CONTRACT",
   FarcasterIdRegistryContractError: "ERR_FARCASTER_ID_REGISTRY_CONTRACT",
