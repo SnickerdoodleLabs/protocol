@@ -77,6 +77,13 @@ module.exports = {
   resolve: {
     extensions: [".tsx", ".ts", ".js", ".html"],
     plugins: [new TsconfigPathsPlugin({ configFile: configFilePath })],
+    fallback: {
+        "fs": false,
+        "tls": false,
+        "net": false,
+        "dns": false,
+        "http2": false,
+    }, 
   },
   devtool: process.env.__BUILD_ENV__ === "dev" ? "eval" : "source-map",
   plugins: [
