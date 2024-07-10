@@ -7,10 +7,9 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { IFarcasterBaseContract } from "@contracts-sdk/interfaces/farcaster/IFarcasterBaseContract.js";
+import { IBaseContract } from "@contracts-sdk/index.js";
 
-export interface IFarcasterKeyRegistryContract
-  extends IFarcasterBaseContract<FarcasterKeyRegistryContractError> {
+export interface IFarcasterKeyRegistryContract extends IBaseContract {
   /**
    * @notice Return number of active keys for a given fid.
    *

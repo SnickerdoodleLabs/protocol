@@ -9,11 +9,11 @@ import {
   WrappedTransactionResponse,
   RegistrationParams,
   FarcasterBundlerSignerParams,
+  IBaseContract,
 } from "@contracts-sdk/index.js";
-import { IFarcasterBaseContract } from "@contracts-sdk/interfaces/farcaster/IFarcasterBaseContract.js";
 
 export interface IFarcasterBundlerContract
-  extends IFarcasterBaseContract<FarcasterBundlerContractError> {
+  extends IBaseContract {
   /**
    * @notice Calculate the total price of a registration.
    *

@@ -9,12 +9,12 @@ import { ResultAsync } from "neverthrow";
 
 import {
   ContractOverrides,
-  IFarcasterBaseContract,
+  IBaseContract,
   WrappedTransactionResponse,
-} from "@contracts-sdk/index";
+} from "@contracts-sdk/index.js";
 
 export interface IFarcasterIdGatewayContract
-  extends IFarcasterBaseContract<FarcasterIdGatewayContractError> {
+  extends IBaseContract {
   /**
    * @notice Calculate the total price to register, equal to 1 storage unit or with extra storage
    *

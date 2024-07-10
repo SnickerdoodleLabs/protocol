@@ -13,13 +13,11 @@ import { ResultAsync } from "neverthrow";
 
 import {
   ContractOverrides,
+  IBaseContract,
   SignedKeyRequest,
   WrappedTransactionResponse,
-} from "@contracts-sdk/index";
-import { IFarcasterBaseContract } from "@contracts-sdk/interfaces/farcaster/IFarcasterBaseContract.js";
-
-export interface IFarcasterKeyGatewayContract
-  extends IFarcasterBaseContract<FarcasterKeyGatewayContractError> {
+} from "@contracts-sdk/index.js";
+export interface IFarcasterKeyGatewayContract extends IBaseContract {
   nonces(
     address: EVMAccountAddress,
   ): ResultAsync<

@@ -6,10 +6,9 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { IFarcasterBaseContract } from "@contracts-sdk/interfaces/farcaster/IFarcasterBaseContract.js";
+import { IBaseContract } from "@contracts-sdk/index.js";
 
-export interface IFarcasterIdRegistryContract
-  extends IFarcasterBaseContract<FarcasterIdRegistryContractError> {
+export interface IFarcasterIdRegistryContract extends IBaseContract {
   /**
    * @notice Calls the idOf mapping in the registry contract
    *
