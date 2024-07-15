@@ -13,6 +13,7 @@ import { ResultAsync } from "neverthrow";
 
 import {
   ContractOverrides,
+  FarcasterKeyGatewayAddKeySignatureParams,
   IBaseContract,
   SignedKeyRequest,
   WrappedTransactionResponse,
@@ -45,6 +46,16 @@ export interface IFarcasterKeyGatewayContract extends IBaseContract {
     WrappedTransactionResponse,
     FarcasterKeyGatewayContractError | BlockchainCommonErrors
   >;
+
+  getAddSignatureParams(
+    ownerAddress: EVMAccountAddress,
+    keyToAdd: ED25519PublicKey,
+    encodedMetadata: FarcasterEncodedSignedKeyRequestMetadata,
+    deadline: UnixTimestamp,
+  ): ResultAsync<
+    FarcasterKeyGatewayAddKeySignatureParams,
+    FarcasterKeyGatewayContractError | BlockchainCommonErrors
+  > 
 
   getAddSignature(
     ownerAddress: EVMAccountAddress,

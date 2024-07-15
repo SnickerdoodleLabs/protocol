@@ -91,8 +91,12 @@ module.exports = {
     mainnet: {
       // ethereum mainnet
       accounts: accounts,
-      chainId: 1,
+      chainId: 8453,
       url: urlOverride || "http://127.0.0.1:8549",
+    },
+    base: {
+        accounts: accounts,
+        chainId: 8453,
     },
     sepolia: {
       //ethereum testnet

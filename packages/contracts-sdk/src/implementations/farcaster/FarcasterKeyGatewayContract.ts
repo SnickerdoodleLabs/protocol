@@ -31,6 +31,7 @@ import {
   ContractsAbis,
   SignedKeyRequest,
 } from "@contracts-sdk/interfaces/objects/index.js";
+import { FarcasterKeyGatewayAddKeyMessage, FarcasterKeyGatewayAddKeySignatureParams, FarcasterKeyGatewayEIP712AddTypes, FarcasterKeyGatewayEIP712Domain } from "@contracts-sdk/interfaces/objects/farcaster/index.js";
 
 @injectable()
 export class FarcasterKeyGatewayContract
@@ -115,6 +116,39 @@ export class FarcasterKeyGatewayContract
         overrides,
       );
     });
+  }
+
+  // Returns the signature params for 'Add' signature to be signed on Farcaster app by the user via signTypedData() (refer to getAddSignature())
+  // The encodedMetadata can be obtained from getSignedKeyRequestSignatureAndEncodedMetadata() which is first signed by the EW
+  public getAddSignatureParams(
+    ownerAddress: EVMAccountAddress,
+    keyToAdd: ED25519PublicKey,
+    encodedMetadata: FarcasterEncodedSignedKeyRequestMetadata,
+    deadline: UnixTimestamp,
+  ): ResultAsync<
+  FarcasterKeyGatewayAddKeySignatureParams,
+  FarcasterKeyGatewayContractError | BlockchainCommonErrors
+  > {
+    return this.nonces(ownerAddress).map((latestNonce) => {
+        const addKeyMessage = new FarcasterKeyGatewayAddKeyMessage (
+            ownerAddress,
+            1,
+            keyToAdd,
+            1,
+            encodedMetadata,
+            latestNonce,
+            deadline,
+        )
+
+        return new FarcasterKeyGatewayAddKeySignatureParams(
+            new FarcasterKeyGatewayEIP712Domain(),
+            this.removeReadonlyFromReadonlyTypes(
+                KEY_GATEWAY_EIP_712_TYPES.types,
+            ) as FarcasterKeyGatewayEIP712AddTypes,
+            addKeyMessage,
+        )
+
+        });
   }
 
   public getAddSignature(
