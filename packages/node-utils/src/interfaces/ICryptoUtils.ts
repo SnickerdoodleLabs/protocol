@@ -10,6 +10,7 @@ import {
   HexString,
   InvalidParametersError,
   KeyGenerationError,
+  NobleED25519KeyPair,
   OAuth1Config,
   RSAKeyPair,
   SHA256Hash,
@@ -157,6 +158,8 @@ export interface ICryptoUtils {
   getNobleED25519SignerPublicKey(
     ed25519Signer: NobleEd25519Signer,
   ): ResultAsync<ED25519PublicKey, SignerUnavailableError>;
+
+  generateEd25519KeyPair(): ResultAsync<NobleED25519KeyPair, KeyGenerationError>
 }
 
 export const ICryptoUtilsType = Symbol.for("ICryptoUtils");

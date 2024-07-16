@@ -118,3 +118,4 @@ export * from "@objects/primitives/FarcasterEncodedSignedKeyRequestMetadata.js";
 export * from "@objects/primitives/FarcasterIDGatewayRegisterIdSignature.js";
 export * from "@objects/primitives/FarcasterKeyGatewayAddKeySignature.js";
 export * from "@objects/primitives/ED25519PublicKey.js";
+export * from "@objects/primitives/ED25519PrivateKey.js";
