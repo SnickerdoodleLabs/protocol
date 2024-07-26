@@ -1,0 +1,45 @@
+import type { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox-viem";
+import "./tasks/smartWallet";
+
+require("dotenv").config();
+
+// seed phrase for your HD wallet
+const mnemonic =
+  process.env.MNEMONIC ||
+  "test test test test test test test test test test test junk";
+
+// alternative to mnemonic, set a specific private key
+const key = process.env.ETH_PRIVATE_KEY;
+
+// if no private key is found in .env, use the public known mnemonic
+const accounts = key ? [key] : { mnemonic };
+
+const config: HardhatUserConfig = {
+  solidity: "0.8.24",
+  ignition: {
+    strategyConfig: {
+      create2: {
+        // To learn more about salts, see the CreateX documentation
+        // the current value is equal to keccak256('smart-wallet-example2')
+        salt: "0xb74a48f0729221942ec42b31c524f5e6327a3b504805b99df7659c592b0271ed",
+      },
+    },
+  },
+  networks: {
+    fuji: {
+      url: 'https://rpc.ankr.com/avalanche_fuji',
+      accounts: accounts,
+    },
+    sepolia: {
+      url: 'https://rpc.ankr.com/eth_sepolia',
+      accounts: accounts,
+    },
+    amoy: {
+        url: 'https://rpc.ankr.com/polygon_amoy',
+        accounts: accounts,
+      },
+  }
+};
+
+export default config;
