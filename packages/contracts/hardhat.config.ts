@@ -16,7 +16,15 @@ const key = process.env.ETH_PRIVATE_KEY;
 const accounts = key ? [key] : { mnemonic };
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.24",
+  solidity: {
+    version: "0.8.24",
+    settings: {
+        optimizer: {
+        enabled: true,
+        runs: 200,
+        },
+    },
+  },
   ignition: {
     strategyConfig: {
       create2: {
