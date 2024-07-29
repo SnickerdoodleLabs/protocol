@@ -3,9 +3,6 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 contract SmartWallet is Initializable {
     address payable public owner;
@@ -42,7 +39,7 @@ contract SmartWallet is Initializable {
     /// @param to The receiver address
     /// @param tokenId The token id to transfer
     function transferERC721(address tokenAddress, address to, uint256 tokenId) public onlyOwner {
-        IERC721(tokenAddress).transferFrom(address(this), to, tokenId);
+        IERC721(tokenAddress).safeTransferFrom(address(this), to, tokenId);
     }
 
     /// @notice Transfer ERC1155 tokens
@@ -54,4 +51,19 @@ contract SmartWallet is Initializable {
     function safeTransferERC1155(address tokenAddress, address to, uint256 id, uint256 amount, bytes memory data) public onlyOwner {
         IERC1155(tokenAddress).safeTransferFrom(address(this), to, id, amount, data);
     }
+}
+
+// ERC-20 interface
+interface IERC20 {
+    function transfer(address to, uint256 amount) external returns (bool);
+}
+
+// ERC-721 interface
+interface IERC721 {
+    function safeTransferFrom(address from, address to, uint256 tokenId) external;
+}
+
+// ERC-1155 interface
+interface IERC1155 {
+    function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes calldata data) external;
 }
