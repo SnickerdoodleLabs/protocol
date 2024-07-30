@@ -19,10 +19,10 @@ const config: HardhatUserConfig = {
   solidity: {
     version: "0.8.24",
     settings: {
-        optimizer: {
+      optimizer: {
         enabled: true,
         runs: 200,
-        },
+      },
     },
   },
   ignition: {
@@ -36,18 +36,24 @@ const config: HardhatUserConfig = {
   },
   networks: {
     fuji: {
-      url: 'https://rpc.ankr.com/avalanche_fuji',
+      url: "https://rpc.ankr.com/avalanche_fuji",
       accounts: accounts,
     },
     sepolia: {
-      url: 'https://rpc.ankr.com/eth_sepolia',
+      url: "https://rpc.ankr.com/eth_sepolia",
       accounts: accounts,
     },
     amoy: {
-        url: 'https://rpc.ankr.com/polygon_amoy',
-        accounts: accounts,
-      },
-  }
+      url: "https://rpc.ankr.com/polygon_amoy",
+      accounts: accounts,
+    },
+  },
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./cache",
+    artifacts: "./artifacts",
+  },
 };
 
 export default config;

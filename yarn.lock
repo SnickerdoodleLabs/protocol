@@ -4775,18 +4775,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@layerzerolabs/lz-evm-oapp-v2@npm:^2.3.32":
-  version: 2.3.32
-  resolution: "@layerzerolabs/lz-evm-oapp-v2@npm:2.3.32"
+"@layerzerolabs/lz-evm-oapp-v2@npm:^2.3.33":
+  version: 2.3.33
+  resolution: "@layerzerolabs/lz-evm-oapp-v2@npm:2.3.33"
   peerDependencies:
-    "@layerzerolabs/lz-evm-messagelib-v2": ^2.3.32
-    "@layerzerolabs/lz-evm-protocol-v2": ^2.3.32
-    "@layerzerolabs/lz-evm-v1-0.7": ^2.3.32
+    "@layerzerolabs/lz-evm-messagelib-v2": ^2.3.33
+    "@layerzerolabs/lz-evm-protocol-v2": ^2.3.33
+    "@layerzerolabs/lz-evm-v1-0.7": ^2.3.33
     "@openzeppelin/contracts": ^4.8.1 || ^5.0.0
     "@openzeppelin/contracts-upgradeable": ^4.8.1 || ^5.0.0
     hardhat-deploy: ^0.12.4
     solidity-bytes-utils: ^0.8.0
-  checksum: 6c52b551be1283a96b3462ea27667efdf37699514cce9b3634ab450331b8ad889b5cd80a35b63f34d1c4c93c594056947ce3bf06ae941da755a57d7f2216dd0f
+  checksum: c159d3eb07a42e7ce2ff0a2af7ebd78ac499edfbbed0125cf639cdf19cb0e2fa1476de1686653d2e04c1e7c043343942e08a9f66a66c4f1decc8fab98e470d43
+  languageName: node
+  linkType: hard
+
+"@layerzerolabs/lz-evm-protocol-v2@npm:^2.3.33":
+  version: 2.3.33
+  resolution: "@layerzerolabs/lz-evm-protocol-v2@npm:2.3.33"
+  peerDependencies:
+    "@openzeppelin/contracts": ^4.8.1 || ^5.0.0
+    "@openzeppelin/contracts-upgradeable": ^4.8.1 || ^5.0.0
+    hardhat-deploy: ^0.12.4
+    solidity-bytes-utils: ^0.8.0
+  checksum: 3fda5ef8cf4c6db8931e34e34c8c15f644ee77d586a1c7dd37eec5678a9ba4164092ff77bd43fd84e275b2af8f4e73f7defd7226615f6c7ca709bb3961530139
   languageName: node
   linkType: hard
 
@@ -18735,7 +18747,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "contracts@workspace:packages/contracts"
   dependencies:
-    "@layerzerolabs/lz-evm-oapp-v2": ^2.3.32
+    "@layerzerolabs/lz-evm-protocol-v2": ^2.3.33
     "@nomicfoundation/hardhat-ignition": ^0.15.5
     "@nomicfoundation/hardhat-ignition-ethers": ^0.15.5
     "@nomicfoundation/hardhat-ignition-viem": ^0.15.5
@@ -41935,6 +41947,7 @@ __metadata:
     "@glazed/devtools": ^0.2.0
     "@google-cloud/storage": ^6.7.0
     "@jest/types": ^29.0.3
+    "@layerzerolabs/lz-evm-oapp-v2": ^2.3.33
     "@nomicfoundation/hardhat-chai-matchers": ^2.0.0
     "@nomicfoundation/hardhat-ethers": ^3.0.0
     "@nomicfoundation/hardhat-network-helpers": ^1.0.0
