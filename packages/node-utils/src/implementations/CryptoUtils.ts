@@ -614,7 +614,7 @@ export class CryptoUtils implements ICryptoUtils {
       },
     ).andThen((signerKey) => {
       if (signerKey.isOk()) {
-    return okAsync(ED25519PublicKey(ethers.hexlify(signerKey.value)));
+        return okAsync(ED25519PublicKey(ethers.hexlify(signerKey.value)));
       }
       return errAsync(
         new SignerUnavailableError(
@@ -624,25 +624,28 @@ export class CryptoUtils implements ICryptoUtils {
     });
   }
 
-  public generateEd25519KeyPair(): ResultAsync<NobleED25519KeyPair, KeyGenerationError> {
-
-    const privateKeyBytes = ed.utils.randomPrivateKey(); 
+  public generateEd25519KeyPair(): ResultAsync<
+    NobleED25519KeyPair,
+    KeyGenerationError
+  > {
+    const privateKeyBytes = ed.utils.randomPrivateKey();
 
     return ResultAsync.fromPromise(
-        ed.getPublicKey(privateKeyBytes) as Promise<Uint8Array>,
-        (e) => {
-          return e as KeyGenerationError;
-        },
-      ).map((publicKeyBytes) => {
+      ed.getPublicKey(privateKeyBytes) as Promise<Uint8Array>,
+      (e) => {
+        return e as KeyGenerationError;
+      },
+    ).map((publicKeyBytes) => {
+      const publicKeyString =
+        "0x" + Buffer.from(publicKeyBytes).toString("hex");
+      const privateKeyString =
+        "0x" + Buffer.from(privateKeyBytes).toString("hex");
 
-        const publicKeyString = "0x" + Buffer.from(publicKeyBytes).toString("hex");
-        const privateKeyString = "0x" + Buffer.from(privateKeyBytes).toString("hex");
-
-        return (new NobleED25519KeyPair(
-            ED25519PublicKey(publicKeyString),
-            ED25519PrivateKey(privateKeyString)
-        ))
-      });
+      return new NobleED25519KeyPair(
+        ED25519PublicKey(publicKeyString),
+        ED25519PrivateKey(privateKeyString),
+      );
+    });
   }
 
   protected hexStringToBuffer(

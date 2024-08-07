@@ -30,7 +30,7 @@
     "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
     "alias-with-copyfiles": "yarn copy-files && tsc-alias",
     "build": "yarn clean && yarn compile",
-    "debug": "yarn build && node dist/debug/debugger.js",
+    "debug": "yarn build && node dist/debug/warpcastSignedKeyRequest.js",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
     "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",

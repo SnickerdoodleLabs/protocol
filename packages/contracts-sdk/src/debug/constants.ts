@@ -21,8 +21,13 @@ export const providerUrl = URLString("https://mainnet.optimism.io");
 
 // WARNING: Pushed to git, do not reuse or place funds!
 // 0x0F9Deb936F279625C13b1d3E3ef8c94734cEd12c
+// export const privateKey = EVMPrivateKey(
+//   "46cb718f767d331ac76f04dc8771adf96f9ab21132545dd0c7797524684d0d63",
+// );
+
+//TODOSEAN: delete! @snickersean
 export const privateKey = EVMPrivateKey(
-  "46cb718f767d331ac76f04dc8771adf96f9ab21132545dd0c7797524684d0d63",
+  "453c014a492f380e17dfe5e15fc8c208c8d3dbdf31261a316fe94105cd5bf75b",
 );
 
 const wallet = new ethers.Wallet(privateKey);

@@ -28,10 +28,15 @@ import {
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/index.js";
 import {
+  FarcasterKeyGatewayAddKeyMessage,
+  FarcasterKeyGatewayAddKeySignatureParams,
+  FarcasterKeyGatewayEIP712AddTypes,
+  FarcasterKeyGatewayEIP712Domain,
+} from "@contracts-sdk/interfaces/objects/farcaster/index.js";
+import {
   ContractsAbis,
   SignedKeyRequest,
 } from "@contracts-sdk/interfaces/objects/index.js";
-import { FarcasterKeyGatewayAddKeyMessage, FarcasterKeyGatewayAddKeySignatureParams, FarcasterKeyGatewayEIP712AddTypes, FarcasterKeyGatewayEIP712Domain } from "@contracts-sdk/interfaces/objects/farcaster/index.js";
 
 @injectable()
 export class FarcasterKeyGatewayContract
@@ -126,29 +131,28 @@ export class FarcasterKeyGatewayContract
     encodedMetadata: FarcasterEncodedSignedKeyRequestMetadata,
     deadline: UnixTimestamp,
   ): ResultAsync<
-  FarcasterKeyGatewayAddKeySignatureParams,
-  FarcasterKeyGatewayContractError | BlockchainCommonErrors
+    FarcasterKeyGatewayAddKeySignatureParams,
+    FarcasterKeyGatewayContractError | BlockchainCommonErrors
   > {
     return this.nonces(ownerAddress).map((latestNonce) => {
-        const addKeyMessage = new FarcasterKeyGatewayAddKeyMessage (
-            ownerAddress,
-            1,
-            keyToAdd,
-            1,
-            encodedMetadata,
-            latestNonce,
-            deadline,
-        )
+      const addKeyMessage = new FarcasterKeyGatewayAddKeyMessage(
+        ownerAddress,
+        1,
+        keyToAdd,
+        1,
+        encodedMetadata,
+        latestNonce,
+        deadline,
+      );
 
-        return new FarcasterKeyGatewayAddKeySignatureParams(
-            new FarcasterKeyGatewayEIP712Domain(),
-            this.removeReadonlyFromReadonlyTypes(
-                KEY_GATEWAY_EIP_712_TYPES.types,
-            ) as FarcasterKeyGatewayEIP712AddTypes,
-            addKeyMessage,
-        )
-
-        });
+      return new FarcasterKeyGatewayAddKeySignatureParams(
+        new FarcasterKeyGatewayEIP712Domain(),
+        this.removeReadonlyFromReadonlyTypes(
+          KEY_GATEWAY_EIP_712_TYPES.types,
+        ) as FarcasterKeyGatewayEIP712AddTypes,
+        addKeyMessage,
+      );
+    });
   }
 
   public getAddSignature(
@@ -272,7 +276,6 @@ export class FarcasterKeyGatewayContract
       (signer) => {
         //    https://docs.farcaster.xyz/reference/contracts/reference/signed-key-request-validator#signedkeyrequestmetadata-struct
         //    Needs to be a EIP712 signature
-
         const metadataMessage = {
           requestFid: ownerFid,
           key: keyToAdd,

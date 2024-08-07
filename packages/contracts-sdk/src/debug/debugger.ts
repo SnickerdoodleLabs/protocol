@@ -546,6 +546,44 @@ const getSignedKeyRequestSignatureAndEncodedMetadata = async (
   }
 };
 
+const getSignedKeyRequestSignature = async (
+  farcasterUserId: FarcasterUserId,
+  keyToAdd: ED25519PublicKey,
+  deadline: UnixTimestamp,
+) => {
+  try {
+    const keyGateway = new FarcasterKeyGatewayContract(signer);
+    keyGateway
+      .getSignedKeyRequestSignature(farcasterUserId, keyToAdd, deadline)
+      .then((signedKeyReq) => {
+        if (signedKeyReq.isOk()) {
+          console.log("DEBUGGER SignedKeyRequestSignature", signedKeyReq.value);
+        }
+      });
+  } catch (e) {
+    console.log("getSignedKeyRequestSignature e: ", e);
+  }
+};
+
+const getSigned = async (
+  farcasterUserId: FarcasterUserId,
+  keyToAdd: ED25519PublicKey,
+  deadline: UnixTimestamp,
+) => {
+  try {
+    const keyGateway = new FarcasterKeyGatewayContract(signer);
+    keyGateway
+      .getSignedKeyRequestSignature(farcasterUserId, keyToAdd, deadline)
+      .then((signedKeyReq) => {
+        if (signedKeyReq.isOk()) {
+          console.log("DEBUGGER SignedKeyRequestSignature", signedKeyReq.value);
+        }
+      });
+  } catch (e) {
+    console.log("getSignedKeyRequestSignature e: ", e);
+  }
+};
+
 /* SignedKeyRequest {
     signedKeyRequestSignature: '0xf5841ef34b4b90c6b5420061da65fa19698dd26c92b306c2b981a26fb4ba56455d1b6a855ddf999b901b2eb75fc1e6d2e0dcdf7875bd2328fdda2628a39a72b31b',
     encodedSignedKeyRequestMetadata: '0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000a587f000000000000000000000000baea3282cd6d44672ea12eb6434ed1d1d4b615c700000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000066cc271f0000000000000000000000000000000000000000000000000000000000000041f5841ef34b4b90c6b5420061da65fa19698dd26c92b306c2b981a26fb4ba56455d1b6a855ddf999b901b2eb75fc1e6d2e0dcdf7875bd2328fdda2628a39a72b31b00000000000000000000000000000000000000000000000000000000000000'
@@ -650,19 +688,38 @@ const init = async () => {
     EVMAccountAddress("0x0F9Deb936F279625C13b1d3E3ef8c94734cEd12c"),
   ); */
 
-  await getKeysOf(FarcasterUserId(678015), EFarcasterKeyState.Added);
+  await getKeysOf(FarcasterUserId(511999), EFarcasterKeyState.Added);
 
   //await getNobleED25519SignerPublicKey(signer);
 
-  /* await getSignedKeyRequestSignatureAndEncodedMetadata(
-    FarcasterUserId(678015),
-    EVMAccountAddress("0x0F9Deb936F279625C13b1d3E3ef8c94734cEd12c"),
-    ED25519PublicKey(
-      "0x089064a1a687c1fcf5bd2450243d91bc0612070d900557cf744857420713b0d7",
-    ),
-    UnixTimestamp(deadline),
-  ); */
+  //   await getSignedKeyRequestSignatureAndEncodedMetadata(
+  //     FarcasterUserId(678015),
+  //     EVMAccountAddress("0x0F9Deb936F279625C13b1d3E3ef8c94734cEd12c"),
+  //     ED25519PublicKey(
+  //       "0x089064a1a687c1fcf5bd2450243d91bc0612070d900557cf744857420713b0d7",
+  //     ),
+  //     UnixTimestamp(deadline),
+  //   );
 
+  //   await getSignedKeyRequestSignature(
+  //     FarcasterUserId(814459),
+  //     ED25519PublicKey(
+  //       "0x8b38cc684bd485fe1555b58ea92a3e524b8f13a5e5b45b07d407fad464ca8ba6",
+  //     ),
+  //     UnixTimestamp(1722790619000),
+  //   );
+
+  //   await getBytesOf(
+  //     "0x453c014a492f380e17dfe5e15fc8c208c8d3dbdf31261a316fe94105cd5bf75b",
+  //   );
+
+  //   await hexilify(
+  //     new Uint8Array([
+  //       96, 55, 24, 194, 177, 111, 168, 126, 115, 138, 119, 216, 213, 240, 242,
+  //       186, 168, 205, 204, 214, 202, 115, 45, 72, 221, 236, 84, 21, 55, 187, 198,
+  //       195,
+  //     ]),
+  //   );
   /* await getAddKeySignature(
     EVMAccountAddress("0x0F9Deb936F279625C13b1d3E3ef8c94734cEd12c"),
     ED25519PublicKey(

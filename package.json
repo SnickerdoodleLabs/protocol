@@ -223,5 +223,9 @@
     "webpack-deadcode-plugin": "^0.1.17",
     "webpack-dev-server": "^4.7.4",
     "webpack-merge": "^5.8.0"
+  },
+  "dependencies": {
+    "@farcaster/hub-nodejs": "^0.11.23",
+    "@neynar/nodejs-sdk": "^1.40.0"
   }
 }
