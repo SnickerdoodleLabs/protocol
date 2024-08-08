@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/contracts-sdk",
-  "version": "4.0.22",
+  "version": "4.0.25",
   "description": "SDK for snickerdoodlelabs protocol smart contracts",
   "license": "MIT",
   "repository": {
@@ -41,6 +41,7 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@farcaster/hub-nodejs": "^0.11.17",
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/node-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",

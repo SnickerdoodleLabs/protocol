@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/node-utils",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Utilities that rely on Node APIs. They are usable in a browser with polyfills",
   "license": "MIT",
   "repository": {
@@ -41,6 +41,7 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@farcaster/hub-nodejs": "^0.11.19",
     "@mysten/sui.js": "^0.44.0",
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
