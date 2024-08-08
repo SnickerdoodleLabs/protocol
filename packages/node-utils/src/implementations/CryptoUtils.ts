@@ -30,6 +30,8 @@ import {
   SuiAccountAddress,
   ED25519PublicKey,
   SignerUnavailableError,
+  NobleED25519KeyPair,
+  ED25519PrivateKey,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import {
@@ -620,6 +622,27 @@ export class CryptoUtils implements ICryptoUtils {
         ),
       );
     });
+  }
+
+  public generateEd25519KeyPair(): ResultAsync<NobleED25519KeyPair, KeyGenerationError> {
+
+    const privateKeyBytes = ed.utils.randomPrivateKey(); 
+
+    return ResultAsync.fromPromise(
+        ed.getPublicKey(privateKeyBytes) as Promise<Uint8Array>,
+        (e) => {
+          return e as KeyGenerationError;
+        },
+      ).map((publicKeyBytes) => {
+
+        const publicKeyString = "0x" + Buffer.from(publicKeyBytes).toString("hex");
+        const privateKeyString = "0x" + Buffer.from(privateKeyBytes).toString("hex");
+
+        return (new NobleED25519KeyPair(
+            ED25519PublicKey(publicKeyString),
+            ED25519PrivateKey(privateKeyString)
+        ))
+      });
   }
 
   protected hexStringToBuffer(
