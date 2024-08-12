@@ -4,13 +4,18 @@ import {
   BaseURI,
   BigNumberString,
   Commitment,
-  ConsentName,
   DomainName,
+  ED25519PublicKey,
+  EFarcasterKeyState,
   EVMAccountAddress,
   EVMContractAddress,
+  FarcasterKeyGatewayAddKeySignature,
+  FarcasterEncodedSignedKeyRequestMetadata,
+  FarcasterUserId,
   MarketplaceTag,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
+import { ethers, getBytes } from "ethers";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
@@ -23,6 +28,11 @@ import {
 import { Contracts } from "@contracts-sdk/debug/contracts.js";
 import { ConsentContract } from "@contracts-sdk/implementations/ConsentContract.js";
 import { ERC20RewardContract } from "@contracts-sdk/implementations/ERC20RewardContract.js";
+import {
+  FarcasterIdRegistryContract,
+  FarcasterKeyRegistryContract,
+  FarcasterKeyGatewayContract,
+} from "@contracts-sdk/implementations/farcaster/index.js";
 import {
   EConsentRoles,
   ContractOverrides,
@@ -39,7 +49,7 @@ const signer = new ethers.Wallet(privateKey, provider);
 const signer1 = new ethers.Wallet(privateKey1, provider);
 
 console.log("signer.address", signer.address);
-console.log("signer1.address", signer1.address);
+//console.log("signer1.address", signer1.address);
 
 // Initializing contracts
 const contracts = new Contracts(signer, signer1, cryptoUtils);
@@ -441,16 +451,179 @@ const getAccountBalanceForErc20 = async (
   }
 };
 
+// Function to get the ED25519 public key of the wallet we want to add
+const getNobleED25519SignerPublicKey = async (signer) => {
+  try {
+    const nobleSigner = cryptoUtils.getNobleED25519Signer(signer.privateKey);
+
+    await cryptoUtils
+      .getNobleED25519SignerPublicKey(nobleSigner)
+      .then((ed255519PublicKey) => {
+        console.log("ed255519PublicKey: ", ed255519PublicKey);
+        return ed255519PublicKey.isOk();
+      });
+  } catch (e) {
+    console.log("getNobleED25519SignerPublicKKey error: ", e);
+  }
+};
+
+const getBytesOf = async (ed25519PublicAddress) => {
+  try {
+    console.log(ethers.getBytes(ed25519PublicAddress));
+    return ethers.getBytes(ed25519PublicAddress);
+  } catch (e) {
+    console.log("getBytesOf error: ", e);
+    return;
+  }
+};
+
+const hexilify = async (uint8array) => {
+  try {
+    console.log(ethers.hexlify(uint8array));
+    return ethers.hexlify(uint8array);
+  } catch (e) {
+    console.log("hexilify error: ", e);
+    return;
+  }
+};
+
+const getFarcasterIdOf = async (account: EVMAccountAddress) => {
+  try {
+    const idRegistry = new FarcasterIdRegistryContract(signer);
+    idRegistry.idOf(account).then((farcasterId) => {
+      console.log("FarcasterId: ", farcasterId);
+    });
+  } catch (e) {
+    console.log("getFarcasterIdOf e: ", e);
+  }
+};
+
+const getKeysOf = async (
+  farcasterUserId: FarcasterUserId,
+  keyState: EFarcasterKeyState,
+) => {
+  try {
+    const keyRegistry = new FarcasterKeyRegistryContract(signer);
+    keyRegistry.keysOf(farcasterUserId, keyState).then((keys) => {
+      console.log("Keys: ", keys);
+    });
+  } catch (e) {
+    console.log("getKeysOf e: ", e);
+  }
+};
+
+const deadline = 1722069682;
+
+const getSignedKeyRequestSignatureAndEncodedMetadata = async (
+  farcasterUserId: FarcasterUserId,
+  ownerEVMAddress: EVMAccountAddress,
+  keyToAdd: ED25519PublicKey,
+  deadline: UnixTimestamp,
+) => {
+  try {
+    const keyGateway = new FarcasterKeyGatewayContract(signer);
+    keyGateway
+      .getSignedKeyRequestSignatureAndEncodedMetadata(
+        farcasterUserId,
+        ownerEVMAddress,
+        keyToAdd,
+        deadline,
+      )
+      .then((signedKeyReq) => {
+        if (signedKeyReq.isOk()) {
+          console.log(
+            "DEBUGGER SignedKeyRequestSignature",
+            signedKeyReq.value.signedKeyRequestSignature,
+          );
+          console.log(
+            "DEBUGGER hexed SignedKeyRequestMetadata: ",
+            signedKeyReq.value.encodedSignedKeyRequestMetadata,
+          );
+        }
+      });
+  } catch (e) {
+    console.log("getSignedKeyRequestSignatureAndEncodedMetadata e: ", e);
+  }
+};
+
+/* SignedKeyRequest {
+    signedKeyRequestSignature: '0xf5841ef34b4b90c6b5420061da65fa19698dd26c92b306c2b981a26fb4ba56455d1b6a855ddf999b901b2eb75fc1e6d2e0dcdf7875bd2328fdda2628a39a72b31b',
+    encodedSignedKeyRequestMetadata: '0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000a587f000000000000000000000000baea3282cd6d44672ea12eb6434ed1d1d4b615c700000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000066cc271f0000000000000000000000000000000000000000000000000000000000000041f5841ef34b4b90c6b5420061da65fa19698dd26c92b306c2b981a26fb4ba56455d1b6a855ddf999b901b2eb75fc1e6d2e0dcdf7875bd2328fdda2628a39a72b31b00000000000000000000000000000000000000000000000000000000000000'
+  } */
+// Called by wallet itself
+const addKey = async (
+  keyToAdd: ED25519PublicKey,
+  encodedMetadata: FarcasterEncodedSignedKeyRequestMetadata,
+) => {
+  try {
+    const keyGateway = new FarcasterKeyGatewayContract(signer);
+
+    keyGateway.add(keyToAdd, encodedMetadata).then((wrappedTxRes) => {
+      console.log("TX response: ", wrappedTxRes);
+    });
+  } catch (e) {
+    console.log("addKey e: ", e);
+  }
+};
+
+const getAddKeySignature = async (
+  ownerAddress: EVMAccountAddress,
+  keyToAdd: ED25519PublicKey,
+  encodedMetadata: FarcasterEncodedSignedKeyRequestMetadata,
+  deadline: UnixTimestamp,
+) => {
+  try {
+    const keyGateway = new FarcasterKeyGatewayContract(signer);
+
+    keyGateway
+      .getAddSignature(ownerAddress, keyToAdd, encodedMetadata, deadline)
+      .then((signature) => {
+        if (signature.isOk()) {
+          console.log("DEBUGGER addKeySignature hex: ", signature.value);
+          console.log(
+            "DEBUGGER addKeySignature bytes: ",
+            ethers.getBytes(signature.value),
+          );
+        }
+      });
+  } catch (e) {
+    console.log("addKey e: ", e);
+  }
+};
+
+const keyGatewayAddFor = async (
+  fidOwnerAddress: EVMAccountAddress,
+  keyToAdd: ED25519PublicKey,
+  encodedMetadata: FarcasterEncodedSignedKeyRequestMetadata,
+  deadline: UnixTimestamp,
+  addSignature: FarcasterKeyGatewayAddKeySignature,
+): Promise<void> => {
+  try {
+    const keyGateway = new FarcasterKeyGatewayContract(signer);
+    const tx = await keyGateway.addFor(
+      fidOwnerAddress,
+      keyToAdd,
+      encodedMetadata,
+      deadline,
+      addSignature,
+    );
+    console.log(tx);
+  } catch (e) {
+    console.log("keyGatewayAddFor e: ", e);
+    throw e;
+  }
+};
+
 const init = async () => {
   console.log("Initializing...");
-  await getLatestBlock();
+  //await getLatestBlock();
   // await createConsent();
   // await sendFunds();
   // await renounceRole();
-  await getAccountBalanceForErc20(
-    EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"),
-    EVMAccountAddress("0x0F9Deb936F279625C13b1d3E3ef8c94734cEd12c"),
-  );
+  //   await getAccountBalanceForErc20(
+  //     EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"),
+  //     EVMAccountAddress("0x0F9Deb936F279625C13b1d3E3ef8c94734cEd12c"),
+  //   );
   // await grantRole();
   // await getBaseUri();
   // await setBaseUri();
@@ -472,6 +645,48 @@ const init = async () => {
   //tempOptIn();
   //listTransferEvents();
   //tempOptOut();
+
+  /* await getFarcasterIdOf(
+    EVMAccountAddress("0x0F9Deb936F279625C13b1d3E3ef8c94734cEd12c"),
+  ); */
+
+  await getKeysOf(FarcasterUserId(678015), EFarcasterKeyState.Added);
+
+  //await getNobleED25519SignerPublicKey(signer);
+
+  /* await getSignedKeyRequestSignatureAndEncodedMetadata(
+    FarcasterUserId(678015),
+    EVMAccountAddress("0x0F9Deb936F279625C13b1d3E3ef8c94734cEd12c"),
+    ED25519PublicKey(
+      "0x089064a1a687c1fcf5bd2450243d91bc0612070d900557cf744857420713b0d7",
+    ),
+    UnixTimestamp(deadline),
+  ); */
+
+  /* await getAddKeySignature(
+    EVMAccountAddress("0x0F9Deb936F279625C13b1d3E3ef8c94734cEd12c"),
+    ED25519PublicKey(
+      "0x089064a1a687c1fcf5bd2450243d91bc0612070d900557cf744857420713b0d7",
+    ),
+    FarcasterEncodedSignedKeyRequestMetadata(
+      "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000a587f0000000000000000000000000f9deb936f279625c13b1d3e3ef8c94734ced12c00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000066a4b2b200000000000000000000000000000000000000000000000000000000000000414aa99acf1d6d7fce1ceb27ee7e2a918cd7c38e7225df6b4e1f2f891149eab6d4281211ea5aa00b1b0ac5b3a30109c223be0cb7064b0a5468b80e5fc4dcac7b0c1b00000000000000000000000000000000000000000000000000000000000000",
+    ),
+    UnixTimestamp(deadline),
+  ); */
+
+  /* await keyGatewayAddFor(
+    EVMAccountAddress("0x0F9Deb936F279625C13b1d3E3ef8c94734cEd12c"),
+    ED25519PublicKey(
+      "0x089064a1a687c1fcf5bd2450243d91bc0612070d900557cf744857420713b0d7",
+    ),
+    FarcasterEncodedSignedKeyRequestMetadata(
+      "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000a587f0000000000000000000000000f9deb936f279625c13b1d3e3ef8c94734ced12c00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000066a4b2b200000000000000000000000000000000000000000000000000000000000000414aa99acf1d6d7fce1ceb27ee7e2a918cd7c38e7225df6b4e1f2f891149eab6d4281211ea5aa00b1b0ac5b3a30109c223be0cb7064b0a5468b80e5fc4dcac7b0c1b00000000000000000000000000000000000000000000000000000000000000",
+    ),
+    UnixTimestamp(deadline),
+    FarcasterKeyGatewayAddKeySignature(
+      "0x74169c6c625b04cb29b31058f829c07607b74abf4bfe9c4f02f54001616aaf296a3280b0c4eaddb61cf3dc2107cf9480382ce519109e47c254b40aa4176715dc1c",
+    ),
+  ); */
 };
 
 await init();

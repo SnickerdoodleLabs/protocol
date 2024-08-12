@@ -9,6 +9,7 @@ import { MissingArgumentError } from "@objects/errors/blockchain/MissingArgument
 import { NetworkUnreachableError } from "@objects/errors/blockchain/NetworkUnreachableError.js";
 import { SignerUnavailableError } from "@objects/errors/blockchain/SignerUnavailableError.js";
 import { UnexpectedArgumentError } from "@objects/errors/blockchain/UnexpectedArgumentError.js";
+import { UnexpectedNetworkError } from "@objects/errors/blockchain/UnexpectedNetworkError.js";
 import { UnknownBlockchainError } from "@objects/errors/blockchain/UnknownBlockchainError.js";
 
 export type BlockchainTransactionErrors =
@@ -26,4 +27,5 @@ export type BlockchainCommonErrors =
   | BlockchainProviderError
   | NetworkUnreachableError
   | SignerUnavailableError
-  | BlockchainTransactionErrors;
+  | BlockchainTransactionErrors
+  | UnexpectedNetworkError

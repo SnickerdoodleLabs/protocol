@@ -1,17 +1,21 @@
+import { NobleEd25519Signer } from "@farcaster/hub-nodejs";
 import {
   AESEncryptedString,
   AESKey,
   Base64String,
+  ED25519PublicKey,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   HexString,
   InvalidParametersError,
   KeyGenerationError,
+  NobleED25519KeyPair,
   OAuth1Config,
   RSAKeyPair,
   SHA256Hash,
   Signature,
+  SignerUnavailableError,
   SolanaAccountAddress,
   SolanaPrivateKey,
   SuiAccountAddress,
@@ -148,6 +152,14 @@ export interface ICryptoUtils {
     pathAndBodyParams?: object,
     accessTokenAndSecret?: TokenAndSecret,
   ): string;
+
+  getNobleED25519Signer(privateKey: string): NobleEd25519Signer;
+
+  getNobleED25519SignerPublicKey(
+    ed25519Signer: NobleEd25519Signer,
+  ): ResultAsync<ED25519PublicKey, SignerUnavailableError>;
+
+  generateEd25519KeyPair(): ResultAsync<NobleED25519KeyPair, KeyGenerationError>
 }
 
 export const ICryptoUtilsType = Symbol.for("ICryptoUtils");

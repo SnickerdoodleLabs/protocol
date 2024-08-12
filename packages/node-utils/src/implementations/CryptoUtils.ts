@@ -1,5 +1,6 @@
 import Crypto from "crypto";
 
+import { HubAsyncResult, NobleEd25519Signer } from "@farcaster/hub-nodejs";
 import { verifyPersonalMessage } from "@mysten/sui.js/verify";
 import * as ed from "@noble/ed25519";
 import {
@@ -27,6 +28,10 @@ import {
   UUID,
   OAuth1Config,
   SuiAccountAddress,
+  ED25519PublicKey,
+  SignerUnavailableError,
+  NobleED25519KeyPair,
+  ED25519PrivateKey,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import {
@@ -593,6 +598,51 @@ export class CryptoUtils implements ICryptoUtils {
           : undefined,
       ),
     ).Authorization;
+  }
+
+  public getNobleED25519Signer(privateKey: string): NobleEd25519Signer {
+    return new NobleEd25519Signer(ethers.getBytes(privateKey));
+  }
+
+  public getNobleED25519SignerPublicKey(
+    ed25519Signer: NobleEd25519Signer,
+  ): ResultAsync<ED25519PublicKey, SignerUnavailableError> {
+    return ResultAsync.fromPromise(
+      ed25519Signer.getSignerKey() as HubAsyncResult<Uint8Array>,
+      (e) => {
+        return e as SignerUnavailableError;
+      },
+    ).andThen((signerKey) => {
+      if (signerKey.isOk()) {
+    return okAsync(ED25519PublicKey(ethers.hexlify(signerKey.value)));
+      }
+      return errAsync(
+        new SignerUnavailableError(
+          "Unable to obtain NobleED25519Signer's public key",
+        ),
+      );
+    });
+  }
+
+  public generateEd25519KeyPair(): ResultAsync<NobleED25519KeyPair, KeyGenerationError> {
+
+    const privateKeyBytes = ed.utils.randomPrivateKey(); 
+
+    return ResultAsync.fromPromise(
+        ed.getPublicKey(privateKeyBytes) as Promise<Uint8Array>,
+        (e) => {
+          return e as KeyGenerationError;
+        },
+      ).map((publicKeyBytes) => {
+
+        const publicKeyString = "0x" + Buffer.from(publicKeyBytes).toString("hex");
+        const privateKeyString = "0x" + Buffer.from(privateKeyBytes).toString("hex");
+
+        return (new NobleED25519KeyPair(
+            ED25519PublicKey(publicKeyString),
+            ED25519PrivateKey(privateKeyString)
+        ))
+      });
   }
 
   protected hexStringToBuffer(
