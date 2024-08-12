@@ -112,3 +112,5 @@ export * from "@objects/primitives/Version.js";
 export * from "@objects/primitives/VolatileStorageKey.js";
 export * from "@objects/primitives/Web2Credential.js";
 export * from "@objects/primitives/ZKProof.js";
+export * from "@objects/primitives/LayerZeroEndpointId.js";
+export * from "@objects/primitives/LayerZeroOptions.js";

@@ -1,7 +1,7 @@
 {
-  "name": "@snickerdoodlelabs/contracts-sdk",
+  "name": "@snickerdoodlelabs/contracts-sdk-new",
   "version": "4.0.22",
-  "description": "Depracated SDK for snickerdoodlelabs protocol smart contracts",
+  "description": "SDK for snickerdoodlelabs protocol smart contracts",
   "license": "MIT",
   "repository": {
     "type": "git",

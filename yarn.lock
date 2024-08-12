@@ -9376,6 +9376,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snickerdoodlelabs/contracts-sdk-new@workspace:packages/contracts-sdk-new":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/contracts-sdk-new@workspace:packages/contracts-sdk-new"
+  dependencies:
+    "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/node-utils": "workspace:^"
+    "@snickerdoodlelabs/objects": "workspace:^"
+    ethers: ^6.10.0
+    inversify: ^6.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
+    zksync-ethers: ^6.1.0
+  languageName: unknown
+  linkType: soft
+
 "@snickerdoodlelabs/contracts-sdk@workspace:^, @snickerdoodlelabs/contracts-sdk@workspace:packages/contracts-sdk":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/contracts-sdk@workspace:packages/contracts-sdk"

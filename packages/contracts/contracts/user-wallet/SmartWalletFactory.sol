@@ -20,7 +20,7 @@ contract SmartWalletFactory is OApp {
     bool public isSourceChain = false; 
 
     /// List of supported destination chains
-    address[] public destinationChainEIDs;
+    uint32[] public supportedDestinationChainEIDs;
 
     /// Mapping to store all the EIDs for supported chain ids
     /// @dev This only needs to be captured on the source chain since Layer Zero contracts do not have this info
@@ -57,7 +57,7 @@ contract SmartWalletFactory is OApp {
  
     /// @notice Deploys a Beacon Proxy with New keyword and salt to create an upgradeable SmartWallet
     /// @dev https://docs.openzeppelin.com/contracts/5.x/api/proxy#UpgradeableBeacon
-    /// @param _eid destination chain's endpoint id a string used to name the SmartWallet deployed to make it easy to look up (hashed to create salt)
+    /// @param _eid destination chain's endpoint id
     /// @param _name a string used to name the SmartWallet deployed to make it easy to look up (hashed to create salt)
     /// @param _owner an address that will own the SmartWallet contract
     /// @param _options Message execution options, refer to : https://docs.layerzero.network/v2/developers/evm/oapp/overview#message-execution-options
@@ -105,7 +105,7 @@ contract SmartWalletFactory is OApp {
     }
     
     /// @notice send some ETH to the address that a SmartWallet will be/is deployed to 
-    /// @param name the string used as the salt vaule for the SmartWallet
+    /// @param name the string used as the salt vault for the SmartWallet
     function sendValue(string memory name) external payable {
         address smartWalletAddress;
         
@@ -189,6 +189,11 @@ contract SmartWalletFactory is OApp {
         for(uint i; i < _chainEIDs.length; i++) {
             chainIdToEIDs[_chainIDs[i]] = _chainEIDs[i];
         }
+    }
+
+    /// @notice Gets the list of supported Layer Zero EIDs
+    function getSupportedChainEIDs() external returns(uint32[] memory) {
+        return supportedDestinationChainEIDs;
     }
 
     /// TODO: Implement another layer zero function that receives a message when a chain ID has been deployed on a destination chain
