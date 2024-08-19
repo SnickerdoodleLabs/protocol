@@ -4849,6 +4849,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@layerzerolabs/lz-evm-messagelib-v2@npm:^2.3.36":
+  version: 2.3.36
+  resolution: "@layerzerolabs/lz-evm-messagelib-v2@npm:2.3.36"
+  peerDependencies:
+    "@arbitrum/nitro-contracts": ^1.1.0
+    "@axelar-network/axelar-gmp-sdk-solidity": ^5.6.4
+    "@chainlink/contracts-ccip": ^0.7.6
+    "@eth-optimism/contracts": ^0.6.0
+    "@layerzerolabs/lz-evm-protocol-v2": ^2.3.36
+    "@layerzerolabs/lz-evm-v1-0.7": ^2.3.36
+    "@openzeppelin/contracts": ^4.8.1 || ^5.0.0
+    "@openzeppelin/contracts-upgradeable": ^4.8.1 || ^5.0.0
+    hardhat-deploy: ^0.12.4
+    solidity-bytes-utils: ^0.8.0
+  peerDependenciesMeta:
+    "@arbitrum/nitro-contracts":
+      optional: true
+  checksum: 096a48c322f46e20cdf1411e0f6e6a184b65f7381e3f4973b43b9aef0713e2937c0584c9fe2a31716962b1e6edeb0196c2b44b752ec83babf8d5870eade109d4
+  languageName: node
+  linkType: hard
+
 "@layerzerolabs/lz-evm-oapp-v2@npm:^2.3.33":
   version: 2.3.33
   resolution: "@layerzerolabs/lz-evm-oapp-v2@npm:2.3.33"
@@ -9447,21 +9468,6 @@ __metadata:
     pino: ^8.1.0
     tweetnacl: ^1.0.3
     uuid: ^8.3.0
-  languageName: unknown
-  linkType: soft
-
-"@snickerdoodlelabs/contracts-sdk-new@workspace:packages/contracts-sdk-new":
-  version: 0.0.0-use.local
-  resolution: "@snickerdoodlelabs/contracts-sdk-new@workspace:packages/contracts-sdk-new"
-  dependencies:
-    "@snickerdoodlelabs/common-utils": "workspace:^"
-    "@snickerdoodlelabs/node-utils": "workspace:^"
-    "@snickerdoodlelabs/objects": "workspace:^"
-    ethers: ^6.10.0
-    inversify: ^6.0.2
-    neverthrow: ^5.1.0
-    neverthrow-result-utils: ^2.0.2
-    zksync-ethers: ^6.1.0
   languageName: unknown
   linkType: soft
 
@@ -18847,6 +18853,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "contracts@workspace:packages/contracts"
   dependencies:
+    "@layerzerolabs/lz-evm-messagelib-v2": ^2.3.36
     "@layerzerolabs/lz-evm-protocol-v2": ^2.3.33
     "@nomicfoundation/hardhat-ignition": ^0.15.5
     "@nomicfoundation/hardhat-ignition-ethers": ^0.15.5
@@ -18858,6 +18865,7 @@ __metadata:
     add: ^2.0.6
     dotenv: ^16.4.5
     hardhat: ^2.22.6
+    solidity-bytes-utils: ^0.8.2
     yarn: ^1.22.22
   languageName: unknown
   linkType: soft
@@ -21076,6 +21084,13 @@ __metadata:
   peerDependencies:
     "@types/node-fetch": ^2.5.7
   checksum: 5474e31b0e9c8ff68d140a12b8ef5a06e17125f254ad47702e8ab6932fb0405b467c58098e4e6546e29df57f6fa7581f749b6eb0c2a6daec29644a5a8f5cba75
+  languageName: node
+  linkType: hard
+
+"ds-test@github:dapphub/ds-test":
+  version: 1.0.0
+  resolution: "ds-test@https://github.com/dapphub/ds-test.git#commit=e282159d5170298eb2455a6c05280ab5a73a4ef0"
+  checksum: 8f36e20dde868d062841c790fc43c9dd18b93d6180995f378bedaee1f24444950838843c0f2ffa5ac3b8a21b4c29fd97a60725e29e8ff71c9cf28f837614d96f
   languageName: node
   linkType: hard
 
@@ -24228,6 +24243,13 @@ __metadata:
   version: 0.6.1
   resolution: "forever-agent@npm:0.6.1"
   checksum: 766ae6e220f5fe23676bb4c6a99387cec5b7b62ceb99e10923376e27bfea72f3c3aeec2ba5f45f3f7ba65d6616965aa7c20b15002b6860833bb6e394dea546a8
+  languageName: node
+  linkType: hard
+
+"forge-std@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "forge-std@npm:1.1.2"
+  checksum: d5b36b909269a39dd30b619ac09a78e59b1a65e7887872ef99304298c4ffe2aa16f5dc5238c77e481a5e615582191b446401098a2ed567283d7df87e099a9d3c
   languageName: node
   linkType: hard
 
@@ -42353,6 +42375,16 @@ __metadata:
   dependencies:
     array.prototype.findlast: ^1.2.2
   checksum: 8302faaa9a510b6d9e0d64681bbfb113103035fab1680637b2455f2201fe4e3fa0db5e640bb32222013117df2cb6f770fce705e7e5ff170c9c061c27cea1dd27
+  languageName: node
+  linkType: hard
+
+"solidity-bytes-utils@npm:^0.8.2":
+  version: 0.8.2
+  resolution: "solidity-bytes-utils@npm:0.8.2"
+  dependencies:
+    ds-test: "github:dapphub/ds-test"
+    forge-std: ^1.1.2
+  checksum: 2be608f1aacfc2ff194d55e0c2b10abab3b88af262811b6c011933c6d049238fbd743c9de79a8e6cb46b1726349f47fe6132e81a9eaca21a588eb213f85a2fb4
   languageName: node
   linkType: hard
 

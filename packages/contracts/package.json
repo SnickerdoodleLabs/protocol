@@ -11,6 +11,7 @@
   "description": "",
   "type": "commonjs",
   "dependencies": {
+    "@layerzerolabs/lz-evm-messagelib-v2": "^2.3.36",
     "@layerzerolabs/lz-evm-protocol-v2": "^2.3.33",
     "@nomicfoundation/hardhat-ignition": "^0.15.5",
     "@nomicfoundation/hardhat-ignition-ethers": "^0.15.5",
@@ -22,6 +23,7 @@
     "add": "^2.0.6",
     "dotenv": "^16.4.5",
     "hardhat": "^2.22.6",
+    "solidity-bytes-utils": "^0.8.2",
     "yarn": "^1.22.22"
   }
 }
