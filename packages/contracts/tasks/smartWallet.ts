@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
 import { keccak256 } from "viem";
 
-const SMART_WALLET_FACTORY = "0xddee1970fFaE317E23bE0D49d31D6Bb907570c95";
+const SMART_WALLET_FACTORY = "0x21F1dfE03B5157B4A77d162337d82a936aCD05D8";
 
 task("keccak256", "Returns the keccak256 of the given string")
   .addParam("string", "String to hash")
@@ -29,7 +29,6 @@ task(
     // Format it to bytes32
     const padding = "0x000000000000000000000000";
     peerContract = padding.concat(peerContract.substring(2));
-
     const publicClient = await hre.viem.getPublicClient();
     const factory = await hre.viem.getContractAt(
       "SmartWalletFactory",
@@ -65,25 +64,16 @@ task(
 )
   .addParam("name", "name of the wallet")
   .addParam("owner", "owner address")
-  .addParam(
-    "eid",
-    "layer zero endpoint id for destination chain to send message to",
-  )
-  .addParam(
-    "currentcontract",
-    "The SmartWalletFactory contract on the current chain",
-  )
-  .addParam("valueinwei", "Value to send in wei after getting the quote price")
   .setAction(async (taskArgs) => {
     const publicClient = await hre.viem.getPublicClient();
     const factory = await hre.viem.getContractAt(
       "SmartWalletFactory",
       SMART_WALLET_FACTORY,
     );
-    const hash = await factory.write.deploySmartWalletUpgradeableBeacon(
-      [taskArgs.name, taskArgs.owner, 60000],
-      { value: taskArgs.valueinwei },
-    );
+    const hash = await factory.write.deploySmartWalletUpgradeableBeacon([
+      taskArgs.name,
+      taskArgs.owner,
+    ]);
     const txReceipt = await publicClient.waitForTransactionReceipt({ hash });
 
     console.log("Smart wallet deployed!", txReceipt);
@@ -133,9 +123,8 @@ task(
       "SmartWalletFactory",
       SMART_WALLET_FACTORY,
     );
-    const smartWalletAddress = await factory.read.computeProxyAddress([
-      taskargs.name,
-    ]);
+    const smartWalletAddress =
+      await factory.read.computeSmartWalletProxyAddress([taskargs.name]);
     console.log("Proxy Address:", smartWalletAddress);
   });
 
@@ -185,68 +174,17 @@ task(
   });
 
 task(
-  "quoteFactoryDeployedOnDestinationChain",
+  "quoteClaimSmartWalletOnDestinationChain",
   "Get the gas price needed to call _sendFactoryDeployedOnDestinationChain()",
 )
-  .addParam("sourcechaineid", "Layer Zero endpoint id for source chain")
-  .addParam("destinationchainid", "The destination chain id")
-  .setAction(async (taskArgs) => {
-    // for ONFT - extraOptions: "0x00030100110100000000000000000000000000030d40", // assuming 200k gas
-
-    const factory = await hre.viem.getContractAt(
-      "SmartWalletFactory",
-      SMART_WALLET_FACTORY,
-    );
-
-    try {
-      const quotePrice =
-        await factory.read.quoteFactoryDeployedOnDestinationChain([
-          Number(taskArgs.sourcechaineid),
-          Number(taskArgs.destinationchainid),
-          SMART_WALLET_FACTORY,
-          "0x0003010011010000000000000000000000000000ea60",
-        ]);
-
-      console.log("Quoted price:", quotePrice);
-    } catch (e) {
-      console.log("FAILED", e);
-    }
-  });
-
-task(
-  "sendFactoryDeployedOnDestinationChain",
-  "Announce to the source chain that it has been deployed on the destination chain",
-)
-  .addParam("gas", "Gas for the lzReceive call")
   .addParam(
-    "msgvalue",
-    "The actual fee to submit with the function call in native token wei",
+    "destinationchainid",
+    "Layer Zero endpoint id for the destination chain",
   )
-  .setAction(async (taskArgs) => {
-    const publicClient = await hre.viem.getPublicClient();
-    const factory = await hre.viem.getContractAt(
-      "SmartWalletFactory",
-      SMART_WALLET_FACTORY,
-    );
-    const hash = await factory.write.sendFactoryDeployedOnDestinationChain(
-      [60000],
-      { value: BigInt(taskArgs.msgvalue) },
-    );
-    const txReceipt = await publicClient.waitForTransactionReceipt({ hash });
-
-    console.log("Submitted message to source chain!", txReceipt);
-  });
-
-task(
-  "quoteSmartWalletDeployedOnSourceChain",
-  "Get the gas price needed to call _lzSend() within deploySmartWalletUpgradeableBeacon()",
-)
-  .addParam("eid", "Layer Zero endpoint id for target chain")
-  .addParam("currentcontract", "The OFT20Reward contract on the current chain")
-  .addParam("owner", "The owner address contract on the current chain")
+  .addParam("owner", "Owner address")
   .addParam(
     "smartwalletaddress",
-    "The OFT20Reward contract on the current chain",
+    "The address of the smart wallet proxy contract",
   )
   .setAction(async (taskArgs) => {
     // for ONFT - extraOptions: "0x00030100110100000000000000000000000000030d40", // assuming 200k gas
@@ -258,8 +196,8 @@ task(
 
     try {
       const quotePrice =
-        await factory.read.quoteSmartWalletDeployedOnSourceChain([
-          Number(taskArgs.eid),
+        await factory.read.quoteClaimSmartWalletOnDestinationChain([
+          Number(taskArgs.destinationchainid),
           taskArgs.owner,
           taskArgs.smartwalletaddress,
           "0x0003010011010000000000000000000000000000ea60",
@@ -272,16 +210,46 @@ task(
   });
 
 task(
-  "getSupportedChainEIDs",
-  "Returns list of supported EIDs on the contract",
-).setAction(async () => {
-  const factory = await hre.viem.getContractAt(
-    "SmartWalletFactory",
-    SMART_WALLET_FACTORY,
-  );
-  const list = await factory.read.getSupportedChainEIDs();
-  console.log("Suppoted EIDs:", list);
-});
+  "claimSmartWalletAddressOnDestinationChain",
+  "Get the gas price needed to call _sendFactoryDeployedOnDestinationChain()",
+)
+  .addParam(
+    "destinationchaineid",
+    "Layer Zero endpoint id for the destination chain",
+  )
+  .addParam("walletname", "Name of the wallet")
+  .addParam("owner", "Owner address")
+  .addParam(
+    "feeinwei",
+    "The fees from the quoteClaimSmartWalletOnDestinationChain call",
+  )
+  .setAction(async (taskArgs) => {
+    const factory = await hre.viem.getContractAt(
+      "SmartWalletFactory",
+      SMART_WALLET_FACTORY,
+    );
+
+    try {
+      const txReceipt = await factory.write.claimSmartWalletOnDestinationChain(
+        [
+          Number(taskArgs.destinationchaineid),
+          taskArgs.walletname,
+          taskArgs.owner,
+          60000n,
+        ],
+        {
+          value: taskArgs.feeinwei,
+        },
+      );
+
+      console.log(
+        "Wallet claimed request submitted to destination chain! Txhash:",
+        txReceipt,
+      );
+    } catch (e) {
+      console.log("FAILED", e);
+    }
+  });
 
 function padding(addressToPad) {
   // Format it to bytes32

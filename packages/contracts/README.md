@@ -68,24 +68,3 @@ docker run -d -p 8569:8569 --name devchain --rm --env NETWORK=dev snickerdoodlel
 ## Deployment Addresses
 
 A list of Snickerdoodle Protocol contract addresses can be found [here](/packages/contracts/DEPLOYMENTS.md).
-
-
-# User Smart Wallet
-
-Layer Zero's OApps (Omnichain Apps) allow us to send messages between contracts on different chains. By having the Smart Wallet contracts inherits the OApp, it allows the Smart Wallet contracts deployed on different chains to update each other's states via messages. Below is a diagram of how the Smart Wallet contracts work.
-
-![Alt text](./layerZeroSmartWallet.png)
-
-For this example, we will deploy SmartWalletFactory contracts on the Fuji testnet to Amoy testnet. SmartWalletFactory contracts inherits the OApp contract based on the Layer Zero's (LZ) V2 implementation [here](https://docs.layerzero.network/v2/developers/evm/oapp/overview).
-
-Both contracts will be similar so that we would be able to send and receive messages between them (ie. they both have the same LZ sending and receiving implementations).
-
-Start by cloning the repo and installing the dependencies. 
-
-```sh
-git clone https://github.com/SnickerdoodleLabs/smart-wallet-example.git
-cd smart-wallet-example
-npm install
-```
-
-NOTE: Before proceeding, make necessary `.env` updates with the private key of the signing account and fund the accounts with native tokens of the chains to be tested on in this example.

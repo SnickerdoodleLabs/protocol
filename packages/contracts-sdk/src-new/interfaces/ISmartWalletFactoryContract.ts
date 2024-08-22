@@ -1,10 +1,8 @@
 import {
   EVMContractAddress,
   BlockchainCommonErrors,
-  SmartWalletContractError,
   EVMAccountAddress,
   TokenAmount,
-  TokenId,
   SmartWalletFactoryContractError,
   LayerZeroEndpointId,
   LayerZeroOptions,
@@ -24,14 +22,6 @@ export interface ISmartWalletFactoryContract extends IBaseContract {
   >;
 
   /**
-   * Returns the list of supported chain layer zero endpoint ids
-   */
-  getSupportedChainEIDs(): ResultAsync<
-    LayerZeroEndpointId[],
-    SmartWalletFactoryContractError | BlockchainCommonErrors
-  >;
-
-  /**
    * Sets the peer contract address on the destination chain's smart wallet factory address
    */
   setPeer(
@@ -44,9 +34,19 @@ export interface ISmartWalletFactoryContract extends IBaseContract {
   >;
 
   /**
-   * Returns the computed smart wallet address given a name
+   * Returns the contract address of a peer EID registered on the contract
    */
-  computeSmartWalletAddress(
+  peers(
+    destinationChainEid: LayerZeroEndpointId,
+  ): ResultAsync<
+    EVMContractAddress,
+    SmartWalletFactoryContractError | BlockchainCommonErrors
+  >;
+
+  /**
+   * Returns the computed smart wallet proxy address given a name
+   */
+  computeSmartWalletProxyAddress(
     name: string,
   ): ResultAsync<
     EVMContractAddress,
@@ -56,8 +56,8 @@ export interface ISmartWalletFactoryContract extends IBaseContract {
   /**
    * Returns the native token amount in wei, of the cost to attach to the deploy function for layer zero
    */
-  quote(
-    layerZeroEndpointId: LayerZeroEndpointId,
+  quoteClaimSmartWalletOnDestinationChain(
+    destinationLayerZeroEndpointId: LayerZeroEndpointId,
     owner: EVMAccountAddress,
     smartWalletAddress: EVMContractAddress,
     layerZeroOptions: string,
@@ -81,6 +81,20 @@ export interface ISmartWalletFactoryContract extends IBaseContract {
   >;
 
   /**
+   * Sends a Layer Zero message to claim/lock the smart wallet address on the destination chain a given owner
+   * Owner must have deployed the smart wallet on the source chain first
+   */
+  claimSmartWalletOnDestinationChain(
+    destinationLayerZeroEndpointId: LayerZeroEndpointId,
+    name: string,
+    owner: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | SmartWalletFactoryContractError
+  >;
+
+  /**
    * Returns the owner of the deployed smart wallet
    */
   getDeployedSmartWalletAddressToOwner(
@@ -91,7 +105,7 @@ export interface ISmartWalletFactoryContract extends IBaseContract {
   >;
 
   /**
-   * Returns the flag that tracks if an owner has deployed the specific smart wallet address
+   * Returns the flag that tracks if an owner has deployed the specific smart wallet address on the given chain
    */
   getOwnerToDeployedSmartWalletAddressFlag(
     owner: EVMAccountAddress,
