@@ -32,6 +32,8 @@ export interface IEVMIndexer extends IIndexer {
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date,
+    startBlockNumber?: number,
+    endBlockNumber?: number,
   ): ResultAsync<
     EVMTransaction[],
     AccountIndexingError | AjaxError | MethodSupportError
