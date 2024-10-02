@@ -273,7 +273,6 @@ class MasterIndexerMocks {
       this.rarible,
       this.sim,
       this.sol,
-      this.sxt,
       this.logUtils,
       this.bigNumberUtils,
       this.evmTransactionSanitizer,

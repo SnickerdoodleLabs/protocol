@@ -108,7 +108,6 @@ export class MasterIndexer implements IMasterIndexer {
     @inject(IRaribleIndexerType) protected rarible: IEVMIndexer,
     @inject(ISimulatorEVMTransactionRepositoryType) protected sim: IEVMIndexer,
     @inject(ISolanaIndexerType) protected sol: ISolanaIndexer,
-    @inject(ISpaceAndTimeIndexerType) protected sxt: IEVMIndexer,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(IBigNumberUtilsType) protected bigNumberUtils: IBigNumberUtils,
     @inject(IEVMTransactionSanitizerType)
@@ -133,7 +132,6 @@ export class MasterIndexer implements IMasterIndexer {
       this.rarible.initialize(),
       this.sim.initialize(),
       this.sol.initialize(),
-      // this.sxt.initialize(),
     ])
       .andThen(() => {
         return this.getSupportedChains();
@@ -169,7 +167,6 @@ export class MasterIndexer implements IMasterIndexer {
           this.sim,
           this.sol,
           this.expand,
-          this.sxt,
         ];
 
         supportedChains = indexers
@@ -548,7 +545,6 @@ export class MasterIndexer implements IMasterIndexer {
         this.sim,
         this.sol,
         this.blockvision,
-        // this.sxt,
       ];
 
       const healthchecks = indexers.map((indexer) => {
@@ -556,7 +552,6 @@ export class MasterIndexer implements IMasterIndexer {
       });
 
       const [
-        sxtHealth,
         alchemyHealth,
         ankrHealth,
         covalentHealth,
@@ -573,7 +568,6 @@ export class MasterIndexer implements IMasterIndexer {
       ] = healthchecks;
 
       const indexerStatuses = context.components;
-      indexerStatuses.sxtIndexer = sxtHealth;
       indexerStatuses.alchemyIndexer = alchemyHealth;
       indexerStatuses.ankrIndexer = ankrHealth;
       indexerStatuses.covalentIndexer = covalentHealth;
