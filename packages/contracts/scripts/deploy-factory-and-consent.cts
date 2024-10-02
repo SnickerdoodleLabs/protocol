@@ -24,7 +24,7 @@ async function main() {
     await consentFactory.getAddress(),
   );
 
-  // deploy the consent contract factory and point to consent implementation and token
+  // deploy the questionnaire proxy contract
   const questionnaireCIDs = [
     "QmRo7nJCWrUbEqJ9ui8tmhvrQGmsEA7XvLuhqiYSzAyHc6",
     "QmSjJbS1UQacA4QMmHz8doqNE1Z1SyVQL7bdQKjbusGDRR",
