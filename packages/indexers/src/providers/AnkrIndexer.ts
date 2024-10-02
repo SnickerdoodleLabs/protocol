@@ -36,6 +36,7 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { from } from "rxjs";
 
 import {
   IEVMIndexer,
@@ -304,6 +305,7 @@ export class AnkrIndexer implements IEVMIndexer {
         params: {
           address: [accountAddress],
           blockchain: [this.supportedAnkrChains.get(chain)],
+          fromTimestamp: UnixTimestamp(startTime.getTime() / 1000), // Needs it in seconds
         },
         id: 1,
       };
@@ -317,14 +319,18 @@ export class AnkrIndexer implements IEVMIndexer {
           },
         })
         .map((response) => {
-          if (response.result.transactions == null) {
-            return [];
+          if (
+            !response.result || // API returns without the 'result' field (eg.querying to early and the block number / timestamp doesn't exist yet)
+            !response.result.transactions ||
+            response.result.transactions.length === 0
+          ) {
+            return []; // Return an empty array if 'transactions' is null, undefined, or empty
           }
           return response.result.transactions.map((item) => {
             return new EVMTransaction(
               getChainInfoByChain(chain).chainId,
               EVMTransactionHash(item.hash),
-              UnixTimestamp(item.timestamp),
+              UnixTimestamp(Number(item.timestamp)), // Returned as hexadecimal string, convert to number
               item.blockNumber,
               EVMAccountAddress(item.to),
               EVMAccountAddress(item.from),
@@ -434,5 +440,5 @@ interface IAnkrTransaction {
   hash: string;
   status: string;
   blockchain: string;
-  timestamp: number;
+  timestamp: string; // Unix timestamp returned in hexadecimal string
 }
