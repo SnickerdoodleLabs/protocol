@@ -73,13 +73,13 @@ contract SnickerdoodleWallet is Initializable {
     /// @param r the hex-encoded r component of the P256 signature
     /// @param s the hex-encoded s component of the P256 signature
     function addP256KeyWithP256Key(
-        string memory _keyId,
-        bytes memory authenticatorData,
-        string memory clientDataJSONLeft,
+        string calldata _keyId,
+        bytes calldata authenticatorData,
+        string calldata clientDataJSONLeft,
         string calldata _newKeyId,
         bytes32 _qx,
         bytes32 _qy,
-        string memory clientDataJSONRight,
+        string calldata clientDataJSONRight,
         bytes32 r,
         bytes32 s
     ) public {
@@ -89,7 +89,7 @@ contract SnickerdoodleWallet is Initializable {
                 _keyId,
                 authenticatorData,
                 clientDataJSONLeft,
-                Base64.ecodeURL(challenge),
+                Base64.encodeURL(challenge),
                 clientDataJSONRight,
                 r,
                 s
@@ -148,7 +148,7 @@ contract SnickerdoodleWallet is Initializable {
         address asset
     ) external onlyUserEVMAccount {
         // get the balance of this wallet
-        uint256 myBalance = IERC20(asset).balanceOf(this);
+        uint256 myBalance = IERC20(asset).balanceOf(address(this));
         // send the balance to the user's evm address
         IERC20(asset).transfer(msg.sender, myBalance);
     }
@@ -176,7 +176,7 @@ contract SnickerdoodleWallet is Initializable {
             p256Keys[keyHash].x == 0,
             "P256 key aldready added"
         );
-        p256Keys[keyHash] = P256Point(uint256(_qx), uint256(_qy), _keyId);
+        p256Keys[keyHash] = P256Point(_qx, _qy, _keyId);
         userKeysHashList.push(keyHash);
         emit P256KeyAdded(keyHash, _qx, _qy, _keyId);
     }
@@ -187,7 +187,7 @@ contract SnickerdoodleWallet is Initializable {
         string calldata _keyId,
         bytes calldata authenticatorData,
         string calldata clientDataJSONLeft,
-        string calldata challenge,
+        string memory challenge,
         string calldata clientDataJSONRight,
         bytes32 r,
         bytes32 s
@@ -208,7 +208,8 @@ contract SnickerdoodleWallet is Initializable {
             s = bytes32(us);
         }
 
-        P256Point memory p256Key = p256Keys[keccak256(abi.encodePacked(_keyId))];
+        bytes32 keyHash = keccak256(abi.encodePacked(_keyId));
+        P256Point memory p256Key = p256Keys[keyHash];
         return P256.verify(h, r, s, p256Key.x, p256Key.y);
     }
 

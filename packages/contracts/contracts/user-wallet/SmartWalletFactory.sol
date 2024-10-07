@@ -5,14 +5,13 @@ pragma solidity ^0.8.24;
 import "./SnickerdoodleWallet.sol";
 import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-import { BeaconProxy } from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
-import { UpgradeableBeacon } from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
-import { OApp, Origin, MessagingFee } from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OApp.sol";
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { OptionsBuilder } from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/libs/OptionsBuilder.sol";
+import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
+import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
+import {OApp, Origin, MessagingFee} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OApp.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {OptionsBuilder} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/libs/OptionsBuilder.sol";
 
 contract SmartWalletFactory is OApp {
-
     /// @notice Layer Zero's option to support building the options param within the contract
     using OptionsBuilder for bytes;
 
@@ -28,45 +27,47 @@ contract SmartWalletFactory is OApp {
     address public immutable beaconAddress;
 
     /// @notice  Flag if this SnickerdoodleWallet factory is the source chain
-    bool public isSourceChain; 
+    bool public isSourceChain;
 
     /// @notice Tracks a deployed smart wallet proxy address to an owner
     /// @dev Functions as a claim lock, confirming that the user has deployed it on the source chain and claimed it on the destination chain
-    mapping(address => P256Point) public deployedSnickerdoodleWalletAddressToOwner; 
+    mapping(address => OperatorAndPoint)
+        public deployedSnickerdoodleWalletAddressToOwner;
 
-    /// @notice Tracks if an owner has deployed the smart wallet proxy on this chain's factory
-    /// @dev eg. owner1 => wallet 1 => true
-    ///                 => wallet 2 => false
-    mapping(address => mapping(address => bool)) public ownerToSnickerdoodleWalletDeployedFlag; 
-
-    struct P256Point {
+    struct OperatorAndPoint {
+        address operator;
         bytes32 x;
         bytes32 y;
         string keyId;
     }
 
     /// @dev OApp inherits OAppCore which inherits OZ's Ownable
-    constructor(address _layerZeroEndpoint, address _owner) OApp(_layerZeroEndpoint, _owner) Ownable(_owner) payable {
-       
+    constructor(
+        address _layerZeroEndpoint,
+        address _owner
+    ) payable OApp(_layerZeroEndpoint, _owner) Ownable(_owner) {
         /// If the chain id is Avalanche / Fuji, flag that it is the source chain
         if (block.chainid == 43113 || block.chainid == 43114) {
             isSourceChain = true;
-        } 
+        }
 
         /// Deploy an instance of a SnickerdoodleWallet to use as the implementation contract
         /// the Deployer address (this) must be the same on every network to get the same addresses
+
         SnickerdoodleWallet SnickerdoodleWalletImpl = new SnickerdoodleWallet();
         SnickerdoodleWalletImpl.initialize(
             _owner,
+            "1337",
             0x000000000000000000000000000000000000000000000000000000000000dEaD,
-            0x000000000000000000000000000000000000000000000000000000000000dEaD,
-            "1337"
-            );
+            0x000000000000000000000000000000000000000000000000000000000000dEaD
+        );
 
         /// Deploy the Upgradeable Beacon that points to the implementation SnickerdoodleWallet contract address
         /// https://docs.openzeppelin.com/contracts/3.x/api/proxy#UpgradeableProxy
         /// All deployed proxies can be upgraded by changing the implementation address in the beacon
-        UpgradeableBeacon _upgradeableBeacon = new UpgradeableBeacon{salt: keccak256("snickerdoodle-beacon")}(address(SnickerdoodleWalletImpl), _owner);
+        UpgradeableBeacon _upgradeableBeacon = new UpgradeableBeacon{
+            salt: keccak256("snickerdoodle-beacon")
+        }(address(SnickerdoodleWalletImpl), _owner);
         beaconAddress = address(_upgradeableBeacon);
     }
 
@@ -76,31 +77,42 @@ contract SmartWalletFactory is OApp {
     /// @param _qx the x coordinate of the P256 coordinate
     /// @param _qy the y coordinate of the P256 coordinate
     /// @param _keyId a string identifier for the P256 key
-    function deploySnickerdoodleWalletUpgradeableBeacon(string memory _name, bytes32 _qx, bytes32 _qy, string calldata _keyId) public payable returns(address) {
-
+    function deploySnickerdoodleWalletUpgradeableBeacon(
+        string memory _name,
+        bytes32 _qx,
+        bytes32 _qy,
+        string calldata _keyId
+    ) public payable returns (address) {
         /// If called on a destination chain, check that the owner has created the smart wallet on the source chain
         if (!isSourceChain) {
-            require(deployedSnickerdoodleWalletAddressToOwner[computeSnickerdoodleWalletProxyAddress(_name)] == _owner, "SmartWalletFactory: Smart wallet with selected name has not been created on the source chain");
+            require(
+                deployedSnickerdoodleWalletAddressToOwner[
+                    computeSnickerdoodleWalletProxyAddress(_name)
+                ].operator == msg.sender,
+                "SmartWalletFactory: Smart wallet with selected name has not been created on the source chain"
+            );
         }
 
         /// NOTE: The address of the beacon contract will never change after deployment.
         /// The initializer is called after deployment so that the proxy address does not depend on the initializer's arguments.
         /// This means only the salt value is used to calculate the proxy address.
-        BeaconProxy proxy = new BeaconProxy{salt: keccak256(abi.encodePacked(_name))}(beaconAddress,  '');
+        BeaconProxy proxy = new BeaconProxy{
+            salt: keccak256(abi.encodePacked(_name))
+        }(beaconAddress, "");
         SnickerdoodleWallet(address(proxy)).initialize(
-            _owner,
+            msg.sender,
+            _keyId,
             _qx,
-            _qy,
-            _keyId
-            );
+            _qy
+        );
 
         /// Assign the deployed wallet to the owner here if it's a source chain
         /// If it's a destination chain, it will be handled in the _handleClaimSnickerdoodleWalletOnDestinationChain()
         if (isSourceChain) {
-            deployedSnickerdoodleWalletAddressToOwner[address(proxy)] = P256Point(_qx, _qy, _keyId);
+            deployedSnickerdoodleWalletAddressToOwner[
+                address(proxy)
+            ] = OperatorAndPoint(msg.sender, _qx, _qy, _keyId);
         }
-
-        ownerToSnickerdoodleWalletDeployedFlag[_owner][address(proxy)] = true;
 
         emit SnickerdoodleWalletCreated(address(proxy));
 
@@ -114,17 +126,27 @@ contract SmartWalletFactory is OApp {
     /// @param _name a string used to name the SnickerdoodleWallet deployed to make it easy to look up (hashed to create salt)
     /// @param _owner an address that will own the SnickerdoodleWallet contract
     /// @param _gas Gas for message execution options, refer to : https://docs.layerzero.network/v2/developers/evm/oapp/overview#message-execution-options
-    function claimSnickerdoodleWalletOnDestinationChain(uint32 _destinationChainEID, string memory _name, address payable _owner, uint128 _gas) public payable returns(address) {
-
-        require(isSourceChain, "SmartWalletFactory: Smart wallet only claimable via source chain");
+    function claimSnickerdoodleWalletOnDestinationChain(
+        uint32 _destinationChainEID,
+        string memory _name,
+        address payable _owner,
+        uint128 _gas
+    ) public payable returns (address) {
+        require(
+            isSourceChain,
+            "SmartWalletFactory: Smart wallet only claimable via source chain"
+        );
 
         /// Compute the smart wallet proxy address
         address proxy = computeSnickerdoodleWalletProxyAddress(_name);
 
         /// Encodes the message before invoking _lzSend.
-        bytes memory _payload = abi.encode(uint8(MessageType.ClaimSnickerdoodleWalletOnDestinationChain), abi.encode(_owner, proxy));
+        bytes memory _payload = abi.encode(
+            uint8(MessageType.ClaimSnickerdoodleWalletOnDestinationChain),
+            abi.encode(_owner, proxy)
+        );
 
-        /// Send a message to layer zero to the destination chain 
+        /// Send a message to layer zero to the destination chain
         _lzSend(
             _destinationChainEID,
             _payload,
@@ -138,35 +160,52 @@ contract SmartWalletFactory is OApp {
 
     /// @notice Compute the address that a SnickerdoodleWallet will be/is deployed to
     /// @param name the string that was used for the SnickerdoodleWallet salt value
-    function computeSnickerdoodleWalletAddress(string memory name) public view returns (address) {
-        return Create2.computeAddress(keccak256(abi.encodePacked(name)), keccak256(type(SnickerdoodleWallet).creationCode));
+    function computeSnickerdoodleWalletAddress(
+        string memory name
+    ) public view returns (address) {
+        return
+            Create2.computeAddress(
+                keccak256(abi.encodePacked(name)),
+                keccak256(type(SnickerdoodleWallet).creationCode)
+            );
     }
 
     /// @notice Compute the address that a Proxy will be/is deployed to
     /// @param name the string that was used for the SnickerdoodleWallet salt value
-    function computeSnickerdoodleWalletProxyAddress(string memory name) public view returns (address) {
-        return Create2.computeAddress(keccak256(abi.encodePacked(name)), keccak256(abi.encodePacked(type(BeaconProxy).creationCode, abi.encode(beaconAddress,''))));
-    }
-    
-    /// @notice send some ETH to the address that a SnickerdoodleWallet will be/is deployed to 
-    /// @param name the string used as the salt vault for the SnickerdoodleWallet
-    function sendValue(string memory name) external payable {
-        address SnickerdoodleWalletAddress;
-        
-        SnickerdoodleWalletAddress = Create2.computeAddress(keccak256(abi.encodePacked(name)), keccak256(type(SnickerdoodleWallet).creationCode));
-        
-        Address.sendValue(payable(SnickerdoodleWalletAddress), msg.value); 
+    function computeSnickerdoodleWalletProxyAddress(
+        string memory name
+    ) public view returns (address) {
+        return
+            Create2.computeAddress(
+                keccak256(abi.encodePacked(name)),
+                keccak256(
+                    abi.encodePacked(
+                        type(BeaconProxy).creationCode,
+                        abi.encode(beaconAddress, "")
+                    )
+                )
+            );
     }
 
     // Estimating the fee for a Smart Wallet deployment message
     function quoteClaimSnickerdoodleWalletOnDestinationChain(
-        uint32 _dstEid, 
-        address _owner, 
-        address _SnickerdoodleWalletAddress, 
+        uint32 _dstEid,
+        address _owner,
+        address _SnickerdoodleWalletAddress,
         bytes calldata _options
     ) external view returns (uint256 nativeFee, uint256 lzTokenFee) {
-        bytes memory messageData = abi.encode(_owner, _SnickerdoodleWalletAddress);
-        return quote(_dstEid, uint8(MessageType.ClaimSnickerdoodleWalletOnDestinationChain), messageData, _options, false);
+        bytes memory messageData = abi.encode(
+            _owner,
+            _SnickerdoodleWalletAddress
+        );
+        return
+            quote(
+                _dstEid,
+                uint8(MessageType.ClaimSnickerdoodleWalletOnDestinationChain),
+                messageData,
+                _options,
+                false
+            );
     }
 
     /// @dev Quotes the gas needed to pay for the full omnichain transaction.
@@ -178,17 +217,22 @@ contract SmartWalletFactory is OApp {
     /// @return nativeFee Estimated gas fee in native gas.
     /// @return lzTokenFee Estimated gas fee in ZRO token.
     function quote(
-        uint32 _dstEid, 
-        uint8 _messageType, 
-        bytes memory _messageData, 
-        bytes calldata _options, 
-        bool _payInLzToken 
+        uint32 _dstEid,
+        uint8 _messageType,
+        bytes memory _messageData,
+        bytes calldata _options,
+        bool _payInLzToken
     ) internal view returns (uint256 nativeFee, uint256 lzTokenFee) {
         // Prepare the message payload based on the message type
         bytes memory _payload = abi.encode(_messageType, _messageData);
 
         // Get the estimated fees
-        MessagingFee memory fee = _quote(_dstEid, _payload, _options, _payInLzToken);
+        MessagingFee memory fee = _quote(
+            _dstEid,
+            _payload,
+            _options,
+            _payInLzToken
+        );
         return (fee.nativeFee, fee.lzTokenFee);
     }
 
@@ -201,15 +245,20 @@ contract SmartWalletFactory is OApp {
         Origin calldata _origin,
         bytes32 _guid,
         bytes calldata _payload,
-        address,  // Executor address as specified by the OApp.
-        bytes calldata  // Any extra data or options to trigger on receipt.
+        address, // Executor address as specified by the OApp.
+        bytes calldata // Any extra data or options to trigger on receipt.
     ) internal override {
-
         // Decode the message type
-        (uint8 messageType, bytes memory messageData) = abi.decode(_payload, (uint8, bytes));
+        (uint8 messageType, bytes memory messageData) = abi.decode(
+            _payload,
+            (uint8, bytes)
+        );
 
         // Handle the message type accordingly
-        if (messageType == uint8(MessageType.ClaimSnickerdoodleWalletOnDestinationChain)) {
+        if (
+            messageType ==
+            uint8(MessageType.ClaimSnickerdoodleWalletOnDestinationChain)
+        ) {
             _handleClaimSnickerdoodleWalletOnDestinationChain(messageData);
         } else {
             revert("SmartWalletFactory: Unknown message type");
@@ -218,13 +267,19 @@ contract SmartWalletFactory is OApp {
 
     /// @notice Registers the owner of a deployed smart wallet that was deployed on the source chain
     /// @param messageData Data containing the owner and smart wallet address
-    function _handleClaimSnickerdoodleWalletOnDestinationChain(bytes memory messageData) internal {
-        
+    function _handleClaimSnickerdoodleWalletOnDestinationChain(
+        bytes memory messageData
+    ) internal {
         /// Decode the message
-        (address owner, address SnickerdoodleWalletAddress) = abi.decode(messageData, (address, address));
+        (
+            OperatorAndPoint memory operatorAndPoint,
+            address SnickerdoodleWalletAddress
+        ) = abi.decode(messageData, (OperatorAndPoint, address));
 
         /// Assign the deployed wallet to the owner
         /// After claiming on the destination chain, deploySnickerdoodleWalletUpgradeableBeacon will work for this owner and name combination
-        deployedSnickerdoodleWalletAddressToOwner[SnickerdoodleWalletAddress] = owner; 
+        deployedSnickerdoodleWalletAddressToOwner[
+            SnickerdoodleWalletAddress
+        ] = operatorAndPoint;
     }
 }
