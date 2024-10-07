@@ -31,4 +31,6 @@ export const ContractsAbis = {
   FarcasterIdRegistryAbi: FarcasterIdRegistryAbi,
   FarcasterKeyGatewayAbi: FarcasterKeyGatewayAbi,
   FarcasterKeyRegistryAbi: FarcasterKeyRegistryAbi,
+  SnickerdoodleWalletAbi: SnickerdoodleWalletAbi,
+  SnickerdoodleWalletFactoryAbi: SnickerdoodleWalletFactoryAbi,
 };
