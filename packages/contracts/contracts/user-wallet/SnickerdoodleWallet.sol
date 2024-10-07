@@ -17,8 +17,8 @@ contract SnickerdoodleWallet is Initializable {
     bytes32[] private userKeysHashList;
 
     /// @notice EVM addresses owned by the user
-    mapping(address => bool) private evmWallets;
-    address[] private evmWalletsList;
+    mapping(address => bool) private evmAccounts;
+    address[] private evmAccountsList;
 
     /// @notice address of operators allowed to relay P245 signatures to this contract
     mapping(address => bool) public operators;
@@ -33,9 +33,7 @@ contract SnickerdoodleWallet is Initializable {
         string keyId
     );
 
-    event EVMAddressAdded(
-        address indexed address
-    );
+    event EVMAccountAdded(address indexed account);
 
     struct P256Point {
         bytes32 x;
@@ -48,8 +46,8 @@ contract SnickerdoodleWallet is Initializable {
         _;
     }
 
-    modifier onlyUserEVMAddress() {
-        require(evmWallets[msg.sender], "only an owner can call this function");
+    modifier onlyUserEVMAccount() {
+        require(evmAccounts[msg.sender], "only an owner can call this function");
         _;
     }
 
@@ -58,7 +56,7 @@ contract SnickerdoodleWallet is Initializable {
         address operator,
         string calldata _keyId,
         bytes32 _qx,
-        bytes32 _qy,
+        bytes32 _qy
     ) public initializer {
         _addP256Key(_keyId, _qx, _qy);
     }
@@ -67,7 +65,7 @@ contract SnickerdoodleWallet is Initializable {
     /// @dev the client must sign an Uint8Array of the concatenated bytes of the keyId, and formated Qx and Qy coordinates
     /// @param _keyId the id of the signing key which is already added to this contract
     /// @param authenticatorData hex byte array of the authenticatorData object returned by webauthn api
-    /// @param clienDataJSONLeft the clientDataJSON contents to the left of the challenge value
+    /// @param clientDataJSONLeft the clientDataJSON contents to the left of the challenge value
     /// @param _newKeyId the key id of the new P256 key to be added to this wallet
     /// @param _qx the formatted, hex-encoded x-coordinate of the new P256 key
     /// @param _qy the formatted, hex-encoded y-coordinate of the new P256 key
@@ -75,20 +73,16 @@ contract SnickerdoodleWallet is Initializable {
     /// @param r the hex-encoded r component of the P256 signature
     /// @param s the hex-encoded s component of the P256 signature
     function addP256KeyWithP256Key(
-        string memory _keyId
+        string memory _keyId,
         bytes memory authenticatorData,
         string memory clientDataJSONLeft,
-        string calldata _newKeyId
+        string calldata _newKeyId,
         bytes32 _qx,
         bytes32 _qy,
         string memory clientDataJSONRight,
         bytes32 r,
         bytes32 s
     ) public {
-        require(
-            p256Keys[keccak256(abi.encodePacked(_newKeyId))].x == 0,
-            "P256 key aldready added"
-        );
         bytes memory challenge = abi.encodePacked(_newKeyId, _qx, _qy);
         require(
             _verifyP256(
@@ -109,8 +103,8 @@ contract SnickerdoodleWallet is Initializable {
     /// @dev the client must sign an Uint8Array representation of the target EVM address
     /// @param _keyId the id of the signing key which is already added to this contract
     /// @param authenticatorData hex byte array of the authenticatorData object returned by webauthn api
-    /// @param clienDataJSONLeft the clientDataJSON contents to the left of the challenge value
-    /// @param _evmKey the key which will be added to the user's known EVM address list
+    /// @param clientDataJSONLeft the clientDataJSON contents to the left of the challenge value
+    /// @param _evmAccount the key which will be added to the user's known EVM address list
     /// @param clientDataJSONRight the clientDataJSON contents to the right of the challenge value
     /// @param r the hex-encoded r component of the P256 signature
     /// @param s the hex-encoded s component of the P256 signature
@@ -118,7 +112,7 @@ contract SnickerdoodleWallet is Initializable {
         string calldata _keyId,
         bytes calldata authenticatorData,
         string calldata clientDataJSONLeft,
-        address _evmKey,
+        address _evmAccount,
         string calldata clientDataJSONRight,
         bytes32 r,
         bytes32 s
@@ -129,7 +123,7 @@ contract SnickerdoodleWallet is Initializable {
                 _keyId,
                 authenticatorData,
                 clientDataJSONLeft,
-                _addressToBase64URLString(_evmKey),
+                _addressToBase64URLString(_evmAccount),
                 clientDataJSONRight,
                 r,
                 s
@@ -137,22 +131,22 @@ contract SnickerdoodleWallet is Initializable {
             "Invalid P256 Signature"
         );
         // add the EVM address to the wallet
-        _addEVMAddress(_evmKey);
+        _addEVMAccount(_evmAccount);
     }
 
     /// @notice allows the owner to directly add a new EVM address through a known EVM address
-    /// @param _evmKey the address which will be added to the user's known EVM address list
-    function addEVMAddressWithEVMAddress(
-        address _evmKey
-    ) external onlyUserEVMAddress {
-        _addEVMAddress(_evmKey);
+    /// @param _evmAccount the address which will be added to the user's known EVM address list
+    function addEVMAccountWithEVMAccount(
+        address _evmAccount
+    ) external onlyUserEVMAccount {
+        _addEVMAccount(_evmAccount);
     }
 
     /// @notice withdraws any token held by (this) to the calling account
-    /// @param the contract address of the token to be transfered from this to the user's EVM Address
+    /// @param asset the contract address of the token to be transfered from this to the user's EVM Address
     function withdrawLocalERC20Asset(
         address asset
-    ) external onlyUserEVMAddress {
+    ) external onlyUserEVMAccount {
         // get the balance of this wallet
         uint256 myBalance = IERC20(asset).balanceOf(this);
         // send the balance to the user's evm address
@@ -160,24 +154,28 @@ contract SnickerdoodleWallet is Initializable {
     }
 
     /// @notice adds an EVM address to the user's wallet
-    function _addEVMAddress(address evmKey) private {
+    function _addEVMAccount(address evmAccount) private {
         // don't add an address that's already in the wallet
         require(
-            !evmWallets[evmKey],
+            !evmAccounts[evmAccount],
             "EVM address already added to the wallet"
         );
-        evmWallets[evmKey] = true;
-        evmWalletList.push(evmKey);
-        emit EVMAddressAdded(emvKey);
+        evmAccounts[evmAccount] = true;
+        evmAccountsList.push(evmAccount);
+        emit EVMAccountAdded(evmAccount);
     }
 
     /// @notice adds a P256 public key to the user's wallet
     function _addP256Key(
         string calldata _keyId,
         bytes32 _qx,
-        bytes32 _qy,
+        bytes32 _qy
     ) private {
         bytes32 keyHash = keccak256(abi.encodePacked(_keyId));
+        require(
+            p256Keys[keyHash].x == 0,
+            "P256 key aldready added"
+        );
         p256Keys[keyHash] = P256Point(uint256(_qx), uint256(_qy), _keyId);
         userKeysHashList.push(keyHash);
         emit P256KeyAdded(keyHash, _qx, _qy, _keyId);
