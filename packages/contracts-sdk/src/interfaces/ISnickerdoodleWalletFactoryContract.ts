@@ -5,13 +5,17 @@ import {
   TokenAmount,
   SnickerdoodleWalletFactoryContractError,
   LayerZeroEndpointId,
-  LayerZeroOptions,
+  InvalidParametersError,
+  PasskeyId,
+  PasskeyPublicKeyPointX,
+  PasskeyPublicKeyPointY,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import {
   ContractOverrides,
+  OperatorAndPoint,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
 
@@ -40,13 +44,15 @@ export interface ISnickerdoodleWalletFactoryContract extends IBaseContract {
     destinationChainEid: LayerZeroEndpointId,
   ): ResultAsync<
     EVMContractAddress,
-    SnickerdoodleWalletFactoryContractError | BlockchainCommonErrors
+    | SnickerdoodleWalletFactoryContractError
+    | BlockchainCommonErrors
+    | InvalidParametersError
   >;
 
   /**
    * Returns the computed smart wallet proxy address given a name
    */
-  computeSmartWalletProxyAddress(
+  computeSnickerdoodleWalletProxyAddress(
     name: string,
   ): ResultAsync<
     EVMContractAddress,
@@ -56,11 +62,14 @@ export interface ISnickerdoodleWalletFactoryContract extends IBaseContract {
   /**
    * Returns the native token amount in wei, of the cost to attach to the deploy function for layer zero
    */
-  quoteClaimSmartWalletOnDestinationChain(
+  quoteClaimSnickerdoodleWalletOnDestinationChain(
     destinationLayerZeroEndpointId: LayerZeroEndpointId,
-    owner: EVMAccountAddress,
+    operator: EVMAccountAddress | EVMContractAddress,
+    x: PasskeyPublicKeyPointX,
+    y: PasskeyPublicKeyPointY,
+    keyId: PasskeyId,
     smartWalletAddress: EVMContractAddress,
-    layerZeroOptions: string,
+    gas: bigint,
   ): ResultAsync<
     TokenAmount,
     SnickerdoodleWalletFactoryContractError | BlockchainCommonErrors
@@ -69,11 +78,11 @@ export interface ISnickerdoodleWalletFactoryContract extends IBaseContract {
   /**
    * Deploys the smart wallet
    */
-  deploySmartWalletUpgradeableBeacon(
-    layerZeroEndpointId: LayerZeroEndpointId,
+  deploySnickerdoodleWalletUpgradeableBeacon(
     name: string,
-    owner: EVMAccountAddress,
-    layerZeroOptions: LayerZeroOptions,
+    x: PasskeyPublicKeyPointX,
+    y: PasskeyPublicKeyPointY,
+    keyId: PasskeyId,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -84,10 +93,13 @@ export interface ISnickerdoodleWalletFactoryContract extends IBaseContract {
    * Sends a Layer Zero message to claim/lock the smart wallet address on the destination chain a given owner
    * Owner must have deployed the smart wallet on the source chain first
    */
-  claimSmartWalletOnDestinationChain(
+  claimSnickerdoodleWalletOnDestinationChain(
     destinationLayerZeroEndpointId: LayerZeroEndpointId,
     name: string,
-    owner: EVMAccountAddress,
+    x: PasskeyPublicKeyPointX,
+    y: PasskeyPublicKeyPointY,
+    keyId: PasskeyId,
+    gas: bigint,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -95,23 +107,12 @@ export interface ISnickerdoodleWalletFactoryContract extends IBaseContract {
   >;
 
   /**
-   * Returns the owner of the deployed smart wallet
+   * Returns the operator and point of the deployed smart wallet
    */
-  getDeployedSmartWalletAddressToOwner(
+  getSnickerdoodleWalletToOperatorOwnerPoint(
     smartWalletAddress: EVMContractAddress,
   ): ResultAsync<
-    EVMAccountAddress,
-    SnickerdoodleWalletFactoryContractError | BlockchainCommonErrors
-  >;
-
-  /**
-   * Returns the flag that tracks if an owner has deployed the specific smart wallet address on the given chain
-   */
-  getOwnerToDeployedSmartWalletAddressFlag(
-    owner: EVMAccountAddress,
-    smartWalletAddress: EVMContractAddress,
-  ): ResultAsync<
-    boolean,
+    OperatorAndPoint,
     SnickerdoodleWalletFactoryContractError | BlockchainCommonErrors
   >;
 }

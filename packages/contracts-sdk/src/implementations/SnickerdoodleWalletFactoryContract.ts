@@ -4,9 +4,11 @@ import {
   BlockchainCommonErrors,
   SnickerdoodleWalletFactoryContractError,
   LayerZeroEndpointId,
-  LayerZeroOptions,
   TokenAmount,
   InvalidParametersError,
+  PasskeyId,
+  PasskeyPublicKeyPointX,
+  PasskeyPublicKeyPointY,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -19,7 +21,7 @@ import {
   WrappedTransactionResponse,
   ISnickerdoodleWalletFactoryContract,
 } from "@contracts-sdk/interfaces/index.js";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
+import { ContractsAbis, OperatorAndPoint } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export class SnickerdoodleWalletFactoryContract
@@ -68,12 +70,14 @@ export class SnickerdoodleWalletFactoryContract
     destinationChainEid: LayerZeroEndpointId,
   ): ResultAsync<
     EVMContractAddress,
-    SnickerdoodleWalletFactoryContractError | BlockchainCommonErrors
+    | SnickerdoodleWalletFactoryContractError
+    | BlockchainCommonErrors
+    | InvalidParametersError
   > {
     return ResultAsync.fromPromise(
       this.contract.peers(destinationChainEid) as Promise<EVMContractAddress>,
       (e) => {
-        return this.generateError(e, "Unable to call beaconAddress()");
+        return this.generateError(e, "Unable to call peers()");
       },
     ).andThen((destinationChainContractAddress) => {
       if (destinationChainContractAddress == ethers.ZeroAddress) {
@@ -87,45 +91,51 @@ export class SnickerdoodleWalletFactoryContract
     });
   }
 
-  public computeSmartWalletProxyAddress(
+  public computeSnickerdoodleWalletProxyAddress(
     name: string,
   ): ResultAsync<
     EVMContractAddress,
     SnickerdoodleWalletFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.computeSmartWalletAddress(
+      this.contract.computeSnickerdoodleWalletProxyAddress(
         name,
       ) as Promise<EVMContractAddress>,
       (e) => {
         return this.generateError(
           e,
-          "Unable to call computeSmartWalletProxyAddress()",
+          "Unable to call computeSnickerdoodleWalletProxyAddress()",
         );
       },
     );
   }
 
-  public quoteClaimSmartWalletOnDestinationChain(
+  public quoteClaimSnickerdoodleWalletOnDestinationChain(
     destinationLayerZeroEndpointId: LayerZeroEndpointId,
-    owner: EVMAccountAddress,
+    operator: EVMAccountAddress | EVMContractAddress,
+    x: PasskeyPublicKeyPointX,
+    y: PasskeyPublicKeyPointY,
+    keyId: PasskeyId,
     smartWalletAddress: EVMContractAddress,
+    gas: bigint,
   ): ResultAsync<
     TokenAmount,
     SnickerdoodleWalletFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.quoteClaimSmartWalletOnDestinationChain(
+      this.contract.quoteClaimSnickerdoodleWalletOnDestinationChain(
         destinationLayerZeroEndpointId,
-        owner,
+        operator,
+        x,
+        y,
+        keyId,
         smartWalletAddress,
-        50000n, // A minimum gas value to carry out the handler function for the contract's _handleClaimSmartWalletOnDestinationChain()
-        false, // Option to pay in layer zero tokens, set to false for now, only pay in native token price
+        gas, // A minimum gas value to carry out the handler function for the contract's _handleClaimSmartWalletOnDestinationChain()
       ) as Promise<TokenAmount[]>,
       (e) => {
         return this.generateError(
           e,
-          "Unable to call quoteClaimSmartWalletOnDestinationChain()",
+          "Unable to call quoteClaimSnickerdoodleWalletOnDestinationChain()",
         );
       },
     ).map((quotedFee) => {
@@ -135,75 +145,57 @@ export class SnickerdoodleWalletFactoryContract
     });
   }
 
-  public deploySmartWalletUpgradeableBeacon(
-    layerZeroEndpointId: LayerZeroEndpointId,
+  public deploySnickerdoodleWalletUpgradeableBeacon(
     name: string,
-    owner: EVMAccountAddress,
-    layerZeroOptions: LayerZeroOptions,
+    x: PasskeyPublicKeyPointX,
+    y: PasskeyPublicKeyPointY,
+    keyId: PasskeyId,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | SnickerdoodleWalletFactoryContractError
   > {
     return this.writeToContract(
-      "deploySmartWalletUpgradeableBeacon",
-      [layerZeroEndpointId, name, owner, layerZeroOptions],
+      "deploySnickerdoodleWalletUpgradeableBeacon",
+      [name, x, y, keyId],
       overrides,
     );
   }
 
   // Value calculated from quote should be included in the contracts overrides
-  public claimSmartWalletOnDestinationChain(
+  public claimSnickerdoodleWalletOnDestinationChain(
     destinationLayerZeroEndpointId: LayerZeroEndpointId,
     name: string,
-    owner: EVMAccountAddress,
+    x: PasskeyPublicKeyPointX,
+    y: PasskeyPublicKeyPointY,
+    keyId: PasskeyId,
+    gas: bigint,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | SnickerdoodleWalletFactoryContractError
   > {
     return this.writeToContract(
-      "deploySmartWalletUpgradeableBeacon",
-      [destinationLayerZeroEndpointId, name, owner],
+      "claimSnickerdoodleWalletOnDestinationChain",
+      [destinationLayerZeroEndpointId, name, x, y, keyId, gas],
       overrides,
     );
   }
 
-  public getDeployedSmartWalletAddressToOwner(
+  public getSnickerdoodleWalletToOperatorOwnerPoint(
     smartWalletAddress: EVMContractAddress,
   ): ResultAsync<
-    EVMAccountAddress,
+    OperatorAndPoint,
     SnickerdoodleWalletFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.deployedSmartWalletAddressToOwner(
+      this.contract.getSnickerdoodleWalletToOperatorOwnerPoint(
         smartWalletAddress,
-      ) as Promise<EVMAccountAddress>,
+      ) as Promise<OperatorAndPoint>,
       (e) => {
         return this.generateError(
           e,
-          "Unable to call deployedSmartWalletAddressToOwner()",
-        );
-      },
-    );
-  }
-
-  public getOwnerToDeployedSmartWalletAddressFlag(
-    owner: EVMAccountAddress,
-    smartWalletAddress: EVMContractAddress,
-  ): ResultAsync<
-    boolean,
-    SnickerdoodleWalletFactoryContractError | BlockchainCommonErrors
-  > {
-    return ResultAsync.fromPromise(
-      this.contract.ownerToDeployedSmartWalletAddressFlag(
-        owner,
-        smartWalletAddress,
-      ) as Promise<boolean>,
-      (e) => {
-        return this.generateError(
-          e,
-          "Unable to call ownerToDeployedSmartWalletAddressFlag()",
+          "Unable to call getSnickerdoodleWalletToOperatorOwnerPoint()",
         );
       },
     );
@@ -216,13 +208,4 @@ export class SnickerdoodleWalletFactoryContract
   ): SnickerdoodleWalletFactoryContractError {
     return new SnickerdoodleWalletFactoryContractError(msg, e, transaction);
   }
-
-  public filters = {
-    Transfer: (
-      fromAddress: EVMAccountAddress | null,
-      toAddress: EVMAccountAddress | null,
-    ): ethers.DeferredTopicFilter => {
-      return this.contract.filters.Transfer(fromAddress, toAddress);
-    },
-  };
 }

@@ -3,13 +3,12 @@ import {
   EVMContractAddress,
   BlockchainCommonErrors,
   SnickerdoodleWalletContractError,
-  TokenAmount,
-  TokenId,
   PasskeyId,
-  JSONString,
   HexString32,
+  PasskeyPublicKeyPointX,
+  PasskeyPublicKeyPointY,
 } from "@snickerdoodlelabs/objects";
-import { BytesLike, ethers } from "ethers";
+import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -20,7 +19,10 @@ import {
   WrappedTransactionResponse,
   ISnickerdoodleWalletContract,
 } from "@contracts-sdk/interfaces/index.js";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
+import {
+  AuthenticatorData,
+  ContractsAbis,
+} from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export class SnickerdoodleWalletContract
@@ -54,12 +56,10 @@ export class SnickerdoodleWalletContract
 
   public addP256KeyWithP256Key(
     keyId: PasskeyId,
-    authenticatorData: BytesLike,
-    clientDataJSONLeft: JSONString,
+    authenticatorData: AuthenticatorData,
     newKeyId: PasskeyId,
-    qx: HexString32,
-    qy: HexString32,
-    clientDataJSONRight: JSONString,
+    x: PasskeyPublicKeyPointX,
+    y: PasskeyPublicKeyPointY,
     r: HexString32,
     s: HexString32,
     overrides?: ContractOverrides,
@@ -69,27 +69,15 @@ export class SnickerdoodleWalletContract
   > {
     return this.writeToContract(
       "addP256KeyWithP256Key",
-      [
-        keyId,
-        authenticatorData,
-        clientDataJSONLeft,
-        newKeyId,
-        qx,
-        qy,
-        clientDataJSONRight,
-        r,
-        s,
-      ],
+      [keyId, authenticatorData, newKeyId, x, y, r, s],
       overrides,
     );
   }
 
-  public addEMVAddressWithP256Key(
+  public addEVMAddressWithP256Key(
     keyId: PasskeyId,
-    authenticatorData: BytesLike,
-    clientDataJSONLeft: JSONString,
+    authenticatorData: AuthenticatorData,
     evmAccount: EVMAccountAddress | EVMContractAddress,
-    clientDataJSONRight: JSONString,
     r: HexString32,
     s: HexString32,
     overrides?: ContractOverrides,
@@ -99,15 +87,7 @@ export class SnickerdoodleWalletContract
   > {
     return this.writeToContract(
       "addEMVAddressWithP256Key",
-      [
-        keyId,
-        authenticatorData,
-        clientDataJSONLeft,
-        evmAccount,
-        clientDataJSONRight,
-        r,
-        s,
-      ],
+      [keyId, authenticatorData, evmAccount, r, s],
       overrides,
     );
   }
@@ -147,13 +127,4 @@ export class SnickerdoodleWalletContract
   ): SnickerdoodleWalletContractError {
     return new SnickerdoodleWalletContractError(msg, e, transaction);
   }
-
-  public filters = {
-    Transfer: (
-      fromAddress: EVMAccountAddress | null,
-      toAddress: EVMAccountAddress | null,
-    ): ethers.DeferredTopicFilter => {
-      return this.contract.filters.Transfer(fromAddress, toAddress);
-    },
-  };
 }

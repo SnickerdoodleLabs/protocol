@@ -13,6 +13,8 @@ import FarcasterKeyRegistryAbi from "@contracts-sdk/interfaces/objects/abi/Farca
 import OFT20RewardAbi from "@contracts-sdk/interfaces/objects/abi/OFT20RewardAbi.js";
 import ONFT721RewardAbi from "@contracts-sdk/interfaces/objects/abi/ONFT721RewardAbi.js";
 import QuestionnairesAbi from "@contracts-sdk/interfaces/objects/abi/QuestionnairesAbi.js";
+import SnickerdoodleWalletAbi from "@contracts-sdk/interfaces/objects/abi/SnickerdoodleWalletAbi.js";
+import SnickerdoodleWalletFactoryAbi from "@contracts-sdk/interfaces/objects/abi/SnickerdoodleWalletFactoryAbi.js";
 import ZkSyncERC721RewardAbi from "@contracts-sdk/interfaces/objects/abi/ZkSyncERC721RewardAbi.js";
 
 export const ContractsAbis = {
