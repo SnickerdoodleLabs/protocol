@@ -26,6 +26,12 @@ contract SnickerdoodleWallet is Initializable {
     /// @notice used P256 message hashes
     mapping(bytes32 => bool) public hashDump;
 
+    struct AuthenticatorData {
+        bytes authenticatorData;
+        string clientDataJSONLeft;
+        string clientDataJSONRight;
+    }
+
     event P256KeyAdded(
         bytes32 indexed keyhash,
         bytes32 qx,
@@ -62,24 +68,20 @@ contract SnickerdoodleWallet is Initializable {
     }
 
     /// @notice authorizes the addition of a new P256 key via an existing P256 key
-    /// @dev the client must sign an Uint8Array of the concatenated bytes of the keyId, and formated Qx and Qy coordinates
+    /// @dev the client must sign an Uint8Array of the concatenated bytes of the keyId, and formatted Qx and Qy coordinates
     /// @param _keyId the id of the signing key which is already added to this contract
-    /// @param authenticatorData hex byte array of the authenticatorData object returned by webauthn api
-    /// @param clientDataJSONLeft the clientDataJSON contents to the left of the challenge value
+    /// @param authenticatorData struct containing the authenticatorData, clientDataJSONLeft, and clientDataJSONRight
     /// @param _newKeyId the key id of the new P256 key to be added to this wallet
     /// @param _qx the formatted, hex-encoded x-coordinate of the new P256 key
     /// @param _qy the formatted, hex-encoded y-coordinate of the new P256 key
-    /// @param clientDataJSONRight the clientDataJSON contents to the right of the challenge value
     /// @param r the hex-encoded r component of the P256 signature
     /// @param s the hex-encoded s component of the P256 signature
     function addP256KeyWithP256Key(
-        string memory _keyId,
-        bytes memory authenticatorData,
-        string memory clientDataJSONLeft,
+        string calldata _keyId,
+        AuthenticatorData calldata authenticatorData,
         string calldata _newKeyId,
         bytes32 _qx,
         bytes32 _qy,
-        string memory clientDataJSONRight,
         bytes32 r,
         bytes32 s
     ) public {
@@ -87,10 +89,10 @@ contract SnickerdoodleWallet is Initializable {
         require(
             _verifyP256(
                 _keyId,
-                authenticatorData,
-                clientDataJSONLeft,
-                Base64.ecodeURL(challenge),
-                clientDataJSONRight,
+                authenticatorData.authenticatorData,
+                authenticatorData.clientDataJSONLeft,
+                Base64.encodeURL(challenge),
+                authenticatorData.clientDataJSONRight,
                 r,
                 s
             ),
@@ -102,18 +104,14 @@ contract SnickerdoodleWallet is Initializable {
     /// @notice authorizes the addition of an EVM address via a P256 signature
     /// @dev the client must sign an Uint8Array representation of the target EVM address
     /// @param _keyId the id of the signing key which is already added to this contract
-    /// @param authenticatorData hex byte array of the authenticatorData object returned by webauthn api
-    /// @param clientDataJSONLeft the clientDataJSON contents to the left of the challenge value
+    /// @param authenticatorData struct containing the authenticatorData, clientDataJSONLeft, and clientDataJSONRight
     /// @param _evmAccount the key which will be added to the user's known EVM address list
-    /// @param clientDataJSONRight the clientDataJSON contents to the right of the challenge value
     /// @param r the hex-encoded r component of the P256 signature
     /// @param s the hex-encoded s component of the P256 signature
-    function addEMVAddressWithP256Key(
+    function addEVMAddressWithP256Key(
         string calldata _keyId,
-        bytes calldata authenticatorData,
-        string calldata clientDataJSONLeft,
+        AuthenticatorData calldata authenticatorData,
         address _evmAccount,
-        string calldata clientDataJSONRight,
         bytes32 r,
         bytes32 s
     ) external {
@@ -121,10 +119,10 @@ contract SnickerdoodleWallet is Initializable {
         require(
             _verifyP256(
                 _keyId,
-                authenticatorData,
-                clientDataJSONLeft,
+                authenticatorData.authenticatorData,
+                authenticatorData.clientDataJSONLeft,
                 _addressToBase64URLString(_evmAccount),
-                clientDataJSONRight,
+                authenticatorData.clientDataJSONRight,
                 r,
                 s
             ),
@@ -143,12 +141,12 @@ contract SnickerdoodleWallet is Initializable {
     }
 
     /// @notice withdraws any token held by (this) to the calling account
-    /// @param asset the contract address of the token to be transfered from this to the user's EVM Address
+    /// @param asset the contract address of the token to be transferred from this to the user's EVM Address
     function withdrawLocalERC20Asset(
         address asset
     ) external onlyUserEVMAccount {
         // get the balance of this wallet
-        uint256 myBalance = IERC20(asset).balanceOf(this);
+        uint256 myBalance = IERC20(asset).balanceOf(address(this));
         // send the balance to the user's evm address
         IERC20(asset).transfer(msg.sender, myBalance);
     }
@@ -176,7 +174,7 @@ contract SnickerdoodleWallet is Initializable {
             p256Keys[keyHash].x == 0,
             "P256 key aldready added"
         );
-        p256Keys[keyHash] = P256Point(uint256(_qx), uint256(_qy), _keyId);
+        p256Keys[keyHash] = P256Point(_qx, _qy, _keyId);
         userKeysHashList.push(keyHash);
         emit P256KeyAdded(keyHash, _qx, _qy, _keyId);
     }
@@ -187,7 +185,7 @@ contract SnickerdoodleWallet is Initializable {
         string calldata _keyId,
         bytes calldata authenticatorData,
         string calldata clientDataJSONLeft,
-        string calldata challenge,
+        string memory challenge,
         string calldata clientDataJSONRight,
         bytes32 r,
         bytes32 s
@@ -208,7 +206,8 @@ contract SnickerdoodleWallet is Initializable {
             s = bytes32(us);
         }
 
-        P256Point memory p256Key = p256Keys[keccak256(abi.encodePacked(_keyId))];
+        bytes32 keyHash = keccak256(abi.encodePacked(_keyId));
+        P256Point memory p256Key = p256Keys[keyHash];
         return P256.verify(h, r, s, p256Key.x, p256Key.y);
     }
 
