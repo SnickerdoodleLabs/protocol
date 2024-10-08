@@ -26,6 +26,12 @@ contract SnickerdoodleWallet is Initializable {
     /// @notice used P256 message hashes
     mapping(bytes32 => bool) public hashDump;
 
+     struct AuthenticatorData {
+        bytes authenticatorData;
+        string clientDataJSONLeft;
+        string clientDataJSONRight;
+    }
+
     event P256KeyAdded(
         bytes32 indexed keyhash,
         bytes32 qx,
@@ -64,22 +70,18 @@ contract SnickerdoodleWallet is Initializable {
     /// @notice authorizes the addition of a new P256 key via an existing P256 key
     /// @dev the client must sign an Uint8Array of the concatenated bytes of the keyId, and formated Qx and Qy coordinates
     /// @param _keyId the id of the signing key which is already added to this contract
-    /// @param authenticatorData hex byte array of the authenticatorData object returned by webauthn api
-    /// @param clientDataJSONLeft the clientDataJSON contents to the left of the challenge value
+    /// @param authenticatorData struct containing the authenticatorData, clientDataJSONLeft, and clientDataJSONRight
     /// @param _newKeyId the key id of the new P256 key to be added to this wallet
     /// @param _qx the formatted, hex-encoded x-coordinate of the new P256 key
     /// @param _qy the formatted, hex-encoded y-coordinate of the new P256 key
-    /// @param clientDataJSONRight the clientDataJSON contents to the right of the challenge value
     /// @param r the hex-encoded r component of the P256 signature
     /// @param s the hex-encoded s component of the P256 signature
     function addP256KeyWithP256Key(
         string calldata _keyId,
-        bytes calldata authenticatorData,
-        string calldata clientDataJSONLeft,
+        AuthenticatorData calldata authenticatorData,
         string calldata _newKeyId,
         bytes32 _qx,
         bytes32 _qy,
-        string calldata clientDataJSONRight,
         bytes32 r,
         bytes32 s
     ) public {
@@ -87,10 +89,10 @@ contract SnickerdoodleWallet is Initializable {
         require(
             _verifyP256(
                 _keyId,
-                authenticatorData,
-                clientDataJSONLeft,
+                authenticatorData.authenticatorData,
+                authenticatorData.clientDataJSONLeft,
                 Base64.encodeURL(challenge),
-                clientDataJSONRight,
+                authenticatorData.clientDataJSONRight,
                 r,
                 s
             ),
@@ -102,18 +104,14 @@ contract SnickerdoodleWallet is Initializable {
     /// @notice authorizes the addition of an EVM address via a P256 signature
     /// @dev the client must sign an Uint8Array representation of the target EVM address
     /// @param _keyId the id of the signing key which is already added to this contract
-    /// @param authenticatorData hex byte array of the authenticatorData object returned by webauthn api
-    /// @param clientDataJSONLeft the clientDataJSON contents to the left of the challenge value
+    /// @param authenticatorData struct containing the authenticatorData, clientDataJSONLeft, and clientDataJSONRight
     /// @param _evmAccount the key which will be added to the user's known EVM address list
-    /// @param clientDataJSONRight the clientDataJSON contents to the right of the challenge value
     /// @param r the hex-encoded r component of the P256 signature
     /// @param s the hex-encoded s component of the P256 signature
     function addEMVAddressWithP256Key(
         string calldata _keyId,
-        bytes calldata authenticatorData,
-        string calldata clientDataJSONLeft,
+        AuthenticatorData calldata authenticatorData,
         address _evmAccount,
-        string calldata clientDataJSONRight,
         bytes32 r,
         bytes32 s
     ) external {
@@ -121,10 +119,10 @@ contract SnickerdoodleWallet is Initializable {
         require(
             _verifyP256(
                 _keyId,
-                authenticatorData,
-                clientDataJSONLeft,
+                authenticatorData.authenticatorData,
+                authenticatorData.clientDataJSONLeft,
                 _addressToBase64URLString(_evmAccount),
-                clientDataJSONRight,
+                authenticatorData.clientDataJSONRight,
                 r,
                 s
             ),
