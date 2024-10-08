@@ -26,7 +26,7 @@ contract SnickerdoodleWallet is Initializable {
     /// @notice used P256 message hashes
     mapping(bytes32 => bool) public hashDump;
 
-     struct AuthenticatorData {
+    struct AuthenticatorData {
         bytes authenticatorData;
         string clientDataJSONLeft;
         string clientDataJSONRight;
@@ -68,7 +68,7 @@ contract SnickerdoodleWallet is Initializable {
     }
 
     /// @notice authorizes the addition of a new P256 key via an existing P256 key
-    /// @dev the client must sign an Uint8Array of the concatenated bytes of the keyId, and formated Qx and Qy coordinates
+    /// @dev the client must sign an Uint8Array of the concatenated bytes of the keyId, and formatted Qx and Qy coordinates
     /// @param _keyId the id of the signing key which is already added to this contract
     /// @param authenticatorData struct containing the authenticatorData, clientDataJSONLeft, and clientDataJSONRight
     /// @param _newKeyId the key id of the new P256 key to be added to this wallet
@@ -108,7 +108,7 @@ contract SnickerdoodleWallet is Initializable {
     /// @param _evmAccount the key which will be added to the user's known EVM address list
     /// @param r the hex-encoded r component of the P256 signature
     /// @param s the hex-encoded s component of the P256 signature
-    function addEMVAddressWithP256Key(
+    function addEVMAddressWithP256Key(
         string calldata _keyId,
         AuthenticatorData calldata authenticatorData,
         address _evmAccount,
@@ -141,7 +141,7 @@ contract SnickerdoodleWallet is Initializable {
     }
 
     /// @notice withdraws any token held by (this) to the calling account
-    /// @param asset the contract address of the token to be transfered from this to the user's EVM Address
+    /// @param asset the contract address of the token to be transferred from this to the user's EVM Address
     function withdrawLocalERC20Asset(
         address asset
     ) external onlyUserEVMAccount {
