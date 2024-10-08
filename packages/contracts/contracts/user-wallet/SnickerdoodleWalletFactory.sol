@@ -20,7 +20,7 @@ contract SnickerdoodleWalletFactory is OApp {
         ClaimSnickerdoodleWalletOnDestinationChain
     }
 
-    /// @notice Emitted when a smart wallet proxy contract is deployed
+    /// @notice Emitted when a Snickerdoodle wallet proxy contract is deployed
     event SnickerdoodleWalletCreated(address SnickerdoodleWallet);
 
     /// @notice The address of the beacon should never change for this upgrade pattern
@@ -29,11 +29,12 @@ contract SnickerdoodleWalletFactory is OApp {
     /// @notice  Flag if this SnickerdoodleWallet factory is the source chain
     bool public isSourceChain;
 
-    /// @notice Tracks a deployed smart wallet proxy address to an owner
+    /// @notice Tracks a deployed Snickerdoodle wallet proxy address to an owner
     /// @dev Functions as a claim lock, confirming that the user has deployed it on the source chain and claimed it on the destination chain
     mapping(address => OperatorAndPoint)
         public deployedSnickerdoodleWalletAddressToOwner;
 
+    /// @notice Struct to hold the operator, x, y, and keyId of the passkey for a Snickerdoodle wallet
     struct OperatorAndPoint {
         address operator;
         bytes32 x;
@@ -83,13 +84,13 @@ contract SnickerdoodleWalletFactory is OApp {
         bytes32 _qy,
         string calldata _keyId
     ) public payable returns (address) {
-        /// If called on a destination chain, check that the owner has created the smart wallet on the source chain
+        /// If called on a destination chain, check that the owner has created the Snickerdoodle wallet on the source chain
         if (!isSourceChain) {
             require(
                 deployedSnickerdoodleWalletAddressToOwner[
                     computeSnickerdoodleWalletProxyAddress(_name)
                 ].operator == msg.sender,
-                "SmartWalletFactory: Smart wallet with selected name has not been created on the source chain"
+                "SnickerdoodleWalletFactory: Snickerdoodle wallet with selected name has not been created on the source chain"
             );
         }
 
@@ -119,7 +120,7 @@ contract SnickerdoodleWalletFactory is OApp {
         return address(proxy);
     }
 
-    /// @notice Sends a message from the source to the destination chain to claim a smart wallet address.
+    /// @notice Sends a message from the source to the destination chain to claim a Snickerdoodle wallet address.
     /// @dev Call quoteClaimSnickerdoodleWalletOnDestinationChain() and include it's fee value as part of the msg.value for this function
     /// @dev If the destination chain has not been set as a peer contract, it will error NoPeer(_destinationChainEID)
     /// @param _destinationChainEID Layer Zero Endpoint id for the target destination chain
@@ -138,10 +139,10 @@ contract SnickerdoodleWalletFactory is OApp {
     ) external payable returns (address) {
         require(
             isSourceChain,
-            "SmartWalletFactory: Smart wallet only claimable via source chain"
+            "SnickerdoodleWalletFactory: Snickerdoodle wallet only claimable via source chain"
         );
 
-        /// Compute the smart wallet proxy address
+        /// Compute the Snickerdoodle wallet proxy address
         address proxy = computeSnickerdoodleWalletProxyAddress(_name);
 
         /// Encodes the message before invoking _lzSend.
@@ -191,7 +192,7 @@ contract SnickerdoodleWalletFactory is OApp {
             );
     }
 
-    // Estimating the fee for a Smart Wallet deployment message
+    /// @notice Estimating the fee for to send a message to claim a Snickerdoodle wallet on destination chain
     function quoteClaimSnickerdoodleWalletOnDestinationChain(
         uint32 _dstEid,
         bytes32 _qx,
@@ -214,10 +215,15 @@ contract SnickerdoodleWalletFactory is OApp {
             );
     }
 
+    /// @notice Returns the information of the owner of a deployed snickerdoodle wallet
+    function getSnickerdoodleWalletToOperatorOwnerPoint(address _snickerdoodleWalletAddress) external view returns (OperatorAndPoint memory) {
+        return deployedSnickerdoodleWalletAddressToOwner[_snickerdoodleWalletAddress];
+    }
+
     /// @dev Quotes the gas needed to pay for the full omnichain transaction.
     /// @param _dstEid Destination chain's endpoint ID.
     /// @param _messageType Message type
-    /// @param _messageData Smart wallet address
+    /// @param _messageData Message being passed by LayerZero.
     /// @param _options Message execution options (e.g., for sending gas to destination).
     /// @param _payInLzToken To pay in LZ token or not
     /// @return nativeFee Estimated gas fee in native gas.
@@ -267,12 +273,12 @@ contract SnickerdoodleWalletFactory is OApp {
         ) {
             _handleClaimSnickerdoodleWalletOnDestinationChain(messageData);
         } else {
-            revert("SmartWalletFactory: Unknown message type");
+            revert("SnickerdoodleWalletFactory: Unknown message type");
         }
     }
 
-    /// @notice Registers the owner of a deployed smart wallet that was deployed on the source chain
-    /// @param messageData Data containing the owner and smart wallet address
+    /// @notice Registers the owner of a deployed Snickerdoodle wallet that was deployed on the source chain
+    /// @param messageData Data containing the owner details and Snickerdoodle wallet address
     function _handleClaimSnickerdoodleWalletOnDestinationChain(
         bytes memory messageData
     ) internal {
