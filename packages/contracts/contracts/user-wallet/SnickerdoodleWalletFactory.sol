@@ -11,7 +11,7 @@ import {OApp, Origin, MessagingFee} from "@layerzerolabs/lz-evm-oapp-v2/contract
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {OptionsBuilder} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/libs/OptionsBuilder.sol";
 
-contract SmartWalletFactory is OApp {
+contract SnickerdoodleWalletFactory is OApp {
     /// @notice Layer Zero's option to support building the options param within the contract
     using OptionsBuilder for bytes;
 
@@ -124,14 +124,20 @@ contract SmartWalletFactory is OApp {
     /// @dev If the destination chain has not been set as a peer contract, it will error NoPeer(_destinationChainEID)
     /// @param _destinationChainEID Layer Zero Endpoint id for the target destination chain
     /// @param _name a string used to name the SnickerdoodleWallet deployed to make it easy to look up (hashed to create salt)
-    /// @param _owner an address that will own the SnickerdoodleWallet contract
+    /// @param _operator an address that is the operator of the SnickerdoodleWallet contract
+    /// @param _qx the x coordinate of the P256 coordinate
+    /// @param _qy the y coordinate of the P256 coordinate
+    /// @param _keyId a string identifier for the P256 key
     /// @param _gas Gas for message execution options, refer to : https://docs.layerzero.network/v2/developers/evm/oapp/overview#message-execution-options
     function claimSnickerdoodleWalletOnDestinationChain(
         uint32 _destinationChainEID,
         string memory _name,
-        address payable _owner,
+        address _operator, //TODO: check if this needs to be msg.sender? similar to deploy
+        bytes32 _qx, 
+        bytes32 _qy,
+        string calldata _keyId, 
         uint128 _gas
-    ) public payable returns (address) {
+    ) external payable returns (address) {
         require(
             isSourceChain,
             "SmartWalletFactory: Smart wallet only claimable via source chain"
@@ -143,7 +149,7 @@ contract SmartWalletFactory is OApp {
         /// Encodes the message before invoking _lzSend.
         bytes memory _payload = abi.encode(
             uint8(MessageType.ClaimSnickerdoodleWalletOnDestinationChain),
-            abi.encode(_owner, proxy)
+            abi.encode(OperatorAndPoint(_operator, _qx, _qy, _keyId), proxy)
         );
 
         /// Send a message to layer zero to the destination chain
@@ -190,14 +196,17 @@ contract SmartWalletFactory is OApp {
     // Estimating the fee for a Smart Wallet deployment message
     function quoteClaimSnickerdoodleWalletOnDestinationChain(
         uint32 _dstEid,
-        address _owner,
-        address _SnickerdoodleWalletAddress,
+        address _operator,
+        bytes32 _qx,
+        bytes32 _qy,
+        string calldata _keyId,
+        address _snickerdoodleWalletAddress,
         bytes calldata _options
     ) external view returns (uint256 nativeFee, uint256 lzTokenFee) {
-        bytes memory messageData = abi.encode(
-            _owner,
-            _SnickerdoodleWalletAddress
+        bytes memory messageData = abi.encode(OperatorAndPoint(_operator, _qx, _qy, _keyId),
+            _snickerdoodleWalletAddress
         );
+
         return
             quote(
                 _dstEid,
