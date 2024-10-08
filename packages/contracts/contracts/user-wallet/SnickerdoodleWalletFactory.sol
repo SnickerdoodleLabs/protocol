@@ -201,7 +201,7 @@ contract SnickerdoodleWalletFactory is OApp {
         bytes32 _qy,
         string calldata _keyId,
         address _snickerdoodleWalletAddress,
-        bytes calldata _options
+        uint128 _gas
     ) external view returns (uint256 nativeFee, uint256 lzTokenFee) {
         bytes memory messageData = abi.encode(OperatorAndPoint(_operator, _qx, _qy, _keyId),
             _snickerdoodleWalletAddress
@@ -212,7 +212,7 @@ contract SnickerdoodleWalletFactory is OApp {
                 _dstEid,
                 uint8(MessageType.ClaimSnickerdoodleWalletOnDestinationChain),
                 messageData,
-                _options,
+                OptionsBuilder.newOptions().addExecutorLzReceiveOption(_gas, 0),
                 false
             );
     }
@@ -229,7 +229,7 @@ contract SnickerdoodleWalletFactory is OApp {
         uint32 _dstEid,
         uint8 _messageType,
         bytes memory _messageData,
-        bytes calldata _options,
+        bytes memory _options,
         bool _payInLzToken
     ) internal view returns (uint256 nativeFee, uint256 lzTokenFee) {
         // Prepare the message payload based on the message type
