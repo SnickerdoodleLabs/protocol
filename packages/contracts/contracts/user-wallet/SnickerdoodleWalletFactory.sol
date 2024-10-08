@@ -124,7 +124,6 @@ contract SnickerdoodleWalletFactory is OApp {
     /// @dev If the destination chain has not been set as a peer contract, it will error NoPeer(_destinationChainEID)
     /// @param _destinationChainEID Layer Zero Endpoint id for the target destination chain
     /// @param _name a string used to name the SnickerdoodleWallet deployed to make it easy to look up (hashed to create salt)
-    /// @param _operator an address that is the operator of the SnickerdoodleWallet contract
     /// @param _qx the x coordinate of the P256 coordinate
     /// @param _qy the y coordinate of the P256 coordinate
     /// @param _keyId a string identifier for the P256 key
@@ -132,7 +131,6 @@ contract SnickerdoodleWalletFactory is OApp {
     function claimSnickerdoodleWalletOnDestinationChain(
         uint32 _destinationChainEID,
         string memory _name,
-        address _operator, //TODO: check if this needs to be msg.sender? similar to deploy
         bytes32 _qx, 
         bytes32 _qy,
         string calldata _keyId, 
@@ -149,7 +147,7 @@ contract SnickerdoodleWalletFactory is OApp {
         /// Encodes the message before invoking _lzSend.
         bytes memory _payload = abi.encode(
             uint8(MessageType.ClaimSnickerdoodleWalletOnDestinationChain),
-            abi.encode(OperatorAndPoint(_operator, _qx, _qy, _keyId), proxy)
+            abi.encode(OperatorAndPoint(msg.sender, _qx, _qy, _keyId), proxy)
         );
 
         /// Send a message to layer zero to the destination chain
@@ -196,14 +194,13 @@ contract SnickerdoodleWalletFactory is OApp {
     // Estimating the fee for a Smart Wallet deployment message
     function quoteClaimSnickerdoodleWalletOnDestinationChain(
         uint32 _dstEid,
-        address _operator,
         bytes32 _qx,
         bytes32 _qy,
         string calldata _keyId,
         address _snickerdoodleWalletAddress,
         uint128 _gas
     ) external view returns (uint256 nativeFee, uint256 lzTokenFee) {
-        bytes memory messageData = abi.encode(OperatorAndPoint(_operator, _qx, _qy, _keyId),
+        bytes memory messageData = abi.encode(OperatorAndPoint(msg.sender, _qx, _qy, _keyId),
             _snickerdoodleWalletAddress
         );
 
@@ -282,13 +279,13 @@ contract SnickerdoodleWalletFactory is OApp {
         /// Decode the message
         (
             OperatorAndPoint memory operatorAndPoint,
-            address SnickerdoodleWalletAddress
+            address snickerdoodleWalletAddress
         ) = abi.decode(messageData, (OperatorAndPoint, address));
 
         /// Assign the deployed wallet to the owner
         /// After claiming on the destination chain, deploySnickerdoodleWalletUpgradeableBeacon will work for this owner and name combination
         deployedSnickerdoodleWalletAddressToOwner[
-            SnickerdoodleWalletAddress
+            snickerdoodleWalletAddress
         ] = operatorAndPoint;
     }
 }
