@@ -182,7 +182,7 @@ contract SnickerdoodleWallet is Initializable {
         bytes32 keyHash = keccak256(abi.encodePacked(_keyId));
         require(
             p256Keys[keyHash].x == 0,
-            "P256 key aldready added"
+            "P256 key already added"
         );
         p256Keys[keyHash] = P256Point(_qx, _qy, _keyId);
         userKeysHashList.push(keyHash);
