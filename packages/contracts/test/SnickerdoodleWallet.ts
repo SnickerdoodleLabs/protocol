@@ -33,24 +33,38 @@ describe("SnickerdoodleWallet", function () {
   // and reset Hardhat Network to that snapshot in every test.
   async function deploySnickerdoodleWallet() {
     // Contracts are deployed using the first signer/account by default
-    const [owner, otherAccount] = await hre.viem.getWalletClients();
+    const [owner, otherAccount] = await hre.ethers.getSigners();
 
-    const sdwallet = await hre.viem.deployContract("SnickerdoodleWallet", []);
-    await sdwallet.write.initialize(owner.account.address, KEYID, QX, QY);
-
-    const publicClient = await hre.viem.getPublicClient();
+    const sdwallet = await hre.ethers.deployContract("SnickerdoodleWallet", []);
+    await sdwallet.initialize(owner.address, KEYID, QX, QY);
 
     return {
       sdwallet,
       owner,
       otherAccount,
-      publicClient,
     };
   }
 
   describe("Deployment", function () {
     it("Should verify a P256 signature", async function () {
       const { sdwallet, owner } = await loadFixture(deploySnickerdoodleWallet);
+
+      // This function should pass without throwing an error to pass P256 verification
+      await expect(
+        sdwallet.addEVMAddressWithP256Key(
+          KEYID,
+          {
+            authenticatorData: AUTH_DATA_BYTES,
+            clientDataJSONLeft: CLIENT_DATA_JSON_LEFT,
+            clientDataJSONRight: CLIENT_DATA_JSON_RIGHT,
+          },
+          CHALLENGE,
+          R_VALUE,
+          S_VALUE,
+        ),
+      )
+        .to.emit(sdwallet, "EVMAddressAdded")
+        .withArgs(CHALLENGE);
     });
   });
 });
