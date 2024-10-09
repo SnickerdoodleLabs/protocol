@@ -6,24 +6,23 @@ import { expect } from "chai";
 import hre from "hardhat";
 import { getAddress, parseGwei } from "viem";
 
-const KEYID = "89NRb6h8Q_tT4Kk0wlaX1w";
-const QX = "0xfb0e3ec7b21e63fb65950b5536458c3477e4c25b28ada57ac7e694d512aeec50";
-const QY = "0x3a0e44fe2117bbc15ce5f449638143c7997dad35397af5ad090e294fd0a4ca63";
+const KEYID = "abc123";
+const QX = "0x91bb3be0106203c6877db6a2c65a87e725e3c741dfb4e16e39500cdeb9aab4bf";
+const QY = "0xef8fbbbd1e8ebd360a5f5926087c1c9504c5242ab14a19039d3986049f935bde";
 
 const R_VALUE =
-  "0x4ac1f2abb8e63185d578d7866e3a5239306b9f28e4f91ec0cecd16df07805050";
+  "0xed38e18c1f51e89955af377177a7baeab24340c200d3d80d5cc24ef49021c7ea";
 const S_VALUE =
-  "0x86d2260f4071b23c12ec05d035a0baa2e9842f3df22c254056351850ad0ffb60";
+  "0xb7a4b31248b03d497ac394b85d229f6b29d966f0ec31d85c702e94afc6bbdb0f";
 
 const HASH =
-  "0xb8f0f2f89968dcbbad58b6fae181bddd52961179ee75a2faef74e15005296728";
+  "0x4d8312397eb36a700156cc29be35c925372532d7bc42fa34b1c9df72c721ebec";
 
 const AUTH_DATA_BYTES = `0x${"d8a0bf4f8294146ab009857f0c54e7b47dd13980a9ce558becd61dbced0bd8411900000000"}`;
 const CLIENT_DATA_JSON_LEFT = '{"type":"webauthn.get","challenge":"';
 const CHALLENGE = "0x9fEad8B19C044C2f404dac38B925Ea16ADaa2954";
 
-const CHALLENGE_BASE64 =
-  "ODlOUmI2aDhRX3RUNEtrMHdsYVgxd_sOPseyHmP7ZZULVTZFjDR35MJbKK2lesfmlNUSruxQOg5E_iEXu8Fc5fRJY4FDx5l9rTU5evWtCQ4pT9CkymM";
+const CHALLENGE_BASE64 = "n-rYsZwETC9ATaw4uSXqFq2qKVQ";
 const CLIENT_DATA_JSON_RIGHT =
   '","origin":"https://toddchapman.io","crossOrigin":false}';
 
@@ -63,7 +62,7 @@ describe("SnickerdoodleWallet", function () {
           S_VALUE,
         ),
       )
-        .to.emit(sdwallet, "EVMAddressAdded")
+        .to.emit(sdwallet, "EVMAccountAdded")
         .withArgs(CHALLENGE);
     });
   });
