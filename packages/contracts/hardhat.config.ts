@@ -1,6 +1,10 @@
 import type { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
-import "@nomicfoundation/hardhat-ignition"; // To support ethers ignition (hardhat-toolbox-viem covers ignition)
+import "@nomicfoundation/hardhat-ignition"; // Need both imports to support ethers based ignition
+
+// To use viem, import below alone
+// import "@nomicfoundation/hardhat-toolbox-viem";
+
 import "./tasks/smartWallet";
 
 require("dotenv").config();
