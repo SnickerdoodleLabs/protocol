@@ -26,12 +26,6 @@ contract SnickerdoodleWallet is Initializable {
     /// @notice used P256 message hashes
     mapping(bytes32 => bool) public hashDump;
 
-    struct AuthenticatorData {
-        bytes authenticatorData;
-        string clientDataJSONLeft;
-        string clientDataJSONRight;
-    }
-
     event P256KeyAdded(
         bytes32 indexed keyhash,
         bytes32 qx,
@@ -40,6 +34,12 @@ contract SnickerdoodleWallet is Initializable {
     );
 
     event EVMAccountAdded(address indexed account);
+
+    struct AuthenticatorData {
+        bytes authenticatorData;
+        string clientDataJSONLeft;
+        string clientDataJSONRight;
+    }
 
     struct P256Point {
         bytes32 x;
@@ -64,6 +64,7 @@ contract SnickerdoodleWallet is Initializable {
         bytes32 _qx,
         bytes32 _qy
     ) public initializer {
+        _addOperator(operator);
         _addP256Key(_keyId, _qx, _qy);
     }
 
@@ -149,6 +150,15 @@ contract SnickerdoodleWallet is Initializable {
         uint256 myBalance = IERC20(asset).balanceOf(address(this));
         // send the balance to the user's evm address
         IERC20(asset).transfer(msg.sender, myBalance);
+    }
+
+    /// @notice adds an operator to the list of operators
+    function _addOperator(address operator) private {
+        require(
+            !operators[operator],
+            "Operator already added"
+        );
+        operators[operator] = true;
     }
 
     /// @notice adds an EVM address to the user's wallet
