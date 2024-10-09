@@ -64,6 +64,20 @@ describe("SnickerdoodleWallet", function () {
       )
         .to.emit(sdwallet, "EVMAccountAdded")
         .withArgs(CHALLENGE);
+
+      await expect(
+        sdwallet.addEVMAddressWithP256Key(
+          KEYID,
+          {
+            authenticatorData: AUTH_DATA_BYTES,
+            clientDataJSONLeft: CLIENT_DATA_JSON_LEFT,
+            clientDataJSONRight: CLIENT_DATA_JSON_RIGHT,
+          },
+          CHALLENGE,
+          R_VALUE,
+          S_VALUE,
+        ),
+      ).to.be.revertedWith("P256 signature already used.");
     });
   });
 });
