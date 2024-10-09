@@ -99,7 +99,7 @@ contract SnickerdoodleWallet is Initializable {
             ),
             "Invalid P256 Signature"
         );
-        _addP256Key(_keyId, _qx, _qy);
+        _addP256Key(_newKeyId, _qx, _qy);
     }
 
     /// @notice authorizes the addition of an EVM address via a P256 signature
