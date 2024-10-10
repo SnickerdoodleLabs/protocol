@@ -4,7 +4,6 @@ import {
 } from "@nomicfoundation/hardhat-toolbox-viem/network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
-import { getAddress, parseGwei } from "viem";
 
 describe("SnickerdoodleWallet", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -22,9 +21,16 @@ describe("SnickerdoodleWallet", function () {
 
     const sdwallet = await hre.ethers.deployContract("SnickerdoodleWallet", []);
     await sdwallet.initialize(owner.address, { keyId: KEYID, x: QX, y: QY });
+    const sdwalletAddress = await sdwallet.getAddress();
+
+    const vanillaToken = await hre.ethers.deployContract("VanillaToken", [
+      owner.address,
+    ]);
+    await vanillaToken.transfer(sdwalletAddress, 1000000000000000000000n); // 1000 tokens
 
     return {
       sdwallet,
+      vanillaToken,
       owner,
       otherAccount,
       KEYID,
@@ -33,9 +39,7 @@ describe("SnickerdoodleWallet", function () {
 
   describe("Access Control and Permissioning", function () {
     it("Use P256 to add and EVM Account", async function () {
-      const { sdwallet, owner, KEYID } = await loadFixture(
-        deploySnickerdoodleWallet,
-      );
+      const { sdwallet, KEYID } = await loadFixture(deploySnickerdoodleWallet);
 
       const AUTH_DATA_BYTES = `0x${"d8a0bf4f8294146ab009857f0c54e7b47dd13980a9ce558becd61dbced0bd8411900000000"}`;
       const CLIENT_DATA_JSON_LEFT = '{"type":"webauthn.get","challenge":"';
@@ -87,9 +91,7 @@ describe("SnickerdoodleWallet", function () {
     });
 
     it("Add a P256 key with an existing P256 key", async function () {
-      const { sdwallet, owner, KEYID } = await loadFixture(
-        deploySnickerdoodleWallet,
-      );
+      const { sdwallet, KEYID } = await loadFixture(deploySnickerdoodleWallet);
 
       const NEW_KEYID = "JH-njR4k8ML7Oy7-LlUFmA";
       const NEW_QX =
@@ -148,9 +150,7 @@ describe("SnickerdoodleWallet", function () {
     });
 
     it("Use EVM Account to add and EVM Account", async function () {
-      const { sdwallet, owner, KEYID } = await loadFixture(
-        deploySnickerdoodleWallet,
-      );
+      const { sdwallet, KEYID } = await loadFixture(deploySnickerdoodleWallet);
 
       const AUTH_DATA_BYTES = `0x${"d8a0bf4f8294146ab009857f0c54e7b47dd13980a9ce558becd61dbced0bd8411900000000"}`;
       const CLIENT_DATA_JSON_LEFT = '{"type":"webauthn.get","challenge":"';
@@ -196,6 +196,53 @@ describe("SnickerdoodleWallet", function () {
           "0x9fEad8B19C044C2f404dac38B925Ea16ADaa2954",
         ),
       ).to.be.revertedWith("EVM address already added to the wallet");
+    });
+  });
+
+  describe("Withdraw functions", function () {
+    it("Withdraw vanillaToken from the Snickerdoodle Wallet", async function () {
+      const { sdwallet, vanillaToken, owner, KEYID } = await loadFixture(
+        deploySnickerdoodleWallet,
+      );
+
+      const AUTH_DATA_BYTES = `0x${"d8a0bf4f8294146ab009857f0c54e7b47dd13980a9ce558becd61dbced0bd8411900000000"}`;
+      const CLIENT_DATA_JSON_LEFT = '{"type":"webauthn.get","challenge":"';
+      const CLIENT_DATA_JSON_RIGHT =
+        '","origin":"https://toddchapman.io","crossOrigin":false,"other_keys_can_be_added_here":"do not compare clientDataJSON against a template. See https://goo.gl/yabPex"}';
+
+      const CHALLENGE = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+
+      const R_VALUE =
+        "0xa3fa13f9c485351d3b089876255ab94d8dfd71b60b317c151e6609c359e1abad";
+      const S_VALUE =
+        "0xd6357dab7b542cbdde588e3d80f88ce06dc5916eaefb9a319cc6a07cf1ec6555";
+
+      // This function should pass without throwing an error to pass P256 verification
+      await expect(
+        sdwallet.addEVMAddressWithP256Key(
+          KEYID,
+          {
+            authenticatorData: AUTH_DATA_BYTES,
+            clientDataJSONLeft: CLIENT_DATA_JSON_LEFT,
+            clientDataJSONRight: CLIENT_DATA_JSON_RIGHT,
+          },
+          CHALLENGE,
+          {
+            r: R_VALUE,
+            s: S_VALUE,
+          },
+        ),
+      )
+        .to.emit(sdwallet, "EVMAccountAdded")
+        .withArgs(CHALLENGE);
+
+      await expect(
+        sdwallet.withdrawLocalERC20Asset(await vanillaToken.getAddress()),
+      ).to.changeTokenBalances(
+        vanillaToken,
+        [await sdwallet.getAddress(), owner.address],
+        ["-1000000000000000000000", "1000000000000000000000"],
+      );
     });
   });
 });
