@@ -142,9 +142,18 @@ contract SnickerdoodleWalletFactory is OApp {
             isSourceChain,
             "SnickerdoodleWalletFactory: Snickerdoodle wallet only claimable via source chain"
         );
-
         /// Compute the Snickerdoodle wallet proxy address
         address proxy = computeSnickerdoodleWalletProxyAddress(_name);
+
+        // Check that the details of the proxy address match the provided details
+        OperatorAndPoint memory ownerDetails = deployedSnickerdoodleWalletAddressToOwner[
+            proxy
+        ];
+
+        require(ownerDetails.operator == msg.sender, "SnickerdoodleWalletFactory: Operator of provided wallet name does not match caller");
+        require(ownerDetails.x == _qx, "SnickerdoodleWalletFactory: Point X of provided wallet name does not match of given _qx");
+        require(ownerDetails.y == _qy, "SnickerdoodleWalletFactory: Point Y of provided wallet name does not match operator _qy ");
+        require(keccak256(abi.encode(ownerDetails.keyId)) == keccak256(abi.encode(_keyId)), "SnickerdoodleWalletFactory: Key id of provided wallet name does not match _keyId");
 
         /// Encodes the message before invoking _lzSend.
         bytes memory _payload = abi.encode(

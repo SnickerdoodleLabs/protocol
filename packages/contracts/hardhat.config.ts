@@ -5,7 +5,7 @@ import "@nomicfoundation/hardhat-ignition"; // Need both imports to support ethe
 // To use viem, import below alone
 // import "@nomicfoundation/hardhat-toolbox-viem";
 
-import "./tasks/smartWallet";
+import "./tasks/snickerdoodleWalletFactory";
 
 require("dotenv").config();
 
