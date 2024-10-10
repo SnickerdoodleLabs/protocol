@@ -1,8 +1,9 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.24;
 
 import "./SnickerdoodleWallet.sol";
+import "./P256Structs.sol";
 import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
@@ -58,9 +59,11 @@ contract SnickerdoodleWalletFactory is OApp {
         SnickerdoodleWallet SnickerdoodleWalletImpl = new SnickerdoodleWallet();
         SnickerdoodleWalletImpl.initialize(
             _owner,
-            "1337",
-            0x000000000000000000000000000000000000000000000000000000000000dEaD,
-            0x000000000000000000000000000000000000000000000000000000000000dEaD
+            P256Point(
+                0x000000000000000000000000000000000000000000000000000000000000dEaD,
+                0x000000000000000000000000000000000000000000000000000000000000dEaD,
+                "1337"
+            )
         );
 
         /// Deploy the Upgradeable Beacon that points to the implementation SnickerdoodleWallet contract address
@@ -102,9 +105,7 @@ contract SnickerdoodleWalletFactory is OApp {
         }(beaconAddress, "");
         SnickerdoodleWallet(address(proxy)).initialize(
             msg.sender,
-            _keyId,
-            _qx,
-            _qy
+            P256Point(_qx, _qy, _keyId)
         );
 
         /// Assign the deployed wallet to the owner here if it's a source chain
@@ -132,9 +133,9 @@ contract SnickerdoodleWalletFactory is OApp {
     function claimSnickerdoodleWalletOnDestinationChain(
         uint32 _destinationChainEID,
         string memory _name,
-        bytes32 _qx, 
+        bytes32 _qx,
         bytes32 _qy,
-        string calldata _keyId, 
+        string calldata _keyId,
         uint128 _gas
     ) external payable returns (address) {
         require(
@@ -201,7 +202,8 @@ contract SnickerdoodleWalletFactory is OApp {
         address _snickerdoodleWalletAddress,
         uint128 _gas
     ) external view returns (uint256 nativeFee, uint256 lzTokenFee) {
-        bytes memory messageData = abi.encode(OperatorAndPoint(msg.sender, _qx, _qy, _keyId),
+        bytes memory messageData = abi.encode(
+            OperatorAndPoint(msg.sender, _qx, _qy, _keyId),
             _snickerdoodleWalletAddress
         );
 
@@ -216,8 +218,13 @@ contract SnickerdoodleWalletFactory is OApp {
     }
 
     /// @notice Returns the information of the owner of a deployed snickerdoodle wallet
-    function getSnickerdoodleWalletToOperatorOwnerPoint(address _snickerdoodleWalletAddress) external view returns (OperatorAndPoint memory) {
-        return deployedSnickerdoodleWalletAddressToOwner[_snickerdoodleWalletAddress];
+    function getSnickerdoodleWalletToOperatorOwnerPoint(
+        address _snickerdoodleWalletAddress
+    ) external view returns (OperatorAndPoint memory) {
+        return
+            deployedSnickerdoodleWalletAddressToOwner[
+                _snickerdoodleWalletAddress
+            ];
     }
 
     /// @dev Quotes the gas needed to pay for the full omnichain transaction.

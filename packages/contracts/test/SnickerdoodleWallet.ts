@@ -21,7 +21,7 @@ describe("SnickerdoodleWallet", function () {
       "0xb98bce418ffa0076d45cdfeac10070dc81cc9360b496e9aa1044dbca92d8493f";
 
     const sdwallet = await hre.ethers.deployContract("SnickerdoodleWallet", []);
-    await sdwallet.initialize(owner.address, KEYID, QX, QY);
+    await sdwallet.initialize(owner.address, { keyId: KEYID, x: QX, y: QY });
 
     return {
       sdwallet,
@@ -59,8 +59,10 @@ describe("SnickerdoodleWallet", function () {
             clientDataJSONRight: CLIENT_DATA_JSON_RIGHT,
           },
           CHALLENGE,
-          R_VALUE,
-          S_VALUE,
+          {
+            r: R_VALUE,
+            s: S_VALUE,
+          },
         ),
       )
         .to.emit(sdwallet, "EVMAccountAdded")
@@ -76,8 +78,10 @@ describe("SnickerdoodleWallet", function () {
             clientDataJSONRight: CLIENT_DATA_JSON_RIGHT,
           },
           CHALLENGE,
-          R_VALUE,
-          S_VALUE,
+          {
+            r: R_VALUE,
+            s: S_VALUE,
+          },
         ),
       ).to.be.revertedWith("P256 signature already used.");
     });
@@ -110,11 +114,15 @@ describe("SnickerdoodleWallet", function () {
             clientDataJSONLeft: CLIENT_DATA_JSON_LEFT,
             clientDataJSONRight: CLIENT_DATA_JSON_RIGHT,
           },
-          NEW_KEYID,
-          NEW_QX,
-          NEW_QY,
-          R_VALUE,
-          S_VALUE,
+          {
+            keyId: NEW_KEYID,
+            x: NEW_QX,
+            y: NEW_QY,
+          },
+          {
+            r: R_VALUE,
+            s: S_VALUE,
+          },
         ),
       ).to.emit(sdwallet, "P256KeyAdded");
 
@@ -126,11 +134,15 @@ describe("SnickerdoodleWallet", function () {
             clientDataJSONLeft: CLIENT_DATA_JSON_LEFT,
             clientDataJSONRight: CLIENT_DATA_JSON_RIGHT,
           },
-          NEW_KEYID,
-          NEW_QX,
-          NEW_QY,
-          R_VALUE,
-          S_VALUE,
+          {
+            keyId: NEW_KEYID,
+            x: NEW_QX,
+            y: NEW_QY,
+          },
+          {
+            r: R_VALUE,
+            s: S_VALUE,
+          },
         ),
       ).to.be.revertedWith("P256 signature already used.");
     });
@@ -162,8 +174,10 @@ describe("SnickerdoodleWallet", function () {
             clientDataJSONRight: CLIENT_DATA_JSON_RIGHT,
           },
           CHALLENGE,
-          R_VALUE,
-          S_VALUE,
+          {
+            r: R_VALUE,
+            s: S_VALUE,
+          },
         ),
       )
         .to.emit(sdwallet, "EVMAccountAdded")
