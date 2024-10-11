@@ -2,8 +2,9 @@ import { task } from "hardhat/config";
 
 const CONTRACT_NAME = "SnickerdoodleWalletFactory";
 const SNICKERDOODLE_WALLET_FACTORY =
-  "0xc0bD8015F926AFD9f00B14006FD5188dB2F93789";
+  "0x572B916bE8A2da113c9F5D34d28F805d9f9355B1";
 
+// 0xc0bD8015F926AFD9f00B14006FD5188dB2F93789
 const KEYID = "TAp_FZMZshG7RuJhiObFTQ";
 const QX = "0x2e0aa0b0dd416999b35cf3d03c2df3d4487cefae5b694aceb365efae4781eec5";
 const QY = "0xb98bce418ffa0076d45cdfeac10070dc81cc9360b496e9aa1044dbca92d8493f";
@@ -84,12 +85,13 @@ task(
     );
 
     const txReceipt = await txResponse.wait();
-    console.log("Smart wallet deployed!");
+    console.log("Snickerdoodle wallet deployed!");
+    console.log("Transaction receipt", txReceipt);
   });
 
 task(
   "computeSnickerdoodleWalletProxyAddress",
-  "Computes the smart wallet address prior to deployment",
+  "Computes the snickerdoodle wallet address prior to deployment",
 )
   .addParam("name", "Name of the Proxy Vault")
   .setAction(async (taskArgs, hre) => {
@@ -105,10 +107,13 @@ task(
     console.log("Proxy Address:", snickerdoodleWalletAddress);
   });
 
-task("getOwnerOfSnickerdoodleWallet", "Get owner of the smart wallet address")
+task(
+  "getOwnerOfSnickerdoodleWallet",
+  "Get owner of the snickerdoodle wallet address",
+)
   .addParam(
     "snickerdoodlewalletaddress",
-    "The smart wallet address on the current chain",
+    "The snickerdoodle wallet address on the current chain",
   )
   .setAction(async (taskArgs, hre) => {
     const { ethers } = hre;
@@ -147,7 +152,7 @@ task(
   .addParam("keyid", "Passkey id")
   .addParam(
     "snickerdoodlewalletaddress",
-    "The address of the smart wallet proxy contract",
+    "The address of the snickerdoodle wallet proxy contract",
   )
   .addParam(
     "gas",

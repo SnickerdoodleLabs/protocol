@@ -52,6 +52,10 @@ const config: HardhatUserConfig = {
       url: "https://rpc.ankr.com/polygon_amoy",
       accounts: accounts,
     },
+    basesepolia: {
+      url: "https://sepolia.base.org",
+      accounts: accounts,
+    },
   },
   paths: {
     sources: "./contracts",
