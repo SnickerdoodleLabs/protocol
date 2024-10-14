@@ -54,6 +54,12 @@ contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
         _addDomain(domain);
     }   
 
+    /// @notice Add an associatd DNS eTLD+1 domain with this operator gateway contract
+    /// @param domain a string representing an eTLD+1 domain associated with the contract
+    function removeERC7529Domain(string memory domain) external onlyOperatorAccount {
+        _removeDomain(domain);
+    }   
+
     function _addOperatorAccount(address operatorAccount) private {
         operatorAccounts[operatorAccount] = true;
         emit OperatorAccountAdded(operatorAccount);
