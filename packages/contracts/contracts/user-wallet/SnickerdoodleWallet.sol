@@ -14,7 +14,7 @@ contract SnickerdoodleWallet is Initializable {
         0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551;
 
     /// @notice user's public key data
-    mapping(bytes32 => P256Point) private p256Keys;
+    mapping(bytes32 => P256Key) private p256Keys;
 
     /// @notice EVM addresses owned by the user
     mapping(address => bool) private evmAccounts;
@@ -49,7 +49,7 @@ contract SnickerdoodleWallet is Initializable {
     /// @notice creates a user wallet
     function initialize(
         address operator,
-        P256Point calldata p256Key
+        P256Key calldata p256Key
     ) public initializer {
         _addOperator(operator);
         _addP256Key(p256Key.keyId, p256Key.x, p256Key.y);
@@ -64,7 +64,7 @@ contract SnickerdoodleWallet is Initializable {
     function addP256KeyWithP256Key(
         string calldata _keyId,
         AuthenticatorData calldata authenticatorData,
-        P256Point calldata newP256Key,
+        P256Key calldata newP256Key,
         P256Signature calldata p256Sig
     ) public {
         bytes memory challenge = abi.encodePacked(newP256Key.keyId, newP256Key.x, newP256Key.y);
@@ -179,7 +179,7 @@ contract SnickerdoodleWallet is Initializable {
             p256Keys[keyHash].x == 0,
             "P256 key already added"
         );
-        p256Keys[keyHash] = P256Point(_qx, _qy, _keyId);
+        p256Keys[keyHash] = P256Key(_qx, _qy, _keyId);
         emit P256KeyAdded(keyHash, _qx, _qy, _keyId);
     }
 
@@ -211,7 +211,7 @@ contract SnickerdoodleWallet is Initializable {
         }
 
         bytes32 keyHash = keccak256(abi.encodePacked(_keyId));
-        P256Point memory p256Key = p256Keys[keyHash];
+        P256Key memory p256Key = p256Keys[keyHash];
         return P256.verify(h, r, s, p256Key.x, p256Key.y);
     }
 

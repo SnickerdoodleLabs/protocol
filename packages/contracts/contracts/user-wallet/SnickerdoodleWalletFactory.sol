@@ -16,32 +16,27 @@ contract SnickerdoodleWalletFactory is OApp {
     /// @notice Layer Zero's option to support building the options param within the contract
     using OptionsBuilder for bytes;
 
-    /// @notice Layer zero message types to support sending and receiving different messages
-    enum MessageType {
-        ClaimSnickerdoodleWalletOnDestinationChain
-    }
-
-    /// @notice Emitted when a Snickerdoodle wallet proxy contract is deployed
-    event SnickerdoodleWalletCreated(address SnickerdoodleWallet);
-
     /// @notice The address of the beacon should never change for this upgrade pattern
     address public immutable beaconAddress;
 
     /// @notice  Flag if this SnickerdoodleWallet factory is the source chain
     bool public isSourceChain;
 
+    /// @notice Tracks operators and the keccak hash of their assigned user domain string
+    mapping(address => bytes32) public operatorUserDomains;
+
     /// @notice Tracks a deployed Snickerdoodle wallet proxy address to an owner
     /// @dev Functions as a claim lock, confirming that the user has deployed it on the source chain and claimed it on the destination chain
     mapping(address => OperatorAndPoint)
         public deployedSnickerdoodleWalletAddressToOwner;
 
-    /// @notice Struct to hold the operator, x, y, and keyId of the passkey for a Snickerdoodle wallet
-    struct OperatorAndPoint {
-        address operator;
-        bytes32 x;
-        bytes32 y;
-        string keyId;
+    /// @notice Layer zero message types to support sending and receiving different messages
+    enum MessageType {
+        ClaimSnickerdoodleWalletOnDestinationChain
     }
+
+    /// @notice Emitted when a Snickerdoodle wallet proxy contract is deployed
+    event SnickerdoodleWalletCreated(address indexed SnickerdoodleWallet, string name);
 
     /// @dev OApp inherits OAppCore which inherits OZ's Ownable
     constructor(
@@ -55,11 +50,10 @@ contract SnickerdoodleWalletFactory is OApp {
 
         /// Deploy an instance of a SnickerdoodleWallet to use as the implementation contract
         /// the Deployer address (this) must be the same on every network to get the same addresses
-
         SnickerdoodleWallet SnickerdoodleWalletImpl = new SnickerdoodleWallet();
         SnickerdoodleWalletImpl.initialize(
             _owner,
-            P256Point(
+            P256Key(
                 0x000000000000000000000000000000000000000000000000000000000000dEaD,
                 0x000000000000000000000000000000000000000000000000000000000000dEaD,
                 "1337"
@@ -75,37 +69,44 @@ contract SnickerdoodleWalletFactory is OApp {
         beaconAddress = address(_upgradeableBeacon);
     }
 
+    function deploySnickerdoodleWalletProxies(
+        string[] calldata names,
+        P256Key[] calldata _p256Keys
+    ) public {
+        require(names.length == _p256Keys.length, "SnickerdoodleWalletFactory: Names and P256 points length mismatch");
+
+        for (uint256 i = 0; i < names.length; i++) {
+            deploySnickerdoodleWalletProxy(names[i], _p256Keys[i]);
+        }
+    }
+
     /// @notice Deploys a Beacon Proxy with name keyword and salt to create an upgradeable SnickerdoodleWallet
     /// @dev https://docs.openzeppelin.com/contracts/5.x/api/proxy#UpgradeableBeacon
-    /// @param _name a string used to name the SnickerdoodleWallet deployed to make it easy to look up (hashed to create salt)
-    /// @param _qx the x coordinate of the P256 coordinate
-    /// @param _qy the y coordinate of the P256 coordinate
-    /// @param _keyId a string identifier for the P256 key
-    function deploySnickerdoodleWalletUpgradeableBeacon(
-        string memory _name,
-        bytes32 _qx,
-        bytes32 _qy,
-        string calldata _keyId
-    ) public payable returns (address) {
+    /// @param name a string used to name the SnickerdoodleWallet deployed to make it easy to look up (hashed to create salt)
+    /// @param p256Key a new 256 key used to deploy a user wallet; includes the keyId, x, and y coordinates. 
+    function deploySnickerdoodleWalletProxy(
+        string memory name,
+        P256Key calldata p256Key
+    ) public {
         /// If called on a destination chain, check that the owner has created the Snickerdoodle wallet on the source chain
         if (!isSourceChain) {
             require(
                 deployedSnickerdoodleWalletAddressToOwner[
-                    computeSnickerdoodleWalletProxyAddress(_name)
+                    computeSnickerdoodleWalletProxyAddress(name)
                 ].operator == msg.sender,
                 "SnickerdoodleWalletFactory: Snickerdoodle wallet with selected name has not been created on the source chain"
             );
         }
 
-        /// NOTE: The address of the beacon contract will never change after deployment.
+        /// NOTE: The address of the proxy contract will never change after deployment.
         /// The initializer is called after deployment so that the proxy address does not depend on the initializer's arguments.
         /// This means only the salt value is used to calculate the proxy address.
         BeaconProxy proxy = new BeaconProxy{
-            salt: keccak256(abi.encodePacked(_name))
+            salt: keccak256(abi.encodePacked(name))
         }(beaconAddress, "");
         SnickerdoodleWallet(address(proxy)).initialize(
             msg.sender,
-            P256Point(_qx, _qy, _keyId)
+            p256Key
         );
 
         /// Assign the deployed wallet to the owner here if it's a source chain
@@ -113,12 +114,10 @@ contract SnickerdoodleWalletFactory is OApp {
         if (isSourceChain) {
             deployedSnickerdoodleWalletAddressToOwner[
                 address(proxy)
-            ] = OperatorAndPoint(msg.sender, _qx, _qy, _keyId);
+            ] = OperatorAndPoint(msg.sender, p256Key);
         }
 
-        emit SnickerdoodleWalletCreated(address(proxy));
-
-        return address(proxy);
+        emit SnickerdoodleWalletCreated(address(proxy), name);
     }
 
     /// @notice Sends a message from the source to the destination chain to claim a Snickerdoodle wallet address.
@@ -126,16 +125,12 @@ contract SnickerdoodleWalletFactory is OApp {
     /// @dev If the destination chain has not been set as a peer contract, it will error NoPeer(_destinationChainEID)
     /// @param _destinationChainEID Layer Zero Endpoint id for the target destination chain
     /// @param _name a string used to name the SnickerdoodleWallet deployed to make it easy to look up (hashed to create salt)
-    /// @param _qx the x coordinate of the P256 coordinate
-    /// @param _qy the y coordinate of the P256 coordinate
-    /// @param _keyId a string identifier for the P256 key
+    /// @param p256Key a new 256 key used to deploy a user wallet; includes the keyId, x, and y coordinates.
     /// @param _gas Gas for message execution options, refer to : https://docs.layerzero.network/v2/developers/evm/oapp/overview#message-execution-options
     function claimSnickerdoodleWalletOnDestinationChain(
         uint32 _destinationChainEID,
         string memory _name,
-        bytes32 _qx,
-        bytes32 _qy,
-        string calldata _keyId,
+        P256Key memory p256Key,
         uint128 _gas
     ) external payable returns (address) {
         require(
@@ -151,14 +146,14 @@ contract SnickerdoodleWalletFactory is OApp {
         ];
 
         require(ownerDetails.operator == msg.sender, "SnickerdoodleWalletFactory: Operator of provided wallet name does not match caller");
-        require(ownerDetails.x == _qx, "SnickerdoodleWalletFactory: Point X of provided wallet name does not match of given _qx");
-        require(ownerDetails.y == _qy, "SnickerdoodleWalletFactory: Point Y of provided wallet name does not match operator _qy ");
-        require(keccak256(abi.encode(ownerDetails.keyId)) == keccak256(abi.encode(_keyId)), "SnickerdoodleWalletFactory: Key id of provided wallet name does not match _keyId");
+        require(ownerDetails.p256Key.x == p256Key.x, "SnickerdoodleWalletFactory: Point X of provided wallet name does not match of given _qx");
+        require(ownerDetails.p256Key.y == p256Key.y, "SnickerdoodleWalletFactory: Point Y of provided wallet name does not match operator _qy ");
+        require(keccak256(abi.encode(ownerDetails.p256Key.keyId)) == keccak256(abi.encode(p256Key.keyId)), "SnickerdoodleWalletFactory: Key id of provided wallet name does not match _keyId");
 
         /// Encodes the message before invoking _lzSend.
         bytes memory _payload = abi.encode(
             uint8(MessageType.ClaimSnickerdoodleWalletOnDestinationChain),
-            abi.encode(OperatorAndPoint(msg.sender, _qx, _qy, _keyId), proxy)
+            abi.encode(OperatorAndPoint(msg.sender, p256Key), proxy)
         );
 
         /// Send a message to layer zero to the destination chain
@@ -205,14 +200,12 @@ contract SnickerdoodleWalletFactory is OApp {
     /// @notice Estimating the fee for to send a message to claim a Snickerdoodle wallet on destination chain
     function quoteClaimSnickerdoodleWalletOnDestinationChain(
         uint32 _dstEid,
-        bytes32 _qx,
-        bytes32 _qy,
-        string calldata _keyId,
+        P256Key memory p256Key,
         address _snickerdoodleWalletAddress,
         uint128 _gas
     ) external view returns (uint256 nativeFee, uint256 lzTokenFee) {
         bytes memory messageData = abi.encode(
-            OperatorAndPoint(msg.sender, _qx, _qy, _keyId),
+            OperatorAndPoint(msg.sender, p256Key),
             _snickerdoodleWalletAddress
         );
 
@@ -305,7 +298,7 @@ contract SnickerdoodleWalletFactory is OApp {
         ) = abi.decode(messageData, (OperatorAndPoint, address));
 
         /// Assign the deployed wallet to the owner
-        /// After claiming on the destination chain, deploySnickerdoodleWalletUpgradeableBeacon will work for this owner and name combination
+        /// After claiming on the destination chain, deploySnickerdoodleWalletProxy will work for this owner and name combination
         deployedSnickerdoodleWalletAddressToOwner[
             snickerdoodleWalletAddress
         ] = operatorAndPoint;
