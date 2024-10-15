@@ -6,15 +6,15 @@ import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
-import {OApp, Origin, MessagingFee} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OApp.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {Origin, MessagingFee} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OApp.sol";
 import {OptionsBuilder} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/libs/OptionsBuilder.sol";
+import {OAppUpgradeable} from "../oapp-upgradeable/OAppUpgradeable.sol";
 
 import "../operators/OperatorGateway.sol";
 import "./SnickerdoodleWallet.sol";
 import "./P256Structs.sol";
 
-contract SnickerdoodleWalletFactory is OApp {
+contract SnickerdoodleWalletFactory is OAppUpgradeable {
     /// @notice Layer Zero's option to support building the options param within the contract
     using OptionsBuilder for bytes;
 
@@ -55,10 +55,12 @@ contract SnickerdoodleWalletFactory is OApp {
     );
 
     /// @dev OApp inherits OAppCore which inherits OZ's Ownable
-    constructor(
+    function initialize(
         address _layerZeroEndpoint,
         address _owner
-    ) payable OApp(_layerZeroEndpoint, _owner) Ownable(_owner) {
+    ) public payable initializer {
+        __OApp_init(_layerZeroEndpoint, _owner);
+
         /// If the chain id is Avalanche / Fuji, flag that it is the source chain
         if (block.chainid == 43113 || block.chainid == 43114) {
             isSourceChain = true;
