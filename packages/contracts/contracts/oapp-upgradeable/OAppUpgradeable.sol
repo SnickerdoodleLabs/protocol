@@ -33,11 +33,13 @@ abstract contract OAppUpgradeable is OAppSenderUpgradeable, OAppReceiverUpgradea
      */
     function oAppVersion()
         public
-        pure
+        view
         virtual
         override(OAppSenderUpgradeable, OAppReceiverUpgradeable)
         returns (uint64 senderVersion, uint64 receiverVersion)
     {
-        return (SENDER_VERSION, RECEIVER_VERSION);
+        OAppReceiverStorage storage $OAppReceiver = _getOAppReceiverStorage();
+        OAppSenderStorage storage $OAppSender = _getOAppSenderStorage();
+        return ($OAppSender.SENDER_VERSION, $OAppReceiver.RECEIVER_VERSION);
     }
 }

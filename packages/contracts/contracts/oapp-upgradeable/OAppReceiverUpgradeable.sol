@@ -15,11 +15,29 @@ abstract contract OAppReceiverUpgradeable is IOAppReceiver, OAppCoreUpgradeable 
 
     // @dev The version of the OAppReceiver implementation.
     // @dev Version is bumped when changes are made to this contract.
-    uint64 internal constant RECEIVER_VERSION = 1;
+    struct OAppReceiverStorage {
+        uint64 RECEIVER_VERSION;
+    }
 
-    // TODO: needs storage? 
+    // keccak256(abi.encode(uint256(keccak256("snickerdoodle.storage.OAppReceiver")) - 1)) & ~bytes32(uint256(0xff));
+    bytes32 private constant OAppReceiverStorageLocation  =
+        0x915b8680288de3e23f5af915db3ef0bf76072681e96298857e44b3aec13b6c00;
 
-    function __OAppReceiver_init() internal onlyInitializing {}
+
+    function _getOAppReceiverStorage()
+        internal
+        pure
+        returns (OAppReceiverStorage storage $)
+    {
+        assembly {
+            $.slot := OAppReceiverStorageLocation
+        }
+    }
+
+    function __OAppReceiver_init() internal onlyInitializing {
+        OAppReceiverStorage storage $ = _getOAppReceiverStorage();
+        $.RECEIVER_VERSION = 1;
+    }
 
     function __OAppReceiver_init_unchained() internal onlyInitializing {}
 
@@ -33,7 +51,8 @@ abstract contract OAppReceiverUpgradeable is IOAppReceiver, OAppCoreUpgradeable 
      * @dev If the OApp uses both OAppSender and OAppReceiver, then this needs to be override returning the correct versions.
      */
     function oAppVersion() public view virtual returns (uint64 senderVersion, uint64 receiverVersion) {
-        return (0, RECEIVER_VERSION);
+        OAppReceiverStorage storage $ = _getOAppReceiverStorage();
+        return (0, $.RECEIVER_VERSION);
     }
 
     /**

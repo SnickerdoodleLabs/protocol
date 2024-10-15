@@ -19,9 +19,30 @@ abstract contract OAppSenderUpgradeable is OAppCoreUpgradeable {
 
     // @dev The version of the OAppSender implementation.
     // @dev Version is bumped when changes are made to this contract.
-    uint64 internal constant SENDER_VERSION = 1;
 
-    function __OAppSender_init() internal onlyInitializing {}
+    struct OAppSenderStorage {
+        uint64 SENDER_VERSION;
+    }
+
+    // keccak256(abi.encode(uint256(keccak256("snickerdoodle.storage.OAppSender")) - 1)) & ~bytes32(uint256(0xff));
+    bytes32 private constant OAppSenderStorageLocation  =
+        0x8c8be9a8fe00448b6b1db0b4266c258cb8591a2c71892f428e1bc47acd7e8600;
+
+
+    function _getOAppSenderStorage()
+        internal
+        pure
+        returns (OAppSenderStorage storage $)
+    {
+        assembly {
+            $.slot := OAppSenderStorageLocation
+        }
+    }
+
+    function __OAppSender_init() internal onlyInitializing {
+        OAppSenderStorage storage $ = _getOAppSenderStorage();
+        $.SENDER_VERSION = 1;
+    }
 
     function __OAppSender_init_unchained() internal onlyInitializing {}
 
@@ -35,7 +56,8 @@ abstract contract OAppSenderUpgradeable is OAppCoreUpgradeable {
      * @dev If the OApp uses both OAppSender and OAppReceiver, then this needs to be override returning the correct versions
      */
     function oAppVersion() public view virtual returns (uint64 senderVersion, uint64 receiverVersion) {
-        return (SENDER_VERSION, 0);
+        OAppSenderStorage storage $ = _getOAppSenderStorage();
+        return ($.SENDER_VERSION, 0);
     }
 
     /**

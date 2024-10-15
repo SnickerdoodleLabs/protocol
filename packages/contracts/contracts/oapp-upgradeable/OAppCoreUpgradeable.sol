@@ -18,9 +18,9 @@ abstract contract OAppCoreUpgradeable is IOAppCore, OwnableUpgradeable {
         mapping(uint32 eid => bytes32 peer) peers;
     }
 
-    // keccak256(abi.encode(uint256(keccak256("snickerdoodle.storage.oappcore")) - 1)) & ~bytes32(uint256(0xff));
+    // keccak256(abi.encode(uint256(keccak256("snickerdoodle.storage.OAppCore")) - 1)) & ~bytes32(uint256(0xff));
     bytes32 private constant OAppCoreStorageLocation  =
-        0xd3f6e13938ee9e098b8b2f8c04dc01d0c58da95291a8a4564992bb6c3e15f900;
+        0x6a0d2aba043cb44543431324191adac77f4308da25e5eafb339b7d48709cf900;
 
 
     /**
