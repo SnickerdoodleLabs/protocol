@@ -55,6 +55,7 @@ abstract contract OAppCoreUpgradeable is IOAppCore, OwnableUpgradeable {
 
     /**
      * @notice Retrieves the LayerZero endpoint associated with the OApp.
+     * @dev Required implementation of the IOAppCore interface.
      * @return iEndpoint The LayerZero endpoint as an interface.
      */
     function endpoint() external view returns (ILayerZeroEndpointV2 iEndpoint) {
@@ -64,6 +65,7 @@ abstract contract OAppCoreUpgradeable is IOAppCore, OwnableUpgradeable {
 
     /**
      * @notice Retrieves the peer (OApp) associated with a corresponding endpoint.
+     * @dev Required implementation of the IOAppCore interface.
      * @param _eid The endpoint ID.
      * @return peer The peer address (OApp instance) associated with the corresponding endpoint.
      */

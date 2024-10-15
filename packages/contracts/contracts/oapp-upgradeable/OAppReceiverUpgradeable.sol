@@ -117,4 +117,27 @@ abstract contract OAppReceiverUpgradeable is IOAppReceiver, OAppCoreUpgradeable 
         address _executor,
         bytes calldata _extraData
     ) internal virtual;
+
+    /**
+     * @notice Indicates whether an address is an approved composeMsg sender to the Endpoint.
+     * @dev Required implementation of the IOAppCore interface.
+     * @param _origin The origin information containing the source endpoint and sender address.
+     *  - srcEid: The source chain endpoint ID.
+     *  - sender: The sender address on the src chain.
+     *  - nonce: The nonce of the message.
+     * @param _message The lzReceive payload.
+     * @param _sender The sender address.
+     * @return isSender Is a valid sender.
+     *
+     * @dev Applications can optionally choose to implement a separate composeMsg sender that is NOT the bridging layer.
+     * @dev The default sender IS the OAppReceiver implementer.
+     */
+    function isComposeMsgSender(
+        Origin calldata _origin,
+        bytes calldata _message,
+        address _sender
+    ) external pure returns (bool isSender) {        
+        // Ensure the sender matches the one in the origin
+        return address(uint160(uint256(_origin.sender))) == _sender;
+    }
 }
