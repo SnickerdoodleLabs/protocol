@@ -1,0 +1,65 @@
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.22;
+
+// @dev Import the 'MessagingFee' and 'MessagingReceipt' so it's exposed to OApp implementers
+// solhint-disable-next-line no-unused-import
+import { OAppSenderUpgradeable, MessagingFee, MessagingReceipt } from "./OAppSenderUpgradeable.sol";
+// @dev Import the 'Origin' so it's exposed to OApp implementers
+// solhint-disable-next-line no-unused-import
+import { OAppReceiverUpgradeable, Origin } from "./OAppReceiverUpgradeable.sol";
+import { OAppCoreUpgradeable } from "./OAppCoreUpgradeable.sol";
+
+/**
+ * @title OAppUpgradeable
+ * @dev Abstract contract serving as the base for OAppUpgradeable implementation, combining OAppSenderUpgradeable and OAppReceiverUpgradeable functionality.
+ */
+abstract contract OAppUpgradeable is OAppSenderUpgradeable, OAppReceiverUpgradeable {
+    /**
+     * @dev Initializer to initialize the OAppUpgradeable with the provided endpoint and owner.
+     * @param _endpoint The address of the LOCAL LayerZero endpoint.
+     * @param _delegate The delegate capable of making OApp configurations inside of the endpoint.
+     */
+    function __OApp_init(address _endpoint, address _delegate) internal onlyInitializing {
+        __OAppCore_init(_endpoint, _delegate);
+    }
+
+    function __OApp_init_unchained() internal onlyInitializing {}
+
+    /**
+     * @notice Retrieves the OApp version information.
+     * @return senderVersion The version of the OAppSender.sol implementation.
+     * @return receiverVersion The version of the OAppReceiver.sol implementation.
+     */
+    function oAppVersion()
+        public
+        pure
+        virtual
+        override(OAppSenderUpgradeable, OAppReceiverUpgradeable)
+        returns (uint64 senderVersion, uint64 receiverVersion)
+    {
+        return (SENDER_VERSION, RECEIVER_VERSION);
+    }
+
+    /**
+     * @notice Indicates whether an address is an approved composeMsg sender to the Endpoint.
+     * @param _origin The origin information containing the source endpoint and sender address.
+     *  - srcEid: The source chain endpoint ID.
+     *  - sender: The sender address on the src chain.
+     *  - nonce: The nonce of the message.
+     * @param _message The lzReceive payload.
+     * @param _sender The sender address.
+     * @return isSender Is a valid sender.
+     *
+     * @dev Applications can optionally choose to implement a separate composeMsg sender that is NOT the bridging layer.
+     * @dev The default sender IS the OAppReceiver implementer.
+     */
+    function isComposeMsgSender(
+        Origin calldata _origin,
+        bytes calldata _message,
+        address _sender
+    ) external pure returns (bool isSender) {        
+        // Ensure the sender matches the one in the origin
+        return address(uint160(uint256(_origin.sender))) == _sender;
+    }
+}
