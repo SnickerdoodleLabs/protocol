@@ -1,6 +1,8 @@
 import type { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "@nomicfoundation/hardhat-ignition"; // Need both imports to support ethers based ignition
+import "@openzeppelin/hardhat-upgrades";
+import "hardhat-contract-sizer";
 
 // To use viem, import below alone
 // import "@nomicfoundation/hardhat-toolbox-viem";
@@ -35,7 +37,7 @@ const config: HardhatUserConfig = {
       create2: {
         // To learn more about salts, see the CreateX documentation
         // the current value is equal to keccak256('smart-wallet-example2')
-        salt: "0xb74a48f0729221942ec42b31c524f5e6327a3b504805b99df7659c592b0271ed",
+        salt: "0xb74a48f0729221942ec42b31c524f5e6327a3b504805b99df7659c592b0271ee",
       },
     },
   },
@@ -62,6 +64,9 @@ const config: HardhatUserConfig = {
     tests: "./test",
     cache: "./cache",
     artifacts: "./artifacts",
+  },
+  contractSizer: {
+    runOnCompile: true, // Optional: Run contract sizing automatically on compile
   },
 };
 

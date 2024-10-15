@@ -7141,6 +7141,86 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nomicfoundation/slang-darwin-arm64@npm:0.17.0":
+  version: 0.17.0
+  resolution: "@nomicfoundation/slang-darwin-arm64@npm:0.17.0"
+  checksum: 70bc42222b019e79331fd698e6d490d9a1df3b55080951b7f87a83869296851b8176281c9b85b98f083c36a94daa86559238be3c8686f68e64000afae89b62db
+  languageName: node
+  linkType: hard
+
+"@nomicfoundation/slang-darwin-x64@npm:0.17.0":
+  version: 0.17.0
+  resolution: "@nomicfoundation/slang-darwin-x64@npm:0.17.0"
+  checksum: 4b133230fef4dac591d5677cf00186b02999129f7ea4df55eb6f5d6884a12cc43392df7b50a440d66d33bc99fe4939cb834d55c25828ee1ce5a976eb8225bb77
+  languageName: node
+  linkType: hard
+
+"@nomicfoundation/slang-linux-arm64-gnu@npm:0.17.0":
+  version: 0.17.0
+  resolution: "@nomicfoundation/slang-linux-arm64-gnu@npm:0.17.0"
+  checksum: 02e7627977dcd52d2f90da2d7fa9d8964bca9c78831d696ac4b361a51534751ee9f79ddb898087da46f6121f38fc0fe290188d1dda542302483dde8b6aef11ed
+  languageName: node
+  linkType: hard
+
+"@nomicfoundation/slang-linux-arm64-musl@npm:0.17.0":
+  version: 0.17.0
+  resolution: "@nomicfoundation/slang-linux-arm64-musl@npm:0.17.0"
+  checksum: f62ebda232c9eada67c0497bd12f11a5443c36e922322d26f34f52277e8f494b0804504da217e61522871b5cc7cf295ec8a40e7e2b912e551f1a64a9052c5c37
+  languageName: node
+  linkType: hard
+
+"@nomicfoundation/slang-linux-x64-gnu@npm:0.17.0":
+  version: 0.17.0
+  resolution: "@nomicfoundation/slang-linux-x64-gnu@npm:0.17.0"
+  checksum: 2c0431ac1ef0536bde5183a5275711274bf0e9016c9df9a4297c4680b1d80572bb6eb031c5a2db5f00f62d80ebbe0f671c0e04d289f8a4ff72df966d953bce1d
+  languageName: node
+  linkType: hard
+
+"@nomicfoundation/slang-linux-x64-musl@npm:0.17.0":
+  version: 0.17.0
+  resolution: "@nomicfoundation/slang-linux-x64-musl@npm:0.17.0"
+  checksum: c87be70b99eafc6a387e6c6a2c863e735d9ba70c039ade52b88091a4b6bb013b7dde292d1432127a67b63d70e7cd8321e10cf996a5e2939b12718287b5fea83f
+  languageName: node
+  linkType: hard
+
+"@nomicfoundation/slang-win32-arm64-msvc@npm:0.17.0":
+  version: 0.17.0
+  resolution: "@nomicfoundation/slang-win32-arm64-msvc@npm:0.17.0"
+  checksum: d375fa211748278c583b1304ab0058446f48864bffab4c5f5da6491accce879a3bb7b9058c158a6f8017e3aa4708ff9aea2ba2321d8a3c0dc482e2aaac1ce70e
+  languageName: node
+  linkType: hard
+
+"@nomicfoundation/slang-win32-ia32-msvc@npm:0.17.0":
+  version: 0.17.0
+  resolution: "@nomicfoundation/slang-win32-ia32-msvc@npm:0.17.0"
+  checksum: 9bd53a13f74b22456371ac33f8174e74efc2cd70458bf8bc9b1f4f79995a07644e2d8fd32c6a7f3bd2bb57ce896a5be42c4d9ca9d2fa3db43358ef1fd035596d
+  languageName: node
+  linkType: hard
+
+"@nomicfoundation/slang-win32-x64-msvc@npm:0.17.0":
+  version: 0.17.0
+  resolution: "@nomicfoundation/slang-win32-x64-msvc@npm:0.17.0"
+  checksum: 7990aca40bc6022a26cdf62cbc3bfd1e8de78dd86cc0c059f35fae91946ba1caa29652c776dbff8875eea5440406111f7c5d21531f1146ad6e9927de1bb6e366
+  languageName: node
+  linkType: hard
+
+"@nomicfoundation/slang@npm:^0.17.0":
+  version: 0.17.0
+  resolution: "@nomicfoundation/slang@npm:0.17.0"
+  dependencies:
+    "@nomicfoundation/slang-darwin-arm64": 0.17.0
+    "@nomicfoundation/slang-darwin-x64": 0.17.0
+    "@nomicfoundation/slang-linux-arm64-gnu": 0.17.0
+    "@nomicfoundation/slang-linux-arm64-musl": 0.17.0
+    "@nomicfoundation/slang-linux-x64-gnu": 0.17.0
+    "@nomicfoundation/slang-linux-x64-musl": 0.17.0
+    "@nomicfoundation/slang-win32-arm64-msvc": 0.17.0
+    "@nomicfoundation/slang-win32-ia32-msvc": 0.17.0
+    "@nomicfoundation/slang-win32-x64-msvc": 0.17.0
+  checksum: 6363b5ed627fff62c7bed4fbd1c0b481ee021e52c9db35cedba198c1e2285b6d227b39a513ce321ce8d9a7687a8e9eaa51ef321d41c517711ab6136aa7d54a95
+  languageName: node
+  linkType: hard
+
 "@nomicfoundation/solidity-analyzer-darwin-arm64@npm:0.1.1":
   version: 0.1.1
   resolution: "@nomicfoundation/solidity-analyzer-darwin-arm64@npm:0.1.1"
@@ -7788,6 +7868,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@openzeppelin/defender-sdk-base-client@npm:^1.14.4, @openzeppelin/defender-sdk-base-client@npm:^1.15.0":
+  version: 1.15.0
+  resolution: "@openzeppelin/defender-sdk-base-client@npm:1.15.0"
+  dependencies:
+    amazon-cognito-identity-js: ^6.3.6
+    async-retry: ^1.3.3
+  checksum: 2cd706d11b849ebe366d4a1cf44b77021a1be02b0fd5bc73e3757e70f11fa0a498afbe5518311ee9736fe395d8bb0ace5fbafdcac869afb887eb913848ab77a8
+  languageName: node
+  linkType: hard
+
 "@openzeppelin/defender-sdk-deploy-client@npm:^1.10.0":
   version: 1.10.0
   resolution: "@openzeppelin/defender-sdk-deploy-client@npm:1.10.0"
@@ -7800,6 +7890,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@openzeppelin/defender-sdk-deploy-client@npm:^1.14.4":
+  version: 1.15.0
+  resolution: "@openzeppelin/defender-sdk-deploy-client@npm:1.15.0"
+  dependencies:
+    "@openzeppelin/defender-sdk-base-client": ^1.15.0
+    axios: ^1.7.2
+    lodash: ^4.17.21
+  checksum: 614c90c622f10e616ea0d8ec938b977b2086d8a5e1cb6b2e8a4537544697b9a26277ca2126f92053691acae4afa0a3ec37ab13bfe0fcfc7b91ec22c8190d0a71
+  languageName: node
+  linkType: hard
+
 "@openzeppelin/defender-sdk-network-client@npm:^1.10.0":
   version: 1.10.0
   resolution: "@openzeppelin/defender-sdk-network-client@npm:1.10.0"
@@ -7809,6 +7910,17 @@ __metadata:
     axios: ^1.6.7
     lodash: ^4.17.21
   checksum: 2cc3dbb12d7f9514c4a3e5aa02b2d2d25a4b631e96879199e7e665e63f47bf2856f1a097d9decf3c97a440c119cf4ab9b0557e78c24e58f99eb75b3166918ba0
+  languageName: node
+  linkType: hard
+
+"@openzeppelin/defender-sdk-network-client@npm:^1.14.4":
+  version: 1.15.0
+  resolution: "@openzeppelin/defender-sdk-network-client@npm:1.15.0"
+  dependencies:
+    "@openzeppelin/defender-sdk-base-client": ^1.15.0
+    axios: ^1.7.2
+    lodash: ^4.17.21
+  checksum: 1546bd2ec7a5ae6437f7dd381107fe19152ffcf90164b022124f1a0cc4af6b97c211f87a31302b5671831e64e43808e6b671b1c968e35acef8f627beb233a5b0
   languageName: node
   linkType: hard
 
@@ -7841,6 +7953,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@openzeppelin/hardhat-upgrades@npm:^3.5.0":
+  version: 3.5.0
+  resolution: "@openzeppelin/hardhat-upgrades@npm:3.5.0"
+  dependencies:
+    "@openzeppelin/defender-sdk-base-client": ^1.14.4
+    "@openzeppelin/defender-sdk-deploy-client": ^1.14.4
+    "@openzeppelin/defender-sdk-network-client": ^1.14.4
+    "@openzeppelin/upgrades-core": ^1.40.0
+    chalk: ^4.1.0
+    debug: ^4.1.1
+    ethereumjs-util: ^7.1.5
+    proper-lockfile: ^4.1.1
+    undici: ^6.11.1
+  peerDependencies:
+    "@nomicfoundation/hardhat-ethers": ^3.0.0
+    "@nomicfoundation/hardhat-verify": ^2.0.0
+    ethers: ^6.6.0
+    hardhat: ^2.0.2
+  peerDependenciesMeta:
+    "@nomicfoundation/hardhat-verify":
+      optional: true
+  bin:
+    migrate-oz-cli-project: dist/scripts/migrate-oz-cli-project.js
+  checksum: e7d1d02ea2bb46e56ab1d0ab9d1bcbbc6e16025053150d3c310224ac72ce315282d7996157e0f329940b05e445460303bd1fee4265b072b6e6dfee462d6d6e11
+  languageName: node
+  linkType: hard
+
 "@openzeppelin/upgrades-core@npm:^1.32.0":
   version: 1.32.5
   resolution: "@openzeppelin/upgrades-core@npm:1.32.5"
@@ -7856,6 +7995,26 @@ __metadata:
   bin:
     openzeppelin-upgrades-core: dist/cli/cli.js
   checksum: dd5daf48a2884e48ac1f80b0ecb0c0289f77cbc422556680e3bb9d031607739442017355684ed4cfb1175718f64fa4c67da3d19e83abd8558f0133e6423e8cec
+  languageName: node
+  linkType: hard
+
+"@openzeppelin/upgrades-core@npm:^1.40.0":
+  version: 1.40.0
+  resolution: "@openzeppelin/upgrades-core@npm:1.40.0"
+  dependencies:
+    "@nomicfoundation/slang": ^0.17.0
+    cbor: ^9.0.0
+    chalk: ^4.1.0
+    compare-versions: ^6.0.0
+    debug: ^4.1.1
+    ethereumjs-util: ^7.0.3
+    minimatch: ^9.0.5
+    minimist: ^1.2.7
+    proper-lockfile: ^4.1.1
+    solidity-ast: ^0.4.51
+  bin:
+    openzeppelin-upgrades-core: dist/cli/cli.js
+  checksum: 64fd7cedd213b3ed11f1bba982aedcd6cb0b6c79828f38935aec0e7bb2244e386a12c7d25d151cdd96d47a7becdc2f3c73f255ebd86d097e56f4b2286ef62c35
   languageName: node
   linkType: hard
 
@@ -15691,6 +15850,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:^1.7.2":
+  version: 1.7.7
+  resolution: "axios@npm:1.7.7"
+  dependencies:
+    follow-redirects: ^1.15.6
+    form-data: ^4.0.0
+    proxy-from-env: ^1.1.0
+  checksum: 882d4fe0ec694a07c7f5c1f68205eb6dc5a62aecdb632cc7a4a3d0985188ce3030e0b277e1a8260ac3f194d314ae342117660a151fabffdc5081ca0b5a8b47fe
+  languageName: node
+  linkType: hard
+
 "axobject-query@npm:^3.1.1":
   version: 3.2.1
   resolution: "axobject-query@npm:3.2.1"
@@ -18862,9 +19032,11 @@ __metadata:
     "@nomicfoundation/hardhat-viem": ^2.0.0
     "@openzeppelin/contracts": ^5.0.2
     "@openzeppelin/contracts-upgradeable": ^5.0.2
+    "@openzeppelin/hardhat-upgrades": ^3.5.0
     add: ^2.0.6
     dotenv: ^16.4.5
     hardhat: ^2.22.6
+    hardhat-contract-sizer: ^2.10.0
     solidity-bytes-utils: ^0.8.2
     yarn: ^1.22.22
   languageName: unknown
@@ -24194,6 +24366,16 @@ __metadata:
     debug:
       optional: true
   checksum: 5ca49b5ce6f44338cbfc3546823357e7a70813cecc9b7b768158a1d32c1e62e7407c944402a918ea8c38ae2e78266312d617dc68783fac502cbb55e1047b34ec
+  languageName: node
+  linkType: hard
+
+"follow-redirects@npm:^1.15.6":
+  version: 1.15.9
+  resolution: "follow-redirects@npm:1.15.9"
+  peerDependenciesMeta:
+    debug:
+      optional: true
+  checksum: 859e2bacc7a54506f2bf9aacb10d165df78c8c1b0ceb8023f966621b233717dab56e8d08baadc3ad3b9db58af290413d585c999694b7c146aaf2616340c3d2a6
   languageName: node
   linkType: hard
 
@@ -33404,6 +33586,15 @@ __metadata:
   dependencies:
     brace-expansion: ^2.0.1
   checksum: 253487976bf485b612f16bf57463520a14f512662e592e95c571afdab1442a6a6864b6c88f248ce6fc4ff0b6de04ac7aa6c8bb51e868e99d1d65eb0658a708b5
+  languageName: node
+  linkType: hard
+
+"minimatch@npm:^9.0.5":
+  version: 9.0.5
+  resolution: "minimatch@npm:9.0.5"
+  dependencies:
+    brace-expansion: ^2.0.1
+  checksum: 2c035575eda1e50623c731ec6c14f65a85296268f749b9337005210bb2b34e2705f8ef1a358b188f69892286ab99dc42c8fb98a57bde55c8d81b3023c19cea28
   languageName: node
   linkType: hard
 
@@ -45492,6 +45683,13 @@ __metadata:
   version: 6.7.1
   resolution: "undici@npm:6.7.1"
   checksum: 60380d69480e1dbc5e567b12234cd7dd3ee8d487d572bcc746ce0de717b6d98f78daec46de9df6dd9eeae7b41b7175837e9b29d02b8c2d38ca81c08cc4ad5b41
+  languageName: node
+  linkType: hard
+
+"undici@npm:^6.11.1":
+  version: 6.20.1
+  resolution: "undici@npm:6.20.1"
+  checksum: 3bb1405b406fa0e913ff4ec6fd310c9b4d950b7064ba5949b2f616c1f13070d26f5558aefb4b56b2eafb555925443ce44cb801e143d2417ecf12ddf8d5c05cf6
   languageName: node
   linkType: hard
 
