@@ -144,7 +144,11 @@ contract SnickerdoodleWalletFactory is OApp {
             bytes(operatorParams.domain).length > 0,
             "SnickerdoodleWalletFactory: Caller not a valid operator"
         );
-        string memory name = string.concat(username, ".", operatorParams.domain);
+        string memory name = string.concat(
+            username,
+            ".",
+            operatorParams.domain
+        );
 
         /// these variables are set once we know if we are on the source or destination chain
         address operator;
@@ -346,6 +350,7 @@ contract SnickerdoodleWalletFactory is OApp {
 
     /// @notice Compute the address that a Proxy will be/is deployed to
     /// @param salt the string that was used for the SnickerdoodleWallet salt value
+    /// @param beaconAddress the address of the beacon contract
     function computeProxyAddress(
         string memory salt,
         address beaconAddress
