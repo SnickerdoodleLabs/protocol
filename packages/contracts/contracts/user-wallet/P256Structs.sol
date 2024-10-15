@@ -14,12 +14,18 @@ struct P256Key {
     string keyId;
 }
 
-struct OperatorAndPoint {
+struct WalletParams {
     address operator;
+    string name;
     P256Key p256Key;
 }
 
 struct P256Signature {
     bytes32 r;
     bytes32 s;
+}
+
+struct OperatorGatewayParams {
+    string domain;
+    address[] operatorAccounts;
 }
