@@ -18,14 +18,14 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     /// @notice Layer Zero's option to support building the options param within the contract
     using OptionsBuilder for bytes;
 
+    /// @notice  Flag if this SnickerdoodleWallet factory is the source chain
+    bool public isSourceChain;
+
     /// @notice The address of the wallet beacon should not change for this upgrade pattern
     address public walletBeacon;
 
     /// @notice The address of the operator beacon should not change for this upgrade pattern
-    address public operatorBeacon;
-
-    /// @notice  Flag if this SnickerdoodleWallet factory is the source chain
-    bool public isSourceChain;
+    address public gatewayBeacon;
 
     /// @notice Tracks a deployed Snickerdoodle wallet proxy address to an owner
     /// @dev Functions as a claim lock, confirming that the user has deployed it on the source chain and claimed it on the destination chain
@@ -59,7 +59,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         address _layerZeroEndpoint,
         address _owner, 
         address _walletBeacon,
-        address _operatorBeacon
+        address _gatewayBeacon
     ) public payable initializer {
         __OApp_init(_layerZeroEndpoint, _owner);
 
@@ -69,7 +69,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         }
 
         walletBeacon = _walletBeacon;
-        operatorBeacon = _operatorBeacon;
+        gatewayBeacon = _gatewayBeacon;
     }
 
     function deploySnickerdoodleWalletProxies(
@@ -174,7 +174,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         if (isSourceChain) {
             /// if we are on the source chain, store wallet details for relaying to other chains
             deployedOperatorGatewayAddressToParams[
-                computeProxyAddress(domain, operatorBeacon)
+                computeProxyAddress(domain, gatewayBeacon)
             ] = OperatorGatewayParams(domain, operatorAccounts);
             saltString = domain;
             newOperatorAccounts = operatorAccounts;
@@ -182,7 +182,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             /// if we are on the destination chain, check that the wallet has been created on the source chain
             OperatorGatewayParams
                 memory params = deployedOperatorGatewayAddressToParams[
-                    computeProxyAddress(domain, operatorBeacon)
+                    computeProxyAddress(domain, gatewayBeacon)
                 ];
             require(
                 keccak256(abi.encodePacked(params.domain)) ==
@@ -198,7 +198,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         /// This means only the salt value is used to calculate the proxy address.
         BeaconProxy proxy = new BeaconProxy{
             salt: keccak256(abi.encodePacked(saltString))
-        }(operatorBeacon, "");
+        }(gatewayBeacon, "");
         OperatorGateway(address(proxy)).initialize(
             newOperatorAccounts,
             address(this)
@@ -298,7 +298,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             "SnickerdoodleFactory: Snickerdoodle wallet only claimable via source chain"
         );
         /// Compute the Snickerdoodle wallet proxy address
-        address proxy = computeProxyAddress(_domain, operatorBeacon);
+        address proxy = computeProxyAddress(_domain, gatewayBeacon);
 
         // Check that the details of the proxy address match the provided details
         OperatorGatewayParams
@@ -383,7 +383,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         string calldata _domain,
         uint128 _gas
     ) external view returns (uint256 nativeFee, uint256 lzTokenFee) {
-        address gatewayAddress = computeProxyAddress(_domain, operatorBeacon);
+        address gatewayAddress = computeProxyAddress(_domain, gatewayBeacon);
         bytes memory messageData = abi.encode(
             deployedOperatorGatewayAddressToParams[gatewayAddress],
             gatewayAddress

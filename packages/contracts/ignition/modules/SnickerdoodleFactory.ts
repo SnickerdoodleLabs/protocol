@@ -1,6 +1,6 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
-import SnickerdoodleOperatorGatewayModule from "./SnickerdoodleOperatorGateway";
+import OperatorGatewayModule from "./OperatorGateway";
 import SnickerdoodleWalletModule from "./SnickerdoodleWallet";
 
 const SnickerdoodleFactoryModule = buildModule(
@@ -11,19 +11,18 @@ const SnickerdoodleFactoryModule = buildModule(
     const { snickerdoodleWalletBeacon } = m.useModule(
       SnickerdoodleWalletModule,
     );
-    const { snickerdoodleOperatorGatewayBeacon } = m.useModule(
-      SnickerdoodleOperatorGatewayModule,
-    );
+    const { operatorGatewayBeacon } = m.useModule(OperatorGatewayModule);
 
     // Change the params here based on the chain to deploy on
-    const SnickerdoodleFactory = m.contract("SnickerdoodleFactory", [
+    const snickerdoodleFactory = m.contract("SnickerdoodleFactory", []);
+    m.call(snickerdoodleFactory, "initialize", [
       "0x6EDCE65403992e310A62460808c4b910D972f10f",
       owner,
       snickerdoodleWalletBeacon,
-      snickerdoodleOperatorGatewayBeacon,
+      operatorGatewayBeacon,
     ]);
 
-    return { SnickerdoodleFactory };
+    return { snickerdoodleFactory };
   },
 );
 
