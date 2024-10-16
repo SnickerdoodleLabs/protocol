@@ -10,11 +10,11 @@ import {Origin, MessagingFee} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp
 import {OptionsBuilder} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/libs/OptionsBuilder.sol";
 import {OAppUpgradeable} from "../oapp-upgradeable/OAppUpgradeable.sol";
 
-import "../operators/OperatorGateway.sol";
+import "./OperatorGateway.sol";
 import "./SnickerdoodleWallet.sol";
-import "./P256Structs.sol";
+import "./Structs.sol";
 
-contract SnickerdoodleWalletFactory is OAppUpgradeable {
+contract SnickerdoodleFactory is OAppUpgradeable {
     /// @notice Layer Zero's option to support building the options param within the contract
     using OptionsBuilder for bytes;
 
@@ -57,7 +57,9 @@ contract SnickerdoodleWalletFactory is OAppUpgradeable {
     /// @dev OApp inherits OAppCore which inherits OZ's Ownable
     function initialize(
         address _layerZeroEndpoint,
-        address _owner
+        address _owner, 
+        address _walletBeacon,
+        address _operatorBeacon
     ) public payable initializer {
         __OApp_init(_layerZeroEndpoint, _owner);
 
@@ -65,68 +67,27 @@ contract SnickerdoodleWalletFactory is OAppUpgradeable {
         if (block.chainid == 43113 || block.chainid == 43114) {
             isSourceChain = true;
         }
-    }
 
-    /// @notice Deploys the wallet implementation and its upgradeable beacon
-    /// @dev This function can be called by anyone but can only be called one time
-    /// @dev moved to a stand alone function to meet deployment gas limits
-    function initWalletFactory() external {
-        /// Deploy an instance of a SnickerdoodleWallet to use as the implementation contract
-        /// the Deployer address (this) must be the same on every network to get the same addresses
-        SnickerdoodleWallet snickerdoodleWalletImpl = new SnickerdoodleWallet{
-            salt: keccak256("snickerdoodle-wallet-impl")
-        }();
-        snickerdoodleWalletImpl.initialize(
-            owner(),
-            P256Key(
-                0x000000000000000000000000000000000000000000000000000000000000dEaD,
-                0x000000000000000000000000000000000000000000000000000000000000dEaD,
-                "1337"
-            )
-        );
-
-        /// Deploy the Upgradeable Beacon that points to the implementation SnickerdoodleWallet contract address
-        /// https://docs.openzeppelin.com/contracts/3.x/api/proxy#UpgradeableProxy
-        /// All deployed proxies can be upgraded by changing the implementation address in the beacon
-        UpgradeableBeacon _upgradeableBeacon = new UpgradeableBeacon{
-            salt: keccak256("snickerdoodle-wallet-beacon")
-        }(address(snickerdoodleWalletImpl), owner());
-        walletBeacon = address(_upgradeableBeacon);
-    }
-
-    /// @notice Deploys the operator implementation and its upgradeable beacon
-    /// @dev This function can be called by anyone but can only be called one time
-    /// @dev moved to a stand alone function to meet deployment gas limits
-    function initOperatorFactory() external {
-        /// Deploy an instance of a SnickerdoodleWallet to use as the implementation contract
-        /// the Deployer address (this) must be the same on every network to get the same addresses
-        OperatorGateway operatorGatewayImpl = new OperatorGateway{
-            salt: keccak256("snickerdoodle-operator-impl")
-        }();
-        address[] memory dummyOperators = new address[](1);
-        dummyOperators[0] = owner();
-        operatorGatewayImpl.initialize(dummyOperators, address(this));
-
-        /// Deploy the Upgradeable Beacon that points to the implementation SnickerdoodleWallet contract address
-        /// https://docs.openzeppelin.com/contracts/3.x/api/proxy#UpgradeableProxy
-        /// All deployed proxies can be upgraded by changing the implementation address in the beacon
-        UpgradeableBeacon _upgradeableBeacon = new UpgradeableBeacon{
-            salt: keccak256("snickerdoodle-operator-beacon")
-        }(address(operatorGatewayImpl), owner());
-        operatorBeacon = address(_upgradeableBeacon);
+        walletBeacon = _walletBeacon;
+        operatorBeacon = _operatorBeacon;
     }
 
     function deploySnickerdoodleWalletProxies(
         string[] calldata names,
-        P256Key[] calldata _p256Keys
+        P256Key[] calldata _p256Keys,
+        address[][] calldata evmAccounts
     ) public {
         require(
             names.length == _p256Keys.length,
-            "SnickerdoodleWalletFactory: Names and P256 points length mismatch"
+            "SnickerdoodleFactory: Names and P256 points length mismatch"
+        );
+        require(
+            _p256Keys.length == _p256Keys.length,
+            "SnickerdoodleFactory: P256 points and evmAccounts length mismatch"
         );
 
         for (uint256 i = 0; i < names.length; i++) {
-            deploySnickerdoodleWalletProxy(names[i], _p256Keys[i]);
+            deploySnickerdoodleWalletProxy(names[i], _p256Keys[i], evmAccounts[i]);
         }
     }
 
@@ -134,9 +95,11 @@ contract SnickerdoodleWalletFactory is OAppUpgradeable {
     /// @dev https://docs.openzeppelin.com/contracts/5.x/api/proxy#UpgradeableBeacon
     /// @param username a string used to name the SnickerdoodleWallet deployed to make it easy to look up (hashed to create salt)
     /// @param p256Key a new 256 key used to deploy a user wallet; includes the keyId, x, and y coordinates.
+    /// @param evmAccounts addresses to add as operators to the OperatorGateway
     function deploySnickerdoodleWalletProxy(
         string calldata username,
-        P256Key calldata p256Key
+        P256Key calldata p256Key,
+        address[] calldata evmAccounts
     ) public {
         OperatorGatewayParams
             memory operatorParams = deployedOperatorGatewayAddressToParams[
@@ -144,7 +107,7 @@ contract SnickerdoodleWalletFactory is OAppUpgradeable {
             ];
         require(
             bytes(operatorParams.domain).length > 0,
-            "SnickerdoodleWalletFactory: Caller not a valid operator"
+            "SnickerdoodleFactory: Caller not a valid operator"
         );
         string memory name = string.concat(
             username,
@@ -156,16 +119,18 @@ contract SnickerdoodleWalletFactory is OAppUpgradeable {
         address operator;
         string memory saltString;
         P256Key memory newKey;
+        address[] memory newEvmAccounts;
 
         if (isSourceChain) {
             /// if we are on the source chain, store wallet details for relaying to other chains
             saltString = name;
             operator = msg.sender;
             newKey = p256Key;
+            newEvmAccounts = evmAccounts;
 
             deployedSnickerdoodleWalletAddressToOwner[
                 computeProxyAddress(name, walletBeacon)
-            ] = WalletParams(msg.sender, name, p256Key);
+            ] = WalletParams(msg.sender, name, p256Key, evmAccounts);
         } else {
             /// if we are on the destination chain, check that the wallet has been created on the source chain
             WalletParams
@@ -175,11 +140,12 @@ contract SnickerdoodleWalletFactory is OAppUpgradeable {
             require(
                 keccak256(abi.encodePacked(params.name)) ==
                     keccak256(abi.encodePacked(name)),
-                "SnickerdoodleWalletFactory: Snickerdoodle wallet with selected name has not been created on the source chain"
+                "SnickerdoodleFactory: Snickerdoodle wallet with selected name has not been created on the source chain"
             );
             operator = params.operator;
             saltString = params.name;
             newKey = params.p256Key;
+            newEvmAccounts = params.evmAccounts;
         }
 
         /// NOTE: The address of the proxy contract will never change after deployment.
@@ -188,7 +154,7 @@ contract SnickerdoodleWalletFactory is OAppUpgradeable {
         BeaconProxy proxy = new BeaconProxy{
             salt: keccak256(abi.encodePacked(saltString))
         }(walletBeacon, "");
-        SnickerdoodleWallet(address(proxy)).initialize(operator, newKey);
+        SnickerdoodleWallet(address(proxy)).initialize(operator, newKey, newEvmAccounts);
 
         emit SnickerdoodleWalletCreated(address(proxy), saltString);
     }
@@ -221,7 +187,7 @@ contract SnickerdoodleWalletFactory is OAppUpgradeable {
             require(
                 keccak256(abi.encodePacked(params.domain)) ==
                     keccak256(abi.encodePacked(domain)),
-                "SnickerdoodleWalletFactory: Snickerdoodle wallet with selected name has not been created on the source chain"
+                "SnickerdoodleFactory: Snickerdoodle wallet with selected name has not been created on the source chain"
             );
             saltString = params.domain;
             newOperatorAccounts = params.operatorAccounts;
@@ -241,6 +207,25 @@ contract SnickerdoodleWalletFactory is OAppUpgradeable {
         emit OperatorGatewayDeployed(address(proxy), saltString);
     }
 
+    /// @notice A batch function to reserve multiple wallets on the destination chain in one call
+    /// @param _destinationChainEID Layer Zero Endpoint id for the target destination chain
+    /// @param _names an array of strings used to name the SnickerdoodleWallet deployed to make it easy to look up (hashed to create salt)
+    /// @param _gas Gas for message execution options, refer to : https://docs.layerzero.network/v2/developers/evm/oapp/overview#message-execution-options
+    function reserveWalletsOnDestinationChain(
+        uint32 _destinationChainEID,
+        string[] calldata _names,
+        uint128 _gas
+    ) external payable {
+        require(
+            isSourceChain,
+            "SnickerdoodleFactory: Snickerdoodle wallet only claimable via source chain"
+        );
+
+        for (uint256 i = 0; i < _names.length; i++) {
+            reserveWalletOnDestinationChain(_destinationChainEID, _names[i], _gas);
+        }
+    }
+
     /// @notice Sends a message from the source to the destination chain to claim a Snickerdoodle wallet address.
     /// @dev Call quoteClaimWalletOnDestinationChain() and include it's fee value as part of the msg.value for this function
     /// @dev If the destination chain has not been set as a peer contract, it will error NoPeer(_destinationChainEID)
@@ -251,10 +236,10 @@ contract SnickerdoodleWalletFactory is OAppUpgradeable {
         uint32 _destinationChainEID,
         string calldata _name,
         uint128 _gas
-    ) external payable {
+    ) public payable {
         require(
             isSourceChain,
-            "SnickerdoodleWalletFactory: Snickerdoodle wallet only claimable via source chain"
+            "SnickerdoodleFactory: Snickerdoodle wallet only claimable via source chain"
         );
         /// Compute the Snickerdoodle wallet proxy address
         address proxy = computeProxyAddress(_name, walletBeacon);
@@ -268,7 +253,7 @@ contract SnickerdoodleWalletFactory is OAppUpgradeable {
         /// TODO: don't know if this check is actually necessary
         require(
             ownerDetails.operator == msg.sender,
-            "SnickerdoodleWalletFactory: Operator of provided wallet name does not match caller"
+            "SnickerdoodleFactory: Operator of provided wallet name does not match caller"
         );
 
         /// Encodes the message before invoking _lzSend.
@@ -278,7 +263,8 @@ contract SnickerdoodleWalletFactory is OAppUpgradeable {
                 WalletParams(
                     ownerDetails.operator,
                     _name,
-                    ownerDetails.p256Key
+                    ownerDetails.p256Key,
+                    ownerDetails.evmAccounts
                 ),
                 proxy
             )
@@ -309,7 +295,7 @@ contract SnickerdoodleWalletFactory is OAppUpgradeable {
     ) external payable {
         require(
             isSourceChain,
-            "SnickerdoodleWalletFactory: Snickerdoodle wallet only claimable via source chain"
+            "SnickerdoodleFactory: Snickerdoodle wallet only claimable via source chain"
         );
         /// Compute the Snickerdoodle wallet proxy address
         address proxy = computeProxyAddress(_domain, operatorBeacon);
@@ -323,7 +309,7 @@ contract SnickerdoodleWalletFactory is OAppUpgradeable {
         require(
             keccak256(abi.encodePacked(operatorDetails.domain)) ==
                 keccak256(abi.encodePacked(_domain)),
-            "SnickerdoodleWalletFactory: Domains do not match"
+            "SnickerdoodleFactory: Domains do not match"
         );
 
         /// Encodes the message before invoking _lzSend.
@@ -478,7 +464,7 @@ contract SnickerdoodleWalletFactory is OAppUpgradeable {
         ) {
             _handleClaimOperatorGatewayOnDestinationChain(messageData);
         } else {
-            revert("SnickerdoodleWalletFactory: Unknown message type");
+            revert("SnickerdoodleFactory: Unknown message type");
         }
     }
 

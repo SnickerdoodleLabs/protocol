@@ -18,6 +18,7 @@ struct WalletParams {
     address operator;
     string name;
     P256Key p256Key;
+    address[] evmAccounts;
 }
 
 struct P256Signature {

@@ -6,7 +6,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./tmp/Base64.sol";
 import "./tmp/P256.sol";
-import "./P256Structs.sol";
+import "./Structs.sol";
 
 contract SnickerdoodleWallet is Initializable {
     /// @notice P256 curve parameters
@@ -47,12 +47,19 @@ contract SnickerdoodleWallet is Initializable {
     }
 
     /// @notice creates a user wallet
+    /// @dev you can optionally deploy the wallet with an EVM account if availble from the user
     function initialize(
         address operator,
-        P256Key calldata p256Key
+        P256Key calldata p256Key,
+        address[] calldata evmAccount
     ) public initializer {
         _addOperator(operator);
         _addP256Key(p256Key.keyId, p256Key.x, p256Key.y);
+        if (evmAccount.length > 0) {
+            for (uint256 i = 0; i < evmAccount.length; i++) {
+                _addEVMAccount(evmAccount[i]);
+            }
+        }
     }
 
     /// @notice authorizes the addition of a new P256 key via an existing P256 key
