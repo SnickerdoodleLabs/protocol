@@ -1,6 +1,6 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
-const npx hardhat ignition visualize = buildModule(
+const SnickerdoodleOperatorGatewayModule = buildModule(
   "SnickerdoodleOperatorGatewayModule",
   (m) => {
     const owner = "0xBaea3282Cd6d44672EA12Eb6434ED1d1d4b615C7";
@@ -8,7 +8,7 @@ const npx hardhat ignition visualize = buildModule(
     // Change the params here based on the chain to deploy on
     // TODO: fix the burn address coordinates
     const snickerdoodleOperatorGatewayImpl = m.contract(
-      "SnickerdoodleWallet",
+      "SnickerdoodleOperatorGateway",
       [],
     );
     m.call(snickerdoodleOperatorGatewayImpl, "initialize", [
