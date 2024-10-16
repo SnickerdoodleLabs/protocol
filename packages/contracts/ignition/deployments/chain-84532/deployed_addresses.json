@@ -1,3 +1,10 @@
 {
-  "SnickerdoodleWalletModule#SnickerdoodleWalletFactory": "0x572B916bE8A2da113c9F5D34d28F805d9f9355B1"
+  "OperatorGatewayModule#OperatorGateway": "0xe73dEe984F13576e9efb59945e0a768c5d552612",
+  "SnickerdoodleFactoryModule#SnickerdoodleFactory": "0xfAbCffB5888BDE010dB748c3bcD12e58EEFbd59A",
+  "SnickerdoodleWalletModule#SnickerdoodleWallet": "0xa33D178d4A36C6614d3191316b43FB0Fb4d643C1",
+  "OperatorGatewayModule#UpgradeableBeacon": "0xA79bd48823603Ba2C1D99523bf2b6a680c50dbeA",
+  "SnickerdoodleFactoryModule#TransparentUpgradeableProxy": "0xe47D8cD2c18796342e5D56b68FCbc6fDa7c7FeD8",
+  "SnickerdoodleWalletModule#UpgradeableBeacon": "0xcD1622A338a4a6f3ea74c6EDBD49AE4b8c62Bd39",
+  "SnickerdoodleFactoryModule#SnickerdoodleFactoryProxy": "0xe47D8cD2c18796342e5D56b68FCbc6fDa7c7FeD8",
+  "SnickerdoodleFactoryModule#ProxyAdmin": "0x22b253d268045C0c0D14542cE91Fb94B01e02eB8"
 }

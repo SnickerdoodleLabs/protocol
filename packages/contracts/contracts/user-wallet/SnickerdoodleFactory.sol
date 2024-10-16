@@ -371,7 +371,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     }
 
     /// @notice Estimating the fee for to send a message to reserve a Snickerdoodle wallet on destination chain
-    function quoteReserveWalletOnDestinationChain(
+    function quoteClaimWalletOnDestinationChain(
         uint32 _dstEid,
         string calldata username,
         address operator,
