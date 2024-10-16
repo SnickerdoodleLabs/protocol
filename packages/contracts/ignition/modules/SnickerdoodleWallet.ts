@@ -3,7 +3,7 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 const SnickerdoodleWalletModule = buildModule(
   "SnickerdoodleWalletModule",
   (m) => {
-    const owner = "0xBaea3282Cd6d44672EA12Eb6434ED1d1d4b615C7";
+    const owner = m.getAccount(0);
 
     // Change the params here based on the chain to deploy on
     // TODO: fix the burn address coordinates
