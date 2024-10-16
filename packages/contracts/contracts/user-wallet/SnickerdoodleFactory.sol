@@ -75,27 +75,27 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     }
 
     function deploySnickerdoodleWalletProxies(
-        string[] calldata names,
+        string[] calldata usernames,
         P256Key[] calldata _p256Keys,
         address[][] calldata evmAccounts
     ) public {
         require(
-            names.length == _p256Keys.length,
-            "SnickerdoodleFactory: Names and P256 points length mismatch"
+            usernames.length == _p256Keys.length,
+            "SnickerdoodleFactory: Usernames and P256 points length mismatch"
         );
         require(
             _p256Keys.length == _p256Keys.length,
             "SnickerdoodleFactory: P256 points and evmAccounts length mismatch"
         );
 
-        for (uint256 i = 0; i < names.length; i++) {
-            deploySnickerdoodleWalletProxy(names[i], _p256Keys[i], evmAccounts[i]);
+        for (uint256 i = 0; i < usernames.length; i++) {
+            deploySnickerdoodleWalletProxy(usernames[i], _p256Keys[i], evmAccounts[i]);
         }
     }
 
     /// @notice Deploys a Beacon Proxy with name keyword and salt to create an upgradeable SnickerdoodleWallet
     /// @dev https://docs.openzeppelin.com/contracts/5.x/api/proxy#UpgradeableBeacon
-    /// @param username a string used to name the SnickerdoodleWallet deployed to make it easy to look up (hashed to create salt)
+    /// @param username a string that will be prepended to the calling operator's domain to create a unique name for a create2 salt
     /// @param p256Key a new 256 key used to deploy a user wallet; includes the keyId, x, and y coordinates.
     /// @param evmAccounts addresses to add as operators to the OperatorGateway
     function deploySnickerdoodleWalletProxy(
@@ -211,11 +211,11 @@ contract SnickerdoodleFactory is OAppUpgradeable {
 
     /// @notice A batch function to reserve multiple wallets on the destination chain in one call
     /// @param _destinationChainEID Layer Zero Endpoint id for the target destination chain
-    /// @param _names an array of strings used to name the SnickerdoodleWallet deployed to make it easy to look up (hashed to create salt)
+    /// @param usernames an array of strings used to name the SnickerdoodleWallet deployed to make it easy to look up (hashed to create salt)
     /// @param _gas Gas for message execution options, refer to : https://docs.layerzero.network/v2/developers/evm/oapp/overview#message-execution-options
     function reserveWalletsOnDestinationChain(
         uint32 _destinationChainEID,
-        string[] calldata _names,
+        string[] calldata usernames,
         uint128 _gas
     ) external payable {
         require(
@@ -223,8 +223,8 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             "SnickerdoodleFactory: Snickerdoodle wallet only reservable via source chain"
         );
 
-        for (uint256 i = 0; i < _names.length; i++) {
-            reserveWalletOnDestinationChain(_destinationChainEID, _names[i], _gas);
+        for (uint256 i = 0; i < usernames.length; i++) {
+            reserveWalletOnDestinationChain(_destinationChainEID, usernames[i], _gas);
         }
     }
 
@@ -232,19 +232,32 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     /// @dev Call quoteReserveWalletOnDestinationChain() and include it's fee value as part of the msg.value for this function
     /// @dev If the destination chain has not been set as a peer contract, it will error NoPeer(_destinationChainEID)
     /// @param _destinationChainEID Layer Zero Endpoint id for the target destination chain
-    /// @param _name a string used to name the SnickerdoodleWallet deployed to make it easy to look up (hashed to create salt)
+    /// @param username a string used to name the SnickerdoodleWallet deployed to make it easy to look up (hashed to create salt)
     /// @param _gas Gas for message execution options, refer to : https://docs.layerzero.network/v2/developers/evm/oapp/overview#message-execution-options
     function reserveWalletOnDestinationChain(
         uint32 _destinationChainEID,
-        string calldata _name,
+        string calldata username,
         uint128 _gas
     ) public payable {
         require(
             isSourceChain,
             "SnickerdoodleFactory: Snickerdoodle wallet only reservable via source chain"
         );
-        /// Compute the Snickerdoodle wallet proxy address
-        address proxy = computeProxyAddress(_name, walletBeacon);
+
+        /// look up the operator details for the caller
+        OperatorGatewayParams memory operatorParms = deployedOperatorGatewayAddressToParams[msg.sender];
+        require(
+            bytes(operatorParms.domain).length > 0,
+            "SnickerdoodleFactory: Caller not a valid operator"
+        );
+        string memory name = string.concat(
+            username,
+            ".",
+            operatorParms.domain
+        );
+
+        /// Compute the wallet proxy address
+        address proxy = computeProxyAddress(name, walletBeacon);
 
         // Check that the details of the proxy address match the provided details
         WalletParams
@@ -264,7 +277,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             abi.encode(
                 WalletParams(
                     ownerDetails.operator,
-                    _name,
+                    name,
                     ownerDetails.p256Key,
                     ownerDetails.evmAccounts
                 ),
@@ -360,10 +373,22 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     /// @notice Estimating the fee for to send a message to reserve a Snickerdoodle wallet on destination chain
     function quoteReserveWalletOnDestinationChain(
         uint32 _dstEid,
-        string calldata _name,
+        string calldata username,
+        address operator,
         uint128 _gas
     ) external view returns (uint256 nativeFee, uint256 lzTokenFee) {
-        address walletAddress = computeProxyAddress(_name, walletBeacon);
+        OperatorGatewayParams memory operatorParms = deployedOperatorGatewayAddressToParams[operator];
+        require(
+            bytes(operatorParms.domain).length > 0,
+            "SnickerdoodleFactory: Caller not a valid operator"
+        );
+        string memory name = string.concat(
+            username,
+            ".",
+            operatorParms.domain
+        );
+
+        address walletAddress = computeProxyAddress(name, walletBeacon);
         bytes memory messageData = abi.encode(
             deployedSnickerdoodleWalletAddressToOwner[walletAddress],
             walletAddress

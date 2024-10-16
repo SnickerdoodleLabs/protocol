@@ -54,7 +54,7 @@ contract SnickerdoodleWallet is Initializable {
         address[] calldata evmAccount
     ) public initializer {
         _addOperator(operator);
-        _addP256Key(p256Key.keyId, p256Key.x, p256Key.y);
+        _addP256Key(p256Key);
         if (evmAccount.length > 0) {
             for (uint256 i = 0; i < evmAccount.length; i++) {
                 _addEVMAccount(evmAccount[i]);
@@ -87,7 +87,7 @@ contract SnickerdoodleWallet is Initializable {
             ),
             "Invalid P256 Signature"
         );
-        _addP256Key(newP256Key.keyId, newP256Key.x, newP256Key.y);
+        _addP256Key(newP256Key);
     }
 
     /// @notice authorizes the addition of an EVM address via a P256 signature
@@ -177,17 +177,15 @@ contract SnickerdoodleWallet is Initializable {
 
     /// @notice adds a P256 public key to the user's wallet
     function _addP256Key(
-        string calldata _keyId,
-        bytes32 _qx,
-        bytes32 _qy
+        P256Key memory p256Key
     ) private {
-        bytes32 keyHash = keccak256(abi.encodePacked(_keyId));
+        bytes32 keyHash = keccak256(abi.encodePacked(p256Key.keyId));
         require(
             p256Keys[keyHash].x == 0,
             "P256 key already added"
         );
-        p256Keys[keyHash] = P256Key(_qx, _qy, _keyId);
-        emit P256KeyAdded(keyHash, _qx, _qy, _keyId);
+        p256Keys[keyHash] = p256Key;
+        emit P256KeyAdded(keyHash, p256Key.x, p256Key.y, p256Key.keyId);
     }
 
     /// @notice verifies a P256 signature

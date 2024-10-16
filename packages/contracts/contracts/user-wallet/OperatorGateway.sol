@@ -32,15 +32,15 @@ contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
     }
 
     /// @notice deploy a user wallet with a P256 key from the wallet factory
-    /// @param names the names of the user wallets
+    /// @param usernames the usernames of the user wallets that will be prepended with the operator's domain
     /// @param p256Keys the P256 keys of the user wallets
     function deploySnickerdoodleWallets(
-        string[] calldata names,
+        string[] calldata usernames,
         P256Key[] calldata p256Keys,
         address[][] calldata evmAccounts
     ) public onlyRole(OPERATOR_ROLE) {
         SnickerdoodleFactory(walletFactory).deploySnickerdoodleWalletProxies(
-            names,
+            usernames,
             p256Keys,
             evmAccounts
         );
@@ -48,18 +48,33 @@ contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
 
     /// @notice Reserve multiple usernames on the destination chain with a single transaction
     /// @param _destinationChainEID the destination chain's EID
-    /// @param _names the names of the wallets to reserve
+    /// @param usernames the usernames of the user wallets that will be prepended with the operator's domain
     /// @param _gas the gas to send with the transaction
     function reserveWalletsOnDestinationChain(
         uint32 _destinationChainEID,
-        string[] calldata _names,
+        string[] calldata usernames,
         uint128 _gas
     ) external payable {
         SnickerdoodleFactory(walletFactory).reserveWalletsOnDestinationChain(
             _destinationChainEID,
-            _names,
+            usernames,
             _gas
         );
+    }
+
+    function quoteReserveWalletOnDestinationChain(
+        uint32 _dstEid,
+        string calldata username,
+        uint128 _gas
+    ) external view returns (uint256, uint256) {
+        return
+            SnickerdoodleFactory(walletFactory)
+                .quoteReserveWalletOnDestinationChain(
+                    _dstEid,
+                    username,
+                    address(this),
+                    _gas
+                );
     }
 
     /// @notice add new P256 keys to user accounts

@@ -4,7 +4,6 @@ const OperatorGatewayModule = buildModule("OperatorGatewayModule", (m) => {
   const owner = m.getAccount(0);
 
   // Change the params here based on the chain to deploy on
-  // TODO: fix the burn address coordinates
   const operatorGatewayImpl = m.contract("OperatorGateway", []);
   m.call(operatorGatewayImpl, "initialize", [
     [owner],
