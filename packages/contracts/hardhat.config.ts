@@ -7,7 +7,7 @@ import "hardhat-contract-sizer";
 // To use viem, import below alone
 // import "@nomicfoundation/hardhat-toolbox-viem";
 
-import "./tasks/snickerdoodFactory";
+import "./tasks/snickerdoodleFactory";
 
 require("dotenv").config();
 
