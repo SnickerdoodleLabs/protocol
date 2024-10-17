@@ -1,5 +1,4 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
-import { ethers } from "hardhat";
 
 import { getLzEndpointByChainId } from "./helpers";
 import OperatorGatewayModule from "./OperatorGateway";

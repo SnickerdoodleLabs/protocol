@@ -66,9 +66,13 @@ describe("SnickerdoodleFactory", function () {
     const { gatewayBeacon } = await loadFixture(deployOperatorGateway);
     const { walletBeacon } = await loadFixture(deployWallet);
 
+    const endpointV2Mock = await hre.ethers.deployContract(
+      "EndpointV2Mock",
+      [],
+    );
     const factory = await hre.ethers.deployContract("SnickerdoodleFactory", []);
     await factory.initialize(
-      owner.address, // this needs something to make it work
+      await endpointV2Mock.getAddress(), // this needs something to make it work
       owner.address,
       await walletBeacon.getAddress(),
       await gatewayBeacon.getAddress(),
