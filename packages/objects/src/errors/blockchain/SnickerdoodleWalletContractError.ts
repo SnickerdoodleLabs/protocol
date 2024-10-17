@@ -3,8 +3,9 @@ import { ethers } from "ethers";
 import { BaseBlockchainTransactionError } from "@objects/errors/blockchain/BaseBlockchainTransactionError.js";
 import errorCodes from "@objects/errors/errorCodes.js";
 
-export class SmartWalletContractError extends BaseBlockchainTransactionError {
-  protected errorCode: string = errorCodes[SmartWalletContractError.name];
+export class SnickerdoodleWalletContractError extends BaseBlockchainTransactionError {
+  protected errorCode: string =
+    errorCodes[SnickerdoodleWalletContractError.name];
   constructor(
     message: string,
     src: unknown | null,
@@ -13,7 +14,7 @@ export class SmartWalletContractError extends BaseBlockchainTransactionError {
     super(
       message,
       500,
-      errorCodes[SmartWalletContractError.name],
+      errorCodes[SnickerdoodleWalletContractError.name],
       src,
       transaction,
       false,
