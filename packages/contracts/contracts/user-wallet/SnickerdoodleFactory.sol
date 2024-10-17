@@ -66,7 +66,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         __Ownable_init(_owner);
 
         /// If the chain id is Avalanche / Fuji, flag that it is the source chain
-        if (block.chainid == 43113 || block.chainid == 43114) {
+        if (block.chainid == 43113 || block.chainid == 43114 || block.chainid == 31337) {
             isSourceChain = true;
         }
 

@@ -80,14 +80,28 @@ describe("SnickerdoodleFactory", function () {
 
     return {
       factory,
+      gatewayBeacon,
+      walletBeacon,
       owner,
       otherAccount,
     };
   }
 
   describe("Deploy OperatorGateway", function () {
-    it("Test adding and removing an eTLD+1 domain", async function () {
-      const { gateway, owner } = await loadFixture(deployFactory);
+    it("Test deploying an operator gateway", async function () {
+      const { factory, gatewayBeacon, owner } = await loadFixture(
+        deployFactory,
+      );
+
+      const domain = "snickerdoodle";
+      const predictedAddress = await factory.computeProxyAddress(
+        domain,
+        await gatewayBeacon.getAddress(),
+      );
+
+      await expect(factory.deployOperatorGatewayProxy(domain, [owner.address]))
+        .to.emit(factory, "OperatorGatewayDeployed")
+        .withArgs(predictedAddress, domain);
     });
   });
 });
