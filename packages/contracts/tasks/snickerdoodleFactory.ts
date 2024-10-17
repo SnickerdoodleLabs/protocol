@@ -2,14 +2,9 @@ import { task } from "hardhat/config";
 
 const SNICKERDOODLE_FACTORY_CONTRACT_NAME = "SnickerdoodleFactory";
 const SNICKERDOODLE_FACTORY_PROXY =
-  "0xe47D8cD2c18796342e5D56b68FCbc6fDa7c7FeD8";
+  "0x233599DE659972dBD432cB3FC001E6185b4f10dC";
 const OPERATOR_GATEWAY_CONTRACT_NAME = "OperatorGateway";
-const OPERATOR_GATEWAY_PROXY = "0x017288946F4c88A6c5B507292D761cc6794Fe774";
-
-// 0xc0bD8015F926AFD9f00B14006FD5188dB2F93789
-const KEYID = "TAp_FZMZshG7RuJhiObFTQ";
-const QX = "0x2e0aa0b0dd416999b35cf3d03c2df3d4487cefae5b694aceb365efae4781eec5";
-const QY = "0xb98bce418ffa0076d45cdfeac10070dc81cc9360b496e9aa1044dbca92d8493f";
+const OPERATOR_GATEWAY_PROXY = " 0xd746d066Dc666A54776a4aF965fc967954bEFc1a";
 
 task(
   "snickerdoodleWalletFactorySetPeer",
@@ -95,21 +90,21 @@ task(
   "deploySnickerdoodleWalletProxyViaOperatorGateway",
   "Deploy a Snickerdoodle wallet beacon proxy",
 )
-  .addParam("name", "name of the wallet")
+  .addParam("username", "User name of the wallet")
   .addParam("qx", "X coordinate of the Passkey public key")
   .addParam("qy", "Y coordinate of the Passkey public key")
   .addParam("keyid", "Passkey id")
   .setAction(async (taskArgs, hre) => {
     const { ethers } = hre;
 
-    const factory = await ethers.getContractAt(
+    const operator = await ethers.getContractAt(
       OPERATOR_GATEWAY_CONTRACT_NAME,
       OPERATOR_GATEWAY_PROXY,
     );
 
     // Make sure this is
-    const txResponse = await factory.deploySnickerdoodleWallets(
-      [taskArgs.name],
+    const txResponse = await operator.deploySnickerdoodleWallets(
+      [taskArgs.username],
       [
         {
           x: taskArgs.qx,
@@ -267,6 +262,7 @@ task(
     "Layer Zero endpoint id for the destination chain",
   )
   .addParam("namewithdomain", "Name plus domain of the wallet")
+  .addParam("operator", "Operator address of the wallet")
   .addParam(
     "gas",
     "Amount of gas in wei to include in the quote to cover the function of lzReceive",
@@ -286,6 +282,7 @@ task(
       const quotePrice = await factory.quoteReserveWalletOnDestinationChain(
         Number(taskArgs.destinationchainid),
         taskArgs.namewithdomain,
+        taskArgs.operator,
         Number(taskArgs.gas),
       );
 
@@ -296,35 +293,35 @@ task(
   });
 
 task(
-  "reserveWalletAddressOnDestinationChain",
+  "reserveWalletAddressOnDestinationChainViaOperatorGateway",
   "Send a message to the destination chain to reserve the wallet address",
 )
   .addParam(
     "destinationchaineid",
     "Layer Zero endpoint id for the destination chain",
   )
-  .addParam("namewithdomain", "Name plus domain of the wallet")
+  .addParam("username", "Username of the wallet")
   .addParam(
     "gas",
     "Amount of gas in wei to include in the quote to cover the function of lzReceive",
   )
   .addParam(
     "feeinwei",
-    "The fees from the quoteReserveSnickerdoodleWalletOnDestinationChain call",
+    "The fees from the quoteReserveWalletOnDestinationChain call",
   )
 
   .setAction(async (taskArgs, hre) => {
     const { ethers } = hre;
 
-    const factory = await ethers.getContractAt(
+    const operator = await ethers.getContractAt(
       OPERATOR_GATEWAY_CONTRACT_NAME,
       OPERATOR_GATEWAY_PROXY,
     );
 
     try {
-      const txResponse = await factory.reserveWalletsOnDestinationChain(
+      const txResponse = await operator.reserveWalletsOnDestinationChain(
         Number(taskArgs.destinationchaineid),
-        [taskArgs.namewithdomain],
+        [taskArgs.username],
         Number(taskArgs.gas),
         {
           value: taskArgs.feeinwei,
@@ -341,6 +338,172 @@ task(
     }
   });
 
+task(
+  "computeWalletProxyAddress",
+  "Calculate the proxy address for a given user name with domain Snickerdoodle wallet",
+)
+  .addParam("usernamewithdomain", "Name plus domain of the wallet")
+
+  .setAction(async (taskArgs, hre) => {
+    const { ethers } = hre;
+
+    const factory = await ethers.getContractAt(
+      SNICKERDOODLE_FACTORY_CONTRACT_NAME,
+      SNICKERDOODLE_FACTORY_PROXY,
+    );
+
+    try {
+      const walletBeacon = await factory.walletBeacon();
+
+      const walletProxyAddress = await factory.computeProxyAddress(
+        taskArgs.usernamewithdomain,
+        walletBeacon,
+      );
+
+      console.log("Wallet proxy address:", walletProxyAddress);
+    } catch (e) {
+      console.log("FAILED", e);
+    }
+  });
+
+task(
+  "computeOperatorGatewayProxyAddress",
+  "Calculate the Operator gateway proxy address for a given domain",
+)
+  .addParam("domain", "Domain of the operator")
+
+  .setAction(async (taskArgs, hre) => {
+    const { ethers } = hre;
+
+    const factory = await ethers.getContractAt(
+      SNICKERDOODLE_FACTORY_CONTRACT_NAME,
+      SNICKERDOODLE_FACTORY_PROXY,
+    );
+
+    try {
+      const operatorBeacon = await factory.gatewayBeacon();
+
+      const operatorGatewayProxyAddress = await factory.computeProxyAddress(
+        taskArgs.domain,
+        operatorBeacon,
+      );
+
+      console.log(
+        "Operator gateway proxy address:",
+        operatorGatewayProxyAddress,
+      );
+    } catch (e) {
+      console.log("FAILED", e);
+    }
+  });
+
+task(
+  "getWalletAndOperatorGatewayBeaconAddresses",
+  "Return the wallet and operator gateway beacon addresses",
+).setAction(async (taskArgs, hre) => {
+  const { ethers } = hre;
+
+  const factory = await ethers.getContractAt(
+    SNICKERDOODLE_FACTORY_CONTRACT_NAME,
+    SNICKERDOODLE_FACTORY_PROXY,
+  );
+
+  try {
+    const walletBeacon = await factory.walletBeacon();
+    const operatorBeacon = await factory.gatewayBeacon();
+
+    console.log("Wallet beacon address:", walletBeacon);
+    console.log("Operator gateway beacon address:", operatorBeacon);
+  } catch (e) {
+    console.log("FAILED", e);
+  }
+});
+
+task(
+  "getDeployedOperatorGatewayProxyDetails",
+  "Return operator gateway details for a given operator address",
+)
+  .addParam("operatoraddress", "Address of the operator gateway proxy contract")
+  .setAction(async (taskArgs, hre) => {
+    const { ethers } = hre;
+
+    const factory = await ethers.getContractAt(
+      SNICKERDOODLE_FACTORY_CONTRACT_NAME,
+      SNICKERDOODLE_FACTORY_PROXY,
+    );
+
+    try {
+      const operatorGatewayParams =
+        await factory.deployedOperatorGatewayAddressToParams(
+          taskArgs.operatoraddress,
+        );
+
+      if (Array.isArray(operatorGatewayParams)) {
+        console.log("Operator gateway params:");
+        console.log(
+          "- Domain:",
+          operatorGatewayParams[0].length > 0
+            ? operatorGatewayParams[0]
+            : "No domain",
+        );
+        console.log(
+          "- Operator Accounts:",
+          operatorGatewayParams.length == 2
+            ? operatorGatewayParams[1]
+            : "No operator accounts",
+        );
+      } else {
+        console.log("Operator gateway params:");
+        console.log(
+          "- Domain:",
+          operatorGatewayParams.length > 0
+            ? operatorGatewayParams
+            : "No domain",
+        );
+        console.log("- Operator Accounts: No operator accounts");
+      }
+    } catch (e) {
+      console.log("FAILED", e);
+    }
+  });
+
+task(
+  "getDeployedWalletProxyDetails",
+  "Return the wallet proxy details for a given username plus domain",
+)
+  .addParam(
+    "walletaddress",
+    "Username plus domain of the operator gateway proxy contract",
+  )
+  .setAction(async (taskArgs, hre) => {
+    const { ethers } = hre;
+
+    const factory = await ethers.getContractAt(
+      SNICKERDOODLE_FACTORY_CONTRACT_NAME,
+      SNICKERDOODLE_FACTORY_PROXY,
+    );
+
+    try {
+      const walletParams =
+        await factory.deployedSnickerdoodleWalletAddressToOwner(
+          taskArgs.walletaddress,
+        );
+
+      console.log("Wallet params:");
+      console.log(" - Operator:", walletParams[0]);
+      console.log(" - Name:", walletParams[1]);
+      console.log(" - P256 details:");
+      console.log("   - X:", walletParams[2][0]);
+      console.log("   - Y:", walletParams[2][1]);
+      console.log("   - Key Id:", walletParams[2][2]);
+      console.log(
+        "EVM Accounts:",
+        walletParams.length == 4 ? walletParams[3] : "No EVM accounts",
+      );
+    } catch (e) {
+      console.log("FAILED", e);
+    }
+  });
 function padding(addressToPad) {
   // Format it to bytes32
   const padding = "0x000000000000000000000000";
