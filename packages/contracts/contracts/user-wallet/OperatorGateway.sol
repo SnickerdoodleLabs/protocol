@@ -137,6 +137,7 @@ contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
         _removeDomain(domain);
     }
 
+    /// TODO: remove if tx.origin works!
     /// @notice allows native token to be sent to the wallet
     receive() external payable {}
 }
