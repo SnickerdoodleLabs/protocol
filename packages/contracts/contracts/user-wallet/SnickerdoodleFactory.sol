@@ -57,7 +57,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     /// @dev OApp inherits OAppCore which inherits OZ's Ownable
     function initialize(
         address _layerZeroEndpoint,
-        address _owner, 
+        address _owner,
         address _walletBeacon,
         address _gatewayBeacon
     ) public payable initializer {
@@ -89,7 +89,11 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         );
 
         for (uint256 i = 0; i < usernames.length; i++) {
-            deploySnickerdoodleWalletProxy(usernames[i], _p256Keys[i], evmAccounts[i]);
+            deploySnickerdoodleWalletProxy(
+                usernames[i],
+                _p256Keys[i],
+                evmAccounts[i]
+            );
         }
     }
 
@@ -156,7 +160,11 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         BeaconProxy proxy = new BeaconProxy{
             salt: keccak256(abi.encodePacked(saltString))
         }(walletBeacon, "");
-        SnickerdoodleWallet(address(proxy)).initialize(operator, newKey, newEvmAccounts);
+        SnickerdoodleWallet(payable(address(proxy))).initialize(
+            operator,
+            newKey,
+            newEvmAccounts
+        );
 
         emit SnickerdoodleWalletCreated(address(proxy), saltString);
     }
@@ -224,7 +232,11 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         );
 
         for (uint256 i = 0; i < usernames.length; i++) {
-            reserveWalletOnDestinationChain(_destinationChainEID, usernames[i], _gas);
+            reserveWalletOnDestinationChain(
+                _destinationChainEID,
+                usernames[i],
+                _gas
+            );
         }
     }
 
@@ -245,16 +257,15 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         );
 
         /// look up the operator details for the caller
-        OperatorGatewayParams memory operatorParms = deployedOperatorGatewayAddressToParams[msg.sender];
+        OperatorGatewayParams
+            memory operatorParms = deployedOperatorGatewayAddressToParams[
+                msg.sender
+            ];
         require(
             bytes(operatorParms.domain).length > 0,
             "SnickerdoodleFactory: Caller not a valid operator"
         );
-        string memory name = string.concat(
-            username,
-            ".",
-            operatorParms.domain
-        );
+        string memory name = string.concat(username, ".", operatorParms.domain);
 
         /// Compute the wallet proxy address
         address proxy = computeProxyAddress(name, walletBeacon);
@@ -377,16 +388,15 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         address operator,
         uint128 _gas
     ) external view returns (uint256 nativeFee, uint256 lzTokenFee) {
-        OperatorGatewayParams memory operatorParms = deployedOperatorGatewayAddressToParams[operator];
+        OperatorGatewayParams
+            memory operatorParms = deployedOperatorGatewayAddressToParams[
+                operator
+            ];
         require(
             bytes(operatorParms.domain).length > 0,
             "SnickerdoodleFactory: Caller not a valid operator"
         );
-        string memory name = string.concat(
-            username,
-            ".",
-            operatorParms.domain
-        );
+        string memory name = string.concat(username, ".", operatorParms.domain);
 
         address walletAddress = computeProxyAddress(name, walletBeacon);
         bytes memory messageData = abi.encode(

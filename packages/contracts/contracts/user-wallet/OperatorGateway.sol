@@ -62,6 +62,11 @@ contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
         );
     }
 
+    /// @notice Quote the gas needed to reserve a username on the destination chain with a single transaction
+    /// @dev This function is just for operator convenience, you can also call the factory quote function directly
+    /// @param _dstEid the destination chain's EID
+    /// @param username the username of the user wallet that will be prepended with the operator's domain
+    /// @param _gas the gas to send with the transaction
     function quoteReserveWalletOnDestinationChain(
         uint32 _dstEid,
         string calldata username,
@@ -69,7 +74,7 @@ contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
     ) external view returns (uint256, uint256) {
         return
             SnickerdoodleFactory(walletFactory)
-                .quoteReserveWalletOnDestinationChain(
+                .quoteClaimWalletOnDestinationChain(
                     _dstEid,
                     username,
                     address(this),
@@ -107,7 +112,7 @@ contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
             "OperatorGateway: invalid input length: newP256Keys and p256Sigs"
         );
         for (uint256 i = 0; i < accounts.length; i++) {
-            SnickerdoodleWallet(accounts[i]).addP256KeyWithP256Key(
+            SnickerdoodleWallet(payable(accounts[i])).addP256KeyWithP256Key(
                 keyIds[i],
                 authenticatorDatas[i],
                 newP256Keys[i],

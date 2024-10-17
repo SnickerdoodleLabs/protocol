@@ -3,12 +3,15 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./tmp/Base64.sol";
 import "./tmp/P256.sol";
 import "./Structs.sol";
 
 contract SnickerdoodleWallet is Initializable {
+    using SafeERC20 for IERC20;
+
     /// @notice P256 curve parameters
     uint256 internal constant N =
         0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551;
@@ -42,7 +45,10 @@ contract SnickerdoodleWallet is Initializable {
     }
 
     modifier onlyUserEVMAccount() {
-        require(evmAccounts[msg.sender], "only an owner can call this function");
+        require(
+            evmAccounts[msg.sender],
+            "only an owner can call this function"
+        );
         _;
     }
 
@@ -67,14 +73,18 @@ contract SnickerdoodleWallet is Initializable {
     /// @param _keyId the id of the signing key which is already added to this contract
     /// @param authenticatorData struct containing the authenticatorData, clientDataJSONLeft, and clientDataJSONRight
     /// @param newP256Key the new P256 key to be added to the user's wallet, contains the keyId, x, and y values
-    /// @param p256Sig the P256 signature containing the r and s values 
+    /// @param p256Sig the P256 signature containing the r and s values
     function addP256KeyWithP256Key(
         string calldata _keyId,
         AuthenticatorData calldata authenticatorData,
         P256Key calldata newP256Key,
         P256Signature calldata p256Sig
     ) public {
-        bytes memory challenge = abi.encodePacked(newP256Key.keyId, newP256Key.x, newP256Key.y);
+        bytes memory challenge = abi.encodePacked(
+            newP256Key.keyId,
+            newP256Key.x,
+            newP256Key.y
+        );
         require(
             _verifyP256(
                 _keyId,
@@ -95,7 +105,7 @@ contract SnickerdoodleWallet is Initializable {
     /// @param _keyId the id of the signing key which is already added to this contract
     /// @param authenticatorData struct containing the authenticatorData, clientDataJSONLeft, and clientDataJSONRight
     /// @param _evmAccount the key which will be added to the user's known EVM address list
-    /// @param p256Sig the P256 signature containing the r and s values 
+    /// @param p256Sig the P256 signature containing the r and s values
     function addEVMAddressWithP256Key(
         string calldata _keyId,
         AuthenticatorData calldata authenticatorData,
@@ -138,20 +148,28 @@ contract SnickerdoodleWallet is Initializable {
     /// @notice withdraws any token held by (this) to the calling account
     /// @param asset the contract address of the token to be transferred from this to the user's EVM Address
     function withdrawLocalERC20Asset(
-        address asset
+        IERC20 asset
     ) external onlyUserEVMAccount {
         // get the balance of this wallet
         uint256 myBalance = IERC20(asset).balanceOf(address(this));
         // send the balance to the user's evm address
-        IERC20(asset).transfer(msg.sender, myBalance);
+        asset.safeTransfer(msg.sender, myBalance);
     }
+
+    /// @notice withdraws any native asset held by (this) to the calling account
+    function withdrawNativeAsset() external onlyUserEVMAccount {
+        // send the balance to the user's evm address
+        uint256 amount = address(this).balance;
+        (bool ok, ) = msg.sender.call{value: amount}("");
+        require(ok, "transfer failed");
+    }
+
+    /// @notice allows native token to be sent to the wallet
+    receive() external payable {}
 
     /// @notice adds an operator to the list of operators
     function _addOperator(address operator) private {
-        require(
-            !operators[operator],
-            "Operator already added"
-        );
+        require(!operators[operator], "Operator already added");
         operators[operator] = true;
     }
 
@@ -167,23 +185,15 @@ contract SnickerdoodleWallet is Initializable {
 
     function _removeEVMAccount(address evmAccount) private {
         // don't add an address that's already in the wallet
-        require(
-            evmAccounts[evmAccount],
-            "EVM address not found"
-        );
+        require(evmAccounts[evmAccount], "EVM address not found");
         evmAccounts[evmAccount] = false;
         emit EVMAccountRemoved(evmAccount);
     }
 
     /// @notice adds a P256 public key to the user's wallet
-    function _addP256Key(
-        P256Key memory p256Key
-    ) private {
+    function _addP256Key(P256Key memory p256Key) private {
         bytes32 keyHash = keccak256(abi.encodePacked(p256Key.keyId));
-        require(
-            p256Keys[keyHash].x == 0,
-            "P256 key already added"
-        );
+        require(p256Keys[keyHash].x == 0, "P256 key already added");
         p256Keys[keyHash] = p256Key;
         emit P256KeyAdded(keyHash, p256Key.x, p256Key.y, p256Key.keyId);
     }

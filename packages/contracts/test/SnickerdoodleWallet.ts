@@ -180,5 +180,18 @@ describe("SnickerdoodleWallet", function () {
         ["-1000000000000000000000", "1000000000000000000000"],
       );
     });
+
+    it("Withdraw native asset from the Snickerdoodle Wallet", async function () {
+      const { sdwallet, owner } = await loadFixture(deploySnickerdoodleWallet);
+      await owner.sendTransaction({
+        value: hre.ethers.parseEther("1"),
+        to: await sdwallet.getAddress(),
+      });
+
+      await expect(sdwallet.withdrawNativeAsset()).to.changeEtherBalances(
+        [await sdwallet.getAddress(), owner.address],
+        [-1000000000000000000n, 1000000000000000000n],
+      );
+    });
   });
 });

@@ -1,5 +1,7 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
+import { ethers } from "hardhat";
 
+import { getLzEndpointByChainId } from "./helpers";
 import OperatorGatewayModule from "./OperatorGateway";
 import SnickerdoodleWalletModule from "./SnickerdoodleWallet";
 
@@ -44,7 +46,7 @@ const SnickerdoodleFactoryModule = buildModule(
 
     // Initialize the implementation contract through the proxy
     m.call(snickerdoodleFactoryProxy, "initialize", [
-      "0x6EDCE65403992e310A62460808c4b910D972f10f", // Operator
+      getLzEndpointByChainId(hre.network.config.chainId), // Operator
       proxyAdminOwner, // Proxy admin owner
       snickerdoodleWalletBeacon, // Wallet beacon
       operatorGatewayBeacon, // Operator gateway beacon
