@@ -124,3 +124,5 @@ export * from "@objects/primitives/ED25519PrivateKey.js";
 export * from "@objects/primitives/PasskeyId.js";
 export * from "@objects/primitives/PasskeyPublicKeyPointX.js";
 export * from "@objects/primitives/PasskeyPublicKeyPointY.js";
+export * from "@objects/primitives/ECDSASignaturePointR.js";
+export * from "@objects/primitives/ECDSASignaturePointS.js";

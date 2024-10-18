@@ -4,12 +4,12 @@ import {
   SnickerdoodleWalletContractError,
   EVMAccountAddress,
   HexString32,
-  JSONString,
   PasskeyId,
   PasskeyPublicKeyPointX,
   PasskeyPublicKeyPointY,
+  P256PublicKeyComponent,
+  P256SignatureComponent,
 } from "@snickerdoodlelabs/objects";
-import { BytesLike } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
@@ -30,11 +30,8 @@ export interface ISnickerdoodleWalletContract extends IBaseContract {
   addP256KeyWithP256Key(
     keyId: PasskeyId,
     authenticatorData: AuthenticatorData,
-    newKeyId: PasskeyId,
-    x: PasskeyPublicKeyPointX,
-    y: PasskeyPublicKeyPointY,
-    r: HexString32,
-    s: HexString32,
+    newP256Key: P256PublicKeyComponent,
+    p256Signature: P256SignatureComponent,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -43,10 +40,9 @@ export interface ISnickerdoodleWalletContract extends IBaseContract {
 
   addEVMAddressWithP256Key(
     keyId: PasskeyId,
-    authenticatorAndClientData: AuthenticatorData,
+    authenticatorData: AuthenticatorData,
     evmAccount: EVMAccountAddress | EVMContractAddress,
-    r: HexString32,
-    s: HexString32,
+    p256Signature: P256SignatureComponent,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -54,6 +50,14 @@ export interface ISnickerdoodleWalletContract extends IBaseContract {
   >;
 
   addEVMAccountWithEVMAccount(
+    evmAccount: EVMAccountAddress | EVMContractAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | SnickerdoodleWalletContractError
+  >;
+
+  removeEVMAccountWithEVMAccount(
     evmAccount: EVMAccountAddress | EVMContractAddress,
     overrides?: ContractOverrides,
   ): ResultAsync<

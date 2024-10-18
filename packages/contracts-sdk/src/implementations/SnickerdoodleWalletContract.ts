@@ -4,9 +4,8 @@ import {
   BlockchainCommonErrors,
   SnickerdoodleWalletContractError,
   PasskeyId,
-  HexString32,
-  PasskeyPublicKeyPointX,
-  PasskeyPublicKeyPointY,
+  P256PublicKeyComponent,
+  P256SignatureComponent,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -57,11 +56,8 @@ export class SnickerdoodleWalletContract
   public addP256KeyWithP256Key(
     keyId: PasskeyId,
     authenticatorData: AuthenticatorData,
-    newKeyId: PasskeyId,
-    x: PasskeyPublicKeyPointX,
-    y: PasskeyPublicKeyPointY,
-    r: HexString32,
-    s: HexString32,
+    newP256Key: P256PublicKeyComponent,
+    p256Signature: P256SignatureComponent,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -69,7 +65,7 @@ export class SnickerdoodleWalletContract
   > {
     return this.writeToContract(
       "addP256KeyWithP256Key",
-      [keyId, authenticatorData, newKeyId, x, y, r, s],
+      [keyId, authenticatorData, newP256Key, p256Signature],
       overrides,
     );
   }
@@ -78,8 +74,7 @@ export class SnickerdoodleWalletContract
     keyId: PasskeyId,
     authenticatorData: AuthenticatorData,
     evmAccount: EVMAccountAddress | EVMContractAddress,
-    r: HexString32,
-    s: HexString32,
+    p256Signature: P256SignatureComponent,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -87,7 +82,7 @@ export class SnickerdoodleWalletContract
   > {
     return this.writeToContract(
       "addEMVAddressWithP256Key",
-      [keyId, authenticatorData, evmAccount, r, s],
+      [keyId, authenticatorData, evmAccount, p256Signature],
       overrides,
     );
   }
@@ -101,6 +96,20 @@ export class SnickerdoodleWalletContract
   > {
     return this.writeToContract(
       "addEVMAccountWithEVMAccount",
+      [evmAccount],
+      overrides,
+    );
+  }
+
+  public removeEVMAccountWithEVMAccount(
+    evmAccount: EVMAccountAddress | EVMContractAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | SnickerdoodleWalletContractError
+  > {
+    return this.writeToContract(
+      "removeEVMAccountWithEVMAccount",
       [evmAccount],
       overrides,
     );
