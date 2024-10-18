@@ -37,7 +37,7 @@ const config: HardhatUserConfig = {
       create2: {
         // To learn more about salts, see the CreateX documentation
         // the current value is equal to keccak256('smart-wallet-example7')
-        salt: "0x15d6420d879f014c80398adfd9ed46968a82f49cf3d8b055c89dfb6232f8f371",
+        salt: "0xc54d1ae362b35d06a93086c8bc66a8b974e2d02ac437e9bde8b33a6a0bd27e74",
       },
     },
   },

@@ -47,14 +47,14 @@ However, if you run into an nonce error during the deployment, wait for a minute
    ```shell
    Deployed Addresses
 
-    OperatorGatewayModule#OperatorGateway - 0x2b4260a693B19338a8F071207885b4F003df8CC2
-    SnickerdoodleFactoryModule#SnickerdoodleFactory - 0x8061C28E8142903AD34C530698325d6f8fE6ec11
-    SnickerdoodleWalletModule#SnickerdoodleWallet - 0xBE0cEef9439E288b11bD8A7765bc3A08995589e1
-    OperatorGatewayModule#UpgradeableBeacon - 0xA5EaAE74b1baA4798A73DF0b8c3a2875a7117802
-    SnickerdoodleFactoryModule#TransparentUpgradeableProxy - 0x233599DE659972dBD432cB3FC001E6185b4f10dC
-    SnickerdoodleWalletModule#UpgradeableBeacon - 0x1D3E3E161b5911CF6aE0ee37bD71d1DC59C57e60
-    SnickerdoodleFactoryModule#SnickerdoodleFactoryProxy - 0x233599DE659972dBD432cB3FC001E6185b4f10dC
-    SnickerdoodleFactoryModule#ProxyAdmin - 0xa0A717E19Dfc76c71A30A2a230958cc8A1110224
+OperatorGatewayModule#OperatorGateway - 0x13eA41031215A2802B2aB3eB2A406dcE3408ebCf
+SnickerdoodleFactoryModule#SnickerdoodleFactory - 0xff7b119994f220C1BE738BdE8847BBCC2510422e
+SnickerdoodleWalletModule#SnickerdoodleWallet - 0x8253E2Fd0e08D9Cef66c759d3f13bc6FE401598C
+OperatorGatewayModule#UpgradeableBeacon - 0xC928cA75230F4563b09A8E485844f92a5eD0E98C
+SnickerdoodleFactoryModule#TransparentUpgradeableProxy - 0xa901cDA47cd5637B0a2aE7c3C1B781190a3d1615
+SnickerdoodleWalletModule#UpgradeableBeacon - 0x28F939708D89Ab8D5a60EF65b0B543257DCCA9EB
+SnickerdoodleFactoryModule#SnickerdoodleFactoryProxy - 0xa901cDA47cd5637B0a2aE7c3C1B781190a3d1615
+SnickerdoodleFactoryModule#ProxyAdmin - 0x7538Cfbc23C01CfA26F740e407BF50a911d2F14b
    ```
 
     ```shell
@@ -64,19 +64,18 @@ However, if you run into an nonce error during the deployment, wait for a minute
    Expected output:
    ```shell
    Deployed Addresses
-
-    OperatorGatewayModule#OperatorGateway - 0x2b4260a693B19338a8F071207885b4F003df8CC2
-    SnickerdoodleFactoryModule#SnickerdoodleFactory - 0x8061C28E8142903AD34C530698325d6f8fE6ec11
-    SnickerdoodleWalletModule#SnickerdoodleWallet - 0xBE0cEef9439E288b11bD8A7765bc3A08995589e1
-    OperatorGatewayModule#UpgradeableBeacon - 0xA5EaAE74b1baA4798A73DF0b8c3a2875a7117802
-    SnickerdoodleFactoryModule#TransparentUpgradeableProxy - 0x233599DE659972dBD432cB3FC001E6185b4f10dC
-    SnickerdoodleWalletModule#UpgradeableBeacon - 0x1D3E3E161b5911CF6aE0ee37bD71d1DC59C57e60
-    SnickerdoodleFactoryModule#SnickerdoodleFactoryProxy - 0x233599DE659972dBD432cB3FC001E6185b4f10dC
-    SnickerdoodleFactoryModule#ProxyAdmin - 0xa0A717E19Dfc76c71A30A2a230958cc8A1110224
+OperatorGatewayModule#OperatorGateway - 0x13eA41031215A2802B2aB3eB2A406dcE3408ebCf
+SnickerdoodleFactoryModule#SnickerdoodleFactory - 0xff7b119994f220C1BE738BdE8847BBCC2510422e
+SnickerdoodleWalletModule#SnickerdoodleWallet - 0x8253E2Fd0e08D9Cef66c759d3f13bc6FE401598C
+OperatorGatewayModule#UpgradeableBeacon - 0xC928cA75230F4563b09A8E485844f92a5eD0E98C
+SnickerdoodleFactoryModule#TransparentUpgradeableProxy - 0xa901cDA47cd5637B0a2aE7c3C1B781190a3d1615
+SnickerdoodleWalletModule#UpgradeableBeacon - 0x28F939708D89Ab8D5a60EF65b0B543257DCCA9EB
+SnickerdoodleFactoryModule#SnickerdoodleFactoryProxy - 0xa901cDA47cd5637B0a2aE7c3C1B781190a3d1615
+SnickerdoodleFactoryModule#ProxyAdmin - 0x7538Cfbc23C01CfA26F740e407BF50a911d2F14b
    ```
    Because we deployed using the create2 strategy, it should produce the same contract addresses on both chains. 
 
-   Sample SnickerdoodleFactory's Proxy address deployed on [Fuji](https://testnet.snowtrace.io/address/0x233599DE659972dBD432cB3FC001E6185b4f10dC) and [Base Sepolia](https://sepolia.basescan.org/address/0x233599DE659972dBD432cB3FC001E6185b4f10dC): `0x233599DE659972dBD432cB3FC001E6185b4f10dC`
+   Sample SnickerdoodleFactory's Proxy address deployed on [Fuji](https://testnet.snowtrace.io/address/0xa901cDA47cd5637B0a2aE7c3C1B781190a3d1615) and [Base Sepolia](https://sepolia.basescan.org/address/0xa901cDA47cd5637B0a2aE7c3C1B781190a3d1615): `0xa901cDA47cd5637B0a2aE7c3C1B781190a3d1615`
 
 1. Update the `SNICKERDOODLE_WALLET_FACTORY` in [SnickerdoodleWallet.ts](/tasks/SnickerdoodleWallet.ts#L3) with the SnickerdoodleFactoryModule#TransparentUpgradeableProxy's address deployed above for the Hardhat tasks to work correctly.
 
@@ -90,12 +89,12 @@ However, if you run into an nonce error during the deployment, wait for a minute
 
    Call `setPeer` on the Fuji contract to point to the Amoy contract:
    ```shell
-   npx hardhat snickerdoodleWalletFactorySetPeer --currentcontract 0x233599DE659972dBD432cB3FC001E6185b4f10dC --peercontract 0x233599DE659972dBD432cB3FC001E6185b4f10dC --eid 40245 --network fuji
+   npx hardhat snickerdoodleWalletFactorySetPeer --currentcontract 0xa901cDA47cd5637B0a2aE7c3C1B781190a3d1615 --peercontract 0xa901cDA47cd5637B0a2aE7c3C1B781190a3d1615 --eid 40245 --network fuji
    ```
    Call `setPeer` on the Amoy contract to point to the Fuji contract:
 
    ```shell
-   npx hardhat snickerdoodleWalletFactorySetPeer --currentcontract 0x233599DE659972dBD432cB3FC001E6185b4f10dC --peercontract 0x233599DE659972dBD432cB3FC001E6185b4f10dC --eid 40106 --network basesepolia
+   npx hardhat snickerdoodleWalletFactorySetPeer --currentcontract 0xa901cDA47cd5637B0a2aE7c3C1B781190a3d1615 --peercontract 0xa901cDA47cd5637B0a2aE7c3C1B781190a3d1615 --eid 40106 --network basesepolia
    ```
 3. Next we need to deploy an OperatorGatewayProxy on both chains. This mimics the step a business/organisation like Snickerdoodle participating in the protocol as an operator. All that is required is a domain name. There are 3 main steps: 
   - Deploy the Operator Gateway Proxy on the source chain
@@ -121,10 +120,10 @@ However, if you run into an nonce error during the deployment, wait for a minute
    Snickerdoodle Operator deployed!
     Transaction receipt ContractTransactionReceipt
     ...
-    hash: '0x5097828ee4f8a2fec6f837ca4b5dbb79f2dc8376ba9ba73a6512db87896d94f2'
+    hash: '0xabf6eb95957bc2f175ce3152ed06edb42af667008f0ada3e1055980a33a08ee4'
     ...
    ```
-   Use the transaction hash to obtain the address that the OperatorGatewayProxy was deployed to. For example, the deployed contract address is [0xd746d066Dc666A54776a4aF965fc967954bEFc1a](https://testnet.snowtrace.io/tx/0x5097828ee4f8a2fec6f837ca4b5dbb79f2dc8376ba9ba73a6512db87896d94f2?chainid=43113). Update the OPERATOR_GATEWAY_PROXY variable [here](./tasks/snickerdoodleFactory.ts#L7). Now some that hardhat tasks will act as an operator that owns the `snickerdoodle` domain.
+   Use the transaction hash to obtain the address that the OperatorGatewayProxy was deployed to. For example, the deployed contract address is [0xc5a9E370B974D6fC4ED9036602F87dF9869A6aba](https://testnet.snowtrace.io/tx/0xabf6eb95957bc2f175ce3152ed06edb42af667008f0ada3e1055980a33a08ee4?chainid=43113). Update the OPERATOR_GATEWAY_PROXY variable [here](./tasks/snickerdoodleFactory.ts#L7). Now some that hardhat tasks will act as an operator that owns the `snickerdoodle` domain.
 
 4. We can also cross check the deployed address of the Operator Gateway Proxy using the command below:
     ``` shell
@@ -133,11 +132,11 @@ However, if you run into an nonce error during the deployment, wait for a minute
     Expected output:
 
     ``` shell
-    Operator gateway proxy address: 0xd746d066Dc666A54776a4aF965fc967954bEFc1a
+    Operator gateway proxy address: 0xc5a9E370B974D6fC4ED9036602F87dF9869A6aba
     ```
 5. We can confirm that it has been deployed on the source chain using the command below: 
     ```shell
-    npx hardhat getDeployedOperatorGatewayProxyDetails --operatoraddress 0xd746d066Dc666A54776a4aF965fc967954bEFc1a --network fuji
+    npx hardhat getDeployedOperatorGatewayProxyDetails --operatoraddress 0xc5a9E370B974D6fC4ED9036602F87dF9869A6aba --network fuji
     ```
     Expected output 
     ```shell
@@ -147,7 +146,7 @@ However, if you run into an nonce error during the deployment, wait for a minute
     ```
     We can also confirm that there is no param set on the destination chain.
     ```shell
-    npx hardhat getDeployedOperatorGatewayProxyDetails --operatoraddress 0xd746d066Dc666A54776a4aF965fc967954bEFc1a --network basesepolia
+    npx hardhat getDeployedOperatorGatewayProxyDetails --operatoraddress 0xc5a9E370B974D6fC4ED9036602F87dF9869A6aba --network basesepolia
     ```
     Expected output 
     ```shell
@@ -162,23 +161,23 @@ However, if you run into an nonce error during the deployment, wait for a minute
     Expected output:
 
     ``` shell
-    Quoted price: Result(2) [ 13194127950410386n, 0n ]
+    Quoted price: Result(2) [ 7381794193816442n, 0n ]
     ```
 7.  Now we try to send a message to the destination chain to reserve it. Include the quoted price above into the `feeinwei` argument 
 
     ``` shell
-    npx hardhat reserveOperatorGatewayOnDestinationChain --destinationchaineid 40245 --domain snickerdoodle --gas 90000 --feeinwei 14637980254081671 --network fuji
+    npx hardhat reserveOperatorGatewayOnDestinationChain --destinationchaineid 40245 --domain snickerdoodle --gas 90000 --feeinwei 7381794193816442 --network fuji
     ```
     Expected output: 
     ```shell
     Operator domain reserve request submitted to destination chain! Txhash: ContractTransactionReceipt ...
-    hash: '0xca7d198d1c47e93c19a0eec1bb92fcb5af5ef92fe16c76afd6b553f040ae8b04',
+    hash: '0x5428ce910f54734c4d1282dda950c0cc80ccc156e2fb0c1e37525bfb4f9c201b',
     ...
     ```
-8.  Using the transaction hash, check the status of the message sent to LZ (and ultimately to the contract on Base Sepolia) via the scanner like [this](https://testnet.layerzeroscan.com/tx/0xca7d198d1c47e93c19a0eec1bb92fcb5af5ef92fe16c76afd6b553f040ae8b04). This process took about 2 minutes to reach the complete status.    
+8.  Using the transaction hash, check the status of the message sent to LZ (and ultimately to the contract on Base Sepolia) via the scanner like [this](https://testnet.layerzeroscan.com/tx/0x5428ce910f54734c4d1282dda950c0cc80ccc156e2fb0c1e37525bfb4f9c201b). This process took about 2 minutes to reach the complete status.    
 9.  Now we can confirm that the message was sent by checking the operator details again. 
     ```shell
-    npx hardhat getDeployedOperatorGatewayProxyDetails --operatoraddress 0xd746d066Dc666A54776a4aF965fc967954bEFc1a --network basesepolia
+    npx hardhat getDeployedOperatorGatewayProxyDetails --operatoraddress 0xc5a9E370B974D6fC4ED9036602F87dF9869A6aba --network basesepolia
     ```
     Expected output 
     ```shell
@@ -186,7 +185,20 @@ However, if you run into an nonce error during the deployment, wait for a minute
     - Domain: snickerdoodle
     - Operator Accounts: No operator accounts
     ```
-10. We can also check the wallet params this way. 
+10. Now we can deploy the Operator Gateway on the destination chain.
+
+    ```shell
+    npx hardhat deployOperatorGatewayProxy --domain snickerdoodle --network basesepolia
+    ```
+    Expected output
+    ```shell
+    Snickerdoodle Operator deployed!
+    Transaction receipt: ContractTransactionReceipt...
+
+  hash: '0xc303d9e19200ad06eae8ed0a5b29becf0e03bdc59f46de18215ea7956c028e79',
+  ```
+12. Next is to work with the wallets. We can get the wallet params this way.
+
     Compute the Snickerdoodle wallet proxy address for a given username, say `MYSnickerdoodleWALLET.snickerdoodle`.
     ``` shell
     npx hardhat computeWalletProxyAddress --usernamewithdomain MYSnickerdoodleWALLET.snickerdoodle --network fuji
@@ -194,11 +206,11 @@ However, if you run into an nonce error during the deployment, wait for a minute
     Expected output:
 
     ``` shell
-    Wallet proxy address: 0xa6259B94B43eC6E0fD3272E0b288E713a5B9D816
+    Wallet proxy address: 0xbc763bd29109778C0c7C41647C7050F1d50cafeA
     ```
     Check the wallet params on the contracts for both `basesepolia` and `fuji`: 
     ```shell
-    npx hardhat getDeployedWalletProxyDetails --walletaddress 0xa6259B94B43eC6E0fD3272E0b288E713a5B9D816 --network basesepolia
+    npx hardhat getDeployedWalletProxyDetails --walletaddress 0xbc763bd29109778C0c7C41647C7050F1d50cafeA --network basesepolia
     ```
     Expected output 
     ```shell
@@ -210,20 +222,8 @@ However, if you run into an nonce error during the deployment, wait for a minute
        - Y: 0x0000000000000000000000000000000000000000000000000000000000000000
        - Key Id: 
     EVM Accounts: No EVM accounts
-    ```
-11. Now we can deploy the Operator Gateway on the destination chain.
-
-    ```shell
-    npx hardhat deployOperatorGatewayProxy --domain snickerdoodle --network basesepolia
-    ```
-    Expected output
-    ```shell
-    Snickerdoodle Operator deployed!
-    Transaction receipt: ContractTransactionReceipt...
-
-  hash: '0xb0a8d90f6bb5e296240b822a6b1375b434712f16b0f4db5abb032262db6cd947',
-    ```
-12. Now that our operators are setup, we can try deploying a Snickerdoodle wallet on the destination chain. We expect to see an error that says it has not deployed the wallet on the source chain.
+    ```   
+13. Now that our operators are setup, we can try deploying a Snickerdoodle wallet on the destination chain. We expect to see an error that says it has not deployed the wallet on the source chain.
     ``` shell
     npx hardhat deploySnickerdoodleWalletProxyViaOperatorGateway --username MYSnickerdoodleWALLET --qx 0x2e0aa0b0dd416999b35cf3d03c2df3d4487cefae5b694aceb365efae4781eec5 --qy 0xb98bce418ffa0076d45cdfeac10070dc81cc9360b496e9aa1044dbca92d8493f --keyid TAp_FZMZshG7RuJhiObFTQ --network basesepolia
     ```
@@ -235,13 +235,15 @@ However, if you run into an nonce error during the deployment, wait for a minute
 
 13. Deploy a Snickerdoodle wallet on the source chain. 
     ``` shell
-        npx hardhat deploySnickerdoodleWalletProxyViaOperatorGateway --username MYSnickerdoodleWALLET --qx 0x2e0aa0b0dd416999b35cf3d03c2df3d4487cefae5b694aceb365efae4781eec5 --qy 0xb98bce418ffa0076d45cdfeac10070dc81cc9360b496e9aa1044dbca92d8493f --keyid TAp_FZMZshG7RuJhiObFTQ --network fuji
+    npx hardhat deploySnickerdoodleWalletProxyViaOperatorGateway --username MYSnickerdoodleWALLET --qx 0x2e0aa0b0dd416999b35cf3d03c2df3d4487cefae5b694aceb365efae4781eec5 --qy 0xb98bce418ffa0076d45cdfeac10070dc81cc9360b496e9aa1044dbca92d8493f --keyid TAp_FZMZshG7RuJhiObFTQ --network fuji
     ```
     Expected output:
 
     ``` shell
     Snickerdoodle wallet deployed!
     Transaction receipt...
+    hash: '0xcdefe9a29be0393629fa2aba3c79f03323e5c956ce6c087f2dcd47d9cbdbd442',
+    ...
     ```
 14. To get the wallet and operator gateway beacon addresses: 
      ``` shell
@@ -256,25 +258,24 @@ However, if you run into an nonce error during the deployment, wait for a minute
 15. We can confirm that the operator, and x and y point matches the deployed and computed proxy address.
 
     ``` shell
-    npx hardhat getDeployedWalletProxyDetails --walletaddress 0xa6259B94B43eC6E0fD3272E0b288E713a5B9D816 --network fuji
+    npx hardhat getDeployedWalletProxyDetails --walletaddress 0xbc763bd29109778C0c7C41647C7050F1d50cafeA --network fuji
     ```
     Expected output:
 
     ``` shell
     Wallet params:
-     - Operator: 0xd746d066Dc666A54776a4aF965fc967954bEFc1a
-     - Name: MYSnickerdoodleWALLET.snickerdoodle
-     - P256 details:
-       - X: 0x2e0aa0b0dd416999b35cf3d03c2df3d4487cefae5b694aceb365efae4781eec5
-       - Y: 0xb98bce418ffa0076d45cdfeac10070dc81cc9360b496e9aa1044dbca92d8493f
-       - Key Id: TAp_FZMZshG7RuJhiObFTQ
+    - Operator: 0xc5a9E370B974D6fC4ED9036602F87dF9869A6aba
+    - Name: MYSnickerdoodleWALLET.snickerdoodle
+    - P256 details:
+    - X: 0x2e0aa0b0dd416999b35cf3d03c2df3d4487cefae5b694aceb365efae4781eec5
+    - Y: 0xb98bce418ffa0076d45cdfeac10070dc81cc9360b496e9aa1044dbca92d8493f
+    - Key Id: TAp_FZMZshG7RuJhiObFTQ
     EVM Accounts: No EVM accounts
     ```
 
     Confirm that owner does not exist yet on the destination chain.
     ``` shell
-    npx hardhat getDeployedWalletProxyDetails --walletaddress 0xa6259B
-94B43eC6E0fD3272E0b288E713a5B9D816 --network basesepolia
+    npx hardhat getDeployedWalletProxyDetails --walletaddress 0xbc763bd29109778C0c7C41647C7050F1d50cafeA --network basesepolia
     ```
     Expected output:
 
@@ -291,57 +292,21 @@ However, if you run into an nonce error during the deployment, wait for a minute
 
 16. Before claiming the wallet on the destination chain, we get a quote of the fees to send that message from our source chain.
     ``` shell
-    npx hardhat quoteReserveWalletOnDestinationChain --destinationchainid 40245 --namewithdomain MYSnickerdoodleWallet.snickerdoodle --operator 0xd746d066Dc666A54776a4aF965fc967954bEFc1a --gas 80000 --network fuji
+    npx hardhat quoteReserveWalletOnDestinationChain --destinationchainid 40245 --namewithdomain MYSnickerdoodleWALLET.snickerdoodle --operator 0xc5a9E370B974D6fC4ED9036602F87dF9869A6aba --gas 80000 --network fuji
     ```
     Expected output:
 
     ``` shell
-    Quoted price: Result(2) [ 13028437049149633, 0n ]
+    Quoted price: Result(2) [ 7364071575323038n, 0n ]
     ```
 
 17. Now, we initiate a layer zero call from the source to the destination chain to claim the wallet on the destination chain. Using the quote above as the fee in wei. If the transaction is successful, Layer Zero will also send a message to the destination chain to update the owner of the Snickerdoodle wallet address.
     
-    The claim function does a few checks before proceeding to send a message to the destination chain to claim a Snickerdoodle wallet. The claim function will fail if the user has deployed/has not deployed a wallet on the source chain or provided a wrong wallet name, x, y or passkey id value. The steps below tests each scenario. 
-
-    User tries with a wallet name that has not been deployed against the owner address (change any value from the original).
-    ``` shell
-    npx hardhat claimSnickerdoodleWalletAddressOnDestinationChain --destinationchaineid 40245 --walletname WRONGSnickerdoodleWALLET --qx 0x2e0aa0b0dd416999b35cf3d03c2df3d4487cefae5b694aceb365efae4781eec5 --qy 0xb98bce418ffa0076d45cdfeac10070dc81cc9360b496e9aa1044dbca92d8493f --keyid TAp_FZMZshG7RuJhiObFTQ --gas 120000 --feeinwei 19472638481936229 --network fuji
-    ```
-    Expected output:
-    ``` shell
-    ...ProviderError: execution reverted: SnickerdoodleWalletFactory: Operator of provided wallet name does not match caller
-    ```
-
-    User tries with a wrong X value (change any value from the original).
-    ``` shell
-    npx hardhat claimSnickerdoodleWalletAddressOnDestinationChain --destinationchaineid 40245 --walletname MYSnickerdoodleWALLET --qx 0x3e0aa0b0dd416999b35cf3d03c2df3d4487cefae5b694aceb365efae4781eec5 --qy 0xb98bce418ffa0076d45cdfeac10070dc81cc9360b496e9aa1044dbca92d8493f --keyid TAp_FZMZshG7RuJhiObFTQ --gas 120000 --feeinwei 19472638481936229 --network fuji
-    ```
-    Expected output:
-    ``` shell
-    ...ProviderError: execution reverted: SnickerdoodleWalletFactory: Point X of provided wallet name does not match of given _qx
-    ```
-    
-    User tries with a wrong Y value (change any value from the original).
-    ``` shell
-    npx hardhat claimSnickerdoodleWalletAddressOnDestinationChain --destinationchaineid 40245 --walletname MYSnickerdoodleWALLET --qx 0x2e0aa0b0dd416999b35cf3d03c2df3d4487cefae5b694aceb365efae4781eec5 --qy 0xA98bce418ffa0076d45cdfeac10070dc81cc9360b496e9aa1044dbca92d8493f --keyid TAp_FZMZshG7RuJhiObFTQ --gas 120000 --feeinwei 19472638481936229 --network fuji
-    ```
-    Expected output:
-    ``` shell
-    ...ProviderError: execution reverted: SnickerdoodleWalletFactory: Point Y of provided wallet name does not match operator _qy
-    ```
-
-    User tries with a wrong key id (change any value from the original).
-    ``` shell
-    npx hardhat claimSnickerdoodleWalletAddressOnDestinationChain --destinationchaineid 40245 --walletname MYSnickerdoodleWALLET --qx 0x2e0aa0b0dd416999b35cf3d03c2df3d4487cefae5b694aceb365efae4781eec5 --qy 0xb98bce418ffa0076d45cdfeac10070dc81cc9360b496e9aa1044dbca92d8493f --keyid PAp_FZMZshG7RuJhiObFTQ --gas 120000 --feeinwei 19472638481936229 --network fuji
-    ```
-    Expected output:
-    ``` shell
-    ...ProviderError: execution reverted: SnickerdoodleWalletFactory: Key id of provided wallet name does not match _keyId
-    ```
+    //TODO: test calling this with wrong Operators. 
 
     Finally try again with the correct params...
     ``` shell
-    npx hardhat reserveWalletAddressOnDestinationChainViaOperatorGateway --destinationchaineid 40245 --username MYSnickerdoodleWALLET --gas 80000 --feeinwei 13028437049149633 --network fuji
+    npx hardhat reserveWalletAddressOnDestinationChainViaOperatorGateway --destinationchaineid 40245 --username MYSnickerdoodleWALLET --gas 80000 --feeinwei 7364071575323038 --network fuji
     ```
     Expected output:
 

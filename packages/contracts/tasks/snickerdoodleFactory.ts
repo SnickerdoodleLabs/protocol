@@ -2,9 +2,9 @@ import { task } from "hardhat/config";
 
 const SNICKERDOODLE_FACTORY_CONTRACT_NAME = "SnickerdoodleFactory";
 const SNICKERDOODLE_FACTORY_PROXY =
-  "0x233599DE659972dBD432cB3FC001E6185b4f10dC";
+  "0xa901cDA47cd5637B0a2aE7c3C1B781190a3d1615";
 const OPERATOR_GATEWAY_CONTRACT_NAME = "OperatorGateway";
-const OPERATOR_GATEWAY_PROXY = " 0xd746d066Dc666A54776a4aF965fc967954bEFc1a";
+const OPERATOR_GATEWAY_PROXY = "0xd746d066Dc666A54776a4aF965fc967954bEFc1a";
 
 task(
   "snickerdoodleWalletFactorySetPeer",
@@ -314,14 +314,23 @@ task(
     const { ethers } = hre;
 
     const operator = await ethers.getContractAt(
-      OPERATOR_GATEWAY_CONTRACT_NAME,
-      OPERATOR_GATEWAY_PROXY,
+      SNICKERDOODLE_FACTORY_CONTRACT_NAME,
+      SNICKERDOODLE_FACTORY_PROXY,
     );
 
     try {
-      const txResponse = await operator.reserveWalletsOnDestinationChain(
+      //   const txResponse = await operator.reserveWalletsOnDestinationChain(
+      //     Number(taskArgs.destinationchaineid),
+      //     [taskArgs.username],
+      //     Number(taskArgs.gas),
+      //     {
+      //       value: taskArgs.feeinwei,
+      //     },
+      //   );
+
+      const txResponse = await operator.reserveWalletOnDestinationChain(
         Number(taskArgs.destinationchaineid),
-        [taskArgs.username],
+        taskArgs.username,
         Number(taskArgs.gas),
         {
           value: taskArgs.feeinwei,

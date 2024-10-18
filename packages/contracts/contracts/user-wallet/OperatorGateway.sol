@@ -140,4 +140,16 @@ contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
     /// TODO: remove if tx.origin works!
     /// @notice allows native token to be sent to the wallet
     receive() external payable {}
+
+    function reserveWalletOnDestinationChain(
+        uint32 _destinationChainEID,
+        string calldata username,
+        uint128 _gas
+    ) external payable {
+        SnickerdoodleFactory(walletFactory).reserveWalletOnDestinationChain(
+            _destinationChainEID,
+            username,
+            _gas
+        );
+    }
 }
