@@ -74,7 +74,7 @@ contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
     ) external view returns (uint256, uint256) {
         return
             SnickerdoodleFactory(walletFactory)
-                .quoteClaimWalletOnDestinationChain(
+                .quoteReserveWalletOnDestinationChain(
                     _dstEid,
                     username,
                     address(this),
@@ -136,4 +136,8 @@ contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
     ) external onlyRole(OPERATOR_ROLE) {
         _removeDomain(domain);
     }
+
+    /// TODO: remove if tx.origin works!
+    /// @notice allows native token to be sent to the wallet
+    receive() external payable {}
 }

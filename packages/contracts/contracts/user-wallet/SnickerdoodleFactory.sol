@@ -209,7 +209,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         BeaconProxy proxy = new BeaconProxy{
             salt: keccak256(abi.encodePacked(saltString))
         }(gatewayBeacon, "");
-        OperatorGateway(address(proxy)).initialize(
+        OperatorGateway(payable(proxy)).initialize(
             newOperatorAccounts,
             address(this)
         );
@@ -304,7 +304,8 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             // Fee in native gas and ZRO token.
             MessagingFee(msg.value, 0),
             // Refund address in case of failed source message.
-            payable(msg.sender)
+            // To void fund getting into the Operator Gateway, send it back to the caller
+            payable(tx.origin)
         );
     }
 
@@ -382,7 +383,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     }
 
     /// @notice Estimating the fee for to send a message to reserve a Snickerdoodle wallet on destination chain
-    function quoteClaimWalletOnDestinationChain(
+    function quoteReserveWalletOnDestinationChain(
         uint32 _dstEid,
         string calldata username,
         address operator,

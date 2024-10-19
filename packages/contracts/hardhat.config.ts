@@ -36,8 +36,8 @@ const config: HardhatUserConfig = {
     strategyConfig: {
       create2: {
         // To learn more about salts, see the CreateX documentation
-        // the current value is equal to keccak256('smart-wallet-example2')
-        salt: "0xb74a48f0729221942ec42b31c524f5e6327a3b504805b99df7659c592b0271ee",
+        // the current value is equal to keccak256('smart-wallet-example7')
+        salt: "0x15d6420d879f014c80398adfd9ed46968a82f49cf3d8b055c89dfb6232f8f371",
       },
     },
   },
@@ -55,7 +55,7 @@ const config: HardhatUserConfig = {
       accounts: accounts,
     },
     basesepolia: {
-      url: "https://sepolia.base.org",
+      url: "https://base-sepolia-rpc.publicnode.com	",
       accounts: accounts,
     },
   },

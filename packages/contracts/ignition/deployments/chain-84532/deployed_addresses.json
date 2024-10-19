@@ -1,10 +1,10 @@
 {
-  "OperatorGatewayModule#OperatorGateway": "0xe73dEe984F13576e9efb59945e0a768c5d552612",
-  "SnickerdoodleFactoryModule#SnickerdoodleFactory": "0xfAbCffB5888BDE010dB748c3bcD12e58EEFbd59A",
-  "SnickerdoodleWalletModule#SnickerdoodleWallet": "0xa33D178d4A36C6614d3191316b43FB0Fb4d643C1",
-  "OperatorGatewayModule#UpgradeableBeacon": "0xA79bd48823603Ba2C1D99523bf2b6a680c50dbeA",
-  "SnickerdoodleFactoryModule#TransparentUpgradeableProxy": "0xe47D8cD2c18796342e5D56b68FCbc6fDa7c7FeD8",
-  "SnickerdoodleWalletModule#UpgradeableBeacon": "0xcD1622A338a4a6f3ea74c6EDBD49AE4b8c62Bd39",
-  "SnickerdoodleFactoryModule#SnickerdoodleFactoryProxy": "0xe47D8cD2c18796342e5D56b68FCbc6fDa7c7FeD8",
-  "SnickerdoodleFactoryModule#ProxyAdmin": "0x22b253d268045C0c0D14542cE91Fb94B01e02eB8"
+  "OperatorGatewayModule#OperatorGateway": "0x2b4260a693B19338a8F071207885b4F003df8CC2",
+  "SnickerdoodleFactoryModule#SnickerdoodleFactory": "0x8061C28E8142903AD34C530698325d6f8fE6ec11",
+  "SnickerdoodleWalletModule#SnickerdoodleWallet": "0xBE0cEef9439E288b11bD8A7765bc3A08995589e1",
+  "OperatorGatewayModule#UpgradeableBeacon": "0xA5EaAE74b1baA4798A73DF0b8c3a2875a7117802",
+  "SnickerdoodleFactoryModule#TransparentUpgradeableProxy": "0x233599DE659972dBD432cB3FC001E6185b4f10dC",
+  "SnickerdoodleWalletModule#UpgradeableBeacon": "0x1D3E3E161b5911CF6aE0ee37bD71d1DC59C57e60",
+  "SnickerdoodleFactoryModule#SnickerdoodleFactoryProxy": "0x233599DE659972dBD432cB3FC001E6185b4f10dC",
+  "SnickerdoodleFactoryModule#ProxyAdmin": "0xa0A717E19Dfc76c71A30A2a230958cc8A1110224"
 }
