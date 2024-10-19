@@ -112,6 +112,8 @@ describe("SnickerdoodleFactory", function () {
       );
 
       const domain = "snickerdoodle";
+      const username = "dummy";
+      const name = `${username}.${domain}`;
 
       const tx = await factory.deployOperatorGatewayProxy(domain, [
         owner.address,
@@ -129,7 +131,7 @@ describe("SnickerdoodleFactory", function () {
 
       await expect(
         operator.deploySnickerdoodleWallets(
-          ["dummy"],
+          [username],
           [ownerP256],
           [[owner.address]],
         ),
@@ -137,52 +139,11 @@ describe("SnickerdoodleFactory", function () {
         .to.emit(factory, "SnickerdoodleWalletCreated")
         .withArgs(
           await factory.computeProxyAddress(
-            "dummy.snickerdoodle",
+            name,
             await walletBeacon.getAddress(),
           ),
-          "dummy.snickerdoodle",
+          name,
         );
-    });
-  });
-
-  describe.only("Deploying Snickerdoodle wallet", function () {
-    it("Test deploying a Snickerdoodle Wallet", async function () {
-      const { factory, gatewayBeacon, owner } = await loadFixture(
-        deployFactory,
-      );
-
-      const domain = "snickerdoodle";
-      const predictedAddress = await factory.computeProxyAddress(
-        domain,
-        await gatewayBeacon.getAddress(),
-      );
-
-      // Deploy the OperatorGateway proxy
-      await expect(factory.deployOperatorGatewayProxy(domain, [owner.address]))
-        .to.emit(factory, "OperatorGatewayDeployed")
-        .withArgs(predictedAddress, domain);
-
-      // Set self as not source chain
-      await factory.setIsSourceChain(false);
-
-      const OperatorGateway = await ethers.getContractFactory(
-        "OperatorGateway",
-      );
-
-      // Create a contract instance
-      const operator = OperatorGateway.attach(predictedAddress);
-
-      await operator.deploySnickerdoodleWallets(
-        ["test"],
-        [
-          {
-            x: "0x2e0aa0b0dd416999b35cf3d03c2df3d4487cefae5b694aceb365efae4781eec5",
-            y: "0xb98bce418ffa0076d45cdfeac10070dc81cc9360b496e9aa1044dbca92d8493f",
-            keyId: "TAp_FZMZshG7RuJhiObFTQ",
-          },
-        ],
-        [[]],
-      );
     });
   });
 });
