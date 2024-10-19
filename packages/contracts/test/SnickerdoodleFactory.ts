@@ -5,6 +5,8 @@ import {
 import { expect } from "chai";
 import hre from "hardhat";
 
+import { getP256Keys } from "./helpers";
+
 describe("SnickerdoodleFactory", function () {
   // We define a fixture to reuse the same setup in every test.
   // We use loadFixture to run this setup once, snapshot that state,
@@ -102,6 +104,44 @@ describe("SnickerdoodleFactory", function () {
       await expect(factory.deployOperatorGatewayProxy(domain, [owner.address]))
         .to.emit(factory, "OperatorGatewayDeployed")
         .withArgs(predictedAddress, domain);
+    });
+
+    it("Test deploying a user wallet", async function () {
+      const { factory, gatewayBeacon, walletBeacon, owner } = await loadFixture(
+        deployFactory,
+      );
+
+      const domain = "snickerdoodle";
+
+      const tx = await factory.deployOperatorGatewayProxy(domain, [
+        owner.address,
+      ]);
+      tx.wait();
+      const operator = await hre.ethers.getContractAt(
+        "OperatorGateway",
+        await factory.computeProxyAddress(
+          domain,
+          await gatewayBeacon.getAddress(),
+        ),
+      );
+
+      const [ownerP256] = getP256Keys();
+
+      await expect(
+        operator.deploySnickerdoodleWallets(
+          ["dummy"],
+          [ownerP256],
+          [[owner.address]],
+        ),
+      )
+        .to.emit(factory, "SnickerdoodleWalletCreated")
+        .withArgs(
+          await factory.computeProxyAddress(
+            "dummy.snickerdoodle",
+            await walletBeacon.getAddress(),
+          ),
+          "dummy.snickerdoodle",
+        );
     });
   });
 });
