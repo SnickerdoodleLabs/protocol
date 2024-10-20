@@ -130,13 +130,9 @@ describe("SnickerdoodleFactory", function () {
       const [ownerP256] = getP256Keys();
 
       await expect(
-        operator.deploySnickerdoodleWallets(
-          [username],
-          [ownerP256],
-          [[owner.address]],
-        ),
+        operator.deployWallets([username], [ownerP256], [[owner.address]]),
       )
-        .to.emit(factory, "SnickerdoodleWalletCreated")
+        .to.emit(factory, "WalletCreated")
         .withArgs(
           await factory.computeProxyAddress(
             name,

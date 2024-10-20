@@ -39,16 +39,21 @@ contract SnickerdoodleWallet is Initializable {
 
     event EVMAccountRemoved(address indexed account);
 
+    error InvalideP256Signature(string keyId);
+    error P256NoncedUsed(bytes32 hash);
+    error EVMAccountNotFound(address account);
+    error OperatorAlreadyAdded(address operator);
+    error KeyAlreadyAdded();
+    error OnlyOperators();
+    error OnlyOwnerAccounts();
+
     modifier onlyOperator() {
-        require(operators[msg.sender], "only operators can call this function");
+        require(operators[msg.sender], OnlyOperators());
         _;
     }
 
     modifier onlyUserEVMAccount() {
-        require(
-            evmAccounts[msg.sender],
-            "only an owner can call this function"
-        );
+        require(evmAccounts[msg.sender], OnlyOwnerAccounts());
         _;
     }
 
@@ -70,12 +75,13 @@ contract SnickerdoodleWallet is Initializable {
 
     /// @notice authorizes the addition of a new P256 key via an existing P256 key
     /// @dev the client must sign an Uint8Array of the concatenated bytes of the keyId, and formatted Qx and Qy coordinates
-    /// @param _keyId the id of the signing key which is already added to this contract
+    /// @dev the client signature is explicitly intended to be usable on multiple chains so that the user does not have to sign multiple times
+    /// @param keyId the id of the signing key which is already added to this contract
     /// @param authenticatorData struct containing the authenticatorData, clientDataJSONLeft, and clientDataJSONRight
     /// @param newP256Key the new P256 key to be added to the user's wallet, contains the keyId, x, and y values
     /// @param p256Sig the P256 signature containing the r and s values
     function addP256KeyWithP256Key(
-        string calldata _keyId,
+        string calldata keyId,
         AuthenticatorData calldata authenticatorData,
         P256Key calldata newP256Key,
         P256Signature calldata p256Sig
@@ -87,7 +93,7 @@ contract SnickerdoodleWallet is Initializable {
         );
         require(
             _verifyP256(
-                _keyId,
+                keyId,
                 authenticatorData.authenticatorData,
                 authenticatorData.clientDataJSONLeft,
                 Base64.encodeURL(challenge),
@@ -95,38 +101,39 @@ contract SnickerdoodleWallet is Initializable {
                 p256Sig.r,
                 p256Sig.s
             ),
-            "Invalid P256 Signature"
+            InvalideP256Signature(keyId)
         );
         _addP256Key(newP256Key);
     }
 
     /// @notice authorizes the addition of an EVM address via a P256 signature
     /// @dev the client must sign an Uint8Array representation of the target EVM address
-    /// @param _keyId the id of the signing key which is already added to this contract
+    /// @dev the client signature is explicitly intended to be usable on multiple chains so that the user does not have to sign multiple times
+    /// @param keyId the id of the signing key which is already added to this contract
     /// @param authenticatorData struct containing the authenticatorData, clientDataJSONLeft, and clientDataJSONRight
-    /// @param _evmAccount the key which will be added to the user's known EVM address list
+    /// @param evmAccount the key which will be added to the user's known EVM address list
     /// @param p256Sig the P256 signature containing the r and s values
     function addEVMAddressWithP256Key(
-        string calldata _keyId,
+        string calldata keyId,
         AuthenticatorData calldata authenticatorData,
-        address _evmAccount,
+        address evmAccount,
         P256Signature calldata p256Sig
     ) external {
         // the P256 signature must be valid
         require(
             _verifyP256(
-                _keyId,
+                keyId,
                 authenticatorData.authenticatorData,
                 authenticatorData.clientDataJSONLeft,
-                _addressToBase64URLString(_evmAccount),
+                _addressToBase64URLString(evmAccount),
                 authenticatorData.clientDataJSONRight,
                 p256Sig.r,
                 p256Sig.s
             ),
-            "Invalid P256 Signature"
+            InvalideP256Signature(keyId)
         );
         // add the EVM address to the wallet
-        _addEVMAccount(_evmAccount);
+        _addEVMAccount(evmAccount);
     }
 
     /// @notice allows the owner to directly add a new EVM address through a known EVM address
@@ -147,9 +154,7 @@ contract SnickerdoodleWallet is Initializable {
 
     /// @notice withdraws any token held by (this) to the calling account
     /// @param asset the contract address of the token to be transferred from this to the user's EVM Address
-    function withdrawLocalERC20Asset(
-        IERC20 asset
-    ) external onlyUserEVMAccount {
+    function withdrawLocalERC20Asset(IERC20 asset) external onlyUserEVMAccount {
         // get the balance of this wallet
         uint256 myBalance = IERC20(asset).balanceOf(address(this));
         // send the balance to the user's evm address
@@ -169,23 +174,20 @@ contract SnickerdoodleWallet is Initializable {
 
     /// @notice adds an operator to the list of operators
     function _addOperator(address operator) private {
-        require(!operators[operator], "Operator already added");
+        require(!operators[operator], OperatorAlreadyAdded(operator));
         operators[operator] = true;
     }
 
     function _addEVMAccount(address evmAccount) private {
         // don't add an address that's already in the wallet
-        require(
-            !evmAccounts[evmAccount],
-            "EVM address already added to the wallet"
-        );
+        require(!evmAccounts[evmAccount], KeyAlreadyAdded());
         evmAccounts[evmAccount] = true;
         emit EVMAccountAdded(evmAccount);
     }
 
     function _removeEVMAccount(address evmAccount) private {
         // don't add an address that's already in the wallet
-        require(evmAccounts[evmAccount], "EVM address not found");
+        require(evmAccounts[evmAccount], EVMAccountNotFound(evmAccount));
         evmAccounts[evmAccount] = false;
         emit EVMAccountRemoved(evmAccount);
     }
@@ -193,7 +195,7 @@ contract SnickerdoodleWallet is Initializable {
     /// @notice adds a P256 public key to the user's wallet
     function _addP256Key(P256Key memory p256Key) private {
         bytes32 keyHash = keccak256(abi.encodePacked(p256Key.keyId));
-        require(p256Keys[keyHash].x == 0, "P256 key already added");
+        require(p256Keys[keyHash].x == 0, KeyAlreadyAdded());
         p256Keys[keyHash] = p256Key;
         emit P256KeyAdded(keyHash, p256Key.x, p256Key.y, p256Key.keyId);
     }
@@ -217,7 +219,7 @@ contract SnickerdoodleWallet is Initializable {
 
         bytes32 cDataHash = sha256(bytes(clientDataJSON));
         bytes32 h = sha256(bytes.concat(authenticatorData, cDataHash));
-        require(!hashDump[h], "P256 signature already used.");
+        require(!hashDump[h], P256NoncedUsed(h));
         hashDump[h] = true;
 
         if (uint256(s) > N / 2) {

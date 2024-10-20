@@ -17,7 +17,7 @@ describe("SnickerdoodleWallet", function () {
   // We define a fixture to reuse the same setup in every test.
   // We use loadFixture to run this setup once, snapshot that state,
   // and reset Hardhat Network to that snapshot in every test.
-  async function deploySnickerdoodleWallet() {
+  async function deployWallet() {
     // Contracts are deployed using the first signer/account by default
     const [owner, otherAccount] = await hre.ethers.getSigners();
 
@@ -48,7 +48,7 @@ describe("SnickerdoodleWallet", function () {
 
   describe("Access Control and Permissioning", function () {
     it("Use P256 to add and EVM Account", async function () {
-      const { sdwallet, KEYID } = await loadFixture(deploySnickerdoodleWallet);
+      const { sdwallet, KEYID } = await loadFixture(deployWallet);
 
       const webAthnComponents = getWebAuthnComponentsForEVMKeyChallenge();
       const challenge: string = webAthnComponents.challenge as string;
@@ -87,11 +87,11 @@ describe("SnickerdoodleWallet", function () {
             s: webAthnComponents.s,
           },
         ),
-      ).to.be.revertedWith("P256 signature already used.");
+      ).to.be.revertedWithCustomError(sdwallet, "P256NoncedUsed");
     });
 
     it("Add a P256 key with an existing P256 key", async function () {
-      const { sdwallet, KEYID } = await loadFixture(deploySnickerdoodleWallet);
+      const { sdwallet, KEYID } = await loadFixture(deployWallet);
 
       const webAthnComponents: WebAuthnComponents =
         getWebAuthnComponentsForP256KeyChallenge();
@@ -136,13 +136,11 @@ describe("SnickerdoodleWallet", function () {
             s: webAthnComponents.s,
           },
         ),
-      ).to.be.revertedWith("P256 signature already used.");
+      ).to.be.revertedWithCustomError(sdwallet, "P256NoncedUsed");
     });
 
     it("Use EVM Account to add and EVM Account", async function () {
-      const { sdwallet, otherAccount } = await loadFixture(
-        deploySnickerdoodleWallet,
-      );
+      const { sdwallet, otherAccount } = await loadFixture(deployWallet);
 
       await expect(sdwallet.addEVMAccountWithEVMAccount(otherAccount.address))
         .to.emit(sdwallet, "EVMAccountAdded")
@@ -150,15 +148,13 @@ describe("SnickerdoodleWallet", function () {
 
       await expect(
         sdwallet.addEVMAccountWithEVMAccount(otherAccount.address),
-      ).to.be.revertedWith("EVM address already added to the wallet");
+      ).to.be.revertedWithCustomError(sdwallet, "KeyAlreadyAdded");
     });
   });
 
   describe("Withdraw functions", function () {
     it("Withdraw vanillaToken from the Snickerdoodle Wallet", async function () {
-      const { sdwallet, vanillaToken, owner } = await loadFixture(
-        deploySnickerdoodleWallet,
-      );
+      const { sdwallet, vanillaToken, owner } = await loadFixture(deployWallet);
 
       await expect(
         sdwallet.withdrawLocalERC20Asset(await vanillaToken.getAddress()),
@@ -170,7 +166,7 @@ describe("SnickerdoodleWallet", function () {
     });
 
     it("Withdraw native asset from the Snickerdoodle Wallet", async function () {
-      const { sdwallet, owner } = await loadFixture(deploySnickerdoodleWallet);
+      const { sdwallet, owner } = await loadFixture(deployWallet);
       await owner.sendTransaction({
         value: hre.ethers.parseEther("1"),
         to: await sdwallet.getAddress(),

@@ -17,6 +17,8 @@ abstract contract ERC7529Upgradeable is IERC7529, Initializable {
     bytes32 private constant ERC7529StorageLocation =
         0x29912872bb1868dd74efe86230a05098a24ae1f39d64ec2129d982442801ac00;
 
+    error InvalideETLD1Domain(string domain);
+
     function _getERC7529Storage()
         private
         pure
@@ -50,7 +52,7 @@ abstract contract ERC7529Upgradeable is IERC7529, Initializable {
     /// @param domain a string representing an eTLD+1 domain that is no longer associated with the contract
     function _removeDomain(string memory domain) internal virtual {
         ERC7529Storage storage $ = _getERC7529Storage();
-        require($.domains[keccak256(abi.encodePacked(domain))] == true, "ERC7529: eTLD+1 currently not associated with this contract");
+        require($.domains[keccak256(abi.encodePacked(domain))] == true, InvalideETLD1Domain(domain));
         $.domains[keccak256(abi.encodePacked(domain))] = false;
         emit RemoveERC7529Domain(domain);
     }
