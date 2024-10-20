@@ -55,7 +55,7 @@ contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
         string[] calldata usernames,
         uint128 _gas
     ) external payable {
-        SnickerdoodleFactory(walletFactory).reserveWalletsOnDestinationChain(
+        SnickerdoodleFactory(walletFactory).reserveWalletsOnDestinationChain{value: msg.value}(
             _destinationChainEID,
             usernames,
             _gas

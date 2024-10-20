@@ -2,9 +2,9 @@ import { task } from "hardhat/config";
 
 const SNICKERDOODLE_FACTORY_CONTRACT_NAME = "SnickerdoodleFactory";
 const SNICKERDOODLE_FACTORY_PROXY =
-  "0xa901cDA47cd5637B0a2aE7c3C1B781190a3d1615";
+  "0x1CCe1F39f413B87Ba30322bcd42d4561b697079F";
 const OPERATOR_GATEWAY_CONTRACT_NAME = "OperatorGateway";
-const OPERATOR_GATEWAY_PROXY = "0xd746d066Dc666A54776a4aF965fc967954bEFc1a";
+const OPERATOR_GATEWAY_PROXY = "0x630Fa323aB5C98e2546B8589B18A0FB89a16c5ed";
 
 task(
   "snickerdoodleWalletFactorySetPeer",
@@ -314,8 +314,8 @@ task(
     const { ethers } = hre;
 
     const operator = await ethers.getContractAt(
-      SNICKERDOODLE_FACTORY_CONTRACT_NAME,
-      SNICKERDOODLE_FACTORY_PROXY,
+      OPERATOR_GATEWAY_CONTRACT_NAME,
+      OPERATOR_GATEWAY_PROXY,
     );
 
     try {
@@ -328,9 +328,9 @@ task(
       //     },
       //   );
 
-      const txResponse = await operator.reserveWalletOnDestinationChain(
+      const txResponse = await operator.reserveWalletsOnDestinationChain(
         Number(taskArgs.destinationchaineid),
-        taskArgs.username,
+        [taskArgs.username],
         Number(taskArgs.gas),
         {
           value: taskArgs.feeinwei,
@@ -407,6 +407,27 @@ task(
   });
 
 task(
+  "checkBeaconImplementationAddress",
+  "Calculate the Operator gateway proxy address for a given domain",
+)
+  .setAction(async (taskArgs, hre) => {
+    const { ethers } = hre;
+
+    const beacon = await ethers.getContractAt(
+      "UpgradeableBeacon",
+      "0x9A4f55bd9B7DB612765d1Ef8aEA27433985f87D9",
+    );
+
+    try {
+      const implementation = await beacon.implementation();
+
+      console.log("Implementation address:", implementation);
+    } catch (e) {
+      console.log("FAILED", e);
+    }
+  });
+
+task(
   "getWalletAndOperatorGatewayBeaconAddresses",
   "Return the wallet and operator gateway beacon addresses",
 ).setAction(async (taskArgs, hre) => {
@@ -447,6 +468,7 @@ task(
           taskArgs.operatoraddress,
         );
 
+      console.log("WHOLE THING", operatorGatewayParams);
       if (Array.isArray(operatorGatewayParams)) {
         console.log("Operator gateway params:");
         console.log(
@@ -457,7 +479,7 @@ task(
         );
         console.log(
           "- Operator Accounts:",
-          operatorGatewayParams.length == 2
+          operatorGatewayParams.length > 1
             ? operatorGatewayParams[1]
             : "No operator accounts",
         );

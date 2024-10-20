@@ -213,7 +213,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             newOperatorAccounts,
             address(this)
         );
-
+     
         emit OperatorGatewayDeployed(address(proxy), saltString);
     }
 
@@ -251,20 +251,20 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         string calldata username,
         uint128 _gas
     ) public payable {
-        // require(
-        //     isSourceChain,
-        //     "SnickerdoodleFactory: Snickerdoodle wallet only reservable via source chain"
-        // );
+        require(
+            isSourceChain,
+            "SnickerdoodleFactory: Snickerdoodle wallet only reservable via source chain"
+        );
 
         /// look up the operator details for the caller
         OperatorGatewayParams
             memory operatorParams = deployedOperatorGatewayAddressToParams[
                 msg.sender
             ];
-        // require(
-        //     bytes(operatorParams.domain).length > 0,
-        //     "SnickerdoodleFactory: Caller not a valid operator"
-        // );
+        require(
+            bytes(operatorParams.domain).length > 0,
+            "SnickerdoodleFactory: Caller not a valid operator"
+        );
         string memory name = string.concat(username, ".", operatorParams.domain);
 
         /// Compute the wallet proxy address
@@ -277,10 +277,10 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             ];
 
         /// TODO: don't know if this check is actually necessary
-        // require(
-        //     ownerDetails.operator == msg.sender,
-        //     "SnickerdoodleFactory: Operator of provided wallet name does not match caller"
-        // );
+        require(
+            ownerDetails.operator == msg.sender,
+            "SnickerdoodleFactory: Operator of provided wallet name does not match caller"
+        );
 
         /// Encodes the message before invoking _lzSend.
         bytes memory _payload = abi.encode(
@@ -304,7 +304,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             // Fee in native gas and ZRO token.
             MessagingFee(msg.value, 0),
             // Refund address in case of failed source message.
-            // To avoid funds refunding into the Operator Gateway, send it back to the caller
+            // To avoid fund getting into the Operator Gateway, send it back to the caller
             payable(tx.origin)
         );
     }
@@ -393,10 +393,10 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             memory operatorParams = deployedOperatorGatewayAddressToParams[
                 operator
             ];
-        // require(
-        //     bytes(operatorParams.domain).length > 0,
-        //     "SnickerdoodleFactory: Caller not a valid operator"
-        // );
+        require(
+            bytes(operatorParams.domain).length > 0,
+            "SnickerdoodleFactory: Caller not a valid operator"
+        );
         string memory name = string.concat(username, ".", operatorParams.domain);
 
         address walletAddress = computeProxyAddress(name, walletBeacon);
