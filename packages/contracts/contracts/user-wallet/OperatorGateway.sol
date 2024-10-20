@@ -2,18 +2,23 @@
 
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/extensions/AccessControlEnumerableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./Structs.sol";
 import "./SnickerdoodleFactory.sol";
 import "./SnickerdoodleWallet.sol";
 import "../erc7529/ERC7529Upgradeable.sol";
 
-contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
+contract OperatorGateway is
+    AccessControlEnumerableUpgradeable,
+    ERC7529Upgradeable
+{
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
     /// @notice address of SnickerdoodleWallet contract
     address private walletFactory;
+
+    error ArrayLengthMismatch(uint a, uint b);
 
     /// @notice creates a user wallet
     /// @dev the first account in the operatorAccounts array is the default admin
@@ -34,19 +39,19 @@ contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
     /// @notice deploy a user wallet with a P256 key from the wallet factory
     /// @param usernames the usernames of the user wallets that will be prepended with the operator's domain
     /// @param p256Keys the P256 keys of the user wallets
-    function deploySnickerdoodleWallets(
+    function deployWallets(
         string[] calldata usernames,
         P256Key[] calldata p256Keys,
         address[][] calldata evmAccounts
     ) public onlyRole(OPERATOR_ROLE) {
-        SnickerdoodleFactory(walletFactory).deploySnickerdoodleWalletProxies(
+        SnickerdoodleFactory(walletFactory).deployWalletProxies(
             usernames,
             p256Keys,
             evmAccounts
         );
     }
 
-    /// @notice Reserve multiple usernames on the destination chain with a single transaction
+    /// @notice Authorize multiple usernames on the destination chain with a single transaction
     /// @param _destinationChainEID the destination chain's EID
     /// @param usernames the usernames of the user wallets that will be prepended with the operator's domain
     /// @param _gas the gas to send with the transaction
@@ -55,11 +60,9 @@ contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
         string[] calldata usernames,
         uint128 _gas
     ) external payable {
-        SnickerdoodleFactory(walletFactory).reserveWalletsOnDestinationChain{value: msg.value}(
-            _destinationChainEID,
-            usernames,
-            _gas
-        );
+        SnickerdoodleFactory(walletFactory).authorizeWalletsOnDestinationChain{
+            value: msg.value
+        }(_destinationChainEID, usernames, _gas);
     }
 
     /// @notice Quote the gas needed to reserve a username on the destination chain with a single transaction
@@ -67,14 +70,14 @@ contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
     /// @param _dstEid the destination chain's EID
     /// @param username the username of the user wallet that will be prepended with the operator's domain
     /// @param _gas the gas to send with the transaction
-    function quoteReserveWalletOnDestinationChain(
+    function quoteAuthorizeWalletOnDestinationChain(
         uint32 _dstEid,
         string calldata username,
         uint128 _gas
     ) external view returns (uint256, uint256) {
         return
             SnickerdoodleFactory(walletFactory)
-                .quoteReserveWalletOnDestinationChain(
+                .quoteAuthorizeWalletOnDestinationChain(
                     _dstEid,
                     username,
                     address(this),
@@ -97,19 +100,19 @@ contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
     ) external onlyRole(OPERATOR_ROLE) {
         require(
             accounts.length == keyIds.length,
-            "OperatorGateway: invalid input length: accounts and keyIds"
+            ArrayLengthMismatch(accounts.length, keyIds.length)
         );
         require(
             keyIds.length == authenticatorDatas.length,
-            "OperatorGateway: invalid input length: keyIds and authenticatorDatas"
+            ArrayLengthMismatch(accounts.length, keyIds.length)
         );
         require(
             authenticatorDatas.length == newP256Keys.length,
-            "OperatorGateway: invalid input length: authenticatorDatas and newP256Keys"
+            ArrayLengthMismatch(accounts.length, keyIds.length)
         );
         require(
             newP256Keys.length == p256Sigs.length,
-            "OperatorGateway: invalid input length: newP256Keys and p256Sigs"
+            ArrayLengthMismatch(accounts.length, keyIds.length)
         );
         for (uint256 i = 0; i < accounts.length; i++) {
             SnickerdoodleWallet(payable(accounts[i])).addP256KeyWithP256Key(
@@ -135,21 +138,5 @@ contract OperatorGateway is AccessControlUpgradeable, ERC7529Upgradeable {
         string memory domain
     ) external onlyRole(OPERATOR_ROLE) {
         _removeDomain(domain);
-    }
-
-    /// TODO: remove if tx.origin works!
-    /// @notice allows native token to be sent to the wallet
-    receive() external payable {}
-
-    function reserveWalletOnDestinationChain(
-        uint32 _destinationChainEID,
-        string calldata username,
-        uint128 _gas
-    ) external payable {
-        SnickerdoodleFactory(walletFactory).reserveWalletOnDestinationChain(
-            _destinationChainEID,
-            username,
-            _gas
-        );
     }
 }

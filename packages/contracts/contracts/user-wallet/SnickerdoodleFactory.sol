@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.24;
+import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
@@ -27,32 +28,35 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     /// @notice The address of the operator beacon should not change for this upgrade pattern
     address public gatewayBeacon;
 
-    /// @notice Tracks a deployed Snickerdoodle wallet proxy address to an owner
-    /// @dev Functions as a reserve lock, confirming that the user has deployed it on the source chain and reserved it on the destination chain
-    mapping(address => WalletParams)
-        public deployedSnickerdoodleWalletAddressToOwner;
+    /// @notice Tracks the hash of ownership parameters of a user wallet for network bridgings
+    mapping(address => bytes32) walletToHash;
 
-    /// @notice Tracks a deployed OperatorGateway address to its parameters
-    mapping(address => OperatorGatewayParams)
-        public deployedOperatorGatewayAddressToParams;
+    /// @notice Tracks the hash of ownership parameters of an operator gateway for network bridgings
+    mapping(address => bytes32) public operatorToHash;
+
+    /// @notice Tracks the domain that belongs to an operator
+    mapping(address => string) public operatorToDomain;
 
     /// @notice Layer zero message types to support sending and receiving different messages
     enum MessageType {
-        ReserveWalletOnDestinationChain,
-        ReserveOperatorGatewayOnDestinationChain
+        AuthorizeWalletOnDestinationChain,
+        AuthorizeOperatorGatewayOnDestinationChain
     }
 
     /// @notice Emitted when a Snickerdoodle wallet proxy contract is deployed
-    event SnickerdoodleWalletCreated(
-        address indexed SnickerdoodleWallet,
-        string name
-    );
+    event WalletCreated(address indexed wallet, string name);
 
     /// @notice Emitted when an OperatorGateway contract is deployed
     event OperatorGatewayDeployed(
         address indexed OperatorGateway,
         string domain
     );
+
+    error ArrayLengthMismatch(uint a, uint b);
+    error SourceChainMethodOnly(uint chainId);
+    error InvalidOperator(address operator);
+    error EntityNotClaimedOnSouceChain(string entity);
+    error InvalidMessageType(uint8 messageType);
 
     /// @dev OApp inherits OAppCore which inherits OZ's Ownable
     function initialize(
@@ -66,7 +70,11 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         __Ownable_init(_owner);
 
         /// If the chain id is Avalanche / Fuji, flag that it is the source chain
-        if (block.chainid == 43113 || block.chainid == 43114 || block.chainid == 31337) {
+        if (
+            block.chainid == 43113 ||
+            block.chainid == 43114 ||
+            block.chainid == 31337
+        ) {
             isSourceChain = true;
         }
 
@@ -74,26 +82,22 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         gatewayBeacon = _gatewayBeacon;
     }
 
-    function deploySnickerdoodleWalletProxies(
+    function deployWalletProxies(
         string[] calldata usernames,
         P256Key[] calldata _p256Keys,
         address[][] calldata evmAccounts
     ) public {
         require(
             usernames.length == _p256Keys.length,
-            "SnickerdoodleFactory: Usernames and P256 points length mismatch"
+            ArrayLengthMismatch(usernames.length, _p256Keys.length)
         );
         require(
             _p256Keys.length == _p256Keys.length,
-            "SnickerdoodleFactory: P256 points and evmAccounts length mismatch"
+            ArrayLengthMismatch(_p256Keys.length, evmAccounts.length)
         );
 
         for (uint256 i = 0; i < usernames.length; i++) {
-            deploySnickerdoodleWalletProxy(
-                usernames[i],
-                _p256Keys[i],
-                evmAccounts[i]
-            );
+            deployWalletProxy(usernames[i], _p256Keys[i], evmAccounts[i]);
         }
     }
 
@@ -102,137 +106,108 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     /// @param username a string that will be prepended to the calling operator's domain to create a unique name for a create2 salt
     /// @param p256Key a new 256 key used to deploy a user wallet; includes the keyId, x, and y coordinates.
     /// @param evmAccounts addresses to add as operators to the OperatorGateway
-    function deploySnickerdoodleWalletProxy(
+    function deployWalletProxy(
         string calldata username,
         P256Key calldata p256Key,
         address[] calldata evmAccounts
     ) public {
-        OperatorGatewayParams
-            memory operatorParams = deployedOperatorGatewayAddressToParams[
-                msg.sender
-            ];
-        require(
-            bytes(operatorParams.domain).length > 0,
-            "SnickerdoodleFactory: Caller not a valid operator"
-        );
-        string memory name = string.concat(
-            username,
-            ".",
-            operatorParams.domain
-        );
+        string memory domain = operatorToDomain[msg.sender];
+        require(bytes(domain).length > 0, InvalidOperator(msg.sender));
 
-        /// these variables are set once we know if we are on the source or destination chain
-        address operator;
-        string memory saltString;
-        P256Key memory newKey;
-        address[] memory newEvmAccounts;
-
+        string memory name = string.concat(username, ".", domain);
+        address proxyAddress = computeProxyAddress(name, walletBeacon);
         if (isSourceChain) {
-            /// if we are on the source chain, store wallet details for relaying to other chains
-            saltString = name;
-            operator = msg.sender;
-            newKey = p256Key;
-            newEvmAccounts = evmAccounts;
-
-            deployedSnickerdoodleWalletAddressToOwner[
-                computeProxyAddress(name, walletBeacon)
-            ] = WalletParams(msg.sender, name, p256Key, evmAccounts);
-        } else {
-            /// if we are on the destination chain, check that the wallet has been created on the source chain
-            WalletParams
-                memory params = deployedSnickerdoodleWalletAddressToOwner[
-                    computeProxyAddress(name, walletBeacon)
-                ];
-            require(
-                keccak256(abi.encodePacked(params.name)) ==
-                    keccak256(abi.encodePacked(name)),
-                "SnickerdoodleFactory: Snickerdoodle wallet with selected name has not been created on the source chain"
+            walletToHash[proxyAddress] = keccak256(
+                abi.encodePacked(
+                    msg.sender,
+                    name,
+                    p256Key.keyId,
+                    p256Key.x,
+                    p256Key.y,
+                    evmAccounts
+                )
             );
-            operator = params.operator;
-            saltString = params.name;
-            newKey = params.p256Key;
-            newEvmAccounts = params.evmAccounts;
+        } else {
+            require(
+                walletToHash[proxyAddress] ==
+                    keccak256(
+                        abi.encodePacked(
+                            msg.sender,
+                            name,
+                            p256Key.keyId,
+                            p256Key.x,
+                            p256Key.y,
+                            evmAccounts
+                        )
+                    ),
+                EntityNotClaimedOnSouceChain(name)
+            );
         }
 
         /// NOTE: The address of the proxy contract will never change after deployment.
         /// The initializer is called after deployment so that the proxy address does not depend on the initializer's arguments.
         /// This means only the salt value is used to calculate the proxy address.
         BeaconProxy proxy = new BeaconProxy{
-            salt: keccak256(abi.encodePacked(saltString))
+            salt: keccak256(abi.encodePacked(name))
         }(walletBeacon, "");
         SnickerdoodleWallet(payable(address(proxy))).initialize(
-            operator,
-            newKey,
-            newEvmAccounts
+            msg.sender,
+            p256Key,
+            evmAccounts
         );
 
-        emit SnickerdoodleWalletCreated(address(proxy), saltString);
+        emit WalletCreated(address(proxy), name);
     }
 
     /// @notice Deploys a Beacon Proxy with name keyword and salt to create an upgradeable OperatorGateway
-    /// @dev https://docs.openzeppelin.com/contracts/5.x/api/proxy#UpgradeableBeacon
+    /// @dev if a domain has already been claimed, this function will revert
     /// @param domain a string used for the top-level domain of user wallets created by this operator
     /// @param operatorAccounts addresses to add as operators to the OperatorGateway
     function deployOperatorGatewayProxy(
         string calldata domain,
         address[] calldata operatorAccounts
     ) external {
-        /// these variables are set once we know if we are on the source or destination chain
-        string memory saltString;
-        address[] memory newOperatorAccounts;
-
+        address proxyAddress = computeProxyAddress(domain, gatewayBeacon);
         if (isSourceChain) {
-            /// if we are on the source chain, store wallet details for relaying to other chains
-            deployedOperatorGatewayAddressToParams[
-                computeProxyAddress(domain, gatewayBeacon)
-            ] = OperatorGatewayParams(domain, operatorAccounts);
-            saltString = domain;
-            newOperatorAccounts = operatorAccounts;
-        } else {
-            /// if we are on the destination chain, check that the wallet has been created on the source chain
-            OperatorGatewayParams
-                memory params = deployedOperatorGatewayAddressToParams[
-                    computeProxyAddress(domain, gatewayBeacon)
-                ];
-            require(
-                keccak256(abi.encodePacked(params.domain)) ==
-                    keccak256(abi.encodePacked(domain)),
-                "SnickerdoodleFactory: Snickerdoodle Operator with selected domain name has not been created on the source chain"
+            operatorToHash[proxyAddress] = keccak256(
+                abi.encodePacked(domain, operatorAccounts)
             );
-            saltString = params.domain;
-            newOperatorAccounts = params.operatorAccounts;
+        } else {
+            require(
+                keccak256(abi.encodePacked(domain, operatorAccounts)) ==
+                    operatorToHash[proxyAddress],
+                EntityNotClaimedOnSouceChain(domain)
+            );
         }
+        operatorToDomain[proxyAddress] = domain;
 
         /// NOTE: The address of the proxy contract will never change after deployment.
         /// The initializer is called after deployment so that the proxy address does not depend on the initializer's arguments.
         /// This means only the salt value is used to calculate the proxy address.
         BeaconProxy proxy = new BeaconProxy{
-            salt: keccak256(abi.encodePacked(saltString))
+            salt: keccak256(abi.encodePacked(domain))
         }(gatewayBeacon, "");
         OperatorGateway(payable(proxy)).initialize(
-            newOperatorAccounts,
+            operatorAccounts,
             address(this)
         );
-     
-        emit OperatorGatewayDeployed(address(proxy), saltString);
+
+        emit OperatorGatewayDeployed(address(proxy), domain);
     }
 
-    /// @notice A batch function to reserve multiple wallets on the destination chain in one call
+    /// @notice A batch function to authorize multiple wallets on the destination chain in one call
     /// @param _destinationChainEID Layer Zero Endpoint id for the target destination chain
     /// @param usernames an array of strings used to name the SnickerdoodleWallet deployed to make it easy to look up (hashed to create salt)
     /// @param _gas Gas for message execution options, refer to : https://docs.layerzero.network/v2/developers/evm/oapp/overview#message-execution-options
-    function reserveWalletsOnDestinationChain(
+    function authorizeWalletsOnDestinationChain(
         uint32 _destinationChainEID,
         string[] calldata usernames,
         uint128 _gas
     ) external payable {
-        require(
-            isSourceChain,
-            "SnickerdoodleFactory: Snickerdoodle wallet only reservable via source chain"
-        );
+        require(isSourceChain, SourceChainMethodOnly(block.chainid));
 
         for (uint256 i = 0; i < usernames.length; i++) {
-            reserveWalletOnDestinationChain(
+            authorizeWalletOnDestinationChain(
                 _destinationChainEID,
                 usernames[i],
                 _gas
@@ -240,60 +215,35 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         }
     }
 
-    /// @notice Sends a message from the source to the destination chain to reserve a Snickerdoodle wallet address.
-    /// @dev Call quoteReserveWalletOnDestinationChain() and include it's fee value as part of the msg.value for this function
+    /// @notice Sends a message from the source to the destination chain to authorize a Snickerdoodle wallet address.
+    /// @dev Call quoteAuthorizeWalletOnDestinationChain() and include it's fee value as part of the msg.value for this function
     /// @dev If the destination chain has not been set as a peer contract, it will error NoPeer(_destinationChainEID)
     /// @param _destinationChainEID Layer Zero Endpoint id for the target destination chain
     /// @param username a string used to name the SnickerdoodleWallet deployed to make it easy to look up (hashed to create salt)
     /// @param _gas Gas for message execution options, refer to : https://docs.layerzero.network/v2/developers/evm/oapp/overview#message-execution-options
-    function reserveWalletOnDestinationChain(
+    function authorizeWalletOnDestinationChain(
         uint32 _destinationChainEID,
         string calldata username,
         uint128 _gas
     ) public payable {
-        require(
-            isSourceChain,
-            "SnickerdoodleFactory: Snickerdoodle wallet only reservable via source chain"
-        );
+        require(isSourceChain, SourceChainMethodOnly(block.chainid));
 
         /// look up the operator details for the caller
-        OperatorGatewayParams
-            memory operatorParams = deployedOperatorGatewayAddressToParams[
-                msg.sender
-            ];
-        require(
-            bytes(operatorParams.domain).length > 0,
-            "SnickerdoodleFactory: Caller not a valid operator"
-        );
-        string memory name = string.concat(username, ".", operatorParams.domain);
+        string memory domain = operatorToDomain[msg.sender];
+        require(bytes(domain).length > 0, InvalidOperator(msg.sender));
 
         /// Compute the wallet proxy address
-        address proxy = computeProxyAddress(name, walletBeacon);
+        string memory name = string.concat(username, ".", domain);
+        address proxyAddress = computeProxyAddress(name, walletBeacon);
 
         // Check that the details of the proxy address match the provided details
-        WalletParams
-            memory ownerDetails = deployedSnickerdoodleWalletAddressToOwner[
-                proxy
-            ];
-
-        /// TODO: don't know if this check is actually necessary
-        require(
-            ownerDetails.operator == msg.sender,
-            "SnickerdoodleFactory: Operator of provided wallet name does not match caller"
-        );
+        bytes32 walletHash = walletToHash[proxyAddress];
+        require(walletHash != bytes32(0), EntityNotClaimedOnSouceChain(name));
 
         /// Encodes the message before invoking _lzSend.
         bytes memory _payload = abi.encode(
-            uint8(MessageType.ReserveWalletOnDestinationChain),
-            abi.encode(
-                WalletParams(
-                    ownerDetails.operator,
-                    name,
-                    ownerDetails.p256Key,
-                    ownerDetails.evmAccounts
-                ),
-                proxy
-            )
+            uint8(MessageType.AuthorizeWalletOnDestinationChain),
+            abi.encode(walletHash, proxyAddress)
         );
 
         /// Send a message to layer zero to the destination chain
@@ -309,46 +259,30 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         );
     }
 
-    /// @notice Sends a message from the source to the destination chain to reserve an operator gateway.
-    /// @dev Call quoteReserveWalletOnDestinationChain() and include it's fee value as part of the msg.value for this function
+    /// @notice Sends a message from the source to the destination chain to authorize an operator gateway.
+    /// @dev Call quoteAuthorizeWalletOnDestinationChain() and include it's fee value as part of the msg.value for this function
     /// @dev If the destination chain has not been set as a peer contract, it will error NoPeer(_destinationChainEID)
     /// @param _destinationChainEID Layer Zero Endpoint id for the target destination chain
-    /// @param _domain a string used by the gateway for user domain names
+    /// @param domain a string used by the gateway for user domain names
     /// @param _gas Gas for message execution options, refer to : https://docs.layerzero.network/v2/developers/evm/oapp/overview#message-execution-options
-    function reserveOperatorGatewayOnDestinationChain(
+    function authorizeGatewayOnDestinationChain(
         uint32 _destinationChainEID,
-        string calldata _domain,
+        string calldata domain,
         uint128 _gas
     ) external payable {
-        require(
-            isSourceChain,
-            "SnickerdoodleFactory: Snickerdoodle wallet only reservable via source chain"
-        );
+        require(isSourceChain, SourceChainMethodOnly(block.chainid));
         /// Compute the Snickerdoodle wallet proxy address
-        address proxy = computeProxyAddress(_domain, gatewayBeacon);
-
-        // Check that the details of the proxy address match the provided details
-        OperatorGatewayParams
-            memory operatorDetails = deployedOperatorGatewayAddressToParams[
-                proxy
-            ];
-
+        address proxyAddress = computeProxyAddress(domain, gatewayBeacon);
+        bytes32 operatorHash = operatorToHash[proxyAddress];
         require(
-            keccak256(abi.encodePacked(operatorDetails.domain)) ==
-                keccak256(abi.encodePacked(_domain)),
-            "SnickerdoodleFactory: Domains do not match"
+            operatorHash != bytes32(0),
+            EntityNotClaimedOnSouceChain(domain)
         );
 
         /// Encodes the message before invoking _lzSend.
         bytes memory _payload = abi.encode(
-            uint8(MessageType.ReserveOperatorGatewayOnDestinationChain),
-            abi.encode(
-                OperatorGatewayParams(
-                    operatorDetails.domain,
-                    operatorDetails.operatorAccounts
-                ),
-                proxy
-            )
+            uint8(MessageType.AuthorizeOperatorGatewayOnDestinationChain),
+            abi.encode(operatorHash, proxyAddress)
         );
 
         /// Send a message to layer zero to the destination chain
@@ -382,69 +316,54 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             );
     }
 
-    /// @notice Estimating the fee for to send a message to reserve a Snickerdoodle wallet on destination chain
-    function quoteReserveWalletOnDestinationChain(
+    /// @notice Estimating the fee for to send a message to authorize a Snickerdoodle wallet on destination chain
+    function quoteAuthorizeWalletOnDestinationChain(
         uint32 _dstEid,
         string calldata username,
         address operator,
         uint128 _gas
     ) external view returns (uint256 nativeFee, uint256 lzTokenFee) {
-        OperatorGatewayParams
-            memory operatorParams = deployedOperatorGatewayAddressToParams[
-                operator
-            ];
-        require(
-            bytes(operatorParams.domain).length > 0,
-            "SnickerdoodleFactory: Caller not a valid operator"
-        );
-        string memory name = string.concat(username, ".", operatorParams.domain);
+        string memory domain = operatorToDomain[operator];
+        require(bytes(domain).length > 0, InvalidOperator(operator));
 
+        // compute the wallet proxy address
+        string memory name = string.concat(username, ".", domain);
         address walletAddress = computeProxyAddress(name, walletBeacon);
         bytes memory messageData = abi.encode(
-            deployedSnickerdoodleWalletAddressToOwner[walletAddress],
+            walletToHash[walletAddress],
             walletAddress
         );
 
         return
             quote(
                 _dstEid,
-                uint8(MessageType.ReserveWalletOnDestinationChain),
+                uint8(MessageType.AuthorizeWalletOnDestinationChain),
                 messageData,
                 OptionsBuilder.newOptions().addExecutorLzReceiveOption(_gas, 0),
                 false
             );
     }
 
-    /// @notice Estimating the fee for to send a message to reserve a Snickerdoodle wallet on destination chain
-    function quoteReserveOperatorGatewayOnDestinationChain(
+    /// @notice Estimating the fee for to send a message to authorize a Snickerdoodle wallet on destination chain
+    function quoteAuthorizeOperatorGatewayOnDestinationChain(
         uint32 _dstEid,
-        string calldata _domain,
+        string calldata domain,
         uint128 _gas
     ) external view returns (uint256 nativeFee, uint256 lzTokenFee) {
-        address gatewayAddress = computeProxyAddress(_domain, gatewayBeacon);
+        address gatewayAddress = computeProxyAddress(domain, gatewayBeacon);
         bytes memory messageData = abi.encode(
-            deployedOperatorGatewayAddressToParams[gatewayAddress],
+            operatorToHash[gatewayAddress],
             gatewayAddress
         );
 
         return
             quote(
                 _dstEid,
-                uint8(MessageType.ReserveWalletOnDestinationChain),
+                uint8(MessageType.AuthorizeWalletOnDestinationChain),
                 messageData,
                 OptionsBuilder.newOptions().addExecutorLzReceiveOption(_gas, 0),
                 false
             );
-    }
-
-    /// @notice Returns the information of the owner of a deployed snickerdoodle wallet
-    function getSnickerdoodleWalletParams(
-        address _snickerdoodleWalletAddress
-    ) external view returns (WalletParams memory) {
-        return
-            deployedSnickerdoodleWalletAddressToOwner[
-                _snickerdoodleWalletAddress
-            ];
     }
 
     /// @dev Quotes the gas needed to pay for the full omnichain transaction.
@@ -494,49 +413,49 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         );
 
         // Handle the message type accordingly
-        if (messageType == uint8(MessageType.ReserveWalletOnDestinationChain)) {
-            _handleReserveWalletOnDestinationChain(messageData);
+        if (
+            messageType == uint8(MessageType.AuthorizeWalletOnDestinationChain)
+        ) {
+            _handleAuthorizeWalletOnDestinationChain(messageData);
         } else if (
             messageType ==
-            uint8(MessageType.ReserveOperatorGatewayOnDestinationChain)
+            uint8(MessageType.AuthorizeOperatorGatewayOnDestinationChain)
         ) {
-            _handleReserveOperatorGatewayOnDestinationChain(messageData);
+            _handleAuthorizeOperatorGatewayOnDestinationChain(messageData);
         } else {
-            revert("SnickerdoodleFactory: Unknown message type");
+            revert InvalidMessageType(messageType);
         }
     }
 
     /// @notice Registers the owner of a deployed Snickerdoodle wallet that was deployed on the source chain
     /// @param messageData Data containing the owner details and Snickerdoodle wallet address
-    function _handleReserveWalletOnDestinationChain(
+    function _handleAuthorizeWalletOnDestinationChain(
         bytes memory messageData
     ) internal {
         /// Decode the message
-        (WalletParams memory walletParams, address walletAddress) = abi.decode(
+        (bytes32 walletHash, address walletAddress) = abi.decode(
             messageData,
-            (WalletParams, address)
+            (bytes32, address)
         );
 
         /// Assign the deployed wallet to the owner
-        /// After reserving on the destination chain, deploySnickerdoodleWalletProxy will work for this owner and name combination
-        deployedSnickerdoodleWalletAddressToOwner[walletAddress] = walletParams;
+        /// After reserving on the destination chain, deployWalletProxy will work for this owner and name combination
+        walletToHash[walletAddress] = walletHash;
     }
 
     /// @notice Registers the owner of a deployed Snickerdoodle wallet that was deployed on the source chain
     /// @param messageData Data containing the owner details and Snickerdoodle wallet address
-    function _handleReserveOperatorGatewayOnDestinationChain(
+    function _handleAuthorizeOperatorGatewayOnDestinationChain(
         bytes memory messageData
     ) internal {
         /// Decode the message
-        (
-            OperatorGatewayParams memory operatorGatewayParams,
-            address gatewayAddress
-        ) = abi.decode(messageData, (OperatorGatewayParams, address));
+        (bytes32 operatorHash, address gatewayAddress) = abi.decode(
+            messageData,
+            (bytes32, address)
+        );
 
         /// Assign the deployed wallet to the owner
-        /// After reserving on the destination chain, deploySnickerdoodleWalletProxy will work for this owner and name combination
-        deployedOperatorGatewayAddressToParams[
-            gatewayAddress
-        ] = operatorGatewayParams;
+        /// After reserving on the destination chain, deployWalletProxy will work for this owner and name combination
+        operatorToHash[gatewayAddress] = operatorHash;
     }
 }
