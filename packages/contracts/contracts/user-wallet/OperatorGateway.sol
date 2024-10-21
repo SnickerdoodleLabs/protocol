@@ -41,7 +41,7 @@ contract OperatorGateway is
     /// @param p256Keys the P256 keys of the user wallets
     function deployWallets(
         string[] calldata usernames,
-        P256Key[] calldata p256Keys,
+        P256Key[][] calldata p256Keys,
         address[][] calldata evmAccounts
     ) public onlyRole(OPERATOR_ROLE) {
         SnickerdoodleFactory(walletFactory).deployWalletProxies(

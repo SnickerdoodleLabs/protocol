@@ -84,7 +84,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
 
     function deployWalletProxies(
         string[] calldata usernames,
-        P256Key[] calldata _p256Keys,
+        P256Key[][] calldata _p256Keys,
         address[][] calldata evmAccounts
     ) public {
         require(
@@ -104,11 +104,11 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     /// @notice Deploys a Beacon Proxy with name keyword and salt to create an upgradeable SnickerdoodleWallet
     /// @dev https://docs.openzeppelin.com/contracts/5.x/api/proxy#UpgradeableBeacon
     /// @param username a string that will be prepended to the calling operator's domain to create a unique name for a create2 salt
-    /// @param p256Key a new 256 key used to deploy a user wallet; includes the keyId, x, and y coordinates.
+    /// @param p256Keys a new 256 key used to deploy a user wallet; includes the keyId, x, and y coordinates.
     /// @param evmAccounts addresses to add as operators to the OperatorGateway
     function deployWalletProxy(
         string calldata username,
-        P256Key calldata p256Key,
+        P256Key[] calldata p256Keys,
         address[] calldata evmAccounts
     ) public {
         string memory domain = operatorToDomain[msg.sender];
@@ -116,14 +116,17 @@ contract SnickerdoodleFactory is OAppUpgradeable {
 
         string memory name = string.concat(username, ".", domain);
         address proxyAddress = computeProxyAddress(name, walletBeacon);
+        (string memory keyIds, bytes32[] memory xs, bytes32[] memory ys) = _p256KeyArrayToArrays(
+            p256Keys
+        );
         if (isSourceChain) {
             walletToHash[proxyAddress] = keccak256(
                 abi.encodePacked(
                     msg.sender,
                     name,
-                    p256Key.keyId,
-                    p256Key.x,
-                    p256Key.y,
+                    keyIds,
+                    xs,
+                    ys,
                     evmAccounts
                 )
             );
@@ -134,9 +137,9 @@ contract SnickerdoodleFactory is OAppUpgradeable {
                         abi.encodePacked(
                             msg.sender,
                             name,
-                            p256Key.keyId,
-                            p256Key.x,
-                            p256Key.y,
+                            keyIds,
+                            xs,
+                            ys,
                             evmAccounts
                         )
                     ),
@@ -152,7 +155,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         }(walletBeacon, "");
         SnickerdoodleWallet(payable(address(proxy))).initialize(
             msg.sender,
-            p256Key,
+            p256Keys,
             evmAccounts
         );
 
@@ -364,6 +367,25 @@ contract SnickerdoodleFactory is OAppUpgradeable {
                 OptionsBuilder.newOptions().addExecutorLzReceiveOption(_gas, 0),
                 false
             );
+    }
+
+    /// @dev Converts a p256Key array into keyId, x, and y arrays for easier hashing
+    function _p256KeyArrayToArrays(P256Key[] memory p256Keys)
+        internal
+        pure
+        returns (string memory, bytes32[] memory, bytes32[] memory)
+    {
+        string memory keyIds = ""; // string arrays are not compatible with abi.encodePacked
+        bytes32[] memory x = new bytes32[](p256Keys.length);
+        bytes32[] memory y = new bytes32[](p256Keys.length);
+
+        for (uint256 i = 0; i < p256Keys.length; i++) {
+            keyIds = string.concat(keyIds,  p256Keys[i].keyId);
+            x[i] = p256Keys[i].x;
+            y[i] = p256Keys[i].y;
+        }
+
+        return (keyIds, x, y);
     }
 
     /// @dev Quotes the gas needed to pay for the full omnichain transaction.

@@ -58,14 +58,19 @@ contract SnickerdoodleWallet is Initializable {
     }
 
     /// @notice creates a user wallet
-    /// @dev you can optionally deploy the wallet with an EVM account if availble from the user
+    /// @dev you can optionally initialize the wallet with known EVM accounts if availble from the user
     function initialize(
         address operator,
-        P256Key calldata p256Key,
+        P256Key[] calldata _p256Keys,
         address[] calldata evmAccount
     ) public initializer {
+        require(_p256Keys.length > 0, "P256Keys must be provided");
         _addOperator(operator);
-        _addP256Key(p256Key);
+
+        for (uint256 i = 0; i < evmAccount.length; i++) {
+            _addP256Key(_p256Keys[i]);
+        }
+
         if (evmAccount.length > 0) {
             for (uint256 i = 0; i < evmAccount.length; i++) {
                 _addEVMAccount(evmAccount[i]);
