@@ -257,7 +257,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             // Fee in native gas and ZRO token.
             MessagingFee(msg.value, 0),
             // Refund address in case of failed source message.
-            // To void fund getting into the Operator Gateway, send it back to the caller
+            // To avoid fund getting into the Operator Gateway, send it back to the caller
             payable(tx.origin)
         );
     }
