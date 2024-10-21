@@ -41,11 +41,13 @@ describe("SnickerdoodleFactory", function () {
     const sdwallet = await hre.ethers.deployContract("SnickerdoodleWallet", []);
     await sdwallet.initialize(
       owner.address,
-      {
-        keyId: "1337",
-        x: "0x2e0aa0b0dd416999b35cf3d03c2df3d4487cefae5b694aceb365efae4781eec5",
-        y: "0xb98bce418ffa0076d45cdfeac10070dc81cc9360b496e9aa1044dbca92d8493f",
-      },
+      [
+        {
+          keyId: "1337",
+          x: "0x2e0aa0b0dd416999b35cf3d03c2df3d4487cefae5b694aceb365efae4781eec5",
+          y: "0xb98bce418ffa0076d45cdfeac10070dc81cc9360b496e9aa1044dbca92d8493f",
+        },
+      ],
       [owner.address],
     );
 
@@ -130,7 +132,7 @@ describe("SnickerdoodleFactory", function () {
       const [ownerP256] = getP256Keys();
 
       await expect(
-        operator.deployWallets([username], [ownerP256], [[owner.address]]),
+        operator.deployWallets([username], [[ownerP256]], [[owner.address]]),
       )
         .to.emit(factory, "WalletCreated")
         .withArgs(
