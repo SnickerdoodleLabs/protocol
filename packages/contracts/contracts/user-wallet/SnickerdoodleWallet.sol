@@ -52,7 +52,7 @@ contract SnickerdoodleWallet is Initializable {
 
     event EVMAccountRemoved(address indexed account);
 
-    error InvalideP256Signature(string keyId);
+    error InvalidP256Signature(string keyId);
     error P256NoncedUsed(bytes32 hash);
     error EVMAccountNotFound(address account);
     error OperatorAlreadyAdded(address operator);
@@ -71,7 +71,7 @@ contract SnickerdoodleWallet is Initializable {
     }
 
     /// @notice creates a user wallet
-    /// @dev you can optionally initialize the wallet with known EVM accounts if availble from the user
+    /// @dev you can optionally initialize the wallet with known EVM accounts if available from the user
     function initialize(
         address _factory,
         address _operator,
@@ -124,7 +124,7 @@ contract SnickerdoodleWallet is Initializable {
                 p256Sig.r,
                 p256Sig.s
             ),
-            InvalideP256Signature(keyId)
+            InvalidP256Signature(keyId)
         );
         _addP256Key(newP256Key);
         _updateWalletHash();
@@ -154,7 +154,7 @@ contract SnickerdoodleWallet is Initializable {
                 p256Sig.r,
                 p256Sig.s
             ),
-            InvalideP256Signature(keyId)
+            InvalidP256Signature(keyId)
         );
         // add the EVM address to the wallet
         _addEVMAccount(evmAccount);

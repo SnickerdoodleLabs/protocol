@@ -192,7 +192,7 @@ task(
   )
   .addParam(
     "feeinwei",
-    "The fees from the quoteAuthorizeWalletOnDestinationChain call",
+    "The fees from the quoteAuthorizeGatewayOnDestinationChain call",
   )
 
   .setAction(async (taskArgs, hre) => {

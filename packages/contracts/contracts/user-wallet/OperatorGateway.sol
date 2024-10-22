@@ -124,7 +124,7 @@ contract OperatorGateway is
         }
     }
 
-    /// @notice Add an associatd DNS eTLD+1 domain with this operator gateway contract
+    /// @notice Add an associated DNS eTLD+1 domain with this operator gateway contract
     /// @param domain a string representing an eTLD+1 domain associated with the contract
     function addERC7529Domain(
         string memory domain
@@ -132,7 +132,7 @@ contract OperatorGateway is
         _addDomain(domain);
     }
 
-    /// @notice Add an associatd DNS eTLD+1 domain with this operator gateway contract
+    /// @notice Add an associated DNS eTLD+1 domain with this operator gateway contract
     /// @param domain a string representing an eTLD+1 domain associated with the contract
     function removeERC7529Domain(
         string memory domain
