@@ -1,11 +1,13 @@
 import type { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "@nomicfoundation/hardhat-ignition"; // Need both imports to support ethers based ignition
+import "@openzeppelin/hardhat-upgrades";
+import "hardhat-contract-sizer";
 
 // To use viem, import below alone
 // import "@nomicfoundation/hardhat-toolbox-viem";
 
-import "./tasks/smartWallet";
+import "./tasks/snickerdoodleFactory";
 
 require("dotenv").config();
 
@@ -22,7 +24,7 @@ const accounts = key ? [key] : { mnemonic };
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.24",
+    version: "0.8.28",
     settings: {
       optimizer: {
         enabled: true,
@@ -34,8 +36,8 @@ const config: HardhatUserConfig = {
     strategyConfig: {
       create2: {
         // To learn more about salts, see the CreateX documentation
-        // the current value is equal to keccak256('smart-wallet-example2')
-        salt: "0xb74a48f0729221942ec42b31c524f5e6327a3b504805b99df7659c592b0271ed",
+        // the current value is equal to keccak256('smart-wallet-example7')
+        salt: "0xcdbbf31d2aa8586eefc5aa5553fc41291960aa2c690c1b1c65d2032aad7677f8",
       },
     },
   },
@@ -52,12 +54,25 @@ const config: HardhatUserConfig = {
       url: "https://rpc.ankr.com/polygon_amoy",
       accounts: accounts,
     },
+    basesepolia: {
+      url: "https://base-sepolia-rpc.publicnode.com	",
+      accounts: accounts,
+    },
   },
   paths: {
     sources: "./contracts",
     tests: "./test",
     cache: "./cache",
     artifacts: "./artifacts",
+  },
+  contractSizer: {
+    runOnCompile: true, // Optional: Run contract sizing automatically on compile
+  },
+  gasReporter: {
+    enabled: true,
+    gasPriceApi: "https://api.llama.fi/prices/current/ethereum?vs=usd", // Free public API
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
+    currency: "USD",
   },
 };
 
