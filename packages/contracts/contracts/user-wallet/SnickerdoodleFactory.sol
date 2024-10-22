@@ -154,12 +154,19 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             salt: keccak256(abi.encodePacked(name))
         }(walletBeacon, "");
         SnickerdoodleWallet(payable(address(proxy))).initialize(
+            address(this),
             msg.sender,
+            name,
             p256Keys,
             evmAccounts
         );
 
         emit WalletCreated(address(proxy), name);
+    }
+
+    /// @notice Updates the wallet hash for a given wallet address
+    function updateWalletHash(bytes32 newWalletHash) external {
+        walletToHash[msg.sender] = newWalletHash;
     }
 
     /// @notice Deploys a Beacon Proxy with name keyword and salt to create an upgradeable OperatorGateway

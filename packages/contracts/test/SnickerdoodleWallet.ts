@@ -27,6 +27,8 @@ describe("SnickerdoodleWallet", function () {
     const sdwallet = await hre.ethers.deployContract("SnickerdoodleWallet", []);
     await sdwallet.initialize(
       owner.address,
+      owner.address,
+      "cookie.snickerdoodle",
       [{ keyId: ownerP256.keyId, x: ownerP256.x, y: ownerP256.y }],
       [owner.address],
     );

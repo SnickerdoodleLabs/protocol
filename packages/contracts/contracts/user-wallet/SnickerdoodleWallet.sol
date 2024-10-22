@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./tmp/Base64.sol";
 import "./tmp/P256.sol";
+import "./SnickerdoodleFactory.sol";
 import "./Structs.sol";
 
 contract SnickerdoodleWallet is Initializable {
@@ -16,17 +17,29 @@ contract SnickerdoodleWallet is Initializable {
     uint256 internal constant N =
         0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551;
 
+    /// @notice address of the factory contract
+    address public factory;
+
+    /// @notice address of the operator that deployed this wallet
+    address public operator;
+
+    /// @notice salt used to create the wallet address
+    string private name;
+
+    /// @notice used to iterate through p256Keys mapping
+    bytes32[] private keyIdHashArray;
+
     /// @notice user's public key data
     mapping(bytes32 => P256Key) private p256Keys;
 
     /// @notice EVM addresses owned by the user
-    mapping(address => bool) private evmAccounts;
+    address[] private evmAccounts;
 
-    /// @notice address of operators allowed to relay P245 signatures to this contract
-    mapping(address => bool) public operators;
+    /// @notice index of known EVM addresses in the evmAccounts array
+    mapping(address => uint) private evmAccountIndexs;
 
     /// @notice used P256 message hashes
-    mapping(bytes32 => bool) public hashDump;
+    mapping(bytes32 => bool) private hashDump;
 
     event P256KeyAdded(
         bytes32 indexed keyhash,
@@ -44,38 +57,43 @@ contract SnickerdoodleWallet is Initializable {
     error EVMAccountNotFound(address account);
     error OperatorAlreadyAdded(address operator);
     error KeyAlreadyAdded();
-    error OnlyOperators();
+    error OnlyOperator();
     error OnlyOwnerAccounts();
 
     modifier onlyOperator() {
-        require(operators[msg.sender], OnlyOperators());
+        require(msg.sender == operator, OnlyOperator());
         _;
     }
 
     modifier onlyUserEVMAccount() {
-        require(evmAccounts[msg.sender], OnlyOwnerAccounts());
+        require(evmAccountIndexs[msg.sender] == 0, OnlyOwnerAccounts());
         _;
     }
 
     /// @notice creates a user wallet
     /// @dev you can optionally initialize the wallet with known EVM accounts if availble from the user
     function initialize(
-        address operator,
+        address _factory,
+        address _operator,
+        string calldata _name,
         P256Key[] calldata _p256Keys,
-        address[] calldata evmAccount
+        address[] calldata _evmAccounts
     ) public initializer {
         require(_p256Keys.length > 0, "P256Keys must be provided");
-        _addOperator(operator);
 
-        for (uint256 i = 0; i < evmAccount.length; i++) {
+        for (uint256 i = 0; i < _p256Keys.length; i++) {
             _addP256Key(_p256Keys[i]);
         }
 
-        if (evmAccount.length > 0) {
-            for (uint256 i = 0; i < evmAccount.length; i++) {
-                _addEVMAccount(evmAccount[i]);
+        if (evmAccounts.length > 0) {
+            for (uint256 i = 0; i < _evmAccounts.length; i++) {
+                _addEVMAccount(_evmAccounts[i]);
             }
         }
+
+        factory = _factory;
+        operator = _operator;
+        name = _name;
     }
 
     /// @notice authorizes the addition of a new P256 key via an existing P256 key
@@ -109,6 +127,7 @@ contract SnickerdoodleWallet is Initializable {
             InvalideP256Signature(keyId)
         );
         _addP256Key(newP256Key);
+        _updateWalletHash();
     }
 
     /// @notice authorizes the addition of an EVM address via a P256 signature
@@ -139,6 +158,7 @@ contract SnickerdoodleWallet is Initializable {
         );
         // add the EVM address to the wallet
         _addEVMAccount(evmAccount);
+        _updateWalletHash();
     }
 
     /// @notice allows the owner to directly add a new EVM address through a known EVM address
@@ -147,6 +167,7 @@ contract SnickerdoodleWallet is Initializable {
         address _evmAccount
     ) external onlyUserEVMAccount {
         _addEVMAccount(_evmAccount);
+        _updateWalletHash();
     }
 
     /// @notice allows the owner to directly remove an existing EVM address through a known EVM address
@@ -155,6 +176,7 @@ contract SnickerdoodleWallet is Initializable {
         address _evmAccount
     ) external onlyUserEVMAccount {
         _removeEVMAccount(_evmAccount);
+        _updateWalletHash();
     }
 
     /// @notice withdraws any token held by (this) to the calling account
@@ -177,23 +199,19 @@ contract SnickerdoodleWallet is Initializable {
     /// @notice allows native token to be sent to the wallet
     receive() external payable {}
 
-    /// @notice adds an operator to the list of operators
-    function _addOperator(address operator) private {
-        require(!operators[operator], OperatorAlreadyAdded(operator));
-        operators[operator] = true;
-    }
-
     function _addEVMAccount(address evmAccount) private {
         // don't add an address that's already in the wallet
-        require(!evmAccounts[evmAccount], KeyAlreadyAdded());
-        evmAccounts[evmAccount] = true;
+        require(evmAccountIndexs[evmAccount] == 0, KeyAlreadyAdded());
+        evmAccounts.push(evmAccount);
+        evmAccountIndexs[evmAccount] = evmAccounts.length;
         emit EVMAccountAdded(evmAccount);
     }
 
     function _removeEVMAccount(address evmAccount) private {
-        // don't add an address that's already in the wallet
-        require(evmAccounts[evmAccount], EVMAccountNotFound(evmAccount));
-        evmAccounts[evmAccount] = false;
+        uint index = evmAccountIndexs[evmAccount];
+        require(index > 0, EVMAccountNotFound(evmAccount));
+        evmAccounts[index] = evmAccounts[evmAccounts.length - 1];
+        evmAccounts.pop();
         emit EVMAccountRemoved(evmAccount);
     }
 
@@ -202,7 +220,25 @@ contract SnickerdoodleWallet is Initializable {
         bytes32 keyHash = keccak256(abi.encodePacked(p256Key.keyId));
         require(p256Keys[keyHash].x == 0, KeyAlreadyAdded());
         p256Keys[keyHash] = p256Key;
+        keyIdHashArray.push(keyHash);
         emit P256KeyAdded(keyHash, p256Key.x, p256Key.y, p256Key.keyId);
+    }
+
+    /// @notice updates the wallet hash in the factory contract to reflect the current state of the wallet for layer0
+    function _updateWalletHash() internal returns (bytes32) {
+        string memory keyIds = "";
+        bytes32[] memory xs = new bytes32[](keyIdHashArray.length);
+        bytes32[] memory ys = new bytes32[](keyIdHashArray.length);
+        for (uint256 i = 0; i < keyIdHashArray.length; i++) {
+            keyIds = string.concat(keyIds, p256Keys[keyIdHashArray[i]].keyId);
+            xs[i] = p256Keys[keyIdHashArray[i]].x;
+            ys[i] = p256Keys[keyIdHashArray[i]].y;
+        }
+
+        bytes32 wallethash = keccak256(
+            abi.encodePacked(operator, name, keyIds, xs, ys, evmAccounts)
+        );
+        SnickerdoodleFactory(factory).updateWalletHash(wallethash);
     }
 
     /// @notice verifies a P256 signature

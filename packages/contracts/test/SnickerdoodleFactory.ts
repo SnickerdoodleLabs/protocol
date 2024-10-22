@@ -41,6 +41,8 @@ describe("SnickerdoodleFactory", function () {
     const sdwallet = await hre.ethers.deployContract("SnickerdoodleWallet", []);
     await sdwallet.initialize(
       owner.address,
+      owner.address,
+      "proxy.implementation",
       [
         {
           keyId: "1337",
