@@ -1,4 +1,9 @@
-import { Questionnaire, QuestionnairesContractError, SignerUnavailableError } from "..";
+import {
+  OperatorGatewayContractError,
+  Questionnaire,
+  QuestionnairesContractError,
+  SignerUnavailableError,
+} from "..";
 
 const errorCodes = {
   AccountIndexingError: "ERR_ACCOUNT_INDEXER",
@@ -80,6 +85,9 @@ const errorCodes = {
   FarcasterKeyRegistryContractError: "ERR_FARCASTER_KEY_REGISTRY_CONTRACT",
   UnexpectedNetworkError: "ERR_UNEXPECTED_NETWORK",
   SignerUnavailableError: "ERR_SIGNER_UNAVAILABLE",
+  SnickerdoodleWalletContractError: "ERR_SNICKERDOODLE_WALLET_CONTRACT",
+  SnickerdoodleFactoryContractError: "ERR_SNICKERDOODLE_FACTORY_CONTRACT",
+  OperatorGatewayContractError: "ERR_OPERATOR_GATEWAY_CONTRACT",
 };
 
 export default errorCodes;

@@ -13,9 +13,10 @@ import FarcasterKeyRegistryAbi from "@contracts-sdk/interfaces/objects/abi/Farca
 import OFT20RewardAbi from "@contracts-sdk/interfaces/objects/abi/OFT20RewardAbi.js";
 import ONFT721RewardAbi from "@contracts-sdk/interfaces/objects/abi/ONFT721RewardAbi.js";
 import QuestionnairesAbi from "@contracts-sdk/interfaces/objects/abi/QuestionnairesAbi.js";
+import SnickerdoodleFactoryAbi from "@contracts-sdk/interfaces/objects/abi/SnickerdoodleFactoryAbi.js";
 import SnickerdoodleWalletAbi from "@contracts-sdk/interfaces/objects/abi/SnickerdoodleWalletAbi.js";
-import SnickerdoodleWalletFactoryAbi from "@contracts-sdk/interfaces/objects/abi/SnickerdoodleWalletFactoryAbi.js";
 import ZkSyncERC721RewardAbi from "@contracts-sdk/interfaces/objects/abi/ZkSyncERC721RewardAbi.js";
+import OperatorGatewayAbi from "@contracts-sdk/interfaces/objects/abi/OperatorGatewayAbi.js";
 
 export const ContractsAbis = {
   ConsentFactoryAbi: ConsentFactoryAbi,
@@ -34,5 +35,6 @@ export const ContractsAbis = {
   FarcasterKeyGatewayAbi: FarcasterKeyGatewayAbi,
   FarcasterKeyRegistryAbi: FarcasterKeyRegistryAbi,
   SnickerdoodleWalletAbi: SnickerdoodleWalletAbi,
-  SnickerdoodleWalletFactoryAbi: SnickerdoodleWalletFactoryAbi,
+  SnickerdoodleFactoryAbi: SnickerdoodleFactoryAbi,
+  OperatorGatewayAbi: OperatorGatewayAbi,
 };

@@ -126,3 +126,6 @@ export * from "@objects/primitives/PasskeyPublicKeyPointX.js";
 export * from "@objects/primitives/PasskeyPublicKeyPointY.js";
 export * from "@objects/primitives/ECDSASignaturePointR.js";
 export * from "@objects/primitives/ECDSASignaturePointS.js";
+export * from "@objects/primitives/OperatorDomain.js";
+export * from "@objects/primitives/SnickerdoodleWalletUsername.js";
+export * from "@objects/primitives/SnickerdoodleWalletUsernameWithDomain.js";

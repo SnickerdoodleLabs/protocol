@@ -39,16 +39,26 @@ export class SnickerdoodleWalletContract
     );
   }
 
-  public isOperator(
-    address: EVMAccountAddress | EVMContractAddress,
-  ): ResultAsync<
-    boolean,
+  public factoryAddress(): ResultAsync<
+    EVMContractAddress,
     SnickerdoodleWalletContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.operators(address) as Promise<boolean>,
+      this.contract.factory() as Promise<EVMContractAddress>,
       (e) => {
-        return this.generateError(e, "Unable to call operators()");
+        return this.generateError(e, "Unable to call factory()");
+      },
+    );
+  }
+
+  public operatorAddress(): ResultAsync<
+    EVMContractAddress,
+    SnickerdoodleWalletContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.operatorAddress() as Promise<EVMContractAddress>,
+      (e) => {
+        return this.generateError(e, "Unable to call operatorAddress()");
       },
     );
   }

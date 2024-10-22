@@ -20,10 +20,13 @@ import {
 } from "@contracts-sdk/interfaces/objects";
 
 export interface ISnickerdoodleWalletContract extends IBaseContract {
-  isOperator(
-    address: EVMAccountAddress | EVMContractAddress,
-  ): ResultAsync<
-    boolean,
+  factoryAddress(): ResultAsync<
+    EVMContractAddress,
+    SnickerdoodleWalletContractError | BlockchainCommonErrors
+  >;
+
+  operatorAddress(): ResultAsync<
+    EVMContractAddress,
     SnickerdoodleWalletContractError | BlockchainCommonErrors
   >;
 

@@ -12,6 +12,7 @@ export * from "@contracts-sdk/interfaces/IONFT721RewardContract.js";
 export * from "@contracts-sdk/interfaces/IQuestionnairesContract.js";
 export * from "@contracts-sdk/interfaces/ISnickerdoodleWalletContract.js";
 export * from "@contracts-sdk/interfaces/ISnickerdoodleWalletFactoryContract.js";
+export * from "@contracts-sdk/interfaces/IOperatorGatewayContract.js";
 
 export * from "@contracts-sdk/interfaces/farcaster/index.js";
 export * from "@contracts-sdk/interfaces/objects/index.js";
