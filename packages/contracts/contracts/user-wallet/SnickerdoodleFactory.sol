@@ -55,7 +55,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     error ArrayLengthMismatch(uint a, uint b);
     error SourceChainMethodOnly(uint chainId);
     error InvalidOperator(address operator);
-    error EntityNotClaimedOnSouceChain(string entity);
+    error EntityNotClaimedOnSourceChain(string entity);
     error InvalidMessageType(uint8 messageType);
 
     /// @dev OApp inherits OAppCore which inherits OZ's Ownable
@@ -143,7 +143,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
                             evmAccounts
                         )
                     ),
-                EntityNotClaimedOnSouceChain(name)
+                EntityNotClaimedOnSourceChain(name)
             );
         }
 
@@ -186,7 +186,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             require(
                 keccak256(abi.encodePacked(domain, operatorAccounts)) ==
                     operatorToHash[proxyAddress],
-                EntityNotClaimedOnSouceChain(domain)
+                EntityNotClaimedOnSourceChain(domain)
             );
         }
         operatorToDomain[proxyAddress] = domain;
@@ -248,7 +248,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
 
         // Check that the details of the proxy address match the provided details
         bytes32 walletHash = walletToHash[proxyAddress];
-        require(walletHash != bytes32(0), EntityNotClaimedOnSouceChain(name));
+        require(walletHash != bytes32(0), EntityNotClaimedOnSourceChain(name));
 
         /// Encodes the message before invoking _lzSend.
         bytes memory _payload = abi.encode(
@@ -286,7 +286,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         bytes32 operatorHash = operatorToHash[proxyAddress];
         require(
             operatorHash != bytes32(0),
-            EntityNotClaimedOnSouceChain(domain)
+            EntityNotClaimedOnSourceChain(domain)
         );
 
         /// Encodes the message before invoking _lzSend.
