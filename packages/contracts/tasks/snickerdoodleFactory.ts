@@ -116,11 +116,13 @@ task(
       const txResponse = await operator.deployWallets(
         [taskArgs.username],
         [
-          {
-            x: taskArgs.qx,
-            y: taskArgs.qy,
-            keyId: taskArgs.keyid,
-          },
+          [
+            {
+              x: taskArgs.qx,
+              y: taskArgs.qy,
+              keyId: taskArgs.keyid,
+            },
+          ],
         ],
         [[]],
       );
@@ -136,55 +138,6 @@ task(
       } else {
         console.log(`Error:`, error);
       }
-    }
-  });
-
-task(
-  "computeSnickerdoodleWalletProxyAddress",
-  "Computes the snickerdoodle wallet address prior to deployment",
-)
-  .addParam("name", "Name of the Proxy Vault")
-  .setAction(async (taskArgs, hre) => {
-    const { ethers } = hre;
-
-    const factory = await ethers.getContractAt(
-      SNICKERDOODLE_FACTORY_CONTRACT_NAME,
-      SNICKERDOODLE_FACTORY_PROXY,
-    );
-
-    const snickerdoodleWalletAddress =
-      await factory.computeSnickerdoodleWalletProxyAddress(taskArgs.name);
-    console.log("Proxy Address:", snickerdoodleWalletAddress);
-  });
-
-task(
-  "getOwnerOfSnickerdoodleWallet",
-  "Get owner of the snickerdoodle wallet address",
-)
-  .addParam(
-    "snickerdoodlewalletaddress",
-    "The snickerdoodle wallet address on the current chain",
-  )
-  .setAction(async (taskArgs, hre) => {
-    const { ethers } = hre;
-
-    const factory = await ethers.getContractAt(
-      SNICKERDOODLE_FACTORY_CONTRACT_NAME,
-      SNICKERDOODLE_FACTORY_PROXY,
-    );
-
-    try {
-      const operatorAndPoints =
-        await factory.deployedSnickerdoodleWalletAddressToOwner(
-          taskArgs.snickerdoodlewalletaddress,
-        );
-
-      console.log("Operator:", operatorAndPoints[0]);
-      console.log("Passkey point X:", operatorAndPoints[1]);
-      console.log("Passkey point Y:", operatorAndPoints[2]);
-      console.log("Passkey Id:", operatorAndPoints[3]);
-    } catch (e) {
-      console.log("FAILED", e);
     }
   });
 
@@ -243,8 +196,6 @@ task(
   )
 
   .setAction(async (taskArgs, hre) => {
-    // for ONFT - extraOptions: "0x00030100110100000000000000000000000000030d40", // assuming 200k gas
-    // 0x0003010011010000000000000000000000000000ea60
     const { ethers } = hre;
 
     const factory = await ethers.getContractAt(
@@ -287,8 +238,6 @@ task(
   )
 
   .setAction(async (taskArgs, hre) => {
-    // for ONFT - extraOptions: "0x00030100110100000000000000000000000000030d40", // assuming 200k gas
-    // 0x0003010011010000000000000000000000000000ea60
     const { ethers } = hre;
 
     const factory = await ethers.getContractAt(
@@ -336,15 +285,6 @@ task(
     );
 
     try {
-      //   const txResponse = await operator.reserveWalletsOnDestinationChain(
-      //     Number(taskArgs.destinationchaineid),
-      //     [taskArgs.username],
-      //     Number(taskArgs.gas),
-      //     {
-      //       value: taskArgs.feeinwei,
-      //     },
-      //   );
-
       const txResponse = await operator.reserveWalletsOnDestinationChain(
         Number(taskArgs.destinationchaineid),
         [taskArgs.username],
@@ -539,16 +479,6 @@ task(
 
       console.log("Wallet params:");
       console.log(" - Hash:", walletHash);
-      //   console.log(" - Operator:", walletParams[0]);
-      //   console.log(" - Name:", walletParams[1]);
-      //   console.log(" - P256 details:");
-      //   console.log("   - X:", walletParams[2][0]);
-      //   console.log("   - Y:", walletParams[2][1]);
-      //   console.log("   - Key Id:", walletParams[2][2]);
-      //   console.log(
-      //     "EVM Accounts:",
-      //     walletParams.length == 4 ? walletParams[3] : "No EVM accounts",
-      //   );
     } catch (e) {
       console.log("FAILED", e);
     }
@@ -561,9 +491,3 @@ task("keccak256", "Returns the Keccak-256 hash of a given string")
     const hash = ethers.keccak256(ethers.toUtf8Bytes(taskArgs.input));
     console.log(`Keccak-256 hash of "${taskArgs.input}": ${hash}`);
   });
-
-function padding(addressToPad) {
-  // Format it to bytes32
-  const padding = "0x000000000000000000000000";
-  return padding.concat(addressToPad.substring(2));
-}
