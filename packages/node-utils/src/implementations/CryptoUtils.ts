@@ -36,6 +36,9 @@ import {
   PasskeyId,
   PasskeyPublicKeyPointX,
   PasskeyPublicKeyPointY,
+  P256SignatureComponent,
+  P256SignatureR,
+  P256SignatureS,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import {
@@ -748,7 +751,10 @@ export class CryptoUtils implements ICryptoUtils {
   }
 
   // returns a 64-byte ArrayBuffer containing r and s concatenated together
-  public parseRawSignature(signatureArray, msgPayload) {
+  public parseRawP256Signature(
+    signatureArray,
+    msgPayload,
+  ): P256SignatureComponent {
     const signatureView = new Uint8Array(signatureArray);
 
     // First value is the header and should be 0x30
@@ -810,7 +816,12 @@ export class CryptoUtils implements ICryptoUtils {
     const sigAndMsgPayload = msgPayload + `r: 0x${rString}, s: 0x${sString}`;
 
     // return the signature formatted for use in crypto.subtle.verify
-    return new Uint8Array([...rValueUint8Array, ...sValueUint8Array]).buffer;
+    return new P256SignatureComponent(
+      P256SignatureR("0x" + rString),
+      P256SignatureS("0x" + sString),
+    );
+
+    //new Uint8Array([...rValueUint8Array, ...sValueUint8Array]).buffer;
   }
 
   // curve elements MUST be 32 bytes for use in secp256r1 implementations

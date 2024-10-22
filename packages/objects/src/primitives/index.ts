@@ -129,3 +129,5 @@ export * from "@objects/primitives/ECDSASignaturePointS.js";
 export * from "@objects/primitives/OperatorDomain.js";
 export * from "@objects/primitives/SnickerdoodleWalletUsername.js";
 export * from "@objects/primitives/SnickerdoodleWalletUsernameWithDomain.js";
+export * from "@objects/primitives/P256SignatureR.js";
+export * from "@objects/primitives/P256SignatureS.js";
