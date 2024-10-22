@@ -2,9 +2,9 @@ import { task } from "hardhat/config";
 
 const SNICKERDOODLE_FACTORY_CONTRACT_NAME = "SnickerdoodleFactory";
 const SNICKERDOODLE_FACTORY_PROXY =
-  "0x1CCe1F39f413B87Ba30322bcd42d4561b697079F";
+  "0x74012a04217B046dc960fFbDe6Ab840E5E252f62";
 const OPERATOR_GATEWAY_CONTRACT_NAME = "OperatorGateway";
-const OPERATOR_GATEWAY_PROXY = "0x630Fa323aB5C98e2546B8589B18A0FB89a16c5ed";
+const OPERATOR_GATEWAY_PROXY = "0xd5f9997b6210db5981002C0ec2CA5ab26E749FDC";
 
 task(
   "snickerdoodleWalletFactorySetPeer",
@@ -62,7 +62,7 @@ task(
   "deployOperatorGatewayProxy",
   "Deploy a Snickerdoodle Operator gateway beacon proxy",
 )
-  .addParam("domain", "name operator's domain")
+  .addParam("domain", "Name operator's domain")
   .setAction(async (taskArgs, hre) => {
     const { ethers } = hre;
 
@@ -74,20 +74,30 @@ task(
       SNICKERDOODLE_FACTORY_PROXY,
     );
 
-    // Deploy the proxy and wait for transaction confirmation
-    const txResponse = await factory.deployOperatorGatewayProxy(
-      taskArgs.domain,
-      [owner.address],
-    );
+    try {
+      // Deploy the proxy and wait for transaction confirmation
+      const txResponse = await factory.deployOperatorGatewayProxy(
+        taskArgs.domain,
+        [owner.address],
+      );
 
-    const txReceipt = await txResponse.wait();
+      const txReceipt = await txResponse.wait();
 
-    console.log("Snickerdoodle Operator deployed!");
-    console.log("Transaction receipt:", txReceipt);
+      console.log("Snickerdoodle Operator deployed!");
+      console.log("Transaction receipt:", txReceipt);
+    } catch (error) {
+      // Handle and decode custom Solidity errors
+      if (error.data && factory) {
+        const decodedError = factory.interface.parseError(error.data);
+        console.log(`Transaction failed: ${decodedError?.name}`);
+      } else {
+        console.log(`Error:`, error);
+      }
+    }
   });
 
 task(
-  "deploySnickerdoodleWalletProxyViaOperatorGateway",
+  "deployWalletsViaOperatorGateway",
   "Deploy a Snickerdoodle wallet beacon proxy",
 )
   .addParam("username", "User name of the wallet")
@@ -102,22 +112,31 @@ task(
       OPERATOR_GATEWAY_PROXY,
     );
 
-    // Make sure this is
-    const txResponse = await operator.deploySnickerdoodleWallets(
-      [taskArgs.username],
-      [
-        {
-          x: taskArgs.qx,
-          y: taskArgs.qy,
-          keyId: taskArgs.keyid,
-        },
-      ],
-      [[]],
-    );
+    try {
+      const txResponse = await operator.deployWallets(
+        [taskArgs.username],
+        [
+          {
+            x: taskArgs.qx,
+            y: taskArgs.qy,
+            keyId: taskArgs.keyid,
+          },
+        ],
+        [[]],
+      );
+      const txReceipt = await txResponse.wait();
 
-    const txReceipt = await txResponse.wait();
-    console.log("Snickerdoodle wallet deployed!");
-    console.log("Transaction receipt", txReceipt);
+      console.log("Snickerdoodle wallet deployed!");
+      console.log("Transaction receipt:", txReceipt);
+    } catch (error) {
+      // Handle and decode custom Solidity errors
+      if (error.data && operator) {
+        const decodedError = operator.interface.parseError(error.data);
+        console.log(`Transaction failed: ${decodedError?.name}`);
+      } else {
+        console.log(`Error:`, error);
+      }
+    }
   });
 
 task(
@@ -170,7 +189,7 @@ task(
   });
 
 task(
-  "quoteReserveOperatorGatewayOnDestinationChain",
+  "quoteAuthorizeOperatorGatewayOnDestinationChain",
   "Get the gas price needed to call ()",
 )
   .addParam(
@@ -193,7 +212,7 @@ task(
 
     try {
       const quotePrice =
-        await factory.quoteReserveOperatorGatewayOnDestinationChain(
+        await factory.quoteAuthorizeOperatorGatewayOnDestinationChain(
           Number(taskArgs.destinationchainid),
           taskArgs.domain,
           Number(taskArgs.gas),
@@ -206,7 +225,7 @@ task(
   });
 
 task(
-  "reserveOperatorGatewayOnDestinationChain",
+  "authorizeGatewayOnDestinationChain",
   "Send a message to the destination chain to reserve the operator domain name",
 )
   .addParam(
@@ -220,7 +239,7 @@ task(
   )
   .addParam(
     "feeinwei",
-    "The fees from the quoteReserveOperatorGatewayOnDestinationChain call",
+    "The fees from the quoteAuthorizeWalletOnDestinationChain call",
   )
 
   .setAction(async (taskArgs, hre) => {
@@ -234,7 +253,7 @@ task(
     );
 
     try {
-      const txResponse = await factory.reserveOperatorGatewayOnDestinationChain(
+      const txResponse = await factory.authorizeGatewayOnDestinationChain(
         Number(taskArgs.destinationchaineid),
         taskArgs.domain,
         Number(taskArgs.gas),
@@ -254,7 +273,7 @@ task(
   });
 
 task(
-  "quoteReserveWalletOnDestinationChain",
+  "quoteAuthorizeWalletOnDestinationChainViaOperatorGateway",
   "Get the gas price needed to call _sendFactoryDeployedOnDestinationChain()",
 )
   .addParam(
@@ -262,7 +281,6 @@ task(
     "Layer Zero endpoint id for the destination chain",
   )
   .addParam("namewithdomain", "Name plus domain of the wallet")
-  .addParam("operator", "Operator address of the wallet")
   .addParam(
     "gas",
     "Amount of gas in wei to include in the quote to cover the function of lzReceive",
@@ -274,15 +292,14 @@ task(
     const { ethers } = hre;
 
     const factory = await ethers.getContractAt(
-      SNICKERDOODLE_FACTORY_CONTRACT_NAME,
-      SNICKERDOODLE_FACTORY_PROXY,
+      OPERATOR_GATEWAY_CONTRACT_NAME,
+      OPERATOR_GATEWAY_PROXY,
     );
 
     try {
-      const quotePrice = await factory.quoteReserveWalletOnDestinationChain(
+      const quotePrice = await factory.quoteAuthorizeWalletOnDestinationChain(
         Number(taskArgs.destinationchainid),
         taskArgs.namewithdomain,
-        taskArgs.operator,
         Number(taskArgs.gas),
       );
 
@@ -409,23 +426,22 @@ task(
 task(
   "checkBeaconImplementationAddress",
   "Calculate the Operator gateway proxy address for a given domain",
-)
-  .setAction(async (taskArgs, hre) => {
-    const { ethers } = hre;
+).setAction(async (taskArgs, hre) => {
+  const { ethers } = hre;
 
-    const beacon = await ethers.getContractAt(
-      "UpgradeableBeacon",
-      "0x9A4f55bd9B7DB612765d1Ef8aEA27433985f87D9",
-    );
+  const beacon = await ethers.getContractAt(
+    "UpgradeableBeacon",
+    "0x9A4f55bd9B7DB612765d1Ef8aEA27433985f87D9",
+  );
 
-    try {
-      const implementation = await beacon.implementation();
+  try {
+    const implementation = await beacon.implementation();
 
-      console.log("Implementation address:", implementation);
-    } catch (e) {
-      console.log("FAILED", e);
-    }
-  });
+    console.log("Implementation address:", implementation);
+  } catch (e) {
+    console.log("FAILED", e);
+  }
+});
 
 task(
   "getWalletAndOperatorGatewayBeaconAddresses",
@@ -463,35 +479,39 @@ task(
     );
 
     try {
-      const operatorGatewayParams =
-        await factory.deployedOperatorGatewayAddressToParams(
-          taskArgs.operatoraddress,
-        );
+      const operatorGatewayDomain = await factory.operatorToDomain(
+        taskArgs.operatoraddress,
+      );
+      const operatorGatewayHash = await factory.operatorToHash(
+        taskArgs.operatoraddress,
+      );
 
-      console.log("WHOLE THING", operatorGatewayParams);
-      if (Array.isArray(operatorGatewayParams)) {
+      console.log(operatorGatewayHash);
+
+      if (Array.isArray(operatorGatewayDomain)) {
         console.log("Operator gateway params:");
         console.log(
           "- Domain:",
-          operatorGatewayParams[0].length > 0
-            ? operatorGatewayParams[0]
+          operatorGatewayDomain[0].length > 0
+            ? operatorGatewayDomain[0]
             : "No domain",
         );
         console.log(
-          "- Operator Accounts:",
-          operatorGatewayParams.length > 1
-            ? operatorGatewayParams[1]
-            : "No operator accounts",
+          "- Hash:",
+          operatorGatewayHash[0].length > 0 ? operatorGatewayHash : "No hash",
         );
       } else {
         console.log("Operator gateway params:");
         console.log(
           "- Domain:",
-          operatorGatewayParams.length > 0
-            ? operatorGatewayParams
+          operatorGatewayDomain.length > 0
+            ? operatorGatewayDomain
             : "No domain",
         );
-        console.log("- Operator Accounts: No operator accounts");
+        console.log(
+          "- Hash:",
+          operatorGatewayHash[0].length > 0 ? operatorGatewayHash : "No hash",
+        );
       }
     } catch (e) {
       console.log("FAILED", e);
@@ -515,26 +535,33 @@ task(
     );
 
     try {
-      const walletParams =
-        await factory.deployedSnickerdoodleWalletAddressToOwner(
-          taskArgs.walletaddress,
-        );
+      const walletHash = await factory.walletToHash(taskArgs.walletaddress);
 
       console.log("Wallet params:");
-      console.log(" - Operator:", walletParams[0]);
-      console.log(" - Name:", walletParams[1]);
-      console.log(" - P256 details:");
-      console.log("   - X:", walletParams[2][0]);
-      console.log("   - Y:", walletParams[2][1]);
-      console.log("   - Key Id:", walletParams[2][2]);
-      console.log(
-        "EVM Accounts:",
-        walletParams.length == 4 ? walletParams[3] : "No EVM accounts",
-      );
+      console.log(" - Hash:", walletHash);
+      //   console.log(" - Operator:", walletParams[0]);
+      //   console.log(" - Name:", walletParams[1]);
+      //   console.log(" - P256 details:");
+      //   console.log("   - X:", walletParams[2][0]);
+      //   console.log("   - Y:", walletParams[2][1]);
+      //   console.log("   - Key Id:", walletParams[2][2]);
+      //   console.log(
+      //     "EVM Accounts:",
+      //     walletParams.length == 4 ? walletParams[3] : "No EVM accounts",
+      //   );
     } catch (e) {
       console.log("FAILED", e);
     }
   });
+
+task("keccak256", "Returns the Keccak-256 hash of a given string")
+  .addParam("input", "The string to hash")
+  .setAction(async (taskArgs, hre) => {
+    const { ethers } = hre;
+    const hash = ethers.keccak256(ethers.toUtf8Bytes(taskArgs.input));
+    console.log(`Keccak-256 hash of "${taskArgs.input}": ${hash}`);
+  });
+
 function padding(addressToPad) {
   // Format it to bytes32
   const padding = "0x000000000000000000000000";
