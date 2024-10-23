@@ -39,6 +39,7 @@ import {
   P256SignatureComponent,
   P256SignatureR,
   P256SignatureS,
+  P256SignatureComponentArrayBuffer,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import {
@@ -673,22 +674,19 @@ export class CryptoUtils implements ICryptoUtils {
   }
 
   public parseRawPublicKey(
-    id,
+    id: PasskeyId,
     publicKeyArray: Uint8Array,
   ): P256PublicKeyComponent {
     const pubKeyView = publicKeyArray;
 
     // Public Key Header Bytes
     const headerByte = pubKeyView[0];
-    console.log("Public Key Header Byte: ", headerByte);
 
     // Second value tells you the length of the rest of the data array
     const keyLength = pubKeyView[1];
-    console.log("Length of key frame in bytes: ", keyLength);
 
     // Third value tells you the type of the next value which MUST be an integer (0x02) if this is a signature array
     const metadataIndicatorByte = pubKeyView[2];
-    console.log("Data Type Byte: ", metadataIndicatorByte);
     // Third byte MUST be equal to 48 if this is a legitimate public key array
     console.assert(
       metadataIndicatorByte === 48,
@@ -697,7 +695,6 @@ export class CryptoUtils implements ICryptoUtils {
 
     // Forth Value is the length of the public key metadata
     const metadataLength = pubKeyView[3];
-    console.log("Metadata Length: ", metadataLength);
 
     // Slice out the metadata and print it
     // this metadata is a SEQUENCE OF containing the description of the key type (i.e. ecPublickey for P-256)
@@ -708,11 +705,8 @@ export class CryptoUtils implements ICryptoUtils {
       (t, x) => t + x.toString(16).padStart(2, "0"),
       "",
     );
-    console.log("Metadata: ", metadataString);
-    console.log("Metadata string:", metadataUint8Array.toString());
 
     const publicKeyIndicatorByte = pubKeyView[4 + metadataLength];
-    console.log("Public Key Type Byte: ", publicKeyIndicatorByte);
     // This byte MUST be equal to 2 if this is a legitimate signature array
     console.assert(
       publicKeyIndicatorByte === 3,
@@ -721,7 +715,6 @@ export class CryptoUtils implements ICryptoUtils {
 
     // Now get the length of the s value of the signature (r,s)
     const pubKeyLength = pubKeyView[4 + metadataLength + 1];
-    console.log("Public Key Length: ", pubKeyLength);
 
     // Slice out the s value and print it
     const startingByte = 4 + metadataLength + 2;
@@ -736,12 +729,6 @@ export class CryptoUtils implements ICryptoUtils {
       publicKeyString.length - 64,
     );
     const qy = publicKeyString.slice(-64);
-    console.log("Public Key: ", publicKeyString);
-    console.log("QX: ", `0x${qx}`);
-    console.log("QY: ", `0x${qy}`);
-
-    const parsedPublicKey =
-      `keyId: ${id}` + " " + "Qx: " + `0x${qx}` + " Qy: " + `0x${qy}`;
 
     return new P256PublicKeyComponent(
       PasskeyPublicKeyPointX(`0x${qx}`),
@@ -752,9 +739,9 @@ export class CryptoUtils implements ICryptoUtils {
 
   // returns a 64-byte ArrayBuffer containing r and s concatenated together
   public parseRawP256Signature(
-    signatureArray,
-    msgPayload,
-  ): P256SignatureComponent {
+    signatureArray: ArrayBuffer,
+    msgPayload: string,
+  ): P256SignatureComponentArrayBuffer {
     const signatureView = new Uint8Array(signatureArray);
 
     // First value is the header and should be 0x30
@@ -816,12 +803,9 @@ export class CryptoUtils implements ICryptoUtils {
     const sigAndMsgPayload = msgPayload + `r: 0x${rString}, s: 0x${sString}`;
 
     // return the signature formatted for use in crypto.subtle.verify
-    return new P256SignatureComponent(
-      P256SignatureR("0x" + rString),
-      P256SignatureS("0x" + sString),
+    return P256SignatureComponentArrayBuffer(
+      new Uint8Array([...rValueUint8Array, ...sValueUint8Array]).buffer,
     );
-
-    //new Uint8Array([...rValueUint8Array, ...sValueUint8Array]).buffer;
   }
 
   // curve elements MUST be 32 bytes for use in secp256r1 implementations

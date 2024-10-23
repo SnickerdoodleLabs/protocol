@@ -12,6 +12,8 @@ import {
   KeyGenerationError,
   NobleED25519KeyPair,
   OAuth1Config,
+  P256PublicKeyComponent,
+  P256SignatureComponentArrayBuffer,
   RSAKeyPair,
   SHA256Hash,
   Signature,
@@ -159,7 +161,17 @@ export interface ICryptoUtils {
     ed25519Signer: NobleEd25519Signer,
   ): ResultAsync<ED25519PublicKey, SignerUnavailableError>;
 
-  generateEd25519KeyPair(): ResultAsync<NobleED25519KeyPair, KeyGenerationError>
+  generateEd25519KeyPair(): ResultAsync<
+    NobleED25519KeyPair,
+    KeyGenerationError
+  >;
+
+  parseRawPublicKey(id, publicKeyArray: ArrayBuffer): P256PublicKeyComponent;
+
+  parseRawP256Signature(
+    signatureArray,
+    msgPayload,
+  ): P256SignatureComponentArrayBuffer;
 }
 
 export const ICryptoUtilsType = Symbol.for("ICryptoUtils");
