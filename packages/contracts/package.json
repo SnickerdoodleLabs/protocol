@@ -1,46 +1,31 @@
 {
-  "name": "@snickerdoodlelabs/contracts",
-  "version": "1.0.1",
-  "description": "Smart contracts for the Snickerdoodle Protocol",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/SnickerdoodleLabs/SDL-Contracts"
-  },
-  "files": [
-    "contracts/",
-    "artifacts/"
-  ],
+  "name": "contracts",
+  "version": "1.0.0",
+  "main": "index.js",
   "scripts": {
-    "compile": "npx hardhat compile",
-    "test": "npx hardhat test",
-    "script": "npx hardhat run",
-    "dockerize": "docker build -t snickerdoodlelabs/devchain:0.1.3 -f Dockerfile --progress=plain .",
-    "docker-push": "docker push snickerdoodlelabs/devchain:0.1.2",
-    "redocgen": "npx hardhat clean && npx hardhat compile && npx hardhat docgen && node scripts/docgenTitleFix.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "type": "commonjs",
   "dependencies": {
-    "@openzeppelin/contracts": "^5.0.2",
-    "@openzeppelin/contracts-upgradeable": "^5.0.2",
-    "@prb/math": "^4.0.2",
-    "@snickerdoodlelabs/erc7529": "workspace:^",
-    "dotenv": "^16.0.1",
-    "fs": "^0.0.1-security",
-    "it-all": "^1.0.6",
-    "solidity-coverage": "^0.7.21",
-    "solidity-docgen": "^0.6.0-beta.16"
-  },
-  "devDependencies": {
-    "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
-    "@nomicfoundation/hardhat-ethers": "^3.0.0",
-    "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
-    "@nomicfoundation/hardhat-verify": "^2.0.0",
-    "@openzeppelin/hardhat-upgrades": "^3.0.4",
-    "hardhat": "^2.21.0",
+    "@layerzerolabs/lz-evm-messagelib-v2": "^2.3.36",
+    "@layerzerolabs/lz-evm-protocol-v2": "^2.3.33",
+    "@nomicfoundation/hardhat-ignition": "^0.15.5",
+    "@nomicfoundation/hardhat-ignition-ethers": "^0.15.5",
+    "@nomicfoundation/hardhat-ignition-viem": "^0.15.5",
+    "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
+    "@nomicfoundation/hardhat-viem": "^2.0.0",
+    "@openzeppelin/contracts": "^5.1.0",
+    "@openzeppelin/contracts-upgradeable": "^5.1.0",
+    "add": "^2.0.6",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.6",
     "hardhat-contract-sizer": "^2.10.0",
-    "hardhat-gas-reporter": "^1.0.10",
-    "ts-node": "^10.8.0",
-    "typescript": "^5.2.2"
+    "hardhat-gas-reporter": "^2.2.1",
+    "solidity-bytes-utils": "^0.8.2",
+    "yarn": "^1.22.22"
   }
 }

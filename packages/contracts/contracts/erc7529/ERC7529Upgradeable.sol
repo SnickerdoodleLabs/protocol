@@ -17,6 +17,8 @@ abstract contract ERC7529Upgradeable is IERC7529, Initializable {
     bytes32 private constant ERC7529StorageLocation =
         0x29912872bb1868dd74efe86230a05098a24ae1f39d64ec2129d982442801ac00;
 
+    error InvalideETLD1Domain(string domain);
+
     function _getERC7529Storage()
         private
         pure
@@ -33,7 +35,7 @@ abstract contract ERC7529Upgradeable is IERC7529, Initializable {
 
     /// @notice a getter function that takes an eTLD+1 domain string and returns true if associated with the contract
     /// @param domain a string representing an eTLD+1 domain
-    function checkDomain(string calldata domain) external view returns (bool) {
+    function checkERC7529Domain(string calldata domain) external view returns (bool) {
         ERC7529Storage storage $ = _getERC7529Storage();
         return $.domains[keccak256(abi.encodePacked(domain))];
     }
@@ -43,15 +45,15 @@ abstract contract ERC7529Upgradeable is IERC7529, Initializable {
     function _addDomain(string memory domain) internal virtual {
         ERC7529Storage storage $ = _getERC7529Storage();
         $.domains[keccak256(abi.encodePacked(domain))] = true;
-        emit AddDomain(domain);
+        emit AddERC7529Domain(domain);
     }
 
     /// @notice an authenticated method to remove an eTLD+1 domain
     /// @param domain a string representing an eTLD+1 domain that is no longer associated with the contract
     function _removeDomain(string memory domain) internal virtual {
         ERC7529Storage storage $ = _getERC7529Storage();
-        require($.domains[keccak256(abi.encodePacked(domain))] == true, "ERC7529: eTLD+1 currently not associated with this contract");
+        require($.domains[keccak256(abi.encodePacked(domain))] == true, InvalideETLD1Domain(domain));
         $.domains[keccak256(abi.encodePacked(domain))] = false;
-        emit RemoveDomain(domain);
+        emit RemoveERC7529Domain(domain);
     }
 }
