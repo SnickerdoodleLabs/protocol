@@ -166,7 +166,10 @@ export interface ICryptoUtils {
     KeyGenerationError
   >;
 
-  parseRawPublicKey(id, publicKeyArray: ArrayBuffer): P256PublicKeyComponent;
+  parseRawP256PublicKey(
+    id,
+    publicKeyArray: ArrayBuffer,
+  ): P256PublicKeyComponent;
 
   parseRawP256Signature(
     signatureArray,

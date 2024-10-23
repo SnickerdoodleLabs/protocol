@@ -673,7 +673,7 @@ export class CryptoUtils implements ICryptoUtils {
     return Buffer.from(ethers.getBytes(hex));
   }
 
-  public parseRawPublicKey(
+  public parseRawP256PublicKey(
     id: PasskeyId,
     publicKeyArray: Uint8Array,
   ): P256PublicKeyComponent {
