@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
-import "hardhat/console.sol";
+pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
@@ -20,22 +19,22 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     using OptionsBuilder for bytes;
 
     /// @notice  Flag if this SnickerdoodleWallet factory is the source chain
-    bool public isSourceChain;
+    bool private isSourceChain;
 
     /// @notice The address of the wallet beacon should not change for this upgrade pattern
-    address public walletBeacon;
+    address private walletBeacon;
 
     /// @notice The address of the operator beacon should not change for this upgrade pattern
-    address public gatewayBeacon;
+    address private gatewayBeacon;
 
     /// @notice Tracks the hash of ownership parameters of a user wallet for network bridgings
-    mapping(address => bytes32) walletToHash;
+    mapping(address => bytes32) private walletToHash;
 
     /// @notice Tracks the hash of ownership parameters of an operator gateway for network bridgings
-    mapping(address => bytes32) public operatorToHash;
+    mapping(address => bytes32) private operatorToHash;
 
     /// @notice Tracks the domain that belongs to an operator
-    mapping(address => string) public operatorToDomain;
+    mapping(address => string) private operatorToDomain;
 
     /// @notice Layer zero message types to support sending and receiving different messages
     enum MessageType {
@@ -59,6 +58,10 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     error InvalidMessageType(uint8 messageType);
 
     /// @dev OApp inherits OAppCore which inherits OZ's Ownable
+    /// @param _layerZeroEndpoint the Layer Zero endpoint address
+    /// @param _owner the owner of the contract
+    /// @param _walletBeacon the address of the wallet beacon
+    /// @param _gatewayBeacon the address of the operator gateway beacon
     function initialize(
         address _layerZeroEndpoint,
         address _owner,
@@ -82,6 +85,10 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         gatewayBeacon = _gatewayBeacon;
     }
 
+    /// @notice Deploys multiple SnickerdoodleWallet proxies with name keyword and salt to create an upgradeable SnickerdoodleWallet
+    /// @param usernames usernames for the SnickerdoodleWallet
+    /// @param _p256Keys P256 keys for the SnickerdoodleWallet
+    /// @param evmAccounts an array of addresses to add as operators to the OperatorGateway
     function deployWalletProxies(
         string[] calldata usernames,
         P256Key[][] calldata _p256Keys,
@@ -486,5 +493,46 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         /// Assign the deployed wallet to the owner
         /// After reserving on the destination chain, deployWalletProxy will work for this owner and name combination
         operatorToHash[gatewayAddress] = operatorHash;
+    }
+
+    /// @notice Returns if the contract is the source chain
+    function getIsSourceChain() external view returns (bool) {
+        return isSourceChain;
+    }
+
+    /// @notice Returns the wallet beacon address
+    function getWalletBeacon() external view returns (address) {
+        return walletBeacon;
+    }
+
+    /// @notice Returns the operator gateway beacon address
+    function getGatewayBeacon() external view returns (address) {
+        return gatewayBeacon;
+    }
+
+    /// @notice Returns the domain associated with an operator
+    /// @param operator the address of the operator
+    function getOperatorDomain(address operator)
+        external
+        view
+        returns (string memory)
+    {
+        return operatorToDomain[operator];
+    }
+
+    /// @notice Returns the hash of ownership parameters of a user wallet
+    /// @param wallet the address of the user wallet
+    function getWalletHash(address wallet) external view returns (bytes32) {
+        return walletToHash[wallet];
+    }
+
+    /// @notice Returns the hash of ownership parameters of an operator gateway
+    /// @param operator the address of the operator
+    function getOperatorHash(address operator)
+        external
+        view
+        returns (bytes32)
+    {
+        return operatorToHash[operator];
     }
 }

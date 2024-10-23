@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -18,10 +18,10 @@ contract SnickerdoodleWallet is Initializable {
         0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551;
 
     /// @notice address of the factory contract
-    address public factory;
+    address private factory;
 
     /// @notice address of the operator that deployed this wallet
-    address public operator;
+    address private operator;
 
     /// @notice salt used to create the wallet address
     string private name;
@@ -36,7 +36,7 @@ contract SnickerdoodleWallet is Initializable {
     address[] private evmAccounts;
 
     /// @notice index of known EVM addresses in the evmAccounts array
-    mapping(address => uint) private evmAccountIndexs;
+    mapping(address => uint) private evmAccountIndexes;
 
     /// @notice used P256 message hashes
     mapping(bytes32 => bool) private hashDump;
@@ -66,12 +66,17 @@ contract SnickerdoodleWallet is Initializable {
     }
 
     modifier onlyUserEVMAccount() {
-        require(evmAccountIndexs[msg.sender] == 0, OnlyOwnerAccounts());
+        require(evmAccountIndexes[msg.sender] == 0, OnlyOwnerAccounts());
         _;
     }
 
     /// @notice creates a user wallet
     /// @dev you can optionally initialize the wallet with known EVM accounts if available from the user
+    /// @param _factory the address of the factory contract
+    /// @param _operator the address of the operator that deployed this wallet
+    /// @param _name the name of the wallet
+    /// @param _p256Keys the P256 keys of the user wallets
+    /// @param _evmAccounts the EVM accounts of the user wallets
     function initialize(
         address _factory,
         address _operator,
@@ -199,16 +204,20 @@ contract SnickerdoodleWallet is Initializable {
     /// @notice allows native token to be sent to the wallet
     receive() external payable {}
 
+    /// @notice adds an EVM account to the wallet
+    /// @param evmAccount the address to add
     function _addEVMAccount(address evmAccount) private {
         // don't add an address that's already in the wallet
-        require(evmAccountIndexs[evmAccount] == 0, KeyAlreadyAdded());
+        require(evmAccountIndexes[evmAccount] == 0, KeyAlreadyAdded());
         evmAccounts.push(evmAccount);
-        evmAccountIndexs[evmAccount] = evmAccounts.length;
+        evmAccountIndexes[evmAccount] = evmAccounts.length;
         emit EVMAccountAdded(evmAccount);
     }
 
+    /// @notice removes an EVM account from the wallet
+    /// @param evmAccount the address to remove
     function _removeEVMAccount(address evmAccount) private {
-        uint index = evmAccountIndexs[evmAccount];
+        uint index = evmAccountIndexes[evmAccount];
         require(index > 0, EVMAccountNotFound(evmAccount));
         evmAccounts[index] = evmAccounts[evmAccounts.length - 1];
         evmAccounts.pop();
@@ -216,6 +225,7 @@ contract SnickerdoodleWallet is Initializable {
     }
 
     /// @notice adds a P256 public key to the user's wallet
+    /// @param p256Key the P256 key to add
     function _addP256Key(P256Key memory p256Key) private {
         bytes32 keyHash = keccak256(abi.encodePacked(p256Key.keyId));
         require(p256Keys[keyHash].x == 0, KeyAlreadyAdded());
@@ -243,6 +253,13 @@ contract SnickerdoodleWallet is Initializable {
 
     /// @notice verifies a P256 signature
     /// @dev the challenge string should already be Base64URL encoded
+    /// @param _keyId the keyId of the P256
+    /// @param authenticatorData the authenticatorData from the client
+    /// @param clientDataJSONLeft the left side of the clientDataJSON
+    /// @param challenge the challenge string
+    /// @param clientDataJSONRight the right side of the clientDataJSON
+    /// @param r the r value of the signature
+    /// @param s the s value of the signature
     function _verifyP256(
         string calldata _keyId,
         bytes calldata authenticatorData,
@@ -273,9 +290,54 @@ contract SnickerdoodleWallet is Initializable {
         return P256.verify(h, r, s, p256Key.x, p256Key.y);
     }
 
+    /// @notice Converts an address to a Base64URL string
+    /// @param _address to be converted to a Base64URL string
     function _addressToBase64URLString(
         address _address
     ) private pure returns (string memory) {
         return Base64.encodeURL(bytes.concat(bytes20(uint160(_address))));
+    }
+
+    /// @notice Returns the Snickerdoodle factory address
+    function getFactory() external view returns (address) {
+        return factory;
+    }
+
+    /// @notice Returns the wallet operator's address
+    function getOperator() external view returns (address) {
+        return operator;
+    }
+
+    /// @notice Returns the name of the wallet
+    function getName() external view returns (string memory) {
+        return name;
+    }
+
+    /// @notice Returns stored P256 key id hashes
+    function getP256KeyHashes() external view returns (bytes32[] memory) {
+        return keyIdHashArray;
+    }
+
+    /// @notice Returns the P256 key data for a given keyId
+    /// @param keyHash the hash of the keyId
+    function getP256Key(bytes32 keyHash) external view returns (P256Key memory) {
+        return p256Keys[keyHash];
+    }
+
+    /// @notice Returns the EVM addresses associated with the wallet
+    function getEvmAccounts() external view returns (address[] memory) {
+        return evmAccounts;
+    }
+
+    /// @notice Returns the EVM address index
+    /// @param evmAccount the address to check
+    function getEvmAccountIndex(address evmAccount) external view returns (uint) {
+        return evmAccountIndexes[evmAccount];
+    }
+
+    /// @notice Returns if a hash has been used
+    /// @param hash the hash to check
+    function hashUsed(bytes32 hash) public view returns (bool) {
+        return hashDump[hash];
     }
 }
