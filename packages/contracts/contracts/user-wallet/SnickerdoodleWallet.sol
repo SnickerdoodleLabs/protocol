@@ -90,7 +90,7 @@ contract SnickerdoodleWallet is Initializable {
             _addP256Key(_p256Keys[i]);
         }
 
-        if (evmAccounts.length > 0) {
+        if (_evmAccounts.length > 0) {
             for (uint256 i = 0; i < _evmAccounts.length; i++) {
                 _addEVMAccount(_evmAccounts[i]);
             }
