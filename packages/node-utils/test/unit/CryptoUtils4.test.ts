@@ -30,7 +30,7 @@ describe("CryptoUtils Tests 4", () => {
     ]);
 
     // Act
-    const result = await utils.parseRawPublicKey(mockKeyId, mockPublicKey);
+    const result = await utils.parseRawP256PublicKey(mockKeyId, mockPublicKey);
 
     const expectedParsedPublicKey = new P256PublicKeyComponent(
       PasskeyPublicKeyPointX(
@@ -42,13 +42,10 @@ describe("CryptoUtils Tests 4", () => {
       mockKeyId,
     );
 
-    console.log("result", result);
     // Assert
     expect(result).toEqual(expectedParsedPublicKey);
   });
-});
 
-describe("CryptoUtils Tests 4", () => {
   test("parseRawP256Signature() Closed Loop", async () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();

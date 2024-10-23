@@ -746,16 +746,14 @@ export class CryptoUtils implements ICryptoUtils {
 
     // First value is the header and should be 0x30
     const headerByte = signatureView[0];
-    console.log("Signature Header Byte: ", headerByte);
 
     // Second value tells you the length of the rest of the data array
     const signatureLength = signatureView[1];
-    console.log("Length of Signature in Bytes: ", signatureLength);
 
     // Third value tells you the type of the next value which MUST be an integer (0x02) if this is a signature array
     // https://en.wikipedia.org/wiki/X.690#identifier_octets
     const rTypeIndicatorByte = signatureView[2];
-    console.log("Data Type Byte: ", rTypeIndicatorByte);
+
     // Third byte MUST be equal to 2 if this is a legitimate signature array
     console.assert(
       rTypeIndicatorByte === 2,
@@ -764,7 +762,6 @@ export class CryptoUtils implements ICryptoUtils {
 
     // Forth Value is the length of the first coordinate (r) of the signature (r,s)
     const rLength = signatureView[3];
-    console.log("R Value Length: ", rLength);
 
     // Slice out the r value and print it
     const rValueUint8Array = this.formatInteger(
@@ -774,10 +771,9 @@ export class CryptoUtils implements ICryptoUtils {
       (t, x) => t + x.toString(16).padStart(2, "0"),
       "",
     );
-    console.log("R Value: ", rString);
 
     const sTypeIndicatorByte = signatureView[4 + rLength];
-    console.log("Data Type Byte: ", sTypeIndicatorByte);
+
     // This byte MUST be equal to 2 if this is a legitimate signature array
     console.assert(
       sTypeIndicatorByte === 2,
@@ -786,7 +782,6 @@ export class CryptoUtils implements ICryptoUtils {
 
     // Now get the length of the s value of the signature (r,s)
     const sLength = signatureView[4 + rLength + 1];
-    console.log("S Value Length: ", sLength);
 
     // Slice out the s value and print it
     const startingByte = 4 + rLength + 2;
@@ -798,7 +793,6 @@ export class CryptoUtils implements ICryptoUtils {
       (t, x) => t + x.toString(16).padStart(2, "0"),
       "",
     );
-    console.log("S Value: ", sString);
 
     const sigAndMsgPayload = msgPayload + `r: 0x${rString}, s: 0x${sString}`;
 
