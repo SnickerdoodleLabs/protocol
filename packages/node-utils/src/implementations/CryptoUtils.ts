@@ -32,6 +32,15 @@ import {
   SignerUnavailableError,
   NobleED25519KeyPair,
   ED25519PrivateKey,
+  P256PublicKeyComponent,
+  PasskeyId,
+  P256PublicKeyPointX,
+  P256PublicKeyPointY,
+  P256SignatureComponent,
+  P256SignatureR,
+  P256SignatureS,
+  P256SignatureComponentArrayBuffer,
+  P256PublicKey,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import {
@@ -43,7 +52,7 @@ import {
   toBeHex,
 } from "ethers";
 import { injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { err, errAsync, ok, okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import OAuth from "oauth-1.0a";
 import nacl from "tweetnacl";
@@ -614,7 +623,7 @@ export class CryptoUtils implements ICryptoUtils {
       },
     ).andThen((signerKey) => {
       if (signerKey.isOk()) {
-    return okAsync(ED25519PublicKey(ethers.hexlify(signerKey.value)));
+        return okAsync(ED25519PublicKey(ethers.hexlify(signerKey.value)));
       }
       return errAsync(
         new SignerUnavailableError(
@@ -624,25 +633,28 @@ export class CryptoUtils implements ICryptoUtils {
     });
   }
 
-  public generateEd25519KeyPair(): ResultAsync<NobleED25519KeyPair, KeyGenerationError> {
-
-    const privateKeyBytes = ed.utils.randomPrivateKey(); 
+  public generateEd25519KeyPair(): ResultAsync<
+    NobleED25519KeyPair,
+    KeyGenerationError
+  > {
+    const privateKeyBytes = ed.utils.randomPrivateKey();
 
     return ResultAsync.fromPromise(
-        ed.getPublicKey(privateKeyBytes) as Promise<Uint8Array>,
-        (e) => {
-          return e as KeyGenerationError;
-        },
-      ).map((publicKeyBytes) => {
+      ed.getPublicKey(privateKeyBytes) as Promise<Uint8Array>,
+      (e) => {
+        return e as KeyGenerationError;
+      },
+    ).map((publicKeyBytes) => {
+      const publicKeyString =
+        "0x" + Buffer.from(publicKeyBytes).toString("hex");
+      const privateKeyString =
+        "0x" + Buffer.from(privateKeyBytes).toString("hex");
 
-        const publicKeyString = "0x" + Buffer.from(publicKeyBytes).toString("hex");
-        const privateKeyString = "0x" + Buffer.from(privateKeyBytes).toString("hex");
-
-        return (new NobleED25519KeyPair(
-            ED25519PublicKey(publicKeyString),
-            ED25519PrivateKey(privateKeyString)
-        ))
-      });
+      return new NobleED25519KeyPair(
+        ED25519PublicKey(publicKeyString),
+        ED25519PrivateKey(privateKeyString),
+      );
+    });
   }
 
   protected hexStringToBuffer(
@@ -660,5 +672,176 @@ export class CryptoUtils implements ICryptoUtils {
       return Buffer.from(ethers.getBytes(prefixedHex));
     }
     return Buffer.from(ethers.getBytes(hex));
+  }
+
+  public parseRawP256PublicKey(
+    publicKey: P256PublicKey,
+  ): Result<
+    { x: P256PublicKeyPointX; y: P256PublicKeyPointY },
+    InvalidParametersError
+  > {
+    // Convert hex string public key to Uint8Array
+    const pubKeyView = this.hexToUint8Array(publicKey);
+
+    // Public Key Header Bytes
+    const headerByte = pubKeyView[0];
+
+    // Second value tells you the length of the rest of the data array
+    const keyLength = pubKeyView[1];
+
+    // Third value tells you the type of the next value which MUST be an integer (0x02) if this is a signature array
+    const metadataIndicatorByte = pubKeyView[2];
+    // Third byte MUST be equal to 48 if this is a legitimate public key array
+    if (metadataIndicatorByte !== 48) {
+      return err(new InvalidParametersError("This is not a public key array"));
+    }
+
+    // Forth Value is the length of the public key metadata
+    const metadataLength = pubKeyView[3];
+
+    // Slice out the metadata and print it
+    // this metadata is a SEQUENCE OF containing the description of the key type (i.e. ecPublickey for P-256)
+    // Really we should parse this and make sure the public key was generated for the curve we are expecting
+    // i.e. P256 (the object identifier for this curve is: 1.2.840.10045.3.1.7 https://oid-rep.orange-labs.fr/get/1.2.840.10045.3.1.7)
+    const metadataUint8Array = pubKeyView.slice(4, 4 + metadataLength);
+    const metadataString = metadataUint8Array.reduce(
+      (t, x) => t + x.toString(16).padStart(2, "0"),
+      "",
+    );
+
+    const publicKeyIndicatorByte = pubKeyView[4 + metadataLength];
+    // This byte MUST be equal to 2 if this is a legitimate signature array
+    if (publicKeyIndicatorByte !== 3) {
+      return err(new InvalidParametersError("This is not a public key array"));
+    }
+
+    // Now get the length of the s value of the signature (r,s)
+    const pubKeyLength = pubKeyView[4 + metadataLength + 1];
+
+    // Slice out the s value and print it
+    const startingByte = 4 + metadataLength + 2;
+    const endingByte = startingByte + pubKeyLength;
+    const publicKeyUint8Array = pubKeyView.slice(startingByte, endingByte);
+    const publicKeyString = publicKeyUint8Array.reduce(
+      (t, x) => t + x.toString(16).padStart(2, "0"),
+      "",
+    );
+    const qx = publicKeyString.slice(
+      publicKeyString.length - 128,
+      publicKeyString.length - 64,
+    );
+    const qy = publicKeyString.slice(-64);
+
+    return ok({
+      x: P256PublicKeyPointX(`0x${qx}`),
+      y: P256PublicKeyPointY(`0x${qy}`),
+    });
+  }
+
+  // returns a 64-byte ArrayBuffer containing r and s concatenated together
+  public parseRawP256Signature(
+    signatureArray: ArrayBuffer,
+    msgPayload: string,
+  ): P256SignatureComponentArrayBuffer {
+    const signatureView = new Uint8Array(signatureArray);
+
+    // First value is the header and should be 0x30
+    const headerByte = signatureView[0];
+
+    // Second value tells you the length of the rest of the data array
+    const signatureLength = signatureView[1];
+
+    // Third value tells you the type of the next value which MUST be an integer (0x02) if this is a signature array
+    // https://en.wikipedia.org/wiki/X.690#identifier_octets
+    const rTypeIndicatorByte = signatureView[2];
+
+    // Third byte MUST be equal to 2 if this is a legitimate signature array
+    console.assert(
+      rTypeIndicatorByte === 2,
+      "This is not a signature byte array",
+    );
+
+    // Forth Value is the length of the first coordinate (r) of the signature (r,s)
+    const rLength = signatureView[3];
+
+    // Slice out the r value and print it
+    const rValueUint8Array = this.formatInteger(
+      signatureView.slice(4, 4 + rLength),
+    );
+    const rString = rValueUint8Array.reduce(
+      (t, x) => t + x.toString(16).padStart(2, "0"),
+      "",
+    );
+
+    const sTypeIndicatorByte = signatureView[4 + rLength];
+
+    // This byte MUST be equal to 2 if this is a legitimate signature array
+    console.assert(
+      sTypeIndicatorByte === 2,
+      "This is not a signature byte array",
+    );
+
+    // Now get the length of the s value of the signature (r,s)
+    const sLength = signatureView[4 + rLength + 1];
+
+    // Slice out the s value and print it
+    const startingByte = 4 + rLength + 2;
+    const endingByte = startingByte + sLength;
+    const sValueUint8Array = this.formatInteger(
+      signatureView.slice(startingByte, endingByte),
+    );
+    const sString = sValueUint8Array.reduce(
+      (t, x) => t + x.toString(16).padStart(2, "0"),
+      "",
+    );
+
+    const sigAndMsgPayload = msgPayload + `r: 0x${rString}, s: 0x${sString}`;
+
+    // return the signature formatted for use in crypto.subtle.verify
+    return P256SignatureComponentArrayBuffer(
+      new Uint8Array([...rValueUint8Array, ...sValueUint8Array]).buffer,
+    );
+  }
+
+  // curve elements MUST be 32 bytes for use in secp256r1 implementations
+  // this function converts variable length ArrayBuffers to 32 byte ArrayBuffers
+  // representing integer field elements
+  private formatInteger(integerBytes): Uint8Array {
+    if (integerBytes.byteLength === 32) return integerBytes;
+    if (integerBytes.byteLength < 32) {
+      return this.concatenateUint8Array(
+        // pad the most significant digits with 0's if too short
+        new Uint8Array(32 - integerBytes.byteLength).fill(0),
+        integerBytes,
+      );
+    }
+    // remove superfluous 0's if too long
+    return integerBytes.slice(-32);
+  }
+
+  // Takes any number of Uint8Arrays and concatenates them into a single Uint8Array
+  private concatenateUint8Array(...arrays) {
+    // Calculate the total length of the concatenated array
+    const totalLength = arrays.reduce((sum, arr) => sum + arr.length, 0);
+
+    // Create a new Uint8Array to hold all elements
+    const result = new Uint8Array(totalLength);
+
+    // Copy each array into the result array sequentially
+    let offset = 0;
+    arrays.forEach((arr) => {
+      result.set(arr, offset);
+      offset += arr.length;
+    });
+
+    return result;
+  }
+
+  private hexToUint8Array(hexString: string): Uint8Array {
+    const array = new Uint8Array(hexString.length / 2);
+    for (let i = 0; i < hexString.length; i += 2) {
+      array[i / 2] = parseInt(hexString.substring(i, i + 2), 16);
+    }
+    return array;
   }
 }
