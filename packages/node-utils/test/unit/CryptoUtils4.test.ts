@@ -1,10 +1,9 @@
 import "reflect-metadata";
 import {
-  P256PublicKeyComponent,
   P256SignatureComponentArrayBuffer,
-  PasskeyId,
-  PasskeyPublicKeyPointX,
-  PasskeyPublicKeyPointY,
+  P256PublicKeyPointX,
+  P256PublicKeyPointY,
+  P256PublicKey,
 } from "@snickerdoodlelabs/objects";
 
 import { CryptoUtilsMocks } from "../mocks/CryptoUtilsMocks";
@@ -18,29 +17,28 @@ describe("CryptoUtils Tests 4", () => {
     const mocks = new CryptoUtilsMocks();
     const utils = mocks.factoryCryptoUtils();
 
-    const mockKeyId = PasskeyId("M-hfHIx9Cpy-L9PhhyzBiqluYXAvmM7FmHsY8TEAGPQ");
-
-    const mockPublicKey = new Uint8Array([
-      48, 89, 48, 19, 6, 7, 42, 134, 72, 206, 61, 2, 1, 6, 8, 42, 134, 72, 206,
-      61, 3, 1, 7, 3, 66, 0, 4, 89, 149, 49, 242, 216, 236, 98, 182, 17, 253,
-      144, 223, 87, 42, 97, 46, 97, 13, 36, 33, 175, 143, 156, 105, 136, 211,
-      139, 148, 207, 61, 159, 28, 39, 244, 43, 195, 226, 56, 56, 180, 205, 199,
-      250, 204, 23, 94, 181, 21, 25, 206, 240, 187, 242, 38, 255, 103, 160, 8,
-      245, 177, 199, 206, 162, 39,
-    ]);
+    const mockPublicKey = P256PublicKey(
+      "3059301306072a8648ce3d020106082a8648ce3d03010703420004599531f2d8ec62b611fd90df572a612e610d2421af8f9c6988d38b94cf3d9f1c27f42bc3e23838b4cdc7facc175eb51519cef0bbf226ff67a008f5b1c7cea227",
+    );
 
     // Act
-    const result = await utils.parseRawP256PublicKey(mockKeyId, mockPublicKey);
+    const defaultValue = {
+      x: P256PublicKeyPointX("0x0"),
+      y: P256PublicKeyPointY("0x0"),
+    };
 
-    const expectedParsedPublicKey = new P256PublicKeyComponent(
-      PasskeyPublicKeyPointX(
+    const result = utils
+      .parseRawP256PublicKey(mockPublicKey)
+      .unwrapOr(defaultValue);
+
+    const expectedParsedPublicKey = {
+      x: P256PublicKeyPointX(
         "0x599531f2d8ec62b611fd90df572a612e610d2421af8f9c6988d38b94cf3d9f1c",
       ),
-      PasskeyPublicKeyPointY(
+      y: P256PublicKeyPointY(
         "0x27f42bc3e23838b4cdc7facc175eb51519cef0bbf226ff67a008f5b1c7cea227",
       ),
-      mockKeyId,
-    );
+    };
 
     // Assert
     expect(result).toEqual(expectedParsedPublicKey);

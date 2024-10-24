@@ -3,10 +3,7 @@ import {
   BlockchainCommonErrors,
   SnickerdoodleWalletContractError,
   EVMAccountAddress,
-  HexString32,
   PasskeyId,
-  PasskeyPublicKeyPointX,
-  PasskeyPublicKeyPointY,
   P256PublicKeyComponent,
   P256SignatureComponent,
 } from "@snickerdoodlelabs/objects";

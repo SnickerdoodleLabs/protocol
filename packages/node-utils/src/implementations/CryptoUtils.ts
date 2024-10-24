@@ -34,12 +34,13 @@ import {
   ED25519PrivateKey,
   P256PublicKeyComponent,
   PasskeyId,
-  PasskeyPublicKeyPointX,
-  PasskeyPublicKeyPointY,
+  P256PublicKeyPointX,
+  P256PublicKeyPointY,
   P256SignatureComponent,
   P256SignatureR,
   P256SignatureS,
   P256SignatureComponentArrayBuffer,
+  P256PublicKey,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import {
@@ -51,7 +52,7 @@ import {
   toBeHex,
 } from "ethers";
 import { injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { err, errAsync, ok, okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import OAuth from "oauth-1.0a";
 import nacl from "tweetnacl";
@@ -674,10 +675,13 @@ export class CryptoUtils implements ICryptoUtils {
   }
 
   public parseRawP256PublicKey(
-    id: PasskeyId,
-    publicKeyArray: Uint8Array,
-  ): P256PublicKeyComponent {
-    const pubKeyView = publicKeyArray;
+    publicKey: P256PublicKey,
+  ): Result<
+    { x: P256PublicKeyPointX; y: P256PublicKeyPointY },
+    InvalidParametersError
+  > {
+    // Convert hex string public key to Uint8Array
+    const pubKeyView = this.hexToUint8Array(publicKey);
 
     // Public Key Header Bytes
     const headerByte = pubKeyView[0];
@@ -688,10 +692,9 @@ export class CryptoUtils implements ICryptoUtils {
     // Third value tells you the type of the next value which MUST be an integer (0x02) if this is a signature array
     const metadataIndicatorByte = pubKeyView[2];
     // Third byte MUST be equal to 48 if this is a legitimate public key array
-    console.assert(
-      metadataIndicatorByte === 48,
-      "This is not a public key byte array",
-    );
+    if (metadataIndicatorByte !== 48) {
+      return err(new InvalidParametersError("This is not a public key array"));
+    }
 
     // Forth Value is the length of the public key metadata
     const metadataLength = pubKeyView[3];
@@ -708,10 +711,9 @@ export class CryptoUtils implements ICryptoUtils {
 
     const publicKeyIndicatorByte = pubKeyView[4 + metadataLength];
     // This byte MUST be equal to 2 if this is a legitimate signature array
-    console.assert(
-      publicKeyIndicatorByte === 3,
-      "This is not a public key byte array",
-    );
+    if (publicKeyIndicatorByte !== 3) {
+      return err(new InvalidParametersError("This is not a public key array"));
+    }
 
     // Now get the length of the s value of the signature (r,s)
     const pubKeyLength = pubKeyView[4 + metadataLength + 1];
@@ -730,11 +732,10 @@ export class CryptoUtils implements ICryptoUtils {
     );
     const qy = publicKeyString.slice(-64);
 
-    return new P256PublicKeyComponent(
-      PasskeyPublicKeyPointX(`0x${qx}`),
-      PasskeyPublicKeyPointY(`0x${qy}`),
-      PasskeyId(id),
-    );
+    return ok({
+      x: P256PublicKeyPointX(`0x${qx}`),
+      y: P256PublicKeyPointY(`0x${qy}`),
+    });
   }
 
   // returns a 64-byte ArrayBuffer containing r and s concatenated together
@@ -834,5 +835,13 @@ export class CryptoUtils implements ICryptoUtils {
     });
 
     return result;
+  }
+
+  private hexToUint8Array(hexString: string): Uint8Array {
+    const array = new Uint8Array(hexString.length / 2);
+    for (let i = 0; i < hexString.length; i += 2) {
+      array[i / 2] = parseInt(hexString.substring(i, i + 2), 16);
+    }
+    return array;
   }
 }

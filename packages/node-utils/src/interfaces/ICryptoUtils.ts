@@ -12,8 +12,12 @@ import {
   KeyGenerationError,
   NobleED25519KeyPair,
   OAuth1Config,
+  P256PublicKey,
   P256PublicKeyComponent,
+  P256PublicKeyPointX,
+  P256PublicKeyPointY,
   P256SignatureComponentArrayBuffer,
+  PasskeyId,
   RSAKeyPair,
   SHA256Hash,
   Signature,
@@ -27,7 +31,7 @@ import {
   UUID,
 } from "@snickerdoodlelabs/objects";
 import { TypedDataDomain, TypedDataField, ethers } from "ethers";
-import { ResultAsync } from "neverthrow";
+import { Result, ResultAsync } from "neverthrow";
 
 export interface ICryptoUtils {
   getUUID(): UUID;
@@ -167,9 +171,11 @@ export interface ICryptoUtils {
   >;
 
   parseRawP256PublicKey(
-    id,
-    publicKeyArray: ArrayBuffer,
-  ): P256PublicKeyComponent;
+    publicKey: P256PublicKey,
+  ): Result<
+    { x: P256PublicKeyPointX; y: P256PublicKeyPointY },
+    InvalidParametersError
+  >;
 
   parseRawP256Signature(
     signatureArray,
