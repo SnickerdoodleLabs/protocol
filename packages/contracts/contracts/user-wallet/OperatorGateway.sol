@@ -30,7 +30,7 @@ contract OperatorGateway is
     /// @param _factory the address of the SnickerdoodleFactory contract
     function initialize(
         string memory _name,
-        address [] calldata adminAccounts,
+        address[] calldata adminAccounts,
         address[] calldata operatorAccounts,
         address _factory
     ) public initializer {
