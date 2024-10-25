@@ -93,6 +93,13 @@ export class SnickerdoodleWalletContract
     );
   }
 
+  public generateAddP256KeyWithP256KeyChallenge(
+    newKeyId: WebauthnCredentialId,
+    newP256PublicKey: P256PublicKeyComponents,
+  ): Result<string, InvalidParametersError> {
+    throw new Error("Method not implemented.");
+  }
+
   public addEVMAddressWithP256Key(
     keyId: WebauthnCredentialId,
     authenticatorData: AuthenticatorData,
@@ -118,6 +125,11 @@ export class SnickerdoodleWalletContract
       ],
       overrides,
     );
+  }
+  public generateAddEVMAddressWithP256KeyChallenge(
+    evmAccountAddress: EVMAccountAddress,
+  ): Result<string, InvalidParametersError> {
+    throw new Error("Method not implemented.");
   }
 
   public addEVMAccountWithEVMAccount(

@@ -17,7 +17,6 @@ import {
   ContractOverrides,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
-import { Client } from "@farcaster/hub-nodejs";
 
 export interface ISnickerdoodleWalletContract extends IBaseContract {
   factoryAddress(): ResultAsync<
@@ -42,6 +41,11 @@ export interface ISnickerdoodleWalletContract extends IBaseContract {
     BlockchainCommonErrors | SnickerdoodleWalletContractError
   >;
 
+  generateAddP256KeyWithP256KeyChallenge(
+    newKeyId: WebauthnCredentialId,
+    newP256PublicKey: P256PublicKeyComponents,
+  ): Result<string, InvalidParametersError>;
+
   addEVMAddressWithP256Key(
     keyId: WebauthnCredentialId,
     authenticatorData: AuthenticatorData,
@@ -53,6 +57,10 @@ export interface ISnickerdoodleWalletContract extends IBaseContract {
     WrappedTransactionResponse,
     BlockchainCommonErrors | SnickerdoodleWalletContractError
   >;
+
+  generateAddEVMAddressWithP256KeyChallenge(
+    evmAccountAddress: EVMAccountAddress,
+  ): Result<string, InvalidParametersError>;
 
   addEVMAccountWithEVMAccount(
     evmAccount: EVMAccountAddress | EVMContractAddress,
@@ -77,8 +85,6 @@ export interface ISnickerdoodleWalletContract extends IBaseContract {
     WrappedTransactionResponse,
     BlockchainCommonErrors | SnickerdoodleWalletContractError
   >;
-
-  generateXWithP256challenge(): Result<string, InvalidParametersError>;
 }
 
 export const ISnickerdoodleWalletFactoryType = Symbol.for(
