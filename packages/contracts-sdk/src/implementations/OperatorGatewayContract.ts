@@ -4,8 +4,8 @@ import {
   BlockchainCommonErrors,
   OperatorGatewayContractError,
   PasskeyId,
-  P256PublicKeyComponent,
-  P256SignatureComponent,
+  P256PublicKeyComponents,
+  P256SignatureComponents,
   LayerZeroEndpointId,
   OperatorDomain,
   TokenAmount,
@@ -44,7 +44,7 @@ export class OperatorGatewayContract
 
   public deployWallets(
     usernames: string[],
-    p256Keys: P256PublicKeyComponent[][],
+    p256Keys: P256PublicKeyComponents[][],
     evmAccounts: EVMContractAddress[][] | EVMAccountAddress[][],
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -135,8 +135,8 @@ export class OperatorGatewayContract
     evmAccounts: EVMContractAddress[] | EVMAccountAddress[],
     keyIds: PasskeyId[],
     authenticatorDatas: AuthenticatorData[],
-    newP256Keys: P256PublicKeyComponent[],
-    p256Signatures: P256SignatureComponent[],
+    newP256Keys: P256PublicKeyComponents[],
+    p256Signatures: P256SignatureComponents[],
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,

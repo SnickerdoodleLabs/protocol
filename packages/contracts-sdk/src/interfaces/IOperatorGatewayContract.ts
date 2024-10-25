@@ -3,8 +3,8 @@ import {
   BlockchainCommonErrors,
   EVMAccountAddress,
   PasskeyId,
-  P256PublicKeyComponent,
-  P256SignatureComponent,
+  P256PublicKeyComponents,
+  P256SignatureComponents,
   OperatorGatewayContractError,
   LayerZeroEndpointId,
   OperatorDomain,
@@ -23,7 +23,7 @@ import {
 export interface IOperatorGatewayContract extends IBaseContract {
   deployWallets(
     usernames: SnickerdoodleWalletUsername[],
-    p256Keys: P256PublicKeyComponent[][],
+    p256Keys: P256PublicKeyComponents[][],
     evmAccounts: EVMContractAddress[][] | EVMAccountAddress[][],
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -76,8 +76,8 @@ export interface IOperatorGatewayContract extends IBaseContract {
     evmAccounts: EVMContractAddress[] | EVMAccountAddress[],
     keyIds: PasskeyId[],
     authenticatorDatas: AuthenticatorData[],
-    newP256Keys: P256PublicKeyComponent[],
-    p256Signatures: P256SignatureComponent[],
+    newP256Keys: P256PublicKeyComponents[],
+    p256Signatures: P256SignatureComponents[],
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,

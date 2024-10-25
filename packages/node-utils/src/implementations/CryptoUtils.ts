@@ -32,15 +32,16 @@ import {
   SignerUnavailableError,
   NobleED25519KeyPair,
   ED25519PrivateKey,
-  P256PublicKeyComponent,
-  PasskeyId,
+  P256PublicKeyComponents,
   P256PublicKeyPointX,
   P256PublicKeyPointY,
-  P256SignatureComponent,
+  P256SignatureComponents,
   P256SignatureR,
   P256SignatureS,
-  P256SignatureComponentArrayBuffer,
   P256PublicKey,
+  P256Signature,
+  JSONString,
+  ClientDataJSONComponents,
 } from "@snickerdoodlelabs/objects";
 // import argon2 from "argon2";
 import {
@@ -676,10 +677,7 @@ export class CryptoUtils implements ICryptoUtils {
 
   public parseRawP256PublicKey(
     publicKey: P256PublicKey,
-  ): Result<
-    { x: P256PublicKeyPointX; y: P256PublicKeyPointY },
-    InvalidParametersError
-  > {
+  ): Result<P256PublicKeyComponents, InvalidParametersError> {
     // Convert hex string public key to Uint8Array
     const pubKeyView = this.hexToUint8Array(publicKey);
 
@@ -732,18 +730,20 @@ export class CryptoUtils implements ICryptoUtils {
     );
     const qy = publicKeyString.slice(-64);
 
-    return ok({
-      x: P256PublicKeyPointX(`0x${qx}`),
-      y: P256PublicKeyPointY(`0x${qy}`),
-    });
+    return ok(
+      new P256PublicKeyComponents(
+        P256PublicKeyPointX(`0x${qx}`),
+        P256PublicKeyPointY(`0x${qy}`),
+      ),
+    );
   }
 
   // returns a 64-byte ArrayBuffer containing r and s concatenated together
   public parseRawP256Signature(
-    signatureArray: ArrayBuffer,
+    signature: P256Signature,
     msgPayload: string,
-  ): P256SignatureComponentArrayBuffer {
-    const signatureView = new Uint8Array(signatureArray);
+  ): Result<P256SignatureComponents, InvalidParametersError> {
+    const signatureView = this.hexToUint8Array(signature);
 
     // First value is the header and should be 0x30
     const headerByte = signatureView[0];
@@ -756,10 +756,9 @@ export class CryptoUtils implements ICryptoUtils {
     const rTypeIndicatorByte = signatureView[2];
 
     // Third byte MUST be equal to 2 if this is a legitimate signature array
-    console.assert(
-      rTypeIndicatorByte === 2,
-      "This is not a signature byte array",
-    );
+    if (rTypeIndicatorByte !== 2) {
+      return err(new InvalidParametersError("This is not a signature array"));
+    }
 
     // Forth Value is the length of the first coordinate (r) of the signature (r,s)
     const rLength = signatureView[3];
@@ -776,10 +775,9 @@ export class CryptoUtils implements ICryptoUtils {
     const sTypeIndicatorByte = signatureView[4 + rLength];
 
     // This byte MUST be equal to 2 if this is a legitimate signature array
-    console.assert(
-      sTypeIndicatorByte === 2,
-      "This is not a signature byte array",
-    );
+    if (sTypeIndicatorByte !== 2) {
+      return err(new InvalidParametersError("This is not a signature array"));
+    }
 
     // Now get the length of the s value of the signature (r,s)
     const sLength = signatureView[4 + rLength + 1];
@@ -798,9 +796,30 @@ export class CryptoUtils implements ICryptoUtils {
     const sigAndMsgPayload = msgPayload + `r: 0x${rString}, s: 0x${sString}`;
 
     // return the signature formatted for use in crypto.subtle.verify
-    return P256SignatureComponentArrayBuffer(
-      new Uint8Array([...rValueUint8Array, ...sValueUint8Array]).buffer,
+    return ok(
+      new P256SignatureComponents(
+        P256SignatureR(rString),
+        P256SignatureS(sString),
+      ),
     );
+  }
+
+  public parseClientDataJSON(
+    clientDataJSON: JSONString,
+  ): Result<ClientDataJSONComponents, InvalidParametersError> {
+    // Parse the json string
+    const parsed = JSON.parse(clientDataJSON);
+
+    // Extract the challenge param
+    const challenge = parsed.challenge;
+
+    // Split to left and right
+    const components = clientDataJSON.split(challenge);
+
+    const cdjLeft = components[0];
+    const cdjRight = components[1];
+
+    return ok(new ClientDataJSONComponents(cdjLeft, cdjRight));
   }
 
   // curve elements MUST be 32 bytes for use in secp256r1 implementations

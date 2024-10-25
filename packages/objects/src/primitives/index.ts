@@ -133,3 +133,5 @@ export * from "@objects/primitives/SnickerdoodleWalletUsernameWithDomain.js";
 export * from "@objects/primitives/P256SignatureR.js";
 export * from "@objects/primitives/P256SignatureS.js";
 export * from "@objects/primitives/P256SignatureComponentArrayBuffer.js";
+export * from "@objects/primitives/P256Signature.js";
+export * from "@objects/primitives/WebauthnCredentialId.js";

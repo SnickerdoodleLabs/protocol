@@ -6,7 +6,7 @@ import {
   LayerZeroEndpointId,
   TokenAmount,
   InvalidParametersError,
-  P256PublicKeyComponent,
+  P256PublicKeyComponents,
   OperatorDomain,
   SnickerdoodleWalletUsernameWithDomain,
   SnickerdoodleWalletUsername,
@@ -106,7 +106,7 @@ export class SnickerdoodleWalletFactoryContract
 
   public deployWalletProxies(
     usernames: SnickerdoodleWalletUsername[],
-    p256Keys: P256PublicKeyComponent[][],
+    p256Keys: P256PublicKeyComponents[][],
     evmAccounts: EVMContractAddress[][] | EVMAccountAddress[][],
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -122,7 +122,7 @@ export class SnickerdoodleWalletFactoryContract
 
   public deployWalletProxy(
     username: SnickerdoodleWalletUsername,
-    p256Keys: P256PublicKeyComponent[],
+    p256Keys: P256PublicKeyComponents[],
     evmAccounts: EVMContractAddress[] | EVMAccountAddress[],
     overrides?: ContractOverrides,
   ): ResultAsync<

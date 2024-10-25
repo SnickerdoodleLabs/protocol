@@ -3,11 +3,13 @@ import {
   BlockchainCommonErrors,
   SnickerdoodleWalletContractError,
   EVMAccountAddress,
-  PasskeyId,
-  P256PublicKeyComponent,
-  P256SignatureComponent,
+  WebauthnCredentialId,
+  P256PublicKeyComponents,
+  P256SignatureComponents,
+  InvalidParametersError,
+  ClientDataJSONComponents,
 } from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
+import { Result, ResultAsync } from "neverthrow";
 
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import {
@@ -15,6 +17,7 @@ import {
   ContractOverrides,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
+import { Client } from "@farcaster/hub-nodejs";
 
 export interface ISnickerdoodleWalletContract extends IBaseContract {
   factoryAddress(): ResultAsync<
@@ -28,10 +31,11 @@ export interface ISnickerdoodleWalletContract extends IBaseContract {
   >;
 
   addP256KeyWithP256Key(
-    keyId: PasskeyId,
-    authenticatorData: AuthenticatorData,
-    newP256Key: P256PublicKeyComponent,
-    p256Signature: P256SignatureComponent,
+    keyId: WebauthnCredentialId,
+    authenticatorData: string,
+    clientJSONData: ClientDataJSONComponents,
+    newP256Key: P256PublicKeyComponents,
+    p256Signature: P256SignatureComponents,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -39,10 +43,11 @@ export interface ISnickerdoodleWalletContract extends IBaseContract {
   >;
 
   addEVMAddressWithP256Key(
-    keyId: PasskeyId,
-    authenticatorData: AuthenticatorData,
+    keyId: WebauthnCredentialId,
+    authenticatorData: string,
+    clientJSONData: ClientDataJSONComponents,
     evmAccount: EVMAccountAddress | EVMContractAddress,
-    p256Signature: P256SignatureComponent,
+    p256Signature: P256SignatureComponents,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -72,6 +77,8 @@ export interface ISnickerdoodleWalletContract extends IBaseContract {
     WrappedTransactionResponse,
     BlockchainCommonErrors | SnickerdoodleWalletContractError
   >;
+
+  generateXWithP256challenge(): Result<string, InvalidParametersError>;
 }
 
 export const ISnickerdoodleWalletFactoryType = Symbol.for(

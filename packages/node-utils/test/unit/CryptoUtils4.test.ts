@@ -4,6 +4,8 @@ import {
   P256PublicKeyPointX,
   P256PublicKeyPointY,
   P256PublicKey,
+  P256Signature,
+  JSONString,
 } from "@snickerdoodlelabs/objects";
 
 import { CryptoUtilsMocks } from "../mocks/CryptoUtilsMocks";
@@ -49,32 +51,81 @@ describe("CryptoUtils Tests 4", () => {
     const mocks = new CryptoUtilsMocks();
     const utils = mocks.factoryCryptoUtils();
 
-    const mockSignature = new Uint8Array([
-      48, 69, 2, 32, 14, 27, 112, 251, 186, 180, 8, 55, 226, 184, 231, 66, 147,
-      175, 60, 167, 109, 24, 41, 45, 121, 89, 59, 32, 196, 41, 207, 150, 77, 75,
-      45, 83, 2, 33, 0, 226, 39, 224, 126, 172, 254, 233, 54, 107, 161, 26, 138,
-      31, 110, 197, 103, 194, 3, 1, 44, 58, 255, 82, 175, 220, 80, 29, 139, 21,
-      137, 114, 60,
-    ]);
-    const mockMsgPayload = `authenticatorData: 0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000, clientJSONData: "{\"type\":\"webauthn.get\",\"challenge\":\"SkgtbmpSNGs4TUw3T3k3LUxsVUZtQeCNdoJu1unwpgzfenUVeSFuX221IEmGHVYEGrQ0G5A3l1CPrqa6jtHx3a4SdKeJxGRgaH2ChCnqOjcfmd6TiLc\",\"origin\":\"http://localhost:8000\",\"crossOrigin\":false,\"other_keys_can_be_added_here\":\"do not compare clientDataJSON against a template. See https://goo.gl/yabPex\"}",`;
-
-    const expectedParsedSignature = P256SignatureComponentArrayBuffer(
-      new Uint8Array([
-        14, 27, 112, 251, 186, 180, 8, 55, 226, 184, 231, 66, 147, 175, 60, 167,
-        109, 24, 41, 45, 121, 89, 59, 32, 196, 41, 207, 150, 77, 75, 45, 83,
-        226, 39, 224, 126, 172, 254, 233, 54, 107, 161, 26, 138, 31, 110, 197,
-        103, 194, 3, 1, 44, 58, 255, 82, 175, 220, 80, 29, 139, 21, 137, 114,
-        60,
-      ]).buffer,
+    const mockSignature = P256Signature(
+      "304502202ae4188c4bf694fa309f6d05145408b57744fa7edfadfa120143f82c8887dd45022100a3009ac7d91a9945a454011ec4e5c568a5b20727e3fc8b804142fda1d918f289",
     );
+
+    // const mockSignature = [
+    //   48, 69, 2, 32, 42, 228, 24, 140, 75, 246, 148, 250, 48, 159, 109, 5, 20,
+    //   84, 8, 181, 119, 68, 250, 126, 223, 173, 250, 18, 1, 67, 248, 44, 136,
+    //   135, 221, 69, 2, 33, 0, 163, 0, 154, 199, 217, 26, 153, 69, 164, 84, 1,
+    //   30, 196, 229, 197, 104, 165, 178, 7, 39, 227, 252, 139, 128, 65, 66, 253,
+    //   161, 217, 24, 242, 137,
+    // ];
+
+    // new Uint8Array([
+    //   48, 69, 2, 32, 14, 27, 112, 251, 186, 180, 8, 55, 226, 184, 231, 66, 147,
+    //   175, 60, 167, 109, 24, 41, 45, 121, 89, 59, 32, 196, 41, 207, 150, 77, 75,
+    //   45, 83, 2, 33, 0, 226, 39, 224, 126, 172, 254, 233, 54, 107, 161, 26, 138,
+    //   31, 110, 197, 103, 194, 3, 1, 44, 58, 255, 82, 175, 220, 80, 29, 139, 21,
+    //   137, 114, 60,
+    // ]);
+    const mockMsgPayload = `authenticatorData: 0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000, clientJSONData: "{\"type\":\"webauthn.get\",\"challenge\":\"SkgtbmpSNGs4TUw3T3k3LUxsVUZtQeCNdoJu1unwpgzfenUVeSFuX221IEmGHVYEGrQ0G5A3l1CPrqa6jtHx3a4SdKeJxGRgaH2ChCnqOjcfmd6TiLc\",\"origin\":\"http://localhost:8000\",\"crossOrigin\":false}"`;
+
+    const expectedValue = {
+      r: "2ae4188c4bf694fa309f6d05145408b57744fa7edfadfa120143f82c8887dd45",
+      s: "a3009ac7d91a9945a454011ec4e5c568a5b20727e3fc8b804142fda1d918f289",
+    };
+
+    const defaultValue = {
+      r: "",
+      s: "",
+    };
 
     // Act
-    const result = await utils.parseRawP256Signature(
-      mockSignature,
-      mockMsgPayload,
-    );
+    const result = utils
+      .parseRawP256Signature(mockSignature, mockMsgPayload)
+      .unwrapOr(defaultValue);
 
     // Assert
-    expect(result).toEqual(expectedParsedSignature);
+    expect(result.r).toEqual(expectedValue.r);
+    expect(result.s).toEqual(expectedValue.s);
+  });
+
+  test("parseClientDataJSON() Closed Loop", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    const mockSignature = P256Signature(
+      "304502200e1b70fbbab40837e2b8e74293af3ca76d18292d79593b20c429cf964d4b2d53022100e227e07eacfee9366ba11a8a1f6ec567c203012c3aff52afdc501d8b1589723c",
+    );
+
+    const mockClientDataJSON = JSONString(
+      `{"type":"webauthn.get","challenge":"SkgtbmpSNGs4TUw3T3k3LUxsVUZtQeCNdoJu1unwpgzfenUVeSFuX221IEmGHVYEGrQ0G5A3l1CPrqa6jtHx3a4SdKeJxGRgaH2ChCnqOjcfmd6TiLc","origin":"http://localhost:8000","crossOrigin":false}`,
+    );
+
+    const expectedParsedClientJSONData = {
+      clientDataJSONLeft: `{"type":"webauthn.get","challenge":"`,
+      clientDataJSONRight: `","origin":"http://localhost:8000","crossOrigin":false}`,
+    };
+
+    // Act
+    const defaultValue = {
+      clientDataJSONLeft: "",
+      clientDataJSONRight: "",
+    };
+
+    const result = utils
+      .parseClientDataJSON(mockClientDataJSON)
+      .unwrapOr(defaultValue);
+
+    // Assert
+    expect(result.clientDataJSONLeft).toEqual(
+      expectedParsedClientJSONData.clientDataJSONLeft,
+    );
+    expect(result.clientDataJSONRight).toEqual(
+      expectedParsedClientJSONData.clientDataJSONRight,
+    );
   });
 });

@@ -3,13 +3,15 @@ import {
   EVMContractAddress,
   BlockchainCommonErrors,
   SnickerdoodleWalletContractError,
-  PasskeyId,
-  P256PublicKeyComponent,
-  P256SignatureComponent,
+  WebauthnCredentialId,
+  P256PublicKeyComponents,
+  P256SignatureComponents,
+  InvalidParametersError,
+  ClientDataJSONComponents,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ok, Result, ResultAsync } from "neverthrow";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
@@ -64,10 +66,11 @@ export class SnickerdoodleWalletContract
   }
 
   public addP256KeyWithP256Key(
-    keyId: PasskeyId,
-    authenticatorData: AuthenticatorData,
-    newP256Key: P256PublicKeyComponent,
-    p256Signature: P256SignatureComponent,
+    keyId: WebauthnCredentialId,
+    authenticatorData: string,
+    clientDataJSON: ClientDataJSONComponents,
+    newP256Key: P256PublicKeyComponents,
+    p256Signature: P256SignatureComponents,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
@@ -75,24 +78,43 @@ export class SnickerdoodleWalletContract
   > {
     return this.writeToContract(
       "addP256KeyWithP256Key",
-      [keyId, authenticatorData, newP256Key, p256Signature],
+      [
+        keyId,
+        new AuthenticatorData(
+          authenticatorData,
+          clientDataJSON.clientDataJSONLeft,
+          clientDataJSON.clientDataJSONRight,
+        ),
+        newP256Key,
+        p256Signature,
+      ],
       overrides,
     );
   }
 
   public addEVMAddressWithP256Key(
-    keyId: PasskeyId,
-    authenticatorData: AuthenticatorData,
+    keyId: WebauthnCredentialId,
+    authenticatorData: string,
+    clientDataJSON: ClientDataJSONComponents,
     evmAccount: EVMAccountAddress | EVMContractAddress,
-    p256Signature: P256SignatureComponent,
+    p256Signature: P256SignatureComponents,
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | SnickerdoodleWalletContractError
   > {
     return this.writeToContract(
-      "addEMVAddressWithP256Key",
-      [keyId, authenticatorData, evmAccount, p256Signature],
+      "addEVMAddressWithP256Key",
+      [
+        keyId,
+        new AuthenticatorData(
+          authenticatorData,
+          clientDataJSON.clientDataJSONLeft,
+          clientDataJSON.clientDataJSONRight,
+        ),
+        evmAccount,
+        p256Signature,
+      ],
       overrides,
     );
   }
@@ -137,6 +159,10 @@ export class SnickerdoodleWalletContract
       [tokenAddress],
       overrides,
     );
+  }
+
+  public generateXWithP256challenge(): Result<string, InvalidParametersError> {
+    return ok("");
   }
 
   protected generateContractSpecificError(

@@ -66,3 +66,4 @@ export * from "@objects/businessObjects/versioned/index.js";
 export * from "@objects/businessObjects/NobleED25519KeyPair.js";
 export * from "@objects/businessObjects/P256PublicKeyComponent.js";
 export * from "@objects/businessObjects/P256SignatureComponent.js";
+export * from "@objects/businessObjects/ClientDataJSONComponents.js";

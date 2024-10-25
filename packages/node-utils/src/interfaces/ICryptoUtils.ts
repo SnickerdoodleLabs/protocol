@@ -3,20 +3,24 @@ import {
   AESEncryptedString,
   AESKey,
   Base64String,
+  ClientDataJSONComponents,
   ED25519PublicKey,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   HexString,
   InvalidParametersError,
+  JSONString,
   KeyGenerationError,
   NobleED25519KeyPair,
   OAuth1Config,
   P256PublicKey,
-  P256PublicKeyComponent,
+  P256PublicKeyComponents,
   P256PublicKeyPointX,
   P256PublicKeyPointY,
+  P256Signature,
   P256SignatureComponentArrayBuffer,
+  P256SignatureComponents,
   PasskeyId,
   RSAKeyPair,
   SHA256Hash,
@@ -172,15 +176,16 @@ export interface ICryptoUtils {
 
   parseRawP256PublicKey(
     publicKey: P256PublicKey,
-  ): Result<
-    { x: P256PublicKeyPointX; y: P256PublicKeyPointY },
-    InvalidParametersError
-  >;
+  ): Result<P256PublicKeyComponents, InvalidParametersError>;
 
   parseRawP256Signature(
-    signatureArray,
-    msgPayload,
-  ): P256SignatureComponentArrayBuffer;
+    signature: P256Signature,
+    msgPayload: string,
+  ): Result<P256SignatureComponents, InvalidParametersError>;
+
+  parseClientDataJSON(
+    clientDataJSON: JSONString,
+  ): Result<ClientDataJSONComponents, InvalidParametersError>;
 }
 
 export const ICryptoUtilsType = Symbol.for("ICryptoUtils");
