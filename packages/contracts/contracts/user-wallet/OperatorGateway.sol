@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts-upgradeable/access/extensions/AccessControlEnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
@@ -26,6 +26,8 @@ contract OperatorGateway is
 
     /// @notice creates a user wallet
     /// @dev the first account in the operatorAccounts array is the default admin
+    /// @param operatorAccounts the addresses of the operator accounts
+    /// @param _factory the address of the SnickerdoodleFactory contract
     function initialize(
         string memory _name,
         address [] calldata adminAccounts,
@@ -49,6 +51,7 @@ contract OperatorGateway is
     /// @notice deploy a user wallet with a P256 key from the wallet factory
     /// @param usernames the usernames of the user wallets that will be prepended with the operator's domain
     /// @param p256Keys the P256 keys of the user wallets
+    /// @param evmAccounts the EVM accounts of the user wallets
     function deployWallets(
         string[] calldata usernames,
         P256Key[][] calldata p256Keys,
@@ -64,8 +67,8 @@ contract OperatorGateway is
     /// @notice Authorize multiple usernames on the destination chain with a single transaction
     /// @param _destinationChainEID the destination chain's EID
     /// @param usernames the usernames of the user wallets that will be prepended with the operator's domain
-    /// @param _gas the gas to send with the transaction
-    function reserveWalletsOnDestinationChain(
+    /// @param _gas the gas required to execute _lzReceive()
+    function authorizeWalletsOnDestinationChain(
         uint32 _destinationChainEID,
         string[] calldata usernames,
         uint128 _gas
@@ -79,7 +82,7 @@ contract OperatorGateway is
     /// @dev This function is just for operator convenience, you can also call the factory quote function directly
     /// @param _dstEid the destination chain's EID
     /// @param username the username of the user wallet that will be prepended with the operator's domain
-    /// @param _gas the gas to send with the transaction
+    /// @param _gas the gas required to execute _lzReceive()
     function quoteAuthorizeWalletOnDestinationChain(
         uint32 _dstEid,
         string calldata username,
@@ -152,7 +155,7 @@ contract OperatorGateway is
         _updateOperatorHash();
     }
 
-    /// @notice Add an associatd DNS eTLD+1 domain with this operator gateway contract
+    /// @notice Add an associated DNS eTLD+1 domain with this operator gateway contract
     /// @param domain a string representing an eTLD+1 domain associated with the contract
     function addERC7529Domain(
         string memory domain
@@ -160,7 +163,7 @@ contract OperatorGateway is
         _addDomain(domain);
     }
 
-    /// @notice Add an associatd DNS eTLD+1 domain with this operator gateway contract
+    /// @notice Add an associated DNS eTLD+1 domain with this operator gateway contract
     /// @param domain a string representing an eTLD+1 domain associated with the contract
     function removeERC7529Domain(
         string memory domain
@@ -188,5 +191,10 @@ contract OperatorGateway is
             abi.encodePacked(name, adminAccounts, operatorAccounts)
         );
         SnickerdoodleFactory(factory).updateOperatorHash(operatorHash);
+    }
+
+    /// @notice Returns the Snickerdoodle factory address
+    function getFactory() external view returns (address) {
+        return factory;
     }
 }

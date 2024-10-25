@@ -118,7 +118,7 @@ describe("SnickerdoodleFactory", function () {
         .withArgs(predictedAddress, domain);
     });
 
-    it("Test deploying a user wallet", async function () {
+    it.only("Test deploying a user wallet", async function () {
       const { factory, gatewayBeacon, walletBeacon, owner } = await loadFixture(
         deployFactory,
       );
@@ -143,8 +143,9 @@ describe("SnickerdoodleFactory", function () {
 
       const [ownerP256] = getP256Keys();
 
+      const evmAccountsToAdd = [owner.address];
       await expect(
-        operator.deployWallets([username], [[ownerP256]], [[owner.address]]),
+        operator.deployWallets([username], [[ownerP256]], [evmAccountsToAdd]),
       )
         .to.emit(factory, "WalletCreated")
         .withArgs(
@@ -154,6 +155,22 @@ describe("SnickerdoodleFactory", function () {
           ),
           name,
         );
+
+      // Check the EVM accounts on the wallet address
+      const wallet = await hre.ethers.getContractAt(
+        "SnickerdoodleWallet",
+        await factory.computeProxyAddress(
+          name,
+          await walletBeacon.getAddress(),
+        ),
+      );
+
+      const evmAccounts = await wallet.getEvmAccounts();
+      expect(evmAccounts).to.have.lengthOf(1);
+
+      for (let i = 0; i < evmAccountsToAdd.length; i++) {
+        expect(evmAccounts[i]).to.equal(evmAccountsToAdd[i]);
+      }
     });
   });
 });
