@@ -3,6 +3,7 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts-upgradeable/access/extensions/AccessControlEnumerableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./Structs.sol";
 import "./SnickerdoodleFactory.sol";
@@ -16,24 +17,33 @@ contract OperatorGateway is
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
     /// @notice address of SnickerdoodleWallet contract
-    address private walletFactory;
+    address private factory;
+
+    /// @notice salt string used to with Create2 to deploy the gateway proxy
+    string public name;
 
     error ArrayLengthMismatch(uint a, uint b);
 
     /// @notice creates a user wallet
     /// @dev the first account in the operatorAccounts array is the default admin
     function initialize(
+        string memory _name,
+        address [] calldata adminAccounts,
         address[] calldata operatorAccounts,
-        address _walletFactory
+        address _factory
     ) public initializer {
         __AccessControl_init();
 
-        _grantRole(DEFAULT_ADMIN_ROLE, operatorAccounts[0]);
+        for (uint256 i = 0; i < adminAccounts.length; i++) {
+            _grantRole(DEFAULT_ADMIN_ROLE, adminAccounts[i]);
+        }
+        
         for (uint256 i = 0; i < operatorAccounts.length; i++) {
             _grantRole(OPERATOR_ROLE, operatorAccounts[i]);
         }
 
-        walletFactory = _walletFactory;
+        factory = _factory;
+        name = _name;
     }
 
     /// @notice deploy a user wallet with a P256 key from the wallet factory
@@ -44,7 +54,7 @@ contract OperatorGateway is
         P256Key[][] calldata p256Keys,
         address[][] calldata evmAccounts
     ) public onlyRole(OPERATOR_ROLE) {
-        SnickerdoodleFactory(walletFactory).deployWalletProxies(
+        SnickerdoodleFactory(factory).deployWalletProxies(
             usernames,
             p256Keys,
             evmAccounts
@@ -60,7 +70,7 @@ contract OperatorGateway is
         string[] calldata usernames,
         uint128 _gas
     ) external payable {
-        SnickerdoodleFactory(walletFactory).authorizeWalletsOnDestinationChain{
+        SnickerdoodleFactory(factory).authorizeWalletsOnDestinationChain{
             value: msg.value
         }(_destinationChainEID, usernames, _gas);
     }
@@ -76,7 +86,7 @@ contract OperatorGateway is
         uint128 _gas
     ) external view returns (uint256, uint256) {
         return
-            SnickerdoodleFactory(walletFactory)
+            SnickerdoodleFactory(factory)
                 .quoteAuthorizeWalletOnDestinationChain(
                     _dstEid,
                     username,
@@ -124,6 +134,24 @@ contract OperatorGateway is
         }
     }
 
+    /// @notice override the AccessControl grantRole function to update the operator hash
+    function grantRole(bytes32 role, address account) public override(AccessControlUpgradeable, IAccessControl) onlyRole(getRoleAdmin(role)) {
+        _grantRole(role, account);
+        _updateOperatorHash();
+    }
+
+    /// @notice override the AccessControl revokeRole function to update the operator hash
+    function revokeRole(bytes32 role, address account) public override(AccessControlUpgradeable, IAccessControl) onlyRole(getRoleAdmin(role)) {
+        _revokeRole(role, account);
+        _updateOperatorHash();
+    }
+
+    /// @notice override the AccessControl renounceRole function to update the operator hash
+    function renounceRole(bytes32 role, address callerConfirmation) public override(AccessControlUpgradeable, IAccessControl) {
+        super.renounceRole(role, callerConfirmation);
+        _updateOperatorHash();
+    }
+
     /// @notice Add an associatd DNS eTLD+1 domain with this operator gateway contract
     /// @param domain a string representing an eTLD+1 domain associated with the contract
     function addERC7529Domain(
@@ -138,5 +166,27 @@ contract OperatorGateway is
         string memory domain
     ) external onlyRole(OPERATOR_ROLE) {
         _removeDomain(domain);
+    }
+
+        /// @notice updates the wallet hash in the factory contract to reflect the current state of the wallet for layer0
+    function _updateOperatorHash() internal returns (bytes32) {
+        uint numAdmins = getRoleMemberCount(DEFAULT_ADMIN_ROLE);
+        uint numOperators = getRoleMemberCount(OPERATOR_ROLE);
+
+        address[] memory adminAccounts = new address[](numAdmins);
+        address[] memory operatorAccounts = new address[](numOperators);
+
+        for (uint256 i = 0; i < numAdmins; i++) {
+            adminAccounts[i] = getRoleMember(DEFAULT_ADMIN_ROLE, i);
+        }
+
+        for (uint256 i = 0; i < numOperators; i++) {
+            operatorAccounts[i] = getRoleMember(OPERATOR_ROLE, i);
+        }
+
+        bytes32 operatorHash = keccak256(
+            abi.encodePacked(name, adminAccounts, operatorAccounts)
+        );
+        SnickerdoodleFactory(factory).updateOperatorHash(operatorHash);
     }
 }

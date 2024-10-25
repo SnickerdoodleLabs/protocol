@@ -116,19 +116,14 @@ contract SnickerdoodleFactory is OAppUpgradeable {
 
         string memory name = string.concat(username, ".", domain);
         address proxyAddress = computeProxyAddress(name, walletBeacon);
-        (string memory keyIds, bytes32[] memory xs, bytes32[] memory ys) = _p256KeyArrayToArrays(
-            p256Keys
-        );
+        (
+            string memory keyIds,
+            bytes32[] memory xs,
+            bytes32[] memory ys
+        ) = _p256KeyArrayToArrays(p256Keys);
         if (isSourceChain) {
             walletToHash[proxyAddress] = keccak256(
-                abi.encodePacked(
-                    msg.sender,
-                    name,
-                    keyIds,
-                    xs,
-                    ys,
-                    evmAccounts
-                )
+                abi.encodePacked(msg.sender, name, keyIds, xs, ys, evmAccounts)
             );
         } else {
             require(
@@ -172,15 +167,17 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     /// @notice Deploys a Beacon Proxy with name keyword and salt to create an upgradeable OperatorGateway
     /// @dev if a domain has already been claimed, this function will revert
     /// @param domain a string used for the top-level domain of user wallets created by this operator
+    /// @param adminAccounts addresses to add as admins to the OperatorGateway
     /// @param operatorAccounts addresses to add as operators to the OperatorGateway
     function deployOperatorGatewayProxy(
         string calldata domain,
+        address[] calldata adminAccounts,
         address[] calldata operatorAccounts
     ) external {
         address proxyAddress = computeProxyAddress(domain, gatewayBeacon);
         if (isSourceChain) {
             operatorToHash[proxyAddress] = keccak256(
-                abi.encodePacked(domain, operatorAccounts)
+                abi.encodePacked(domain, adminAccounts, operatorAccounts)
             );
         } else {
             require(
@@ -198,11 +195,18 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             salt: keccak256(abi.encodePacked(domain))
         }(gatewayBeacon, "");
         OperatorGateway(payable(proxy)).initialize(
+            domain,
+            adminAccounts,
             operatorAccounts,
             address(this)
         );
 
         emit OperatorGatewayDeployed(address(proxy), domain);
+    }
+
+    /// @notice Updates the operator hash for a given gateway address
+    function updateOperatorHash(bytes32 newOperatorHash) external {
+        operatorToHash[msg.sender] = newOperatorHash;
     }
 
     /// @notice A batch function to authorize multiple wallets on the destination chain in one call
@@ -377,7 +381,9 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     }
 
     /// @dev Converts a p256Key array into keyId, x, and y arrays for easier hashing
-    function _p256KeyArrayToArrays(P256Key[] memory p256Keys)
+    function _p256KeyArrayToArrays(
+        P256Key[] memory p256Keys
+    )
         internal
         pure
         returns (string memory, bytes32[] memory, bytes32[] memory)
@@ -387,7 +393,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         bytes32[] memory y = new bytes32[](p256Keys.length);
 
         for (uint256 i = 0; i < p256Keys.length; i++) {
-            keyIds = string.concat(keyIds,  p256Keys[i].keyId);
+            keyIds = string.concat(keyIds, p256Keys[i].keyId);
             x[i] = p256Keys[i].x;
             y[i] = p256Keys[i].y;
         }

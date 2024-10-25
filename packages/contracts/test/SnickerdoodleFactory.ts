@@ -17,6 +17,8 @@ describe("SnickerdoodleFactory", function () {
 
     const gateway = await hre.ethers.deployContract("OperatorGateway", []);
     await gateway.initialize(
+      "implemenation",
+      [owner.address],
       [owner.address],
       "0x000000000000000000000000000000000000dEaD",
     );
@@ -105,7 +107,13 @@ describe("SnickerdoodleFactory", function () {
         await gatewayBeacon.getAddress(),
       );
 
-      await expect(factory.deployOperatorGatewayProxy(domain, [owner.address]))
+      await expect(
+        factory.deployOperatorGatewayProxy(
+          domain,
+          [owner.address],
+          [owner.address],
+        ),
+      )
         .to.emit(factory, "OperatorGatewayDeployed")
         .withArgs(predictedAddress, domain);
     });
@@ -119,9 +127,11 @@ describe("SnickerdoodleFactory", function () {
       const username = "dummy";
       const name = `${username}.${domain}`;
 
-      const tx = await factory.deployOperatorGatewayProxy(domain, [
-        owner.address,
-      ]);
+      const tx = await factory.deployOperatorGatewayProxy(
+        domain,
+        [owner.address],
+        [owner.address],
+      );
       tx.wait();
       const operator = await hre.ethers.getContractAt(
         "OperatorGateway",
