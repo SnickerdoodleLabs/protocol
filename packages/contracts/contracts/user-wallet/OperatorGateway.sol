@@ -107,7 +107,7 @@ contract OperatorGateway is
     function addP256KeysWithP256Keys(
         address[] calldata accounts,
         string[] calldata keyIds,
-        AuthenticatorData[] calldata authenticatorDatas,
+        P256VerificationData[] calldata authenticatorDatas,
         P256Key[] calldata newP256Keys,
         P256Signature[] calldata p256Sigs
     ) external onlyRole(OPERATOR_ROLE) {
