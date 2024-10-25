@@ -135,3 +135,4 @@ export * from "@objects/primitives/P256SignatureS.js";
 export * from "@objects/primitives/P256SignatureComponentArrayBuffer.js";
 export * from "@objects/primitives/P256Signature.js";
 export * from "@objects/primitives/WebauthnCredentialId.js";
+export * from "@objects/primitives/AuthenticatorData.js";

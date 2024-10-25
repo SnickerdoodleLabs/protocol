@@ -22,7 +22,7 @@ import {
   IOperatorGatewayContract,
 } from "@contracts-sdk/interfaces/index.js";
 import {
-  AuthenticatorData,
+  P256VerificationData,
   ContractsAbis,
 } from "@contracts-sdk/interfaces/objects/index.js";
 
@@ -134,7 +134,7 @@ export class OperatorGatewayContract
   public addP256KeysWithP256Keys(
     evmAccounts: EVMContractAddress[] | EVMAccountAddress[],
     keyIds: PasskeyId[],
-    authenticatorDatas: AuthenticatorData[],
+    p256VerificationDatas: P256VerificationData[],
     newP256Keys: P256PublicKeyComponents[],
     p256Signatures: P256SignatureComponents[],
     overrides?: ContractOverrides,
@@ -144,7 +144,7 @@ export class OperatorGatewayContract
   > {
     return this.writeToContract(
       "addP256KeyWithP256Key",
-      [evmAccounts, keyIds, authenticatorDatas, newP256Keys, p256Signatures],
+      [evmAccounts, keyIds, p256VerificationDatas, newP256Keys, p256Signatures],
       overrides,
     );
   }

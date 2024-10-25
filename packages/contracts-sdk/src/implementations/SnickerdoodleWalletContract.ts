@@ -8,6 +8,7 @@ import {
   P256SignatureComponents,
   InvalidParametersError,
   ClientDataJSONComponents,
+  AuthenticatorData,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -21,7 +22,7 @@ import {
   ISnickerdoodleWalletContract,
 } from "@contracts-sdk/interfaces/index.js";
 import {
-  AuthenticatorData,
+  P256VerificationData,
   ContractsAbis,
 } from "@contracts-sdk/interfaces/objects/index.js";
 
@@ -67,7 +68,7 @@ export class SnickerdoodleWalletContract
 
   public addP256KeyWithP256Key(
     keyId: WebauthnCredentialId,
-    authenticatorData: string,
+    authenticatorData: AuthenticatorData,
     clientDataJSON: ClientDataJSONComponents,
     newP256Key: P256PublicKeyComponents,
     p256Signature: P256SignatureComponents,
@@ -80,7 +81,7 @@ export class SnickerdoodleWalletContract
       "addP256KeyWithP256Key",
       [
         keyId,
-        new AuthenticatorData(
+        new P256VerificationData(
           authenticatorData,
           clientDataJSON.clientDataJSONLeft,
           clientDataJSON.clientDataJSONRight,
@@ -94,7 +95,7 @@ export class SnickerdoodleWalletContract
 
   public addEVMAddressWithP256Key(
     keyId: WebauthnCredentialId,
-    authenticatorData: string,
+    authenticatorData: AuthenticatorData,
     clientDataJSON: ClientDataJSONComponents,
     evmAccount: EVMAccountAddress | EVMContractAddress,
     p256Signature: P256SignatureComponents,
@@ -107,7 +108,7 @@ export class SnickerdoodleWalletContract
       "addEVMAddressWithP256Key",
       [
         keyId,
-        new AuthenticatorData(
+        new P256VerificationData(
           authenticatorData,
           clientDataJSON.clientDataJSONLeft,
           clientDataJSON.clientDataJSONRight,

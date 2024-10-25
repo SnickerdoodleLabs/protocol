@@ -819,7 +819,7 @@ export class CryptoUtils implements ICryptoUtils {
     const cdjLeft = components[0];
     const cdjRight = components[1];
 
-    return ok(new ClientDataJSONComponents(cdjLeft, cdjRight));
+    return ok(new ClientDataJSONComponents(challenge, cdjLeft, cdjRight));
   }
 
   // curve elements MUST be 32 bytes for use in secp256r1 implementations

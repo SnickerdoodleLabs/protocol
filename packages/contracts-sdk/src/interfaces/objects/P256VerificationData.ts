@@ -1,7 +1,7 @@
 import { JSONString } from "@snickerdoodlelabs/objects";
 import { BytesLike } from "ethers";
 
-export class AuthenticatorData {
+export class P256VerificationData {
   public constructor(
     public authenticatorData: BytesLike,
     public clientDataJSONLeft: string,

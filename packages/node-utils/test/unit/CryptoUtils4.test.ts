@@ -7,6 +7,7 @@ import {
   P256Signature,
   JSONString,
 } from "@snickerdoodlelabs/objects";
+import e from "cors";
 
 import { CryptoUtilsMocks } from "../mocks/CryptoUtilsMocks";
 
@@ -106,12 +107,15 @@ describe("CryptoUtils Tests 4", () => {
     );
 
     const expectedParsedClientJSONData = {
+      challenge:
+        "SkgtbmpSNGs4TUw3T3k3LUxsVUZtQeCNdoJu1unwpgzfenUVeSFuX221IEmGHVYEGrQ0G5A3l1CPrqa6jtHx3a4SdKeJxGRgaH2ChCnqOjcfmd6TiLc",
       clientDataJSONLeft: `{"type":"webauthn.get","challenge":"`,
       clientDataJSONRight: `","origin":"http://localhost:8000","crossOrigin":false}`,
     };
 
     // Act
     const defaultValue = {
+      challenge: "",
       clientDataJSONLeft: "",
       clientDataJSONRight: "",
     };
@@ -127,5 +131,6 @@ describe("CryptoUtils Tests 4", () => {
     expect(result.clientDataJSONRight).toEqual(
       expectedParsedClientJSONData.clientDataJSONRight,
     );
+    expect(result.challenge).toEqual(expectedParsedClientJSONData.challenge);
   });
 });

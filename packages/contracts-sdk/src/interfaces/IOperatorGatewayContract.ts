@@ -15,7 +15,7 @@ import { ResultAsync } from "neverthrow";
 
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import {
-  AuthenticatorData,
+  P256VerificationData,
   ContractOverrides,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
@@ -75,7 +75,7 @@ export interface IOperatorGatewayContract extends IBaseContract {
   addP256KeysWithP256Keys(
     evmAccounts: EVMContractAddress[] | EVMAccountAddress[],
     keyIds: PasskeyId[],
-    authenticatorDatas: AuthenticatorData[],
+    p256VerificationDatas: P256VerificationData[],
     newP256Keys: P256PublicKeyComponents[],
     p256Signatures: P256SignatureComponents[],
     overrides?: ContractOverrides,
