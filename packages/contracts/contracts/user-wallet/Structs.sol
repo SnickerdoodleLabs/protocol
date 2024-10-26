@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.28;
 
-struct AuthenticatorData {
+struct P256VerificationData {
     bytes authenticatorData;
     string clientDataJSONLeft;
     string clientDataJSONRight;

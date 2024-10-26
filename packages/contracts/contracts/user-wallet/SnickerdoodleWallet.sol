@@ -105,12 +105,12 @@ contract SnickerdoodleWallet is Initializable {
     /// @dev the client must sign an Uint8Array of the concatenated bytes of the keyId, and formatted Qx and Qy coordinates
     /// @dev the client signature is explicitly intended to be usable on multiple chains so that the user does not have to sign multiple times
     /// @param keyId the id of the signing key which is already added to this contract
-    /// @param authenticatorData struct containing the authenticatorData, clientDataJSONLeft, and clientDataJSONRight
+    /// @param p256VerificationData struct containing the p256VerificationData, clientDataJSONLeft, and clientDataJSONRight
     /// @param newP256Key the new P256 key to be added to the user's wallet, contains the keyId, x, and y values
     /// @param p256Sig the P256 signature containing the r and s values
     function addP256KeyWithP256Key(
         string calldata keyId,
-        AuthenticatorData calldata authenticatorData,
+        P256VerificationData calldata p256VerificationData,
         P256Key calldata newP256Key,
         P256Signature calldata p256Sig
     ) public {
@@ -122,10 +122,10 @@ contract SnickerdoodleWallet is Initializable {
         require(
             _verifyP256(
                 keyId,
-                authenticatorData.authenticatorData,
-                authenticatorData.clientDataJSONLeft,
+                p256VerificationData.authenticatorData,
+                p256VerificationData.clientDataJSONLeft,
                 Base64.encodeURL(challenge),
-                authenticatorData.clientDataJSONRight,
+                p256VerificationData.clientDataJSONRight,
                 p256Sig.r,
                 p256Sig.s
             ),
@@ -139,12 +139,12 @@ contract SnickerdoodleWallet is Initializable {
     /// @dev the client must sign an Uint8Array representation of the target EVM address
     /// @dev the client signature is explicitly intended to be usable on multiple chains so that the user does not have to sign multiple times
     /// @param keyId the id of the signing key which is already added to this contract
-    /// @param authenticatorData struct containing the authenticatorData, clientDataJSONLeft, and clientDataJSONRight
+    /// @param p256VerificationData struct containing the p256VerificationData, clientDataJSONLeft, and clientDataJSONRight
     /// @param evmAccount the key which will be added to the user's known EVM address list
     /// @param p256Sig the P256 signature containing the r and s values
     function addEVMAddressWithP256Key(
         string calldata keyId,
-        AuthenticatorData calldata authenticatorData,
+        P256VerificationData calldata p256VerificationData,
         address evmAccount,
         P256Signature calldata p256Sig
     ) external {
@@ -152,10 +152,10 @@ contract SnickerdoodleWallet is Initializable {
         require(
             _verifyP256(
                 keyId,
-                authenticatorData.authenticatorData,
-                authenticatorData.clientDataJSONLeft,
+                p256VerificationData.authenticatorData,
+                p256VerificationData.clientDataJSONLeft,
                 _addressToBase64URLString(evmAccount),
-                authenticatorData.clientDataJSONRight,
+                p256VerificationData.clientDataJSONRight,
                 p256Sig.r,
                 p256Sig.s
             ),
