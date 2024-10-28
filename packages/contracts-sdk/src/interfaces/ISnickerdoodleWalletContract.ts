@@ -41,11 +41,6 @@ export interface ISnickerdoodleWalletContract extends IBaseContract {
     BlockchainCommonErrors | SnickerdoodleWalletContractError
   >;
 
-  generateAddP256KeyWithP256KeyChallenge(
-    newKeyId: WebauthnCredentialId,
-    newP256PublicKey: P256PublicKeyComponents,
-  ): Result<string, InvalidParametersError>;
-
   addEVMAddressWithP256Key(
     keyId: WebauthnCredentialId,
     authenticatorData: AuthenticatorData,
@@ -57,10 +52,6 @@ export interface ISnickerdoodleWalletContract extends IBaseContract {
     WrappedTransactionResponse,
     BlockchainCommonErrors | SnickerdoodleWalletContractError
   >;
-
-  generateAddEVMAddressWithP256KeyChallenge(
-    evmAccountAddress: EVMAccountAddress,
-  ): Result<string, InvalidParametersError>;
 
   addEVMAccountWithEVMAccount(
     evmAccount: EVMAccountAddress | EVMContractAddress,
