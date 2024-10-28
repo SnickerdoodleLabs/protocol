@@ -3957,6 +3957,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hexagon/base64@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "@hexagon/base64@npm:2.0.4"
+  checksum: dab3e8c068916c5bec881ef4d28c05afb052c50445d320dbd77dbf8c1c3c2460972b1f4cf9ef393b59d5ada90c2a9b9b2e2a864d7b1bd291343465fa2722b4c2
+  languageName: node
+  linkType: hard
+
 "@hot-loader/react-dom@npm:^17.0.2":
   version: 17.0.2
   resolution: "@hot-loader/react-dom@npm:17.0.2"
@@ -21181,7 +21188,7 @@ __metadata:
 "ds-test@github:dapphub/ds-test":
   version: 1.0.0
   resolution: "ds-test@https://github.com/dapphub/ds-test.git#commit=e282159d5170298eb2455a6c05280ab5a73a4ef0"
-  checksum: 1b88c755f3bfd1b90fc413a475d0bf94cb1e4002dbdeaff49c1b98249776722c965111c7d944f92022b7747fcfe288ea2bdd8a9937975feb75406278ea8e222c
+  checksum: 8f36e20dde868d062841c790fc43c9dd18b93d6180995f378bedaee1f24444950838843c0f2ffa5ac3b8a21b4c29fd97a60725e29e8ff71c9cf28f837614d96f
   languageName: node
   linkType: hard
 
@@ -42239,6 +42246,7 @@ __metadata:
     "@cucumber/pretty-formatter": ^1.0.0
     "@glazed/devtools": ^0.2.0
     "@google-cloud/storage": ^6.7.0
+    "@hexagon/base64": ^2.0.4
     "@jest/types": ^29.0.3
     "@layerzerolabs/lz-evm-oapp-v2": ^2.3.33
     "@nomicfoundation/hardhat-chai-matchers": ^2.0.0
@@ -43916,7 +43924,7 @@ __metadata:
 "sync-promise@git+https://github.com/brettz9/sync-promise.git#full-sync-missing-promise-features":
   version: 1.0.1
   resolution: "sync-promise@https://github.com/brettz9/sync-promise.git#commit=25845a49a00aa2d2c985a5149b97c86a1fcdc75a"
-  checksum: 65b406160c33ab72eee9b784f155bb1dbc1f742ec8385721c39bd70fe3fbb14f929e565c967a789589578280c7d9ea3c52d6e91f7eb7ddca7f8d60e210979343
+  checksum: f536c50c270ef2ec28511af3b90ba10b8e2b3b51b3e4079136d428150ccc9592f47d02e2cf41ba02135e4a81f59fb472d642794d807bacf8c55a20f85ff57c8a
   languageName: node
   linkType: hard
 
@@ -47906,7 +47914,7 @@ __metadata:
   dependenciesMeta:
     sqlite3:
       optional: true
-  checksum: 08f18e16271f0f94ed48075b1f005d4b01d7ad4d515b845688a9af35be5f65f35497fadd2399a9969808132c13e393c4ac75f8ffd02d92f3f5e3a57cd8bb81c8
+  checksum: 60d7fea6d974cf5df4361a0cdf9e7b6bca17cd59028fa2a7a72754f34e54242ef6e85aa09b97a8898566baa452c3700cf30f8d8cfbc230a2b9b7f514ce99a469
   languageName: node
   linkType: hard
 

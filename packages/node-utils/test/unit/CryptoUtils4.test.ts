@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import { base64 } from "@hexagon/base64";
 import {
   P256SignatureComponentArrayBuffer,
   P256PublicKeyPointX,
@@ -133,4 +134,65 @@ describe("CryptoUtils Tests 4", () => {
     );
     expect(result.challenge).toEqual(expectedParsedClientJSONData.challenge);
   });
+
+  test("testing UTF 8 encoding() Closed Loop", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    const randomUint8 = new Uint8Array([
+      48, 69, 2, 32, 42, 228, 24, 140, 75, 246, 148, 250, 48, 159, 109, 5, 20,
+      84, 8, 181, 119, 68, 250, 126, 223, 173, 250, 18, 1, 67, 248, 44, 136,
+      135, 221, 69, 2, 33, 0, 163, 0, 154, 199, 217, 26, 153, 69, 164, 84, 1,
+      30, 196, 229, 197, 104, 165, 178, 7, 39, 227, 252, 139, 128, 65, 66, 253,
+      161, 217, 24, 242, 137,
+    ]);
+
+    // our return value
+    const base64URLString = isoBase64fromBuffer(randomUint8);
+
+    const restoredRandomUint8 = base64URLStringToBuffer(base64URLString);
+
+    expect(randomUint8.buffer).toEqual(restoredRandomUint8);
+  });
 });
+
+function base64URLStringToBuffer(base64URLString: string): ArrayBuffer {
+  // Convert from Base64URL to Base64
+  const base64 = base64URLString.replace(/-/g, "+").replace(/_/g, "/");
+  /**
+   * Pad with '=' until it's a multiple of four
+   * (4 - (85 % 4 = 1) = 3) % 4 = 3 padding
+   * (4 - (86 % 4 = 2) = 2) % 4 = 2 padding
+   * (4 - (87 % 4 = 3) = 1) % 4 = 1 padding
+   * (4 - (88 % 4 = 0) = 4) % 4 = 0 padding
+   */
+  const padLength = (4 - (base64.length % 4)) % 4;
+  const padded = base64.padEnd(base64.length + padLength, "=");
+  // Convert to a binary string
+  const binary = atob(padded);
+  // Convert binary string to buffer
+  const buffer = new ArrayBuffer(binary.length);
+  const bytes = new Uint8Array(buffer);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return buffer;
+}
+
+function bufferToBase64URLString(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let str = "";
+  for (const charCode of bytes) {
+    str += String.fromCharCode(charCode);
+  }
+  const base64String = btoa(str);
+  return base64String.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+}
+
+function isoBase64fromBuffer(
+  buffer: Uint8Array,
+  to: "base64" | "base64url" = "base64url",
+): string {
+  return base64.fromArrayBuffer(buffer, to === "base64url");
+}

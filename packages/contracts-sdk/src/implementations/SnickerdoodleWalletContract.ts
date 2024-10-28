@@ -1,3 +1,4 @@
+import { base64 } from "@hexagon/base64";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -14,7 +15,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { ok, Result, ResultAsync } from "neverthrow";
+import { err, ok, Result, ResultAsync } from "neverthrow";
 
 import { BaseContract } from "@contracts-sdk/implementations/BaseContract.js";
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
@@ -99,8 +100,37 @@ export class SnickerdoodleWalletContract
   public generateAddP256KeyWithP256KeyChallenge(
     newKeyId: WebauthnCredentialId,
     newP256PublicKey: P256PublicKeyComponents,
-  ): Result<string, InvalidParametersError> {
-    return ok(newKeyId + newP256PublicKey.x + newP256PublicKey.y);
+  ): Result<Uint8Array, InvalidParametersError> {
+    // Convert keyid to Uint8Array (UTF-8 encoding)
+    const uint8keyId = new TextEncoder().encode(newKeyId);
+
+    // Convert qx and qy from hex string to Uint8Array
+    const uint8qx = new Uint8Array(
+      newP256PublicKey.x
+        .slice(2)
+        .match(/.{1,2}/g)
+        ?.map((byte) => parseInt(byte, 16)) ?? [],
+    );
+    const uint8qy = new Uint8Array(
+      newP256PublicKey.y
+        .slice(2)
+        .match(/.{1,2}/g)
+        ?.map((byte) => parseInt(byte, 16)) ?? [],
+    );
+
+    if (uint8qx.length == 0 || uint8qy.length == 0) {
+      return err(new InvalidParametersError("Invalid P256PublicKeyComponents"));
+    }
+
+    // Combine all Uint8Arrays into a single Uint8Array
+    const totalLength = uint8keyId.length + uint8qx.length + uint8qy.length;
+    const payload = new Uint8Array(totalLength);
+
+    payload.set(uint8keyId, 0);
+    payload.set(uint8qx, uint8keyId.length);
+    payload.set(uint8qy, uint8keyId.length + uint8qx.length);
+
+    return ok(payload);
   }
 
   public addEVMAddressWithP256Key(
@@ -132,8 +162,9 @@ export class SnickerdoodleWalletContract
 
   public generateAddEVMAddressWithP256KeyChallenge(
     evmAccountAddress: EVMAccountAddress,
-  ): Result<string, InvalidParametersError> {
-    return ok(evmAccountAddress);
+  ): Result<Uint8Array, InvalidParametersError> {
+    // Remove 0x, convert to Uint8Array
+    return ok(new TextEncoder().encode(evmAccountAddress.slice(2)));
   }
 
   public addEVMAccountWithEVMAccount(
@@ -280,5 +311,12 @@ export class SnickerdoodleWalletContract
     transaction: ethers.Transaction | null,
   ): SnickerdoodleWalletContractError {
     return new SnickerdoodleWalletContractError(msg, e, transaction);
+  }
+
+  private isoBase64fromBuffer(
+    buffer: Uint8Array,
+    to: "base64" | "base64url" = "base64url",
+  ): string {
+    return base64.fromArrayBuffer(buffer, to === "base64url");
   }
 }
