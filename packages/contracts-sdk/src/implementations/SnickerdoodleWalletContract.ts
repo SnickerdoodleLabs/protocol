@@ -1,4 +1,3 @@
-import { base64 } from "@hexagon/base64";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -162,8 +161,13 @@ export class SnickerdoodleWalletContract
   public static generateAddEVMAddressWithP256KeyChallenge(
     evmAccountAddress: EVMAccountAddress,
   ): Result<Uint8Array, InvalidParametersError> {
-    // Remove 0x, convert to Uint8Array
-    return ok(new TextEncoder().encode(evmAccountAddress.slice(2)));
+    // Ensure the address starts with "0x" before slicing it off
+    const normalizedAddress = evmAccountAddress.startsWith("0x")
+      ? evmAccountAddress.slice(2)
+      : evmAccountAddress;
+
+    // Convert address to Uint8Array
+    return ok(new TextEncoder().encode(normalizedAddress));
   }
 
   public addEVMAccountWithEVMAccount(
@@ -310,12 +314,5 @@ export class SnickerdoodleWalletContract
     transaction: ethers.Transaction | null,
   ): SnickerdoodleWalletContractError {
     return new SnickerdoodleWalletContractError(msg, e, transaction);
-  }
-
-  private isoBase64fromBuffer(
-    buffer: Uint8Array,
-    to: "base64" | "base64url" = "base64url",
-  ): string {
-    return base64.fromArrayBuffer(buffer, to === "base64url");
   }
 }
