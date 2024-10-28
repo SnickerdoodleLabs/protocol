@@ -97,7 +97,7 @@ export class SnickerdoodleWalletContract
     );
   }
 
-  public generateAddP256KeyWithP256KeyChallenge(
+  public static generateAddP256KeyWithP256KeyChallenge(
     newKeyId: WebauthnCredentialId,
     newP256PublicKey: P256PublicKeyComponents,
   ): Result<Uint8Array, InvalidParametersError> {
@@ -159,8 +159,7 @@ export class SnickerdoodleWalletContract
       overrides,
     );
   }
-
-  public generateAddEVMAddressWithP256KeyChallenge(
+  public static generateAddEVMAddressWithP256KeyChallenge(
     evmAccountAddress: EVMAccountAddress,
   ): Result<Uint8Array, InvalidParametersError> {
     // Remove 0x, convert to Uint8Array
