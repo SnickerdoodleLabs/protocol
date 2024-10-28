@@ -20,12 +20,14 @@ contract OperatorGateway is
     address private factory;
 
     /// @notice salt string used to with Create2 to deploy the gateway proxy
-    string public name;
+    string private name;
 
     error ArrayLengthMismatch(uint a, uint b);
 
     /// @notice creates a user wallet
     /// @dev the first account in the operatorAccounts array is the default admin
+    /// @param _name the domain name of the operator gateway
+    /// @param adminAccounts the addresses of the admin accounts
     /// @param operatorAccounts the addresses of the operator accounts
     /// @param _factory the address of the SnickerdoodleFactory contract
     function initialize(
@@ -101,13 +103,13 @@ contract OperatorGateway is
     /// @notice add new P256 keys to user accounts
     /// @param accounts the addresses of the target user wallets
     /// @param keyIds the keyIds of the users' P256 keys
-    /// @param authenticatorDatas the authenticator data of the users' P256 keys
+    /// @param p256VerificationDatas the p256 verification data of the users' P256 keys
     /// @param newP256Keys the new P256 keys to add to the target user wallets
     /// @param p256Sigs the P256 signatures from the users' existing P256 keys
     function addP256KeysWithP256Keys(
         address[] calldata accounts,
         string[] calldata keyIds,
-        P256VerificationData[] calldata authenticatorDatas,
+        P256VerificationData[] calldata p256VerificationDatas,
         P256Key[] calldata newP256Keys,
         P256Signature[] calldata p256Sigs
     ) external onlyRole(OPERATOR_ROLE) {
@@ -116,11 +118,11 @@ contract OperatorGateway is
             ArrayLengthMismatch(accounts.length, keyIds.length)
         );
         require(
-            keyIds.length == authenticatorDatas.length,
+            keyIds.length == p256VerificationDatas.length,
             ArrayLengthMismatch(accounts.length, keyIds.length)
         );
         require(
-            authenticatorDatas.length == newP256Keys.length,
+            p256VerificationDatas.length == newP256Keys.length,
             ArrayLengthMismatch(accounts.length, keyIds.length)
         );
         require(
@@ -130,7 +132,7 @@ contract OperatorGateway is
         for (uint256 i = 0; i < accounts.length; i++) {
             SnickerdoodleWallet(payable(accounts[i])).addP256KeyWithP256Key(
                 keyIds[i],
-                authenticatorDatas[i],
+                p256VerificationDatas[i],
                 newP256Keys[i],
                 p256Sigs[i]
             );
@@ -196,5 +198,10 @@ contract OperatorGateway is
     /// @notice Returns the Snickerdoodle factory address
     function getFactory() external view returns (address) {
         return factory;
+    }
+
+    /// @notice Returns the operator gateway's domain name
+    function getDomainName() external view returns (string memory) {
+        return name;
     }
 }
