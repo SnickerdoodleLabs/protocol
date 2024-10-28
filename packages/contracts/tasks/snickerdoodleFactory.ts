@@ -2,9 +2,12 @@ import { task } from "hardhat/config";
 
 const SNICKERDOODLE_FACTORY_CONTRACT_NAME = "SnickerdoodleFactory";
 const SNICKERDOODLE_FACTORY_PROXY =
-  "0x74012a04217B046dc960fFbDe6Ab840E5E252f62";
+  "0xCa575855Ec43Ad3817fecBCCf8eA61B9F073BEC5";
 const OPERATOR_GATEWAY_CONTRACT_NAME = "OperatorGateway";
-const OPERATOR_GATEWAY_PROXY = "0xd5f9997b6210db5981002C0ec2CA5ab26E749FDC";
+const OPERATOR_GATEWAY_PROXY = "0xBD1C55527406E06A6028C0E3Da95232F8Fcd44f6";
+const SNICKERDOODLE_WALLET_CONTRACT_NAME = "SnickerdoodleWallet";
+const SNICKERDOODLE_WALLET_ADDRESS =
+  "0x36E46d3D23D031f01F3dB4528Da01fd2e28c9089";
 
 task(
   "snickerdoodleWalletFactorySetPeer",
@@ -113,6 +116,9 @@ task(
     );
 
     try {
+      const signers = await ethers.getSigners();
+      const owner = signers[0];
+
       const txResponse = await operator.deployWallets(
         [taskArgs.username],
         [
@@ -124,7 +130,7 @@ task(
             },
           ],
         ],
-        [[]],
+        [[owner]],
       );
       const txReceipt = await txResponse.wait();
 
@@ -259,7 +265,7 @@ task(
   });
 
 task(
-  "reserveWalletAddressOnDestinationChainViaOperatorGateway",
+  "authorizeWalletAddressOnDestinationChainViaOperatorGateway",
   "Send a message to the destination chain to reserve the wallet address",
 )
   .addParam(
@@ -285,7 +291,7 @@ task(
     );
 
     try {
-      const txResponse = await operator.reserveWalletsOnDestinationChain(
+      const txResponse = await operator.authorizeWalletsOnDestinationChain(
         Number(taskArgs.destinationchaineid),
         [taskArgs.username],
         Number(taskArgs.gas),
@@ -319,7 +325,7 @@ task(
     );
 
     try {
-      const walletBeacon = await factory.walletBeacon();
+      const walletBeacon = await factory.getWalletBeacon();
 
       const walletProxyAddress = await factory.computeProxyAddress(
         taskArgs.usernamewithdomain,
@@ -347,7 +353,7 @@ task(
     );
 
     try {
-      const operatorBeacon = await factory.gatewayBeacon();
+      const operatorBeacon = await factory.getGatewayBeacon();
 
       const operatorGatewayProxyAddress = await factory.computeProxyAddress(
         taskArgs.domain,
@@ -395,8 +401,8 @@ task(
   );
 
   try {
-    const walletBeacon = await factory.walletBeacon();
-    const operatorBeacon = await factory.gatewayBeacon();
+    const walletBeacon = await factory.getWalletBeacon();
+    const operatorBeacon = await factory.getGatewayBeacon();
 
     console.log("Wallet beacon address:", walletBeacon);
     console.log("Operator gateway beacon address:", operatorBeacon);
@@ -418,43 +424,47 @@ task(
       SNICKERDOODLE_FACTORY_PROXY,
     );
 
+    const operator = await ethers.getContractAt(
+      OPERATOR_GATEWAY_CONTRACT_NAME,
+      OPERATOR_GATEWAY_PROXY,
+    );
+
     try {
-      const operatorGatewayDomain = await factory.operatorToDomain(
+      const operatorGatewayDomain = await factory.getOperatorDomain(
         taskArgs.operatoraddress,
       );
-      const operatorGatewayHash = await factory.operatorToHash(
+      const operatorGatewayHash = await factory.getOperatorHash(
         taskArgs.operatoraddress,
       );
 
-      console.log(operatorGatewayHash);
+      const OPERATOR_ROLE = ethers.id("OPERATOR_ROLE");
 
-      if (Array.isArray(operatorGatewayDomain)) {
-        console.log("Operator gateway params:");
-        console.log(
-          "- Domain:",
-          operatorGatewayDomain[0].length > 0
-            ? operatorGatewayDomain[0]
-            : "No domain",
-        );
-        console.log(
-          "- Hash:",
-          operatorGatewayHash[0].length > 0 ? operatorGatewayHash : "No hash",
-        );
-      } else {
-        console.log("Operator gateway params:");
-        console.log(
-          "- Domain:",
-          operatorGatewayDomain.length > 0
-            ? operatorGatewayDomain
-            : "No domain",
-        );
-        console.log(
-          "- Hash:",
-          operatorGatewayHash[0].length > 0 ? operatorGatewayHash : "No hash",
-        );
+      // Get the number of members with OPERATOR_ROLE.
+      const count = await operator.getRoleMemberCount(OPERATOR_ROLE);
+
+      const operatorAddresses = [];
+
+      // Loop through all role members and print their addresses.
+      for (let i = 0; i < count; i++) {
+        const member = await operator.getRoleMember(OPERATOR_ROLE, i);
+        operatorAddresses.push(member);
       }
+
+      console.log("Operator gateway params:");
+      console.log(
+        "- Domain:",
+        operatorGatewayDomain.length > 0 ? operatorGatewayDomain : "No domain",
+      );
+      console.log(
+        "- Hash:",
+        operatorGatewayHash[0].length > 0 ? operatorGatewayHash : "No hash",
+      );
+      console.log(
+        "- Operators:",
+        operatorAddresses.length > 0 ? operatorAddresses : "No operators",
+      );
     } catch (e) {
-      console.log("FAILED", e);
+      console.log(e);
     }
   });
 
@@ -474,11 +484,49 @@ task(
       SNICKERDOODLE_FACTORY_PROXY,
     );
 
+    const wallet = await ethers.getContractAt(
+      SNICKERDOODLE_WALLET_CONTRACT_NAME,
+      taskArgs.walletaddress,
+    );
+
     try {
-      const walletHash = await factory.walletToHash(taskArgs.walletaddress);
+      const walletHash = await factory.getWalletHash(taskArgs.walletaddress);
+
+      // Will be filled if the wallet exists
+      let name;
+      let walletOperator;
+      let p256Keys = [];
+      let evmAccounts;
+      try {
+        name = await wallet.getName();
+        const walletOperator = await wallet.getOperator();
+        const keyIdHashArray = await wallet.getP256KeyHashes();
+
+        // Get the p256keys for the wallet
+        p256Keys = [];
+        for (let i = 0; i < keyIdHashArray.length; i++) {
+          const keyId = await wallet.getP256Key(keyIdHashArray[i]);
+          p256Keys.push(keyId);
+        }
+
+        evmAccounts = await wallet.getEvmAccounts();
+
+        const index = await wallet.getEvmAccountIndex(
+          "0xBaea3282Cd6d44672EA12Eb6434ED1d1d4b615C7",
+        );
+        console.log(index);
+      } catch (e) {
+        name = "No name";
+        walletOperator = "No operator";
+        evmAccounts = [];
+      }
 
       console.log("Wallet params:");
+      console.log(" - Name:", name);
       console.log(" - Hash:", walletHash);
+      console.log(" - Operator:", walletOperator);
+      console.log(" - P256 keys:", p256Keys);
+      console.log(" - EVM accounts:", evmAccounts);
     } catch (e) {
       console.log("FAILED", e);
     }

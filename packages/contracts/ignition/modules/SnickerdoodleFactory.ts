@@ -15,6 +15,7 @@ const SnickerdoodleFactoryModule = buildModule(
     const { snickerdoodleWalletBeacon } = m.useModule(
       SnickerdoodleWalletModule,
     );
+
     const { operatorGatewayBeacon } = m.useModule(OperatorGatewayModule);
 
     // Deploy the SnickerdoodleFactory contract implementation

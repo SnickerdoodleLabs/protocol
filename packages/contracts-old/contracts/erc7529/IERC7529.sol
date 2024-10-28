@@ -6,11 +6,11 @@ interface IERC7529 {
 
     /// @notice Emitted when a domain is added
     /// @param domain Domain url added
-    event AddDomain(string domain);
+    event AddERC7529Domain(string domain);
 
     /// @notice Emitted when a domain is removed
     /// @param domain Domain url removed
-    event RemoveDomain(string domain);
+    event RemoveERC7529Domain(string domain);
 
     /* Functions */
 

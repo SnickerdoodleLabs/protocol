@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.24;
-import "hardhat/console.sol";
+pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
@@ -20,22 +19,22 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     using OptionsBuilder for bytes;
 
     /// @notice  Flag if this SnickerdoodleWallet factory is the source chain
-    bool public isSourceChain;
+    bool private isSourceChain;
 
     /// @notice The address of the wallet beacon should not change for this upgrade pattern
-    address public walletBeacon;
+    address private walletBeacon;
 
     /// @notice The address of the operator beacon should not change for this upgrade pattern
-    address public gatewayBeacon;
+    address private gatewayBeacon;
 
     /// @notice Tracks the hash of ownership parameters of a user wallet for network bridgings
-    mapping(address => bytes32) walletToHash;
+    mapping(address => bytes32) private walletToHash;
 
     /// @notice Tracks the hash of ownership parameters of an operator gateway for network bridgings
-    mapping(address => bytes32) public operatorToHash;
+    mapping(address => bytes32) private operatorToHash;
 
     /// @notice Tracks the domain that belongs to an operator
-    mapping(address => string) public operatorToDomain;
+    mapping(address => string) private operatorToDomain;
 
     /// @notice Layer zero message types to support sending and receiving different messages
     enum MessageType {
@@ -59,6 +58,10 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     error InvalidMessageType(uint8 messageType);
 
     /// @dev OApp inherits OAppCore which inherits OZ's Ownable
+    /// @param _layerZeroEndpoint the Layer Zero endpoint address
+    /// @param _owner the owner of the contract
+    /// @param _walletBeacon the address of the wallet beacon
+    /// @param _gatewayBeacon the address of the operator gateway beacon
     function initialize(
         address _layerZeroEndpoint,
         address _owner,
@@ -82,6 +85,10 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         gatewayBeacon = _gatewayBeacon;
     }
 
+    /// @notice Deploys multiple SnickerdoodleWallet proxies with name keyword and salt to create an upgradeable SnickerdoodleWallet
+    /// @param usernames usernames for the SnickerdoodleWallet
+    /// @param _p256Keys P256 keys for the SnickerdoodleWallet
+    /// @param evmAccounts an array of addresses to add as operators to the OperatorGateway
     function deployWalletProxies(
         string[] calldata usernames,
         P256Key[][] calldata _p256Keys,
@@ -116,19 +123,14 @@ contract SnickerdoodleFactory is OAppUpgradeable {
 
         string memory name = string.concat(username, ".", domain);
         address proxyAddress = computeProxyAddress(name, walletBeacon);
-        (string memory keyIds, bytes32[] memory xs, bytes32[] memory ys) = _p256KeyArrayToArrays(
-            p256Keys
-        );
+        (
+            string memory keyIds,
+            bytes32[] memory xs,
+            bytes32[] memory ys
+        ) = _p256KeyArrayToArrays(p256Keys);
         if (isSourceChain) {
             walletToHash[proxyAddress] = keccak256(
-                abi.encodePacked(
-                    msg.sender,
-                    name,
-                    keyIds,
-                    xs,
-                    ys,
-                    evmAccounts
-                )
+                abi.encodePacked(msg.sender, name, keyIds, xs, ys, evmAccounts)
             );
         } else {
             require(
@@ -172,15 +174,17 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     /// @notice Deploys a Beacon Proxy with name keyword and salt to create an upgradeable OperatorGateway
     /// @dev if a domain has already been claimed, this function will revert
     /// @param domain a string used for the top-level domain of user wallets created by this operator
+    /// @param adminAccounts addresses to add as admins to the OperatorGateway
     /// @param operatorAccounts addresses to add as operators to the OperatorGateway
     function deployOperatorGatewayProxy(
         string calldata domain,
+        address[] calldata adminAccounts,
         address[] calldata operatorAccounts
     ) external {
         address proxyAddress = computeProxyAddress(domain, gatewayBeacon);
         if (isSourceChain) {
             operatorToHash[proxyAddress] = keccak256(
-                abi.encodePacked(domain, operatorAccounts)
+                abi.encodePacked(domain, adminAccounts, operatorAccounts)
             );
         } else {
             require(
@@ -198,11 +202,18 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             salt: keccak256(abi.encodePacked(domain))
         }(gatewayBeacon, "");
         OperatorGateway(payable(proxy)).initialize(
+            domain,
+            adminAccounts,
             operatorAccounts,
             address(this)
         );
 
         emit OperatorGatewayDeployed(address(proxy), domain);
+    }
+
+    /// @notice Updates the operator hash for a given gateway address
+    function updateOperatorHash(bytes32 newOperatorHash) external {
+        operatorToHash[msg.sender] = newOperatorHash;
     }
 
     /// @notice A batch function to authorize multiple wallets on the destination chain in one call
@@ -377,7 +388,9 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     }
 
     /// @dev Converts a p256Key array into keyId, x, and y arrays for easier hashing
-    function _p256KeyArrayToArrays(P256Key[] memory p256Keys)
+    function _p256KeyArrayToArrays(
+        P256Key[] memory p256Keys
+    )
         internal
         pure
         returns (string memory, bytes32[] memory, bytes32[] memory)
@@ -387,7 +400,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         bytes32[] memory y = new bytes32[](p256Keys.length);
 
         for (uint256 i = 0; i < p256Keys.length; i++) {
-            keyIds = string.concat(keyIds,  p256Keys[i].keyId);
+            keyIds = string.concat(keyIds, p256Keys[i].keyId);
             x[i] = p256Keys[i].x;
             y[i] = p256Keys[i].y;
         }
@@ -486,5 +499,46 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         /// Assign the deployed wallet to the owner
         /// After reserving on the destination chain, deployWalletProxy will work for this owner and name combination
         operatorToHash[gatewayAddress] = operatorHash;
+    }
+
+    /// @notice Returns if the contract is the source chain
+    function getIsSourceChain() external view returns (bool) {
+        return isSourceChain;
+    }
+
+    /// @notice Returns the wallet beacon address
+    function getWalletBeacon() external view returns (address) {
+        return walletBeacon;
+    }
+
+    /// @notice Returns the operator gateway beacon address
+    function getGatewayBeacon() external view returns (address) {
+        return gatewayBeacon;
+    }
+
+    /// @notice Returns the domain associated with an operator
+    /// @param operator the address of the operator
+    function getOperatorDomain(address operator)
+        external
+        view
+        returns (string memory)
+    {
+        return operatorToDomain[operator];
+    }
+
+    /// @notice Returns the hash of ownership parameters of a user wallet
+    /// @param wallet the address of the user wallet
+    function getWalletHash(address wallet) external view returns (bytes32) {
+        return walletToHash[wallet];
+    }
+
+    /// @notice Returns the hash of ownership parameters of an operator gateway
+    /// @param operator the address of the operator
+    function getOperatorHash(address operator)
+        external
+        view
+        returns (bytes32)
+    {
+        return operatorToHash[operator];
     }
 }
