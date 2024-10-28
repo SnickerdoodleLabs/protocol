@@ -85,6 +85,50 @@ export interface ISnickerdoodleWalletContract extends IBaseContract {
     WrappedTransactionResponse,
     BlockchainCommonErrors | SnickerdoodleWalletContractError
   >;
+
+  withdrawNativeAsset(
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | SnickerdoodleWalletContractError
+  >;
+
+  name(): ResultAsync<
+    string,
+    SnickerdoodleWalletContractError | BlockchainCommonErrors
+  >;
+
+  p256KeyHashes(): ResultAsync<
+    string[],
+    SnickerdoodleWalletContractError | BlockchainCommonErrors
+  >;
+
+  p256Key(keyHash: string): ResultAsync<
+    {
+      keyId: WebauthnCredentialId;
+      p256PublicKeyComponents: P256PublicKeyComponents;
+    },
+    SnickerdoodleWalletContractError | BlockchainCommonErrors
+  >;
+
+  evmAccounts(): ResultAsync<
+    EVMAccountAddress[],
+    SnickerdoodleWalletContractError | BlockchainCommonErrors
+  >;
+
+  evmAccountIndex(
+    address: EVMAccountAddress | EVMContractAddress,
+  ): ResultAsync<
+    number,
+    SnickerdoodleWalletContractError | BlockchainCommonErrors
+  >;
+
+  hashUsed(
+    hash: string,
+  ): ResultAsync<
+    boolean,
+    SnickerdoodleWalletContractError | BlockchainCommonErrors
+  >;
 }
 
 export const ISnickerdoodleWalletFactoryType = Symbol.for(

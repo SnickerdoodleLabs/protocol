@@ -20,6 +20,7 @@ import {
   ContractOverrides,
   WrappedTransactionResponse,
   IOperatorGatewayContract,
+  EOperatorGatewayRoles,
 } from "@contracts-sdk/interfaces/index.js";
 import {
   P256VerificationData,
@@ -58,7 +59,7 @@ export class OperatorGatewayContract
     );
   }
 
-  public reserveWalletsOnDestinationChain(
+  public authorizeWalletsOnDestinationChain(
     destinationLayerZeroEndpointId: LayerZeroEndpointId,
     usernames: string[],
     gas: bigint,
@@ -108,29 +109,6 @@ export class OperatorGatewayContract
     });
   }
 
-  public authorizeWalletOnDestinationChain(
-    destinationLayerZeroEndpointId: LayerZeroEndpointId,
-    username: string,
-    gas: bigint,
-    nativeTokenFee: bigint, // Required fee calculated from the quoteAuthorizeWalletOnDestinationChain function to be sent with the transaction to pay for the LayerZero _lzReceive() call
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | OperatorGatewayContractError
-  > {
-    // If there are no overrides provided, create an empty object
-    const overridesWithFee = overrides ? overrides : ({} as ContractOverrides);
-
-    // include the fee in the overrides object
-    overridesWithFee.value = nativeTokenFee;
-
-    return this.writeToContract(
-      "authorizeWalletOnDestinationChain",
-      [destinationLayerZeroEndpointId, username, gas],
-      overrides,
-    );
-  }
-
   public addP256KeysWithP256Keys(
     evmAccounts: EVMContractAddress[] | EVMAccountAddress[],
     keyIds: PasskeyId[],
@@ -146,6 +124,63 @@ export class OperatorGatewayContract
       "addP256KeyWithP256Key",
       [evmAccounts, keyIds, p256VerificationDatas, newP256Keys, p256Signatures],
       overrides,
+    );
+  }
+
+  public grantRole(
+    role: EOperatorGatewayRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | OperatorGatewayContractError
+  > {
+    return this.writeToContract("grantRole", [role, address], overrides);
+  }
+
+  public revokeRole(
+    role: EOperatorGatewayRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | OperatorGatewayContractError
+  > {
+    return this.writeToContract("revokeRole", [role, address], overrides);
+  }
+
+  public renounceRole(
+    role: EOperatorGatewayRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | OperatorGatewayContractError
+  > {
+    return this.writeToContract("renounceRole", [role, address], overrides);
+  }
+
+  public factoryAddress(): ResultAsync<
+    EVMContractAddress,
+    OperatorGatewayContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getFactory() as Promise<EVMContractAddress>,
+      (e) => {
+        return this.generateError(e, "Unable to call getFactory()");
+      },
+    );
+  }
+
+  public domainName(): ResultAsync<
+    string,
+    OperatorGatewayContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getDomainName() as Promise<EVMContractAddress>,
+      (e) => {
+        return this.generateError(e, "Unable to call getDomainName()");
+      },
     );
   }
 

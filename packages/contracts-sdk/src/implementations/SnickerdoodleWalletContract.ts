@@ -9,7 +9,8 @@ import {
   InvalidParametersError,
   ClientDataJSONComponents,
   AuthenticatorData,
-  P256KeyChallenge,
+  P256PublicKeyPointX,
+  P256PublicKeyPointY,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -25,6 +26,7 @@ import {
 import {
   P256VerificationData,
   ContractsAbis,
+  P256KeyStruct,
 } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
@@ -48,9 +50,9 @@ export class SnickerdoodleWalletContract
     SnickerdoodleWalletContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.factory() as Promise<EVMContractAddress>,
+      this.contract.getFactory() as Promise<EVMContractAddress>,
       (e) => {
-        return this.generateError(e, "Unable to call factory()");
+        return this.generateError(e, "Unable to call getFactory()");
       },
     );
   }
@@ -60,9 +62,9 @@ export class SnickerdoodleWalletContract
     SnickerdoodleWalletContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.operatorAddress() as Promise<EVMContractAddress>,
+      this.contract.getOperator() as Promise<EVMContractAddress>,
       (e) => {
-        return this.generateError(e, "Unable to call operatorAddress()");
+        return this.generateError(e, "Unable to call getOperator()");
       },
     );
   }
@@ -176,8 +178,100 @@ export class SnickerdoodleWalletContract
     );
   }
 
-  public generateXWithP256challenge(): Result<string, InvalidParametersError> {
-    return ok("");
+  public withdrawNativeAsset(
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | SnickerdoodleWalletContractError
+  > {
+    return this.writeToContract("withdrawNativeAsset", [], overrides);
+  }
+
+  public name(): ResultAsync<
+    string,
+    SnickerdoodleWalletContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getName() as Promise<string>,
+      (e) => {
+        return this.generateError(e, "Unable to call getName()");
+      },
+    );
+  }
+
+  public p256KeyHashes(): ResultAsync<
+    string[],
+    SnickerdoodleWalletContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getP256KeyHashes() as Promise<string[]>,
+      (e) => {
+        return this.generateError(e, "Unable to call getP256KeyHashes()");
+      },
+    );
+  }
+
+  public p256Key(keyHash: string): ResultAsync<
+    {
+      keyId: WebauthnCredentialId;
+      p256PublicKeyComponents: P256PublicKeyComponents;
+    },
+    SnickerdoodleWalletContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getP256Key(keyHash) as Promise<P256KeyStruct>,
+      (e) => {
+        return this.generateError(e, "Unable to call getP256KeyHashes()");
+      },
+    ).map((p256Struct) => {
+      return {
+        keyId: WebauthnCredentialId(p256Struct.keyId),
+        p256PublicKeyComponents: new P256PublicKeyComponents(
+          P256PublicKeyPointX(p256Struct.x),
+          P256PublicKeyPointY(p256Struct.y),
+        ),
+      };
+    });
+  }
+
+  public evmAccounts(): ResultAsync<
+    EVMAccountAddress[],
+    SnickerdoodleWalletContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getEvmAccounts() as Promise<EVMAccountAddress[]>,
+      (e) => {
+        return this.generateError(e, "Unable to call evmAccounts()");
+      },
+    );
+  }
+
+  public evmAccountIndex(
+    address: EVMAccountAddress | EVMContractAddress,
+  ): ResultAsync<
+    number,
+    SnickerdoodleWalletContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getEvmAccountIndex(address) as Promise<number>,
+      (e) => {
+        return this.generateError(e, "Unable to call getEvmAccountIndex()");
+      },
+    );
+  }
+
+  public hashUsed(
+    hash: string,
+  ): ResultAsync<
+    boolean,
+    SnickerdoodleWalletContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.hashUsed(hash) as Promise<boolean>,
+      (e) => {
+        return this.generateError(e, "Unable to call hashUsed()");
+      },
+    );
   }
 
   protected generateContractSpecificError(

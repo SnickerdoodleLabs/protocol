@@ -55,7 +55,7 @@ export interface ISnickerdoodleFactoryContract extends IBaseContract {
   /**
    * Returns the operator gateway beacon address
    */
-  operatorGatewayBeacon(): ResultAsync<
+  operatorGatewayBeaconAddress(): ResultAsync<
     EVMContractAddress,
     SnickerdoodleFactoryContractError | BlockchainCommonErrors
   >;
@@ -102,6 +102,7 @@ export interface ISnickerdoodleFactoryContract extends IBaseContract {
    */
   deployOperatorGatewayProxy(
     domain: OperatorDomain,
+    adminAccounts: EVMAccountAddress[] | EVMContractAddress[],
     operatorAccounts: EVMAccountAddress[] | EVMContractAddress[],
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -150,6 +151,39 @@ export interface ISnickerdoodleFactoryContract extends IBaseContract {
     beaconAddress: EVMContractAddress,
   ): ResultAsync<
     EVMContractAddress,
+    SnickerdoodleFactoryContractError | BlockchainCommonErrors
+  >;
+
+  /**
+   * Returns the domain name of the operator gateway
+   * operatorGatewayAddress - The operator gateway address
+   */
+  getOperatorDomainName(
+    operatorGatewayAddress: EVMContractAddress,
+  ): ResultAsync<
+    string,
+    SnickerdoodleFactoryContractError | BlockchainCommonErrors
+  >;
+
+  /**
+   * Returns the wallet hash generated from msg.sender, name, keyIds, xs, ys, evmAccounts
+   * walletAddress - The wallet address
+   */
+  getWalletHash(
+    walletAddress: EVMContractAddress,
+  ): ResultAsync<
+    string,
+    SnickerdoodleFactoryContractError | BlockchainCommonErrors
+  >;
+
+  /**
+   * Returns the operator hash generated from domain, adminAccounts, operatorAccounts
+   * operatorGatewayAddress - The operator gateway address
+   */
+  getOperatorHash(
+    operatorGatewayAddress: EVMContractAddress,
+  ): ResultAsync<
+    string,
     SnickerdoodleFactoryContractError | BlockchainCommonErrors
   >;
 }

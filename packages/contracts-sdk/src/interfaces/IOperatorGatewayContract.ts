@@ -18,7 +18,8 @@ import {
   P256VerificationData,
   ContractOverrides,
   WrappedTransactionResponse,
-} from "@contracts-sdk/interfaces/objects";
+  EOperatorGatewayRoles,
+} from "@contracts-sdk/interfaces/index.js";
 
 export interface IOperatorGatewayContract extends IBaseContract {
   deployWallets(
@@ -31,7 +32,7 @@ export interface IOperatorGatewayContract extends IBaseContract {
     OperatorGatewayContractError | BlockchainCommonErrors
   >;
 
-  reserveWalletsOnDestinationChain(
+  authorizeWalletsOnDestinationChain(
     destinationLayerZeroEndpointId: LayerZeroEndpointId,
     usernames: SnickerdoodleWalletUsername[],
     gas: bigint,
@@ -55,23 +56,6 @@ export interface IOperatorGatewayContract extends IBaseContract {
     OperatorGatewayContractError | BlockchainCommonErrors
   >;
 
-  /**
-   * Authorizes an operator gateway on the destination chain
-   * Sends a Layer Zero message to authorize the operator gateway on the destination chain
-   * nativeTokenFee - The amount of native token to be paid to send the message to the destination chain
-   * gas - The gas required to execute the _lzReceive() function on the destination chain
-   */
-  authorizeWalletOnDestinationChain(
-    destinationLayerZeroEndpointId: LayerZeroEndpointId,
-    username: SnickerdoodleWalletUsername,
-    gas: bigint,
-    nativeTokenFee: bigint, // Required fee calculated from the quoteAuthorizeWalletOnDestinationChain function to be sent with the transaction to pay for the LayerZero _lzReceive() call
-    overrides?: ContractOverrides,
-  ): ResultAsync<
-    WrappedTransactionResponse,
-    BlockchainCommonErrors | OperatorGatewayContractError
-  >;
-
   addP256KeysWithP256Keys(
     evmAccounts: EVMContractAddress[] | EVMAccountAddress[],
     keyIds: PasskeyId[],
@@ -82,6 +66,38 @@ export interface IOperatorGatewayContract extends IBaseContract {
   ): ResultAsync<
     WrappedTransactionResponse,
     BlockchainCommonErrors | OperatorGatewayContractError
+  >;
+
+  grantRole(
+    role: EOperatorGatewayRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | OperatorGatewayContractError
+  >;
+
+  revokeRole(
+    role: EOperatorGatewayRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | OperatorGatewayContractError
+  >;
+
+  renounceRole(
+    role: EOperatorGatewayRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | OperatorGatewayContractError
+  >;
+
+  factoryAddress(): ResultAsync<
+    EVMContractAddress,
+    OperatorGatewayContractError | BlockchainCommonErrors
   >;
 }
 

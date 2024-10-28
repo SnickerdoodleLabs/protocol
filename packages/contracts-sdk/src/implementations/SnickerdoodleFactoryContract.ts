@@ -85,21 +85,21 @@ export class SnickerdoodleWalletFactoryContract
     SnickerdoodleFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.walletBeacon() as Promise<EVMContractAddress>,
+      this.contract.getWalletBeacon() as Promise<EVMContractAddress>,
       (e) => {
-        return this.generateError(e, "Unable to call walletBeacon()");
+        return this.generateError(e, "Unable to call getWalletBeacon()");
       },
     );
   }
 
-  public operatorGatewayBeacon(): ResultAsync<
+  public operatorGatewayBeaconAddress(): ResultAsync<
     EVMContractAddress,
     SnickerdoodleFactoryContractError | BlockchainCommonErrors
   > {
     return ResultAsync.fromPromise(
-      this.contract.gatewayBeacon() as Promise<EVMContractAddress>,
+      this.contract.getGatewayBeacon() as Promise<EVMContractAddress>,
       (e) => {
-        return this.generateError(e, "Unable to call gatewayBeacon()");
+        return this.generateError(e, "Unable to call getGatewayBeacon()");
       },
     );
   }
@@ -148,6 +148,7 @@ export class SnickerdoodleWalletFactoryContract
 
   public deployOperatorGatewayProxy(
     domain: OperatorDomain,
+    adminAccounts: EVMAccountAddress[] | EVMContractAddress[],
     operatorAccounts: EVMAccountAddress[] | EVMContractAddress[],
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -156,7 +157,7 @@ export class SnickerdoodleWalletFactoryContract
   > {
     return this.writeToContract(
       "deployOperatorGatewayProxy",
-      [domain, operatorAccounts],
+      [domain, adminAccounts, operatorAccounts],
       overrides,
     );
   }
@@ -225,6 +226,62 @@ export class SnickerdoodleWalletFactoryContract
       ) as Promise<EVMContractAddress>,
       (e) => {
         return this.generateError(e, "Unable to call computeProxyAddress()");
+      },
+    );
+  }
+
+  public isSourceChain(): ResultAsync<
+    boolean,
+    SnickerdoodleFactoryContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getIsSourceChain() as Promise<boolean>,
+      (e) => {
+        return this.generateError(e, "Unable to call getIsSourceChain()");
+      },
+    );
+  }
+
+  public getOperatorDomainName(
+    operatorGatewayAddress: EVMContractAddress,
+  ): ResultAsync<
+    string,
+    SnickerdoodleFactoryContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getOperatorDomain(
+        operatorGatewayAddress,
+      ) as Promise<string>,
+      (e) => {
+        return this.generateError(e, "Unable to call getOperatorDomain()");
+      },
+    );
+  }
+
+  public getWalletHash(
+    walletAddress: EVMContractAddress,
+  ): ResultAsync<
+    string,
+    SnickerdoodleFactoryContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getWalletHash(walletAddress) as Promise<string>,
+      (e) => {
+        return this.generateError(e, "Unable to call getWalletHash()");
+      },
+    );
+  }
+
+  public getOperatorHash(
+    operatorGatewayAddress: EVMContractAddress,
+  ): ResultAsync<
+    string,
+    SnickerdoodleFactoryContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getOperatorHash(operatorGatewayAddress) as Promise<string>,
+      (e) => {
+        return this.generateError(e, "Unable to call getOperatorHash()");
       },
     );
   }
