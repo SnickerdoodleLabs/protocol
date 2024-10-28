@@ -9,6 +9,7 @@ import {
   InvalidParametersError,
   ClientDataJSONComponents,
   AuthenticatorData,
+  P256KeyChallenge,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -97,7 +98,7 @@ export class SnickerdoodleWalletContract
     newKeyId: WebauthnCredentialId,
     newP256PublicKey: P256PublicKeyComponents,
   ): Result<string, InvalidParametersError> {
-    throw new Error("Method not implemented.");
+    return ok(newKeyId + newP256PublicKey.x + newP256PublicKey.y);
   }
 
   public addEVMAddressWithP256Key(
@@ -126,10 +127,11 @@ export class SnickerdoodleWalletContract
       overrides,
     );
   }
+
   public generateAddEVMAddressWithP256KeyChallenge(
     evmAccountAddress: EVMAccountAddress,
   ): Result<string, InvalidParametersError> {
-    throw new Error("Method not implemented.");
+    return ok(evmAccountAddress);
   }
 
   public addEVMAccountWithEVMAccount(
