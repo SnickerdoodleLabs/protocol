@@ -28,7 +28,16 @@ export interface IAxiosAjaxUtils {
       | URLSearchParams,
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError>;
-  delete<T>(url: URL, config?: IRequestConfig): ResultAsync<T, AjaxError>;
+  delete<T>(
+    url: URL,
+    data?:
+      | string
+      | Record<string, unknown>
+      | ArrayBuffer
+      | ArrayBufferView
+      | URLSearchParams,
+    config?: IRequestConfig,
+  ): ResultAsync<T, AjaxError>;
   setDefaultToken(token: JsonWebToken): void;
 }
 
