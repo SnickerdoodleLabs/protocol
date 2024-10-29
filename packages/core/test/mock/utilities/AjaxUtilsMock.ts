@@ -61,6 +61,12 @@ export class AjaxUtilsMock implements IAxiosAjaxUtils {
   }
   public delete<T>(
     url: URL,
+    data?:
+      | string
+      | Record<string, unknown>
+      | ArrayBuffer
+      | ArrayBufferView
+      | URLSearchParams,
     config?: IRequestConfig | undefined,
   ): ResultAsync<T, AjaxError> {
     throw new Error("Method not implemented.");

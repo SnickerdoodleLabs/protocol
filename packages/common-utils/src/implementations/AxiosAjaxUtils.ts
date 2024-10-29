@@ -103,10 +103,20 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
 
   public delete<T>(
     url: URL,
+    data?:
+      | string
+      | Record<string, unknown>
+      | ArrayBuffer
+      | ArrayBufferView
+      | URLSearchParams,
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError> {
     return ResultAsync.fromPromise(
-      this.instance.delete(this.stripTrailingSlash(url.toString()), config),
+      this.instance.delete(
+        this.stripTrailingSlash(url.toString()),
+        data,
+        config,
+      ),
       (e) => {
         const err = e as IAxiosError;
         if (err.response != null) {
