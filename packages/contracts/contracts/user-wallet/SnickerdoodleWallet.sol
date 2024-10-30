@@ -376,8 +376,8 @@ contract SnickerdoodleWallet is Initializable {
         hashDump[h] = true;
 
         bytes32 s = bytes32(uint256(p256Sig.s));
-        if (uint256(p256Sig.s) > N / 2) {
-            uint256 us = N - uint256(p256Sig.s);
+        if (uint256(s) > N / 2) {
+            uint256 us = N - uint256(s);
             s = bytes32(us);
         }
 
