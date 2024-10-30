@@ -1,0 +1,221 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0xd7A69A8895F5cc38E182101fa2d97515b9036918",
+      "txHash": "0x4d4c88d11d1f7b98b07b14c3bab43d6007bd6722a22681c52999b2e2089f2b80",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "b7ce08ac944b020b7d9884aee7baa363f2dc9c1a6c3bc836f60f31b6c63fc359": {
+      "address": "0x20dDD27020C0224d5C2CB0Fa14FFc219326F8136",
+      "txHash": "0x442d1de608301658c70db635d683436f4032e48e13771343399269736aee7f9e",
+      "layout": {
+        "solcVersion": "0.8.24",
+        "storage": [
+          {
+            "label": "walletBeacon",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "SnickerdoodleWalletFactory",
+            "src": "contracts/user-wallet/SnickerdoodleWalletFactory.sol:22"
+          },
+          {
+            "label": "operatorBeacon",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "SnickerdoodleWalletFactory",
+            "src": "contracts/user-wallet/SnickerdoodleWalletFactory.sol:25"
+          },
+          {
+            "label": "isSourceChain",
+            "offset": 20,
+            "slot": "1",
+            "type": "t_bool",
+            "contract": "SnickerdoodleWalletFactory",
+            "src": "contracts/user-wallet/SnickerdoodleWalletFactory.sol:28"
+          },
+          {
+            "label": "deployedSnickerdoodleWalletAddressToOwner",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_address,t_struct(WalletParams)8109_storage)",
+            "contract": "SnickerdoodleWalletFactory",
+            "src": "contracts/user-wallet/SnickerdoodleWalletFactory.sol:32"
+          },
+          {
+            "label": "deployedOperatorGatewayAddressToParams",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_address,t_struct(OperatorGatewayParams)8120_storage)",
+            "contract": "SnickerdoodleWalletFactory",
+            "src": "contracts/user-wallet/SnickerdoodleWalletFactory.sol:36"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)1504_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)1444_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(OperatorGatewayParams)8120_storage)": {
+            "label": "mapping(address => struct OperatorGatewayParams)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(WalletParams)8109_storage)": {
+            "label": "mapping(address => struct WalletParams)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(OperatorGatewayParams)8120_storage": {
+            "label": "struct OperatorGatewayParams",
+            "members": [
+              {
+                "label": "domain",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "operatorAccounts",
+                "type": "t_array(t_address)dyn_storage",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(P256Key)8101_storage": {
+            "label": "struct P256Key",
+            "members": [
+              {
+                "label": "x",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "y",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "keyId",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(WalletParams)8109_storage": {
+            "label": "struct WalletParams",
+            "members": [
+              {
+                "label": "operator",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "p256Key",
+                "type": "t_struct(P256Key)8101_storage",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "160"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

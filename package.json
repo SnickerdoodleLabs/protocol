@@ -85,6 +85,7 @@
     "@glazed/devtools": "^0.2.0",
     "@google-cloud/storage": "^6.7.0",
     "@jest/types": "^29.0.3",
+    "@layerzerolabs/lz-evm-oapp-v2": "^2.3.33",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
     "@nomicfoundation/hardhat-ethers": "^3.0.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.0",

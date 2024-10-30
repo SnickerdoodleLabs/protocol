@@ -7,7 +7,6 @@
 - [contracts](/packages/contracts/contracts/): Subdirectory containing all Snickerdoodle Protocol smart contracts
 - [docs](/packages/contracts/docs/): Auto-generated API documentation of public and external contract methods
 - [scripts](/packages/contracts/scripts/): Hardhat [scripts](https://hardhat.org/guides/scripts.html) for deploying different configurations of the smart contract stack
-- [subnets](/packages/contracts/subnets/): A subdirectory containing configurations for launching local, testnet, and mainnet [Avalanche Subnets](https://docs.avax.network/subnets)
 - [tasks](/packages/contracts/tasks/): Hardhat [task definitions](https://hardhat.org/guides/create-task.html) for interacting with smart contract deployments
 - [test](/packages/contracts/test/): Hardhat [unit tests](https://hardhat.org/guides/waffle-testing.html) for the Snickerdoodle Protocol smart contract stack
 - [hardhat.config.js](/packages/contracts/hardhat.config.js): [Configuration file](https://hardhat.org/config/) for the Hardhat development framework
@@ -16,17 +15,13 @@
 
 The Snickerdoodle Contracts stack consists of the following primary components:
 
-### [consent](/packages/contracts/contracts/consent/README.md)
+### [ad-wallet](/packages/contracts/contracts/user-wallet/README.md)
 
-Contains an upgradable EIP721 compatible NFT implementation and an associated contract factory.
+Contains ad wallet contracts
 
-### [token](/packages/contracts/contracts/token/README.md)
+### [user-wallet](/packages/contracts/contracts/user-wallet/README.md)
 
-Contains an EIP20 compatible token, wrapper token (for subnet deployments), and a vesting contract.
-
-### [registry](/packages/contracts/contracts/registry/README.md)
-
-Contains an EIP721 compatible registry contract for storing Snickerdoodle account recovery details.
+Contains the upgradable smart wallet implementation and an associated Layer Zero featured contract factory.
 
 ### [governance](/packages/contracts/contracts/governance/README.md)
 

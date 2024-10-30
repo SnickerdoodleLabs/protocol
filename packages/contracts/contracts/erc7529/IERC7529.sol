@@ -6,13 +6,13 @@ interface IERC7529 {
 
     /// @notice Emitted when a domain is added
     /// @param domain Domain url added
-    event AddDomain(string domain);
+    event AddERC7529Domain(string domain);
 
     /// @notice Emitted when a domain is removed
     /// @param domain Domain url removed
-    event RemoveDomain(string domain);
+    event RemoveERC7529Domain(string domain);
 
     /* Functions */
 
-    function checkDomain(string calldata domain) external view returns (bool);
+    function checkERC7529Domain(string calldata domain) external view returns (bool);
 }

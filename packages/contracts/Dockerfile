@@ -10,7 +10,8 @@ WORKDIR /root
 COPY . .
 
 # install contracts package dependencies
-RUN npm install
-RUN npm install -D @nomicfoundation/hardhat-toolbox solidity-coverage dotenv
+# needs the force flag to avoid errors from ethers version mismatch between the dependancies
+RUN npm install --force
+RUN npm install -D @nomicfoundation/hardhat-toolbox @openzeppelin/hardhat-upgrades @layerzerolabs/lz-evm-oapp-v2 solidity-coverage dotenv --force
 
 ENTRYPOINT [ "/bin/bash", "entrypoint.sh" ]
