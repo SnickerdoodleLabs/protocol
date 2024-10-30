@@ -183,7 +183,7 @@ contract SmartClearinghouse {
         }
     }
 
-    /// @notice Allows a user to transfer their earned funds to another user
+    /// @notice Allows a user to transfer their earned funds to another user without withdrawing
     /// @param asset the address of the asset to transfer
     /// @param amount the amount of the asset to transfer
     /// @param destination the address to transfer the funds to

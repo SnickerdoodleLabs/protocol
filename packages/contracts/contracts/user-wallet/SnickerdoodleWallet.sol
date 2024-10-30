@@ -129,12 +129,9 @@ contract SnickerdoodleWallet is Initializable {
         require(
             _verifyP256(
                 keyId,
-                p256VerificationData.authenticatorData,
-                p256VerificationData.clientDataJSONLeft,
+                p256VerificationData,
                 Base64.encodeURL(challenge),
-                p256VerificationData.clientDataJSONRight,
-                p256Sig.r,
-                p256Sig.s
+                p256Sig
             ),
             InvalidP256Signature(keyId)
         );
@@ -159,12 +156,9 @@ contract SnickerdoodleWallet is Initializable {
         require(
             _verifyP256(
                 keyId,
-                p256VerificationData.authenticatorData,
-                p256VerificationData.clientDataJSONLeft,
+                p256VerificationData,
                 _addressToBase64URLString(evmAccount),
-                p256VerificationData.clientDataJSONRight,
-                p256Sig.r,
-                p256Sig.s
+                p256Sig
             ),
             InvalidP256Signature(keyId)
         );
@@ -222,12 +216,9 @@ contract SnickerdoodleWallet is Initializable {
         require(
             _verifyP256(
                 keyId,
-                p256VerificationData.authenticatorData,
-                p256VerificationData.clientDataJSONLeft,
+                p256VerificationData,
                 Base64.encodeURL(abi.encodePacked(dest, value, func)),
-                p256VerificationData.clientDataJSONRight,
-                p256Sig.r,
-                p256Sig.s
+                p256Sig
             ),
             InvalidP256Signature(keyId)
         );
@@ -364,40 +355,34 @@ contract SnickerdoodleWallet is Initializable {
     /// @notice verifies a P256 signature
     /// @dev the challenge string should already be Base64URL encoded
     /// @param _keyId the keyId of the P256
-    /// @param authenticatorData the authenticatorData from the client
-    /// @param clientDataJSONLeft the left side of the clientDataJSON
+    /// @param p256VerificationData the P256VerificationData struct
     /// @param challenge the challenge string
-    /// @param clientDataJSONRight the right side of the clientDataJSON
-    /// @param r the r value of the signature
-    /// @param s the s value of the signature
+    /// @param p256Sig the P256 signature to verify
     function _verifyP256(
         string calldata _keyId,
-        bytes calldata authenticatorData,
-        string calldata clientDataJSONLeft,
+        P256VerificationData calldata p256VerificationData,
         string memory challenge,
-        string calldata clientDataJSONRight,
-        bytes32 r,
-        bytes32 s
+        P256Signature calldata p256Sig
     ) private returns (bool) {
         string memory clientDataJSON = string.concat(
-            clientDataJSONLeft,
+            p256VerificationData.clientDataJSONLeft,
             challenge,
-            clientDataJSONRight
+            p256VerificationData.clientDataJSONRight
         );
 
         bytes32 cDataHash = sha256(bytes(clientDataJSON));
-        bytes32 h = sha256(bytes.concat(authenticatorData, cDataHash));
+        bytes32 h = sha256(bytes.concat(p256VerificationData.authenticatorData, cDataHash));
         require(!hashDump[h], P256NoncedUsed(h));
         hashDump[h] = true;
 
-        if (uint256(s) > N / 2) {
-            uint256 us = N - uint256(s);
+        bytes32 s = bytes32(uint256(p256Sig.s));
+        if (uint256(p256Sig.s) > N / 2) {
+            uint256 us = N - uint256(p256Sig.s);
             s = bytes32(us);
         }
 
-        bytes32 keyHash = keccak256(abi.encodePacked(_keyId));
-        P256Key memory p256Key = p256Keys[keyHash];
-        return P256.verify(h, r, s, p256Key.x, p256Key.y);
+        P256Key memory p256Key = p256Keys[keccak256(abi.encodePacked(_keyId))];
+        return P256.verify(h, p256Sig.r, s, p256Key.x, p256Key.y);
     }
 
     /// @notice Converts an address to a Base64URL string
