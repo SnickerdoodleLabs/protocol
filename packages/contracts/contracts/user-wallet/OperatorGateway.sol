@@ -42,9 +42,22 @@ contract OperatorGateway is
     ) public initializer {
         __AccessControl_init();
 
+        // Check that the admin accounts have at least one EOA
+        bool hasEOA; 
+
         for (uint256 i = 0; i < adminAccounts.length; i++) {
+            // If an EOA has not been found yet, check if the current account is an EOA
+            if (!hasEOA) {
+                // If it is not a contract, set hasEOA to true
+                if (!isContract(adminAccounts[i])) {
+                    hasEOA = true;
+                }
+            }
             _grantRole(DEFAULT_ADMIN_ROLE, adminAccounts[i]);
         }
+
+        // Require that at least one admin account is an EOA
+        require(hasEOA, "At least one admin account must be an EOA");
 
         for (uint256 i = 0; i < operatorAccounts.length; i++) {
             _grantRole(OPERATOR_ROLE, operatorAccounts[i]);
@@ -259,5 +272,16 @@ contract OperatorGateway is
     /// @notice Returns the operator gateway's domain name
     function getDomainName() external view returns (string memory) {
         return name;
+    }
+
+    /// @notice Determines if an address is a contract address
+    /// @param account The address to check
+    /// @return True if the address is a contract, false otherwise
+    function isContract(address account) internal view returns (bool) {
+        uint256 size;
+        assembly {
+            size := extcodesize(account)
+        }
+        return size > 0;
     }
 }
