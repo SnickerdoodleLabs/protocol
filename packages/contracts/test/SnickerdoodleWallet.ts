@@ -181,4 +181,36 @@ describe("SnickerdoodleWallet", function () {
       );
     });
   });
+
+  describe("Execute function", function () {
+    it.only("Allows the smart wallet to execute any function", async function () {
+      const { sdwallet, vanillaToken, owner, otherAccount } = await loadFixture(
+        deployWallet,
+      );
+      // Encode the approve function call
+      const approveAmount = hre.ethers.parseEther("2");
+      const approveData = vanillaToken.interface.encodeFunctionData("approve", [
+        otherAccount.address,
+        approveAmount,
+      ]);
+
+      // Owner calls the execute function
+      // The SDL wallet is the caller that is executing the approve function, so it is approving otherAccount for the allowance
+      const vanillaTokenAddress = await vanillaToken.getAddress();
+      await sdwallet
+        .connect(owner)
+        .execute(vanillaTokenAddress, 0, approveData);
+
+      // Verify the approval
+      // The SDL wallet is the caller that is approving the allowance, so check it's allowance for otherAccount
+      const sdWalletAddress = await sdwallet.getAddress();
+      const allowance = await vanillaToken.allowance(
+        sdWalletAddress,
+        otherAccount.address,
+      );
+
+      // The approved amounts should match
+      expect(allowance).to.equal(approveAmount);
+    });
+  });
 });
