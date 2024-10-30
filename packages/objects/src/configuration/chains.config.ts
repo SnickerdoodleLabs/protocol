@@ -33,8 +33,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       new NativeCurrencyInformation("DOODLE", 18, "DOODLE"),
       EChainType.Hardhat,
       "",
+      true, // contractStackDeployed
       EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
       EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       EVMContractAddress("0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"), // Consent Contract Factory
       EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Governance Token Contract
       EVMContractAddress("0x0165878A594ca255338adfa4d48449f69242Eb8F"), // Questionnaires Contract
@@ -54,6 +56,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Mainnet,
       "https://etherscan.io/tx/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       URLString("https://api.etherscan.io/"),
     ),
   ],
@@ -71,25 +77,13 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Testnet,
       "https://sepolia.etherscan.io/tx/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       URLString("https://api-sepolia.etherscan.io/"),
     ),
   ],
-  // [
-  //   ChainId(EChain.Kovan),
-  //   new ChainInformation(
-  //     "Kovan",
-  //     ChainId(EChain.Kovan),
-  //     EChain.Kovan,
-  //     EChainTechnology.EVM,
-  //     true,
-  //     [],
-  //     10000,
-  //     new NativeCurrencyInformation("ETH", 18, "ETH"),
-  //     EChainType.Testnet,
-  //     "https://kovan.etherscan.io/tx/",
-  //     getExplorerUrl,
-  //   ),
-  // ],
   [
     EChain.Amoy,
     new ChainInformation(
@@ -104,6 +98,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Testnet,
       "https://amoy.polygonscan.com/tx/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       URLString("https://api-testnet.polygonscan.com/"),
     ),
   ],
@@ -121,6 +119,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Mainnet,
       "https://www.ondora.xyz/network/palm/interactions/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
     ),
   ],
   [
@@ -137,6 +139,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Mainnet,
       "https://polygonscan.com/tx/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       URLString("https://api.polygonscan.com/"),
     ),
   ],
@@ -154,6 +160,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Mainnet,
       "https://snowtrace.io/tx/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       URLString("https://api.snowtrace.io/"),
     ),
   ],
@@ -171,6 +181,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Mainnet,
       "https://celoscan.io/tx/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
     ),
   ],
   [
@@ -186,8 +200,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       new NativeCurrencyInformation("AVAX", 18, "AVAX", "avalanche-2"),
       EChainType.Testnet,
       "https://testnet.snowtrace.io/tx/",
+      false, // contractStackDeployed
       EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
       EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       EVMContractAddress("0x5b6c961538E65b6EaCaf09Ec8E93D5f5f1d1afcC"), // Consent Contract Factory
       EVMContractAddress("0x73F4391c2669f79F15480d3e2Bb22e0792c682bE"), // Governance Token Contract
       EVMContractAddress("0x692F3657c24B91Cb8516b9622b1F271E03cBcEC9"), // Questionnaires Contract
@@ -208,6 +224,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Mainnet,
       "https://explorer.solana.com/tx/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       undefined,
       CoinGeckoAssetPlatformID("solana"), // coing gecko chain slug
     ),
@@ -226,6 +246,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Testnet,
       "https://explorer.solana.com/tx/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       undefined,
       undefined,
     ),
@@ -244,6 +268,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Mainnet,
       "https://gnosisscan.io/tx/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       URLString("https://api.gnosisscan.io/"),
     ),
   ],
@@ -261,6 +289,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Mainnet,
       "https://bscscan.com/tx/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       URLString("https://bscscan.com/"),
     ),
   ],
@@ -278,6 +310,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Testnet,
       "https://testnet.bscscan.com/tx/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       URLString("https://testnet.bscscan.com/"),
     ),
   ],
@@ -295,6 +331,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Mainnet,
       "https://moonscan.io/tx/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       URLString("https://api-moonbeam.moonscan.io/"),
     ),
   ],
@@ -312,6 +352,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Mainnet,
       "https://arbiscan.io/tx/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       URLString("https://arbiscan.io/"),
     ),
   ],
@@ -329,6 +373,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Mainnet,
       "https://optimistic.etherscan.io/tx/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       URLString("https://api-optimistic.etherscan.io/"),
     ),
   ],
@@ -346,6 +394,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Mainnet,
       "https://astar.subscan.io/extrinsic/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       URLString("https://astar.subscan.io/"),
     ),
   ],
@@ -363,6 +415,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Mainnet,
       "https://suiexplorer.com/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       URLString("https://suiscan.xyz/"),
     ),
   ],
@@ -380,6 +436,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Testnet,
       "https://shibuya.subscan.io/extrinsic/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       URLString("https://shibuya.subscan.io/"),
     ),
   ],
@@ -397,6 +457,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Mainnet,
       "https://explorer.zksync.io/tx/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       URLString("https://block-explorer-api.mainnet.zksync.io/"),
     ),
   ],
@@ -413,8 +477,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
       EChainType.Mainnet,
       "https://basescan.org/tx/",
+      true, // contractStackDeployed
       EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
       EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       EVMContractAddress("0xInvalid"), // Consent Contract Factory
       EVMContractAddress("0xInvalid"), // Governance Token Contract
       EVMContractAddress("0xInvalid"), // Questionnaires Contract
@@ -434,8 +500,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
       EChainType.Testnet,
       "https://sepolia.basescan.org/tx/",
+      true, // contractStackDeployed
       EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
       EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       EVMContractAddress("0xInvalid"), // Consent Contract Factory
       EVMContractAddress("0xInvalid"), // Governance Token Contract
       EVMContractAddress("0xInvalid"), // Questionnaires Contract
@@ -456,6 +524,10 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Mainnet,
       "https://scan.chiliz.com/tx/",
       getExplorerUrl,
+      false, // contractStackDeployed
+      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
+      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       URLString("https://scan.chiliz.com/api/eth-rpc"),
     ),
   ],
