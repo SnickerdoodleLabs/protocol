@@ -8,7 +8,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract SmartClearinghouse {
     using SafeERC20 for IERC20;
 
-    /// TODO: write the contract
     address private factory;
 
     /// @notice mapping of allocationId to Allocation struct
@@ -29,8 +28,29 @@ contract SmartClearinghouse {
         bool paused;
     }
 
+    event AllocationCreated(
+        bytes32 indexed allocationId,
+        address indexed ownerAccount,
+        address indexed operator,
+        address asset,
+        uint amount
+    );
+
+    event Dispursement(
+        bytes32 indexed allocationId,
+        address indexed user,
+        uint amount
+    );
+
     constructor(address _factory) {
         factory = _factory;
+    }
+
+    /// @notice allows the factory to register an asset for use in the clearinghouse
+    /// @param asset the address of the asset to register
+    function registerAsset(address asset) external {
+        require(msg.sender == factory, "unauthorized");
+        allowedAssets[asset] = true;
     }
 
     /// @notice called by an operator to allocate funds for disbursal to users
@@ -44,6 +64,7 @@ contract SmartClearinghouse {
         IERC20 asset,
         uint amount
     ) external {
+        require(allocationParams[allocationId].asset == address(0), "allocationId already exists");
         require(allowedAssets[address(asset)], "asset not allowed");
 
         allocationParams[allocationId] = Allocation(
@@ -56,6 +77,7 @@ contract SmartClearinghouse {
         );
 
         asset.safeTransferFrom(msg.sender, address(this), amount);
+        emit AllocationCreated(allocationId, ownerAccount, msg.sender, address(asset), amount);
     }
 
     /// @notice disburse funds from a prior allocation to a list of users
@@ -84,16 +106,28 @@ contract SmartClearinghouse {
 
             allocation.remainingBalance -= amount;
             userBalances[allocation.asset][user] += amount;
+            emit Dispursement(allocationId, user, amount);
         }
     }
 
     /// @notice Allows the owner of an allocation to pause the allocation
+    /// @param allocationId the unique identifier for the allocation
     function pauseAllocation(bytes32 allocationId) external {
         require(
-            allocationParams[allocationId].operator == msg.sender,
-            "unauthorized operator"
+            allocationParams[allocationId].ownerAccount == msg.sender,
+            "unauthorized"
         );
         allocationParams[allocationId].paused = true;
+    }
+
+    /// @notice Allows the owner of an allocation to unpause the allocation
+    /// @param allocationId the unique identifier for the allocation
+    function unpauseAllocation(bytes32 allocationId) external {
+        require(
+            allocationParams[allocationId].ownerAccount == msg.sender,
+            "unauthorized"
+        );
+        allocationParams[allocationId].paused = false;
     }
 
     /// @notice Allows the owner (or operator if unpaused) of an allocation to withdraw the remaining balance
@@ -118,14 +152,12 @@ contract SmartClearinghouse {
         );
     }
 
-    /// @notice Allows the owner (or operator if unpaused) of an allocation to transfer to a new operator
+    /// @notice Allows the owner of an allocation to transfer to a new operator
     /// @param allocationId the unique identifier for the allocation
     /// @param newOperator the address of the new operator
     function transferAllocationOperator(bytes32 allocationId, address newOperator) external {
         require(
-            (msg.sender == allocationParams[allocationId].ownerAccount) ||
-                (msg.sender == allocationParams[allocationId].operator &&
-                    !allocationParams[allocationId].paused),
+            msg.sender == allocationParams[allocationId].ownerAccount,
             "unauthorized transfer"
         );
         allocationParams[allocationId].operator = newOperator;
@@ -133,32 +165,38 @@ contract SmartClearinghouse {
 
     /// @notice Allows a user to withdraw their earned funds
     /// @param assets the addresses of the assets to withdraw
+    /// @param amounts the amounts of each asset to withdraw
     /// @param destination the address to withdraw the funds to
     function withdrawEarnedFunds(
         IERC20[] calldata assets,
+        uint[] calldata amounts,
         address destination
     ) external {
+        require(assets.length == amounts.length, "Array length mismatch");
         for (uint i = 0; i < assets.length; i++) {
             IERC20 asset = assets[i];
-            uint amount = userBalances[address(asset)][msg.sender];
-            require(amount > 0, "no funds to withdraw");
+            uint balance = userBalances[address(asset)][msg.sender];
+            require(balance >= amounts[i], "overdrawn balance");
 
-            userBalances[address(asset)][msg.sender] = 0;
-            asset.safeTransfer(destination, amount);
+            userBalances[address(asset)][msg.sender] = balance - amounts[i];
+            asset.safeTransfer(destination, amounts[i]);
         }
     }
 
     /// @notice Allows the owner of an allocation to pause the allocation
+    /// @param allocationId the unique identifier for the allocation
     function getRemainingAllocationBalance(
         bytes32[] calldata allocationId
-    ) external view returns (uint[] memory) {
+    ) external view returns (uint[] memory, address[] memory) {
         uint[] memory balances = new uint[](allocationId.length);
+        address[] memory assets = new address[](allocationId.length);
 
         for (uint i = 0; i < allocationId.length; i++) {
             balances[i] = allocationParams[allocationId[i]].remainingBalance;
+            assets[i] = allocationParams[allocationId[i]].asset;
         }
 
-        return balances;
+        return (balances, assets);
     }
 
     /// @notice checks the balances of a user for a list of assets

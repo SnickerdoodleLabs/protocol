@@ -16,6 +16,9 @@ contract OperatorGateway is
 {
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
+    /// @notice flag to determine if the gateway is on the source chain
+    bool isSourceChain;
+
     /// @notice address of SnickerdoodleWallet contract
     address private factory;
 
@@ -26,9 +29,11 @@ contract OperatorGateway is
 
     /// @notice creates a user wallet
     /// @dev the first account in the operatorAccounts array is the default admin
+    /// @param _isSourceChain flag to determine if the gateway is on the source chain
     /// @param operatorAccounts the addresses of the operator accounts
     /// @param _factory the address of the SnickerdoodleFactory contract
     function initialize(
+        bool _isSourceChain,
         string memory _name,
         address[] calldata adminAccounts,
         address[] calldata operatorAccounts,
@@ -39,11 +44,12 @@ contract OperatorGateway is
         for (uint256 i = 0; i < adminAccounts.length; i++) {
             _grantRole(DEFAULT_ADMIN_ROLE, adminAccounts[i]);
         }
-        
+
         for (uint256 i = 0; i < operatorAccounts.length; i++) {
             _grantRole(OPERATOR_ROLE, operatorAccounts[i]);
         }
 
+        isSourceChain = _isSourceChain;
         factory = _factory;
         name = _name;
     }
@@ -138,19 +144,36 @@ contract OperatorGateway is
     }
 
     /// @notice override the AccessControl grantRole function to update the operator hash
-    function grantRole(bytes32 role, address account) public override(AccessControlUpgradeable, IAccessControl) onlyRole(getRoleAdmin(role)) {
+    function grantRole(
+        bytes32 role,
+        address account
+    )
+        public
+        override(AccessControlUpgradeable, IAccessControl)
+        onlyRole(getRoleAdmin(role))
+    {
         _grantRole(role, account);
         _updateOperatorHash();
     }
 
     /// @notice override the AccessControl revokeRole function to update the operator hash
-    function revokeRole(bytes32 role, address account) public override(AccessControlUpgradeable, IAccessControl) onlyRole(getRoleAdmin(role)) {
+    function revokeRole(
+        bytes32 role,
+        address account
+    )
+        public
+        override(AccessControlUpgradeable, IAccessControl)
+        onlyRole(getRoleAdmin(role))
+    {
         _revokeRole(role, account);
         _updateOperatorHash();
     }
 
     /// @notice override the AccessControl renounceRole function to update the operator hash
-    function renounceRole(bytes32 role, address callerConfirmation) public override(AccessControlUpgradeable, IAccessControl) {
+    function renounceRole(
+        bytes32 role,
+        address callerConfirmation
+    ) public override(AccessControlUpgradeable, IAccessControl) {
         super.renounceRole(role, callerConfirmation);
         _updateOperatorHash();
     }
@@ -171,26 +194,28 @@ contract OperatorGateway is
         _removeDomain(domain);
     }
 
-        /// @notice updates the wallet hash in the factory contract to reflect the current state of the wallet for layer0
-    function _updateOperatorHash() internal returns (bytes32) {
-        uint numAdmins = getRoleMemberCount(DEFAULT_ADMIN_ROLE);
-        uint numOperators = getRoleMemberCount(OPERATOR_ROLE);
+    /// @notice updates the wallet hash in the factory contract to reflect the current state of the wallet for layer0
+    function _updateOperatorHash() internal {
+        if (isSourceChain) {
+            uint numAdmins = getRoleMemberCount(DEFAULT_ADMIN_ROLE);
+            uint numOperators = getRoleMemberCount(OPERATOR_ROLE);
 
-        address[] memory adminAccounts = new address[](numAdmins);
-        address[] memory operatorAccounts = new address[](numOperators);
+            address[] memory adminAccounts = new address[](numAdmins);
+            address[] memory operatorAccounts = new address[](numOperators);
 
-        for (uint256 i = 0; i < numAdmins; i++) {
-            adminAccounts[i] = getRoleMember(DEFAULT_ADMIN_ROLE, i);
+            for (uint256 i = 0; i < numAdmins; i++) {
+                adminAccounts[i] = getRoleMember(DEFAULT_ADMIN_ROLE, i);
+            }
+
+            for (uint256 i = 0; i < numOperators; i++) {
+                operatorAccounts[i] = getRoleMember(OPERATOR_ROLE, i);
+            }
+
+            bytes32 operatorHash = keccak256(
+                abi.encodePacked(name, adminAccounts, operatorAccounts)
+            );
+            SnickerdoodleFactory(factory).updateOperatorHash(operatorHash);
         }
-
-        for (uint256 i = 0; i < numOperators; i++) {
-            operatorAccounts[i] = getRoleMember(OPERATOR_ROLE, i);
-        }
-
-        bytes32 operatorHash = keccak256(
-            abi.encodePacked(name, adminAccounts, operatorAccounts)
-        );
-        SnickerdoodleFactory(factory).updateOperatorHash(operatorHash);
     }
 
     /// @notice Returns the Snickerdoodle factory address

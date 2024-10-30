@@ -87,24 +87,24 @@ contract SnickerdoodleFactory is OAppUpgradeable {
 
     /// @notice Deploys multiple SnickerdoodleWallet proxies with name keyword and salt to create an upgradeable SnickerdoodleWallet
     /// @param usernames usernames for the SnickerdoodleWallet
-    /// @param _p256Keys P256 keys for the SnickerdoodleWallet
+    /// @param p256Keys P256 keys for the SnickerdoodleWallet
     /// @param evmAccounts an array of addresses to add as operators to the OperatorGateway
     function deployWalletProxies(
         string[] calldata usernames,
-        P256Key[][] calldata _p256Keys,
+        P256Key[][] calldata p256Keys,
         address[][] calldata evmAccounts
     ) public {
         require(
-            usernames.length == _p256Keys.length,
-            ArrayLengthMismatch(usernames.length, _p256Keys.length)
+            usernames.length == p256Keys.length,
+            ArrayLengthMismatch(usernames.length, p256Keys.length)
         );
         require(
-            _p256Keys.length == _p256Keys.length,
-            ArrayLengthMismatch(_p256Keys.length, evmAccounts.length)
+            p256Keys.length == p256Keys.length,
+            ArrayLengthMismatch(p256Keys.length, evmAccounts.length)
         );
 
         for (uint256 i = 0; i < usernames.length; i++) {
-            deployWalletProxy(usernames[i], _p256Keys[i], evmAccounts[i]);
+            deployWalletProxy(usernames[i], p256Keys[i], evmAccounts[i]);
         }
     }
 
@@ -118,10 +118,9 @@ contract SnickerdoodleFactory is OAppUpgradeable {
         P256Key[] calldata p256Keys,
         address[] calldata evmAccounts
     ) public {
-        string memory domain = operatorToDomain[msg.sender];
-        require(bytes(domain).length > 0, InvalidOperator(msg.sender));
+        require(bytes(operatorToDomain[msg.sender]).length > 0, InvalidOperator(msg.sender));
 
-        string memory name = string.concat(username, ".", domain);
+        string memory name = string.concat(username, ".", operatorToDomain[msg.sender]);
         address proxyAddress = computeProxyAddress(name, walletBeacon);
         (
             string memory keyIds,
@@ -156,6 +155,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             salt: keccak256(abi.encodePacked(name))
         }(walletBeacon, "");
         SnickerdoodleWallet(payable(address(proxy))).initialize(
+            isSourceChain,
             address(this),
             msg.sender,
             name,
@@ -202,6 +202,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             salt: keccak256(abi.encodePacked(domain))
         }(gatewayBeacon, "");
         OperatorGateway(payable(proxy)).initialize(
+            isSourceChain,
             domain,
             adminAccounts,
             operatorAccounts,
@@ -284,15 +285,14 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     /// @dev Call quoteAuthorizeWalletOnDestinationChain() and include it's fee value as part of the msg.value for this function
     /// @dev If the destination chain has not been set as a peer contract, it will error NoPeer(_destinationChainEID)
     /// @param _destinationChainEID Layer Zero Endpoint id for the target destination chain
-    /// @param domain a string used by the gateway for user domain names
     /// @param _gas Gas for message execution options, refer to : https://docs.layerzero.network/v2/developers/evm/oapp/overview#message-execution-options
     function authorizeGatewayOnDestinationChain(
         uint32 _destinationChainEID,
-        string calldata domain,
         uint128 _gas
     ) external payable {
         require(isSourceChain, SourceChainMethodOnly(block.chainid));
         /// Compute the Snickerdoodle wallet proxy address
+        string memory domain = operatorToDomain[msg.sender];
         address proxyAddress = computeProxyAddress(domain, gatewayBeacon);
         bytes32 operatorHash = operatorToHash[proxyAddress];
         require(
