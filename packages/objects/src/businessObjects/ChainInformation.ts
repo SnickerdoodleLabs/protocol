@@ -45,8 +45,12 @@ export class ControlChainInformation extends ChainInformation {
     public nativeCurrency: NativeCurrencyInformation,
     public type: EChainType,
     public explorerURL: string,
+    public operatorGatewayContractAddress: EVMContractAddress,
+    public snickerdoodleWalletFactoryContractAddress: EVMContractAddress,
+    // TODO: Remove, not part of new contract stack
     public consentFactoryContractAddress: EVMContractAddress,
     public governanceTokenContractAddress: EVMContractAddress,
+    // TODO: Remove, not part of new contract stack
     public questionnairesContractAddress: EVMContractAddress,
     public etherscanEndpointURL?: URLString,
     public coinGeckoSlug?: CoinGeckoAssetPlatformID,
