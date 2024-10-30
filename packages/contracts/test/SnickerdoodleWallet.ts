@@ -183,7 +183,7 @@ describe("SnickerdoodleWallet", function () {
   });
 
   describe("Execute function", function () {
-    it.only("Allows the smart wallet to execute any function", async function () {
+    it("Allows the smart wallet to execute any function", async function () {
       const { sdwallet, vanillaToken, owner, otherAccount } = await loadFixture(
         deployWallet,
       );
