@@ -337,6 +337,16 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             );
     }
 
+    /// @notice Compute the address that a SnickerdoodleWallet will be/is deployed to
+    /// @param salt the string that was used for the SnickerdoodleWallet salt value
+    function computeWalletAddress(string memory salt)
+        external
+        view
+        returns (address)
+    {
+        return computeProxyAddress(salt, walletBeacon);
+    }
+
     /// @notice Estimating the fee for to send a message to authorize a Snickerdoodle wallet on destination chain
     /// @param _dstEid the destination chain's EID
     /// @param username the username of the user wallet that will be prepended with the operator's domain

@@ -240,6 +240,19 @@ contract OperatorGateway is
         _removeDomain(domain);
     }
 
+    /// @notice Get wallet addresses for a list of usernames
+    /// @param usernames the usernames of the user wallets that will be prepended with the operator's domain
+    function computeWalletAddresses(
+        string[] calldata usernames
+    ) external view returns (address[] memory) {
+        address[] memory walletAddresses = new address[](usernames.length);
+        for (uint256 i = 0; i < usernames.length; i++) {
+            string memory username = string.concat(usernames[i], ".", name);
+            walletAddresses[i] = SnickerdoodleFactory(factory).computeWalletAddress(username);
+        }
+        return walletAddresses;
+    }
+
     /// @notice updates the wallet hash in the factory contract to reflect the current state of the wallet for layer0
     function _updateOperatorHash() internal {
         if (isSourceChain) {
