@@ -26,6 +26,7 @@ contract OperatorGateway is
     string private name;
 
     error ArrayLengthMismatch(uint a, uint b);
+    error SourceChainMethodOnly(); 
 
     /// @notice creates a user wallet
     /// @dev the first account in the operatorAccounts array is the default admin
@@ -79,9 +80,23 @@ contract OperatorGateway is
         string[] calldata usernames,
         uint128 _gas
     ) external payable {
+        require(isSourceChain, SourceChainMethodOnly());
         SnickerdoodleFactory(factory).authorizeWalletsOnDestinationChain{
             value: msg.value
         }(_destinationChainEID, usernames, _gas);
+    }
+
+    /// @notice Authorize multiple usernames on the destination chain with a single transaction
+    /// @param _destinationChainEID the destination chain's EID
+    /// @param _gas the gas required to execute _lzReceive()
+    function authorizeGatewayOnDestinationChain(
+        uint32 _destinationChainEID,
+        uint128 _gas
+    ) external payable {
+        require(isSourceChain, SourceChainMethodOnly());
+        SnickerdoodleFactory(factory).authorizeGatewayOnDestinationChain{
+            value: msg.value
+        }(_destinationChainEID, _gas);
     }
 
     /// @notice Quote the gas needed to reserve a username on the destination chain with a single transaction
