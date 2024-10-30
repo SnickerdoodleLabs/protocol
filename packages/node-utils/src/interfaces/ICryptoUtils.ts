@@ -180,7 +180,6 @@ export interface ICryptoUtils {
 
   parseRawP256Signature(
     signature: P256Signature,
-    msgPayload: string,
   ): Result<P256SignatureComponents, InvalidParametersError>;
 
   parseClientDataJSON(

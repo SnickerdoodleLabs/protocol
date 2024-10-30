@@ -741,7 +741,6 @@ export class CryptoUtils implements ICryptoUtils {
   // returns a 64-byte ArrayBuffer containing r and s concatenated together
   public parseRawP256Signature(
     signature: P256Signature,
-    msgPayload: string,
   ): Result<P256SignatureComponents, InvalidParametersError> {
     const signatureView = this.hexToUint8Array(signature);
 
@@ -792,8 +791,6 @@ export class CryptoUtils implements ICryptoUtils {
       (t, x) => t + x.toString(16).padStart(2, "0"),
       "",
     );
-
-    const sigAndMsgPayload = msgPayload + `r: 0x${rString}, s: 0x${sString}`;
 
     // return the signature formatted for use in crypto.subtle.verify
     return ok(

@@ -72,8 +72,6 @@ describe("CryptoUtils Tests 4", () => {
     //   31, 110, 197, 103, 194, 3, 1, 44, 58, 255, 82, 175, 220, 80, 29, 139, 21,
     //   137, 114, 60,
     // ]);
-    const mockMsgPayload = `authenticatorData: 0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000, clientJSONData: "{\"type\":\"webauthn.get\",\"challenge\":\"SkgtbmpSNGs4TUw3T3k3LUxsVUZtQeCNdoJu1unwpgzfenUVeSFuX221IEmGHVYEGrQ0G5A3l1CPrqa6jtHx3a4SdKeJxGRgaH2ChCnqOjcfmd6TiLc\",\"origin\":\"http://localhost:8000\",\"crossOrigin\":false}"`;
-
     const expectedValue = {
       r: "2ae4188c4bf694fa309f6d05145408b57744fa7edfadfa120143f82c8887dd45",
       s: "a3009ac7d91a9945a454011ec4e5c568a5b20727e3fc8b804142fda1d918f289",
@@ -86,7 +84,7 @@ describe("CryptoUtils Tests 4", () => {
 
     // Act
     const result = utils
-      .parseRawP256Signature(mockSignature, mockMsgPayload)
+      .parseRawP256Signature(mockSignature)
       .unwrapOr(defaultValue);
 
     // Assert
