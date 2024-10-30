@@ -86,7 +86,7 @@ contract OperatorGateway is
         }(_destinationChainEID, usernames, _gas);
     }
 
-    /// @notice Authorize multiple usernames on the destination chain with a single transaction
+    /// @notice Authorize the deployment of the operator gateway on the destination chain
     /// @param _destinationChainEID the destination chain's EID
     /// @param _gas the gas required to execute _lzReceive()
     function authorizeGatewayOnDestinationChain(
@@ -115,6 +115,24 @@ contract OperatorGateway is
                     _dstEid,
                     username,
                     address(this),
+                    _gas
+                );
+    }
+
+    /// @notice Quote the gas needed to authorize the deployment of the operator gateway on the destination chain 
+    /// @param _dstEid the destination chain's EID
+    /// @param domain the domain of the operator gateway
+    /// @param _gas the gas required to execute _lzReceive()
+    function quoteAuthorizeOperatorGatewayOnDestinationChain(
+        uint32 _dstEid,
+        string calldata domain,
+        uint128 _gas
+    ) external view returns (uint256 nativeFee, uint256 lzTokenFee) {
+        return
+            SnickerdoodleFactory(factory)
+                .quoteAuthorizeOperatorGatewayOnDestinationChain(
+                    _dstEid,
+                    domain,
                     _gas
                 );
     }

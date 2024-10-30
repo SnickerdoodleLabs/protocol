@@ -188,7 +188,7 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             );
         } else {
             require(
-                keccak256(abi.encodePacked(domain, operatorAccounts)) ==
+                keccak256(abi.encodePacked(domain, adminAccounts, operatorAccounts)) ==
                     operatorToHash[proxyAddress],
                 EntityNotClaimedOnSourceChain(domain)
             );
@@ -338,6 +338,10 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     }
 
     /// @notice Estimating the fee for to send a message to authorize a Snickerdoodle wallet on destination chain
+    /// @param _dstEid the destination chain's EID
+    /// @param username the username of the user wallet that will be prepended with the operator's domain
+    /// @param operator the address of the operator
+    /// @param _gas the gas required to execute _lzReceive()
     function quoteAuthorizeWalletOnDestinationChain(
         uint32 _dstEid,
         string calldata username,
@@ -366,6 +370,9 @@ contract SnickerdoodleFactory is OAppUpgradeable {
     }
 
     /// @notice Estimating the fee for to send a message to authorize a Snickerdoodle wallet on destination chain
+    /// @param _dstEid the destination chain's EID
+    /// @param domain the domain of the operator
+    /// @param _gas the gas required to execute _lzReceive()
     function quoteAuthorizeOperatorGatewayOnDestinationChain(
         uint32 _dstEid,
         string calldata domain,
@@ -480,8 +487,8 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             (bytes32, address)
         );
 
-        /// Assign the deployed wallet to the owner
-        /// After reserving on the destination chain, deployWalletProxy will work for this owner and name combination
+        /// Assign the hash to the wallet address
+        /// After reserving on the destination chain, deployWalletProxy will work on the destination chain
         walletToHash[walletAddress] = walletHash;
     }
 
@@ -496,8 +503,8 @@ contract SnickerdoodleFactory is OAppUpgradeable {
             (bytes32, address)
         );
 
-        /// Assign the deployed wallet to the owner
-        /// After reserving on the destination chain, deployWalletProxy will work for this owner and name combination
+        /// Assign the hash to the gateway address
+        /// After reserving on the destination chain, deployOperatorGatewayProxy will work on the destination chain
         operatorToHash[gatewayAddress] = operatorHash;
     }
 
