@@ -6,6 +6,7 @@ const OperatorGatewayModule = buildModule("OperatorGatewayModule", (m) => {
   // Change the params here based on the chain to deploy on
   const operatorGatewayImpl = m.contract("OperatorGateway", []);
   m.call(operatorGatewayImpl, "initialize", [
+    false,
     "",
     [owner],
     [owner],
