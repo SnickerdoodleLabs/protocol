@@ -183,6 +183,18 @@ contract SmartClearinghouse {
         }
     }
 
+    /// @notice Allows a user to transfer their earned funds to another user
+    /// @param asset the address of the asset to transfer
+    /// @param amount the amount of the asset to transfer
+    /// @param destination the address to transfer the funds to
+    function transferEarnedFunds(IERC20 asset, uint amount, address destination) external {
+        uint balance = userBalances[address(asset)][msg.sender];
+        require(balance >= amount, "overdrawn balance");
+
+        userBalances[address(asset)][msg.sender] -= amount;
+        userBalances[address(asset)][destination] += amount;
+    }
+
     /// @notice Allows the owner of an allocation to pause the allocation
     /// @param allocationId the unique identifier for the allocation
     function getRemainingAllocationBalance(
