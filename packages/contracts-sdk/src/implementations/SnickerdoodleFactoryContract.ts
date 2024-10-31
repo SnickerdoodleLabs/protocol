@@ -230,6 +230,22 @@ export class SnickerdoodleWalletFactoryContract
     );
   }
 
+  public computeWalletAddress(
+    username: SnickerdoodleWalletUsername,
+  ): ResultAsync<
+    EVMContractAddress,
+    SnickerdoodleFactoryContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.computeWalletAddress(
+        username,
+      ) as Promise<EVMContractAddress>,
+      (e) => {
+        return this.generateError(e, "Unable to call computeWalletAddress()");
+      },
+    );
+  }
+
   public isSourceChain(): ResultAsync<
     boolean,
     SnickerdoodleFactoryContractError | BlockchainCommonErrors

@@ -82,6 +82,55 @@ export class OperatorGatewayContract
     );
   }
 
+  public authorizeOperatorGatewayOnDestinationChain(
+    destinationLayerZeroEndpointId: LayerZeroEndpointId,
+    gas: bigint,
+    nativeTokenFee: bigint, // Required fee calculated from the quote function to be sent with the transaction to pay for the LayerZero _lzReceive() call
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | OperatorGatewayContractError
+  > {
+    // If there are no overrides provided, create an empty object
+    const overridesWithFee = overrides ? overrides : ({} as ContractOverrides);
+
+    // include the fee in the overrides object
+    overridesWithFee.value = nativeTokenFee;
+
+    return this.writeToContract(
+      "authorizeOperatorGatewayOnDestinationChain",
+      [destinationLayerZeroEndpointId, gas],
+      overrides,
+    );
+  }
+
+  public quoteAuthorizeWalletOnDestinationChain(
+    destinationLayerZeroEndpointId: LayerZeroEndpointId,
+    username: string,
+    gas: bigint,
+  ): ResultAsync<
+    TokenAmount,
+    OperatorGatewayContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.quoteAuthorizeWalletOnDestinationChain(
+        destinationLayerZeroEndpointId,
+        username,
+        gas,
+      ) as Promise<TokenAmount[]>,
+      (e) => {
+        return this.generateError(
+          e,
+          "Unable to call quoteAuthorizeWalletOnDestinationChain()",
+        );
+      },
+    ).map((quotedFee) => {
+      // The quoted fee is returned as fee in [native token, layer zero token]
+      // We only need the native token fee amount
+      return quotedFee[0];
+    });
+  }
+
   public quoteAuthorizeOperatorGatewayOnDestinationChain(
     destinationLayerZeroEndpointId: LayerZeroEndpointId,
     domain: OperatorDomain,
@@ -158,6 +207,37 @@ export class OperatorGatewayContract
     BlockchainCommonErrors | OperatorGatewayContractError
   > {
     return this.writeToContract("renounceRole", [role, address], overrides);
+  }
+
+  public hasRole(
+    role: EOperatorGatewayRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<
+    boolean,
+    OperatorGatewayContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.hasRole(role, address) as Promise<boolean>,
+      (e) => {
+        return this.generateError(e, "Unable to call hasRole()");
+      },
+    );
+  }
+
+  public computeWalletAddresses(
+    userNames: string[],
+  ): ResultAsync<
+    EVMContractAddress[],
+    OperatorGatewayContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.computeWalletAddresses(userNames) as Promise<
+        EVMContractAddress[]
+      >,
+      (e) => {
+        return this.generateError(e, "Unable to call getFactory()");
+      },
+    );
   }
 
   public factoryAddress(): ResultAsync<

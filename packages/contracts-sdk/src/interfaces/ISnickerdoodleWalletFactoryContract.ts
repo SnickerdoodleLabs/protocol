@@ -155,6 +155,17 @@ export interface ISnickerdoodleFactoryContract extends IBaseContract {
   >;
 
   /**
+   * Returns the wallet address of the Snickerdoodle wallet
+   * username - The username of the wallet
+   */
+  computeWalletAddress(
+    username: SnickerdoodleWalletUsername,
+  ): ResultAsync<
+    EVMContractAddress,
+    SnickerdoodleFactoryContractError | BlockchainCommonErrors
+  >;
+
+  /**
    * Returns the domain name of the operator gateway
    * operatorGatewayAddress - The operator gateway address
    */
