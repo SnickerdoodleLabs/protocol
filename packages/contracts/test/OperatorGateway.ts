@@ -21,6 +21,7 @@ describe("OperatorGateway Local Functions", function () {
 
     const gateway = await hre.ethers.deployContract("OperatorGateway", []);
     await gateway.initialize(
+      false,
       "cookie.snickerdoodle",
       [owner.address],
       [owner.address],

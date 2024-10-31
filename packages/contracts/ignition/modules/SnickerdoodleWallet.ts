@@ -10,6 +10,7 @@ const SnickerdoodleWalletModule = buildModule(
 
     // Skip initialization, just need to deploy it as the implementation contract.
     // m.call(snickerdoodleWalletImpl, "initialize", [
+    //   false,
     //   owner,
     //   [
     //     {

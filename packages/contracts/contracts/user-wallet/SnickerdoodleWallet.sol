@@ -17,14 +17,17 @@ contract SnickerdoodleWallet is Initializable {
     uint256 internal constant N =
         0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551;
 
+    /// @notice salt used to create the wallet address
+    string private name;
+
+    /// @notice flag to determine if the wallet is on the source chain
+    bool private isSourceChain;
+
     /// @notice address of the factory contract
     address private factory;
 
     /// @notice address of the operator that deployed this wallet
     address private operator;
-
-    /// @notice salt used to create the wallet address
-    string private name;
 
     /// @notice used to iterate through p256Keys mapping
     bytes32[] private keyIdHashArray;
@@ -52,6 +55,7 @@ contract SnickerdoodleWallet is Initializable {
 
     event EVMAccountRemoved(address indexed account);
 
+    error ArrayLengthMismatch(uint a, uint b, uint c);
     error InvalidP256Signature(string keyId);
     error P256NoncedUsed(bytes32 hash);
     error EVMAccountNotFound(address account);
@@ -65,19 +69,21 @@ contract SnickerdoodleWallet is Initializable {
         _;
     }
 
-    modifier onlyUserEVMAccount() {
-        require(evmAccountIndexes[msg.sender] == 0, OnlyOwnerAccounts());
+    modifier onlyUser() {
+        require(evmAccountIndexes[msg.sender] > 0, OnlyOwnerAccounts());
         _;
     }
 
     /// @notice creates a user wallet
     /// @dev you can optionally initialize the wallet with known EVM accounts if available from the user
+    /// @param _isSourceChain flag to determine if the wallet is the source chain
     /// @param _factory the address of the factory contract
     /// @param _operator the address of the operator that deployed this wallet
     /// @param _name the name of the wallet
     /// @param _p256Keys the P256 keys of the user wallets
     /// @param _evmAccounts the EVM accounts of the user wallets
     function initialize(
+        bool _isSourceChain,
         address _factory,
         address _operator,
         string calldata _name,
@@ -96,9 +102,10 @@ contract SnickerdoodleWallet is Initializable {
             }
         }
 
+        name = _name;
+        isSourceChain = _isSourceChain;
         factory = _factory;
         operator = _operator;
-        name = _name;
     }
 
     /// @notice authorizes the addition of a new P256 key via an existing P256 key
@@ -122,12 +129,9 @@ contract SnickerdoodleWallet is Initializable {
         require(
             _verifyP256(
                 keyId,
-                p256VerificationData.authenticatorData,
-                p256VerificationData.clientDataJSONLeft,
+                p256VerificationData,
                 Base64.encodeURL(challenge),
-                p256VerificationData.clientDataJSONRight,
-                p256Sig.r,
-                p256Sig.s
+                p256Sig
             ),
             InvalidP256Signature(keyId)
         );
@@ -152,12 +156,9 @@ contract SnickerdoodleWallet is Initializable {
         require(
             _verifyP256(
                 keyId,
-                p256VerificationData.authenticatorData,
-                p256VerificationData.clientDataJSONLeft,
+                p256VerificationData,
                 _addressToBase64URLString(evmAccount),
-                p256VerificationData.clientDataJSONRight,
-                p256Sig.r,
-                p256Sig.s
+                p256Sig
             ),
             InvalidP256Signature(keyId)
         );
@@ -167,26 +168,24 @@ contract SnickerdoodleWallet is Initializable {
     }
 
     /// @notice allows the owner to directly add a new EVM address through a known EVM address
-    /// @param _evmAccount the address which will be added to the user's known EVM address list
-    function addEVMAccountWithEVMAccount(
-        address _evmAccount
-    ) external onlyUserEVMAccount {
-        _addEVMAccount(_evmAccount);
+    /// @param evmAccount the address which will be added to the user's known EVM address list
+    function addEVMAccountWithEVMAccount(address evmAccount) external onlyUser {
+        _addEVMAccount(evmAccount);
         _updateWalletHash();
     }
 
     /// @notice allows the owner to directly remove an existing EVM address through a known EVM address
-    /// @param _evmAccount the address which will be removed from the user's known EVM address list
+    /// @param evmAccount the address which will be removed from the user's known EVM address list
     function removeEVMAccountWithEVMAccount(
-        address _evmAccount
-    ) external onlyUserEVMAccount {
-        _removeEVMAccount(_evmAccount);
+        address evmAccount
+    ) external onlyUser {
+        _removeEVMAccount(evmAccount);
         _updateWalletHash();
     }
 
     /// @notice withdraws any token held by (this) to the calling account
     /// @param asset the contract address of the token to be transferred from this to the user's EVM Address
-    function withdrawLocalERC20Asset(IERC20 asset) external onlyUserEVMAccount {
+    function withdrawLocalERC20Asset(IERC20 asset) external onlyUser {
         // get the balance of this wallet
         uint256 myBalance = IERC20(asset).balanceOf(address(this));
         // send the balance to the user's evm address
@@ -194,109 +193,53 @@ contract SnickerdoodleWallet is Initializable {
     }
 
     /// @notice withdraws any native asset held by (this) to the calling account
-    function withdrawNativeAsset() external onlyUserEVMAccount {
+    function withdrawNativeAsset() external onlyUser {
         // send the balance to the user's evm address
         uint256 amount = address(this).balance;
         (bool ok, ) = msg.sender.call{value: amount}("");
         require(ok, "transfer failed");
     }
 
+    /// @notice execute a transaction via a P256 signature
+    /// @dev https://github.com/eth-infinitism/account-abstraction/blob/develop/contracts/samples/SimpleAccount.sol
+    /// @param dest destination address to call
+    /// @param value the value to pass in this call
+    /// @param func the calldata to pass in this call
+    function executeWithP256Key(
+        string calldata keyId,
+        P256VerificationData calldata p256VerificationData,
+        address dest,
+        uint256 value,
+        bytes calldata func,
+        P256Signature calldata p256Sig
+    ) external {
+        require(
+            _verifyP256(
+                keyId,
+                p256VerificationData,
+                Base64.encodeURL(abi.encodePacked(dest, value, func)),
+                p256Sig
+            ),
+            InvalidP256Signature(keyId)
+        );
+        _call(dest, value, func);
+    }
+
+    /// @notice execute a transaction called directly from a user EVM account
+    /// @dev https://github.com/eth-infinitism/account-abstraction/blob/develop/contracts/samples/SimpleAccount.sol
+    /// @param dest destination address to call
+    /// @param value the value to pass in this call
+    /// @param func the calldata to pass in this call
+    function execute(
+        address dest,
+        uint256 value,
+        bytes calldata func
+    ) external onlyUser {
+        _call(dest, value, func);
+    }
+
     /// @notice allows native token to be sent to the wallet
     receive() external payable {}
-
-    /// @notice adds an EVM account to the wallet
-    /// @param evmAccount the address to add
-    function _addEVMAccount(address evmAccount) private {
-        // don't add an address that's already in the wallet
-        require(evmAccountIndexes[evmAccount] == 0, KeyAlreadyAdded());
-        evmAccounts.push(evmAccount);
-        evmAccountIndexes[evmAccount] = evmAccounts.length;
-        emit EVMAccountAdded(evmAccount);
-    }
-
-    /// @notice removes an EVM account from the wallet
-    /// @param evmAccount the address to remove
-    function _removeEVMAccount(address evmAccount) private {
-        uint index = evmAccountIndexes[evmAccount];
-        require(index > 0, EVMAccountNotFound(evmAccount));
-        evmAccounts[index] = evmAccounts[evmAccounts.length - 1];
-        evmAccounts.pop();
-        emit EVMAccountRemoved(evmAccount);
-    }
-
-    /// @notice adds a P256 public key to the user's wallet
-    /// @param p256Key the P256 key to add
-    function _addP256Key(P256Key memory p256Key) private {
-        bytes32 keyHash = keccak256(abi.encodePacked(p256Key.keyId));
-        require(p256Keys[keyHash].x == 0, KeyAlreadyAdded());
-        p256Keys[keyHash] = p256Key;
-        keyIdHashArray.push(keyHash);
-        emit P256KeyAdded(keyHash, p256Key.x, p256Key.y, p256Key.keyId);
-    }
-
-    /// @notice updates the wallet hash in the factory contract to reflect the current state of the wallet for layer0
-    function _updateWalletHash() internal returns (bytes32) {
-        string memory keyIds = "";
-        bytes32[] memory xs = new bytes32[](keyIdHashArray.length);
-        bytes32[] memory ys = new bytes32[](keyIdHashArray.length);
-        for (uint256 i = 0; i < keyIdHashArray.length; i++) {
-            keyIds = string.concat(keyIds, p256Keys[keyIdHashArray[i]].keyId);
-            xs[i] = p256Keys[keyIdHashArray[i]].x;
-            ys[i] = p256Keys[keyIdHashArray[i]].y;
-        }
-
-        bytes32 wallethash = keccak256(
-            abi.encodePacked(operator, name, keyIds, xs, ys, evmAccounts)
-        );
-        SnickerdoodleFactory(factory).updateWalletHash(wallethash);
-    }
-
-    /// @notice verifies a P256 signature
-    /// @dev the challenge string should already be Base64URL encoded
-    /// @param _keyId the keyId of the P256
-    /// @param authenticatorData the authenticatorData from the client
-    /// @param clientDataJSONLeft the left side of the clientDataJSON
-    /// @param challenge the challenge string
-    /// @param clientDataJSONRight the right side of the clientDataJSON
-    /// @param r the r value of the signature
-    /// @param s the s value of the signature
-    function _verifyP256(
-        string calldata _keyId,
-        bytes calldata authenticatorData,
-        string calldata clientDataJSONLeft,
-        string memory challenge,
-        string calldata clientDataJSONRight,
-        bytes32 r,
-        bytes32 s
-    ) private returns (bool) {
-        string memory clientDataJSON = string.concat(
-            clientDataJSONLeft,
-            challenge,
-            clientDataJSONRight
-        );
-
-        bytes32 cDataHash = sha256(bytes(clientDataJSON));
-        bytes32 h = sha256(bytes.concat(authenticatorData, cDataHash));
-        require(!hashDump[h], P256NoncedUsed(h));
-        hashDump[h] = true;
-
-        if (uint256(s) > N / 2) {
-            uint256 us = N - uint256(s);
-            s = bytes32(us);
-        }
-
-        bytes32 keyHash = keccak256(abi.encodePacked(_keyId));
-        P256Key memory p256Key = p256Keys[keyHash];
-        return P256.verify(h, r, s, p256Key.x, p256Key.y);
-    }
-
-    /// @notice Converts an address to a Base64URL string
-    /// @param _address to be converted to a Base64URL string
-    function _addressToBase64URLString(
-        address _address
-    ) private pure returns (string memory) {
-        return Base64.encodeURL(bytes.concat(bytes20(uint160(_address))));
-    }
 
     /// @notice Returns the Snickerdoodle factory address
     function getFactory() external view returns (address) {
@@ -320,7 +263,9 @@ contract SnickerdoodleWallet is Initializable {
 
     /// @notice Returns the P256 key data for a given keyId
     /// @param keyHash the hash of the keyId
-    function getP256Key(bytes32 keyHash) external view returns (P256Key memory) {
+    function getP256Key(
+        bytes32 keyHash
+    ) external view returns (P256Key memory) {
         return p256Keys[keyHash];
     }
 
@@ -331,7 +276,9 @@ contract SnickerdoodleWallet is Initializable {
 
     /// @notice Returns the EVM address index
     /// @param evmAccount the address to check
-    function getEvmAccountIndex(address evmAccount) external view returns (uint) {
+    function getEvmAccountIndex(
+        address evmAccount
+    ) external view returns (uint) {
         return evmAccountIndexes[evmAccount];
     }
 
@@ -339,5 +286,110 @@ contract SnickerdoodleWallet is Initializable {
     /// @param hash the hash to check
     function hashUsed(bytes32 hash) public view returns (bool) {
         return hashDump[hash];
+    }
+
+    /// @dev https://github.com/eth-infinitism/account-abstraction/blob/develop/contracts/samples/SimpleAccount.sol
+    function _call(address target, uint256 value, bytes memory data) internal {
+        (bool success, bytes memory result) = target.call{value: value}(data);
+        if (!success) {
+            assembly {
+                revert(add(result, 32), mload(result))
+            }
+        }
+    }
+
+    /// @notice adds an EVM account to the wallet
+    /// @param evmAccount the address to add
+    function _addEVMAccount(address evmAccount) private {
+        // don't add an address that's already in the wallet
+        require(evmAccountIndexes[evmAccount] == 0, KeyAlreadyAdded());
+        evmAccounts.push(evmAccount);
+        evmAccountIndexes[evmAccount] = evmAccounts.length; // index is 1-based due to mapping default value
+        emit EVMAccountAdded(evmAccount);
+    }
+
+    /// @notice removes an EVM account from the wallet
+    /// @param evmAccount the address to remove
+    function _removeEVMAccount(address evmAccount) private {
+        uint index = evmAccountIndexes[evmAccount];
+        require(index > 0, EVMAccountNotFound(evmAccount));
+        evmAccountIndexes[evmAccount] = 0;
+        index--; // switch to 0-based index
+        evmAccounts[index] = evmAccounts[evmAccounts.length - 1];
+        evmAccounts.pop();
+        emit EVMAccountRemoved(evmAccount);
+    }
+
+    /// @notice adds a P256 public key to the user's wallet
+    /// @param p256Key the P256 key to add
+    function _addP256Key(P256Key memory p256Key) private {
+        bytes32 keyHash = keccak256(abi.encodePacked(p256Key.keyId));
+        require(p256Keys[keyHash].x == 0, KeyAlreadyAdded());
+        p256Keys[keyHash] = p256Key;
+        keyIdHashArray.push(keyHash);
+        emit P256KeyAdded(keyHash, p256Key.x, p256Key.y, p256Key.keyId);
+    }
+
+    /// @notice updates the wallet hash in the factory contract to reflect the current state of the wallet for layer0
+    function _updateWalletHash() internal {
+        if (isSourceChain) {
+            string memory keyIds = "";
+            bytes32[] memory xs = new bytes32[](keyIdHashArray.length);
+            bytes32[] memory ys = new bytes32[](keyIdHashArray.length);
+            for (uint256 i = 0; i < keyIdHashArray.length; i++) {
+                keyIds = string.concat(
+                    keyIds,
+                    p256Keys[keyIdHashArray[i]].keyId
+                );
+                xs[i] = p256Keys[keyIdHashArray[i]].x;
+                ys[i] = p256Keys[keyIdHashArray[i]].y;
+            }
+
+            bytes32 wallethash = keccak256(
+                abi.encodePacked(operator, name, keyIds, xs, ys, evmAccounts)
+            );
+            SnickerdoodleFactory(factory).updateWalletHash(wallethash);
+        }
+    }
+
+    /// @notice verifies a P256 signature
+    /// @dev the challenge string should already be Base64URL encoded
+    /// @param _keyId the keyId of the P256
+    /// @param p256VerificationData the P256VerificationData struct
+    /// @param challenge the challenge string
+    /// @param p256Sig the P256 signature to verify
+    function _verifyP256(
+        string calldata _keyId,
+        P256VerificationData calldata p256VerificationData,
+        string memory challenge,
+        P256Signature calldata p256Sig
+    ) private returns (bool) {
+        string memory clientDataJSON = string.concat(
+            p256VerificationData.clientDataJSONLeft,
+            challenge,
+            p256VerificationData.clientDataJSONRight
+        );
+
+        bytes32 cDataHash = sha256(bytes(clientDataJSON));
+        bytes32 h = sha256(bytes.concat(p256VerificationData.authenticatorData, cDataHash));
+        require(!hashDump[h], P256NoncedUsed(h));
+        hashDump[h] = true;
+
+        bytes32 s = bytes32(uint256(p256Sig.s));
+        if (uint256(s) > N / 2) {
+            uint256 us = N - uint256(s);
+            s = bytes32(us);
+        }
+
+        P256Key memory p256Key = p256Keys[keccak256(abi.encodePacked(_keyId))];
+        return P256.verify(h, p256Sig.r, s, p256Key.x, p256Key.y);
+    }
+
+    /// @notice Converts an address to a Base64URL string
+    /// @param _address to be converted to a Base64URL string
+    function _addressToBase64URLString(
+        address _address
+    ) private pure returns (string memory) {
+        return Base64.encodeURL(bytes.concat(bytes20(uint160(_address))));
     }
 }

@@ -16,6 +16,9 @@ contract OperatorGateway is
 {
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
+    /// @notice flag to determine if the gateway is on the source chain
+    bool isSourceChain;
+
     /// @notice address of SnickerdoodleWallet contract
     address private factory;
 
@@ -23,14 +26,15 @@ contract OperatorGateway is
     string private name;
 
     error ArrayLengthMismatch(uint a, uint b);
+    error SourceChainMethodOnly(); 
 
     /// @notice creates a user wallet
     /// @dev the first account in the operatorAccounts array is the default admin
-    /// @param _name the domain name of the operator gateway
-    /// @param adminAccounts the addresses of the admin accounts
+    /// @param _isSourceChain flag to determine if the gateway is on the source chain
     /// @param operatorAccounts the addresses of the operator accounts
     /// @param _factory the address of the SnickerdoodleFactory contract
     function initialize(
+        bool _isSourceChain,
         string memory _name,
         address[] calldata adminAccounts,
         address[] calldata operatorAccounts,
@@ -38,14 +42,28 @@ contract OperatorGateway is
     ) public initializer {
         __AccessControl_init();
 
+        // Check that the admin accounts have at least one EOA
+        bool hasEOA; 
+
         for (uint256 i = 0; i < adminAccounts.length; i++) {
+            // If an EOA has not been found yet, check if the current account is an EOA
+            if (!hasEOA) {
+                // If it is not a contract, set hasEOA to true
+                if (!isContract(adminAccounts[i])) {
+                    hasEOA = true;
+                }
+            }
             _grantRole(DEFAULT_ADMIN_ROLE, adminAccounts[i]);
         }
-        
+
+        // Require that at least one admin account is an EOA
+        require(hasEOA, "At least one admin account must be an EOA");
+
         for (uint256 i = 0; i < operatorAccounts.length; i++) {
             _grantRole(OPERATOR_ROLE, operatorAccounts[i]);
         }
 
+        isSourceChain = _isSourceChain;
         factory = _factory;
         name = _name;
     }
@@ -75,9 +93,23 @@ contract OperatorGateway is
         string[] calldata usernames,
         uint128 _gas
     ) external payable {
+        require(isSourceChain, SourceChainMethodOnly());
         SnickerdoodleFactory(factory).authorizeWalletsOnDestinationChain{
             value: msg.value
         }(_destinationChainEID, usernames, _gas);
+    }
+
+    /// @notice Authorize the deployment of the operator gateway on the destination chain
+    /// @param _destinationChainEID the destination chain's EID
+    /// @param _gas the gas required to execute _lzReceive()
+    function authorizeGatewayOnDestinationChain(
+        uint32 _destinationChainEID,
+        uint128 _gas
+    ) external payable {
+        require(isSourceChain, SourceChainMethodOnly());
+        SnickerdoodleFactory(factory).authorizeGatewayOnDestinationChain{
+            value: msg.value
+        }(_destinationChainEID, _gas);
     }
 
     /// @notice Quote the gas needed to reserve a username on the destination chain with a single transaction
@@ -96,6 +128,24 @@ contract OperatorGateway is
                     _dstEid,
                     username,
                     address(this),
+                    _gas
+                );
+    }
+
+    /// @notice Quote the gas needed to authorize the deployment of the operator gateway on the destination chain 
+    /// @param _dstEid the destination chain's EID
+    /// @param domain the domain of the operator gateway
+    /// @param _gas the gas required to execute _lzReceive()
+    function quoteAuthorizeOperatorGatewayOnDestinationChain(
+        uint32 _dstEid,
+        string calldata domain,
+        uint128 _gas
+    ) external view returns (uint256 nativeFee, uint256 lzTokenFee) {
+        return
+            SnickerdoodleFactory(factory)
+                .quoteAuthorizeOperatorGatewayOnDestinationChain(
+                    _dstEid,
+                    domain,
                     _gas
                 );
     }
@@ -140,19 +190,36 @@ contract OperatorGateway is
     }
 
     /// @notice override the AccessControl grantRole function to update the operator hash
-    function grantRole(bytes32 role, address account) public override(AccessControlUpgradeable, IAccessControl) onlyRole(getRoleAdmin(role)) {
+    function grantRole(
+        bytes32 role,
+        address account
+    )
+        public
+        override(AccessControlUpgradeable, IAccessControl)
+        onlyRole(getRoleAdmin(role))
+    {
         _grantRole(role, account);
         _updateOperatorHash();
     }
 
     /// @notice override the AccessControl revokeRole function to update the operator hash
-    function revokeRole(bytes32 role, address account) public override(AccessControlUpgradeable, IAccessControl) onlyRole(getRoleAdmin(role)) {
+    function revokeRole(
+        bytes32 role,
+        address account
+    )
+        public
+        override(AccessControlUpgradeable, IAccessControl)
+        onlyRole(getRoleAdmin(role))
+    {
         _revokeRole(role, account);
         _updateOperatorHash();
     }
 
     /// @notice override the AccessControl renounceRole function to update the operator hash
-    function renounceRole(bytes32 role, address callerConfirmation) public override(AccessControlUpgradeable, IAccessControl) {
+    function renounceRole(
+        bytes32 role,
+        address callerConfirmation
+    ) public override(AccessControlUpgradeable, IAccessControl) {
         super.renounceRole(role, callerConfirmation);
         _updateOperatorHash();
     }
@@ -173,26 +240,41 @@ contract OperatorGateway is
         _removeDomain(domain);
     }
 
-        /// @notice updates the wallet hash in the factory contract to reflect the current state of the wallet for layer0
-    function _updateOperatorHash() internal returns (bytes32) {
-        uint numAdmins = getRoleMemberCount(DEFAULT_ADMIN_ROLE);
-        uint numOperators = getRoleMemberCount(OPERATOR_ROLE);
-
-        address[] memory adminAccounts = new address[](numAdmins);
-        address[] memory operatorAccounts = new address[](numOperators);
-
-        for (uint256 i = 0; i < numAdmins; i++) {
-            adminAccounts[i] = getRoleMember(DEFAULT_ADMIN_ROLE, i);
+    /// @notice Get wallet addresses for a list of usernames
+    /// @param usernames the usernames of the user wallets that will be prepended with the operator's domain
+    function computeWalletAddresses(
+        string[] calldata usernames
+    ) external view returns (address[] memory) {
+        address[] memory walletAddresses = new address[](usernames.length);
+        for (uint256 i = 0; i < usernames.length; i++) {
+            string memory username = string.concat(usernames[i], ".", name);
+            walletAddresses[i] = SnickerdoodleFactory(factory).computeWalletAddress(username);
         }
+        return walletAddresses;
+    }
 
-        for (uint256 i = 0; i < numOperators; i++) {
-            operatorAccounts[i] = getRoleMember(OPERATOR_ROLE, i);
+    /// @notice updates the wallet hash in the factory contract to reflect the current state of the wallet for layer0
+    function _updateOperatorHash() internal {
+        if (isSourceChain) {
+            uint numAdmins = getRoleMemberCount(DEFAULT_ADMIN_ROLE);
+            uint numOperators = getRoleMemberCount(OPERATOR_ROLE);
+
+            address[] memory adminAccounts = new address[](numAdmins);
+            address[] memory operatorAccounts = new address[](numOperators);
+
+            for (uint256 i = 0; i < numAdmins; i++) {
+                adminAccounts[i] = getRoleMember(DEFAULT_ADMIN_ROLE, i);
+            }
+
+            for (uint256 i = 0; i < numOperators; i++) {
+                operatorAccounts[i] = getRoleMember(OPERATOR_ROLE, i);
+            }
+
+            bytes32 operatorHash = keccak256(
+                abi.encodePacked(name, adminAccounts, operatorAccounts)
+            );
+            SnickerdoodleFactory(factory).updateOperatorHash(operatorHash);
         }
-
-        bytes32 operatorHash = keccak256(
-            abi.encodePacked(name, adminAccounts, operatorAccounts)
-        );
-        SnickerdoodleFactory(factory).updateOperatorHash(operatorHash);
     }
 
     /// @notice Returns the Snickerdoodle factory address
@@ -203,5 +285,16 @@ contract OperatorGateway is
     /// @notice Returns the operator gateway's domain name
     function getDomainName() external view returns (string memory) {
         return name;
+    }
+
+    /// @notice Determines if an address is a contract address
+    /// @param account The address to check
+    /// @return True if the address is a contract, false otherwise
+    function isContract(address account) internal view returns (bool) {
+        uint256 size;
+        assembly {
+            size := extcodesize(account)
+        }
+        return size > 0;
     }
 }

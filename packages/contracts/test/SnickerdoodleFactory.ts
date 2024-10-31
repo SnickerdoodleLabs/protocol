@@ -17,6 +17,7 @@ describe("SnickerdoodleFactory", function () {
 
     const gateway = await hre.ethers.deployContract("OperatorGateway", []);
     await gateway.initialize(
+      false,
       "implemenation",
       [owner.address],
       [owner.address],
@@ -42,6 +43,7 @@ describe("SnickerdoodleFactory", function () {
 
     const sdwallet = await hre.ethers.deployContract("SnickerdoodleWallet", []);
     await sdwallet.initialize(
+      false,
       owner.address,
       owner.address,
       "proxy.implementation",
