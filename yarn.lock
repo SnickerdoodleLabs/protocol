@@ -7016,19 +7016,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomicfoundation/hardhat-ignition-viem@npm:^0.15.5":
-  version: 0.15.5
-  resolution: "@nomicfoundation/hardhat-ignition-viem@npm:0.15.5"
-  peerDependencies:
-    "@nomicfoundation/hardhat-ignition": ^0.15.5
-    "@nomicfoundation/hardhat-viem": ^2.0.0
-    "@nomicfoundation/ignition-core": ^0.15.5
-    hardhat: ^2.18.0
-    viem: ^2.7.6
-  checksum: 1ac49083e7ecdf973d571127cb937072893b7e07b591103c3006a7bb7f4876c355b415f99bc64daa594949bcf62ed058faa93cbb51eddf1de85d46a93a5d759e
-  languageName: node
-  linkType: hard
-
 "@nomicfoundation/hardhat-ignition@npm:^0.15.5":
   version: 0.15.5
   resolution: "@nomicfoundation/hardhat-ignition@npm:0.15.5"
@@ -7054,31 +7041,6 @@ __metadata:
   peerDependencies:
     hardhat: ^2.9.5
   checksum: 675da8d3229946a2bac0df9d1b5cc278bba9cd1a8214b5ff6099dcba874d913df07b9772a2ead0cb7ea2ced6b3fa430a73f94a3e257ae105493931c38fc7bf61
-  languageName: node
-  linkType: hard
-
-"@nomicfoundation/hardhat-toolbox-viem@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "@nomicfoundation/hardhat-toolbox-viem@npm:3.0.0"
-  dependencies:
-    chai-as-promised: ^7.1.1
-  peerDependencies:
-    "@nomicfoundation/hardhat-ignition-viem": ^0.15.0
-    "@nomicfoundation/hardhat-network-helpers": ^1.0.0
-    "@nomicfoundation/hardhat-verify": ^2.0.0
-    "@nomicfoundation/hardhat-viem": ^2.0.0
-    "@types/chai": ^4.2.0
-    "@types/chai-as-promised": ^7.1.6
-    "@types/mocha": ">=9.1.0"
-    "@types/node": ">=18.0.0"
-    chai: ^4.2.0
-    hardhat: ^2.11.0
-    hardhat-gas-reporter: ^1.0.8
-    solidity-coverage: ^0.8.1
-    ts-node: ">=8.0.0"
-    typescript: ^5.0.4
-    viem: ^2.7.6
-  checksum: 4c67184270e521b237341a1607325baddacfa10c9a7189b8b7a07b5277d491ffca936c339958ca843137d1ee1be9d31e4905b1e453698ed0de792eaa3dfa6b0b
   languageName: node
   linkType: hard
 
@@ -7123,20 +7085,6 @@ __metadata:
   peerDependencies:
     hardhat: ^2.0.4
   checksum: 249c73404e5ed71cd9d8fb4d4736804f4f358866985e6e59641ed9047cdb2f6aa19e407f690bf38a6dca35350e7dba168911c2810a6d670f0838f2865df718e8
-  languageName: node
-  linkType: hard
-
-"@nomicfoundation/hardhat-viem@npm:^2.0.0":
-  version: 2.0.3
-  resolution: "@nomicfoundation/hardhat-viem@npm:2.0.3"
-  dependencies:
-    abitype: ^0.9.8
-    lodash.memoize: ^4.1.2
-  peerDependencies:
-    hardhat: "*"
-    typescript: ~5.0.0
-    viem: ^2.7.6
-  checksum: dbe51ac519e3da60474cd21a4c255deb591b5b8db1226fe77af0c1c5eee1fd45451bb2d767a27780a54ffd30f6e2ce9d4b724a05ba79675530467608400d236b
   languageName: node
   linkType: hard
 
@@ -14359,21 +14307,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"abitype@npm:^0.9.8":
-  version: 0.9.10
-  resolution: "abitype@npm:0.9.10"
-  peerDependencies:
-    typescript: ">=5.0.4"
-    zod: ^3 >=3.22.0
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-    zod:
-      optional: true
-  checksum: de703b58c221395f015c04a8512dde2cff2b9541c577a23cf205204604e624fbfd0e682e82f7954968d5e437cd0d7e630b1c159e73543881a4d0040238bfb13a
-  languageName: node
-  linkType: hard
-
 "abort-controller@npm:^3.0.0":
   version: 3.0.0
   resolution: "abort-controller@npm:3.0.0"
@@ -18953,9 +18886,6 @@ __metadata:
     "@layerzerolabs/lz-evm-protocol-v2": ^2.3.33
     "@nomicfoundation/hardhat-ignition": ^0.15.5
     "@nomicfoundation/hardhat-ignition-ethers": ^0.15.5
-    "@nomicfoundation/hardhat-ignition-viem": ^0.15.5
-    "@nomicfoundation/hardhat-toolbox-viem": ^3.0.0
-    "@nomicfoundation/hardhat-viem": ^2.0.0
     "@openzeppelin/contracts": ^5.1.0
     "@openzeppelin/contracts-upgradeable": ^5.1.0
     add: ^2.0.6

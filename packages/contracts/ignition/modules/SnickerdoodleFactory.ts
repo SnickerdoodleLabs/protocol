@@ -2,9 +2,9 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 import hre from "hardhat"; // Import hre directly
 
 import { getChainIdByChainName, getLzEndpointByChainId } from "./helpers";
+import EndpointV2MockModule from "./mock/EndpointV2Mock";
 import OperatorGatewayModule from "./OperatorGateway";
 import SnickerdoodleWalletModule from "./SnickerdoodleWallet";
-import EndpointV2MockModule from "./mock/EndpointV2Mock";
 
 const SnickerdoodleFactoryModule = buildModule(
   "SnickerdoodleFactoryModule",
@@ -14,7 +14,7 @@ const SnickerdoodleFactoryModule = buildModule(
 
     let layerZeroEndpointAddress = null;
 
-    if (hre.network.name === "hardhat") {
+    if (hre.network.name === "localhost") {
       // This makes the module flexible for local testing
       // If it's a localhost testing, deploy a mock EndpointV2Mock so that we can initialize the SnickerdoodleFactory with a endpointv2 contract that exists
       // It reverts otherwise
@@ -67,8 +67,26 @@ const SnickerdoodleFactoryModule = buildModule(
       operatorGatewayBeacon, // Operator gateway beacon
     ]);
 
+    // Show Todd and Charlie
+    // m.call(snickerdoodleFactoryProxy, "deployOperatorGatewayProxy", [
+    //   "snickerdoodle",
+    //   [proxyAdminOwner],
+    //   [proxyAdminOwner],
+    // ]);
+
+    // const isSourceChain = m.staticCall(
+    //   snickerdoodleFactoryProxy,
+    //   "getIsSourceChain",
+    //   [],
+    // );
+
     // Return deployed contracts for reference
-    return { snickerdoodleFactory, proxyAdmin, proxy };
+    return {
+      snickerdoodleFactory,
+      proxyAdmin,
+      proxy,
+      snickerdoodleFactoryProxy,
+    };
   },
 );
 
