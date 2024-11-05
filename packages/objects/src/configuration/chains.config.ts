@@ -34,8 +34,8 @@ export const chainConfig = new Map<EChain, ChainInformation>([
       EChainType.Hardhat,
       "",
       true, // contractStackDeployed
-      EVMContractAddress("0xOperator Gateway"), // Operator Gateway Contract
-      EVMContractAddress("0xSnickerdoodle User Wallet Factory"), // Snickerdoodle User Wallet Factory
+      EVMContractAddress("0x1aFcd96AeD077c5587fC03Dc7D630980233EB4a8"), // Operator Gateway Contract
+      EVMContractAddress("0x0165878A594ca255338adfa4d48449f69242Eb8F"), // Snickerdoodle User Wallet Factory
       EVMContractAddress("0xSmart Clearinghouse"), // Smart Clearinghouse Contract
       EVMContractAddress("0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"), // Consent Contract Factory
       EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Governance Token Contract
