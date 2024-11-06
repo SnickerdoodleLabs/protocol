@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "script": "npx hardhat run",
+    "dockerize": "docker build -t snickerdoodlelabs/devchain:0.2.0 -f Dockerfile --progress=plain .",
+    "docker-push": "docker push snickerdoodlelabs/devchain:0.2.0",
+    "redocgen": "npx hardhat clean && npx hardhat compile && npx hardhat docgen && node scripts/docgenTitleFix.js"
   },
   "keywords": [],
   "author": "",
@@ -24,17 +29,9 @@
     "hardhat-gas-reporter": "^2.2.1",
     "solidity-bytes-utils": "^0.8.2",
     "yarn": "^1.22.22"
-  }, 
-  "devDependencies": {
-    "typescript": "^5.2.2",
-    "ts-node": "^10.8.0"
   },
-  "scripts": {
-    "compile": "npx hardhat compile",
-    "test": "npx hardhat test",
-    "script": "npx hardhat run",
-    "dockerize": "docker build -t snickerdoodlelabs/devchain:0.2.0 -f Dockerfile --progress=plain .",
-    "docker-push": "docker push snickerdoodlelabs/devchain:0.2.0",
-    "redocgen": "npx hardhat clean && npx hardhat compile && npx hardhat docgen && node scripts/docgenTitleFix.js"
+  "devDependencies": {
+    "ts-node": "^10.8.0",
+    "typescript": "^5.2.2"
   }
 }
