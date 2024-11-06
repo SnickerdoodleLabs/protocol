@@ -9,10 +9,14 @@ import {
   LayerZeroEndpointId,
   OperatorDomain,
   TokenAmount,
+  WebauthnCredentialId,
+  AuthenticatorData,
+  ClientDataJSONComponents,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { errAsync, ResultAsync } from "neverthrow";
 
 import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
 import { ERC7529Contract } from "@contracts-sdk/implementations/ERC7529Contract.js";
@@ -160,18 +164,39 @@ export class OperatorGatewayContract
 
   public addP256KeysWithP256Keys(
     evmAccounts: EVMContractAddress[] | EVMAccountAddress[],
-    keyIds: PasskeyId[],
-    p256VerificationDatas: P256VerificationData[],
+    keyIds: WebauthnCredentialId[],
+    authenticatorDatas: AuthenticatorData[],
+    clientJSONDatas: ClientDataJSONComponents[],
     newP256Keys: P256PublicKeyComponents[],
     p256Signatures: P256SignatureComponents[],
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | OperatorGatewayContractError
+    | BlockchainCommonErrors
+    | OperatorGatewayContractError
+    | InvalidParametersError
   > {
+    const verificationDatas = new Array<P256VerificationData>();
+    if (authenticatorDatas.length !== clientJSONDatas.length) {
+      return errAsync(
+        new InvalidParametersError(
+          "authenticatorDatas and clientJSONDatas must be the same length",
+        ),
+      );
+    }
+
+    for (let i = 0; i < authenticatorDatas.length; i++) {
+      verificationDatas.push(
+        new P256VerificationData(
+          authenticatorDatas[i],
+          clientJSONDatas[i].clientDataJSONLeft,
+          clientJSONDatas[i].clientDataJSONRight,
+        ),
+      );
+    }
     return this.writeToContract(
       "addP256KeyWithP256Key",
-      [evmAccounts, keyIds, p256VerificationDatas, newP256Keys, p256Signatures],
+      [evmAccounts, keyIds, verificationDatas, newP256Keys, p256Signatures],
       overrides,
     );
   }

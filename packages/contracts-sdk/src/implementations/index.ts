@@ -1,4 +1,5 @@
 export * from "@contracts-sdk/implementations/BaseContract.js";
+export * from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
 export * from "@contracts-sdk/implementations/ConsentContract.js";
 export * from "@contracts-sdk/implementations/ConsentFactoryContract.js";
 export * from "@contracts-sdk/implementations/ERC20RewardContract.js";

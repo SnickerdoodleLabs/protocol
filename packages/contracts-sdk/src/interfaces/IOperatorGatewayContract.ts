@@ -2,7 +2,6 @@ import {
   EVMContractAddress,
   BlockchainCommonErrors,
   EVMAccountAddress,
-  PasskeyId,
   P256PublicKeyComponents,
   P256SignatureComponents,
   OperatorGatewayContractError,
@@ -10,12 +9,15 @@ import {
   OperatorDomain,
   TokenAmount,
   SnickerdoodleWalletUsername,
+  WebauthnCredentialId,
+  ClientDataJSONComponents,
+  AuthenticatorData,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import {
-  P256VerificationData,
   ContractOverrides,
   WrappedTransactionResponse,
   EOperatorGatewayRoles,
@@ -77,14 +79,17 @@ export interface IOperatorGatewayContract extends IBaseContract {
 
   addP256KeysWithP256Keys(
     evmAccounts: EVMContractAddress[] | EVMAccountAddress[],
-    keyIds: PasskeyId[],
-    p256VerificationDatas: P256VerificationData[],
+    keyIds: WebauthnCredentialId[],
+    authenticatorDatas: AuthenticatorData[],
+    clientJSONDatas: ClientDataJSONComponents[],
     newP256Keys: P256PublicKeyComponents[],
     p256Signatures: P256SignatureComponents[],
     overrides?: ContractOverrides,
   ): ResultAsync<
     WrappedTransactionResponse,
-    BlockchainCommonErrors | OperatorGatewayContractError
+    | BlockchainCommonErrors
+    | OperatorGatewayContractError
+    | InvalidParametersError
   >;
 
   grantRole(

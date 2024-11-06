@@ -1,4 +1,3 @@
-import { JSONString } from "@snickerdoodlelabs/objects";
 import { BytesLike } from "ethers";
 
 export class P256VerificationData {
