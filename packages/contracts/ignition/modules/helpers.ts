@@ -23,6 +23,8 @@ export const getChainIdByChainName = (chainName: string): number => {
   switch (chainName) {
     case "hardhat": // hardhat: TODO: create a mock
       return 31337;
+    case "localhost":
+      return 31337;
     case "fuji": // fuji
       return 43113;
     case "sepolia": // sepolia (sepolia and fuji have the same address)

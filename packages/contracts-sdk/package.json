@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/contracts-sdk",
-  "version": "4.0.25",
+  "version": "5.0.9",
   "description": "SDK for snickerdoodlelabs protocol smart contracts",
   "license": "MIT",
   "repository": {
@@ -24,6 +24,7 @@
     "!dist/tsconfig.tsbuildinfo",
     "!test",
     "!src",
+    "!src-new",
     "!tsconfig.json"
   ],
   "scripts": {

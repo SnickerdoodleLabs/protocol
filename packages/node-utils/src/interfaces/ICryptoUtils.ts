@@ -3,15 +3,25 @@ import {
   AESEncryptedString,
   AESKey,
   Base64String,
+  ClientDataJSONComponents,
   ED25519PublicKey,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   HexString,
   InvalidParametersError,
+  JSONString,
   KeyGenerationError,
   NobleED25519KeyPair,
   OAuth1Config,
+  P256PublicKey,
+  P256PublicKeyComponents,
+  P256PublicKeyPointX,
+  P256PublicKeyPointY,
+  P256Signature,
+  P256SignatureComponentArrayBuffer,
+  P256SignatureComponents,
+  PasskeyId,
   RSAKeyPair,
   SHA256Hash,
   Signature,
@@ -25,7 +35,7 @@ import {
   UUID,
 } from "@snickerdoodlelabs/objects";
 import { TypedDataDomain, TypedDataField, ethers } from "ethers";
-import { ResultAsync } from "neverthrow";
+import { Result, ResultAsync } from "neverthrow";
 
 export interface ICryptoUtils {
   getUUID(): UUID;
@@ -159,7 +169,22 @@ export interface ICryptoUtils {
     ed25519Signer: NobleEd25519Signer,
   ): ResultAsync<ED25519PublicKey, SignerUnavailableError>;
 
-  generateEd25519KeyPair(): ResultAsync<NobleED25519KeyPair, KeyGenerationError>
+  generateEd25519KeyPair(): ResultAsync<
+    NobleED25519KeyPair,
+    KeyGenerationError
+  >;
+
+  parseRawP256PublicKey(
+    publicKey: P256PublicKey,
+  ): Result<P256PublicKeyComponents, InvalidParametersError>;
+
+  parseRawP256Signature(
+    signature: P256Signature,
+  ): Result<P256SignatureComponents, InvalidParametersError>;
+
+  parseClientDataJSON(
+    clientDataJSON: JSONString,
+  ): Result<ClientDataJSONComponents, InvalidParametersError>;
 }
 
 export const ICryptoUtilsType = Symbol.for("ICryptoUtils");

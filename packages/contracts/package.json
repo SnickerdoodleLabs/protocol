@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "script": "npx hardhat run",
+    "dockerize": "docker build -t snickerdoodlelabs/devchain:0.2.0 -f Dockerfile --progress=plain .",
+    "docker-push": "docker push snickerdoodlelabs/devchain:0.2.0",
+    "redocgen": "npx hardhat clean && npx hardhat compile && npx hardhat docgen && node scripts/docgenTitleFix.js"
   },
   "keywords": [],
   "author": "",
@@ -15,9 +20,6 @@
     "@layerzerolabs/lz-evm-protocol-v2": "^2.3.33",
     "@nomicfoundation/hardhat-ignition": "^0.15.5",
     "@nomicfoundation/hardhat-ignition-ethers": "^0.15.5",
-    "@nomicfoundation/hardhat-ignition-viem": "^0.15.5",
-    "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
-    "@nomicfoundation/hardhat-viem": "^2.0.0",
     "@openzeppelin/contracts": "^5.1.0",
     "@openzeppelin/contracts-upgradeable": "^5.1.0",
     "add": "^2.0.6",
@@ -27,5 +29,9 @@
     "hardhat-gas-reporter": "^2.2.1",
     "solidity-bytes-utils": "^0.8.2",
     "yarn": "^1.22.22"
+  },
+  "devDependencies": {
+    "ts-node": "^10.8.0",
+    "typescript": "^5.2.2"
   }
 }

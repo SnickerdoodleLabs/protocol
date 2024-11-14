@@ -1,0 +1,329 @@
+import {
+  EVMAccountAddress,
+  EVMContractAddress,
+  BlockchainCommonErrors,
+  OperatorGatewayContractError,
+  PasskeyId,
+  P256PublicKeyComponents,
+  P256SignatureComponents,
+  LayerZeroEndpointId,
+  OperatorDomain,
+  TokenAmount,
+  WebauthnCredentialId,
+  AuthenticatorData,
+  ClientDataJSONComponents,
+  InvalidParametersError,
+} from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
+import { injectable } from "inversify";
+import { errAsync, ResultAsync } from "neverthrow";
+
+import { IEthersContractError } from "@contracts-sdk/implementations/BlockchainErrorMapper.js";
+import { ERC7529Contract } from "@contracts-sdk/implementations/ERC7529Contract.js";
+import {
+  ContractOverrides,
+  WrappedTransactionResponse,
+  IOperatorGatewayContract,
+  EOperatorGatewayRoles,
+} from "@contracts-sdk/interfaces/index.js";
+import {
+  P256VerificationData,
+  ContractsAbis,
+  P256KeyStruct,
+} from "@contracts-sdk/interfaces/objects/index.js";
+
+@injectable()
+export class OperatorGatewayContract
+  extends ERC7529Contract<OperatorGatewayContractError>
+  implements IOperatorGatewayContract
+{
+  constructor(
+    protected providerOrSigner: ethers.Provider | ethers.Signer,
+    protected contractAddress: EVMContractAddress,
+  ) {
+    super(
+      providerOrSigner,
+      contractAddress,
+      ContractsAbis.OperatorGatewayAbi.abi,
+    );
+  }
+
+  public deployWallets(
+    usernames: string[],
+    keyIds: WebauthnCredentialId[][],
+    p256Keys: P256PublicKeyComponents[][],
+    evmAccounts: EVMContractAddress[][] | EVMAccountAddress[][],
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    OperatorGatewayContractError | BlockchainCommonErrors
+  > {
+    // Create the P256KeyStruct to match the contract params
+    const p256KeysStructs = new Array<P256KeyStruct[]>();
+    for (let i = 0; i < p256Keys.length; i++) {
+      const newP256KeyStruct = new Array<P256KeyStruct>();
+      for (let j = 0; j < p256Keys[i].length; j++) {
+        newP256KeyStruct.push(
+          new P256KeyStruct(p256Keys[i][j].x, p256Keys[i][j].y, keyIds[i][j]),
+        );
+      }
+      p256KeysStructs.push(newP256KeyStruct);
+    }
+
+    return this.writeToContract(
+      "deployWallets",
+      [usernames, p256KeysStructs, evmAccounts],
+      overrides,
+    );
+  }
+
+  public authorizeWalletsOnDestinationChain(
+    destinationLayerZeroEndpointId: LayerZeroEndpointId,
+    usernames: string[],
+    gas: bigint,
+    nativeTokenFee: bigint, // Required fee calculated from the quote function to be sent with the transaction to pay for the LayerZero _lzReceive() call
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | OperatorGatewayContractError
+  > {
+    // If there are no overrides provided, create an empty object
+    const overridesWithFee = overrides ? overrides : ({} as ContractOverrides);
+
+    // include the fee in the overrides object
+    overridesWithFee.value = nativeTokenFee;
+
+    return this.writeToContract(
+      "reserveWalletsOnDestinationChain",
+      [destinationLayerZeroEndpointId, usernames, gas],
+      overrides,
+    );
+  }
+
+  public authorizeOperatorGatewayOnDestinationChain(
+    destinationLayerZeroEndpointId: LayerZeroEndpointId,
+    gas: bigint,
+    nativeTokenFee: bigint, // Required fee calculated from the quote function to be sent with the transaction to pay for the LayerZero _lzReceive() call
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | OperatorGatewayContractError
+  > {
+    // If there are no overrides provided, create an empty object
+    const overridesWithFee = overrides ? overrides : ({} as ContractOverrides);
+
+    // include the fee in the overrides object
+    overridesWithFee.value = nativeTokenFee;
+
+    return this.writeToContract(
+      "authorizeOperatorGatewayOnDestinationChain",
+      [destinationLayerZeroEndpointId, gas],
+      overrides,
+    );
+  }
+
+  public quoteAuthorizeWalletOnDestinationChain(
+    destinationLayerZeroEndpointId: LayerZeroEndpointId,
+    username: string,
+    gas: bigint,
+  ): ResultAsync<
+    TokenAmount,
+    OperatorGatewayContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.quoteAuthorizeWalletOnDestinationChain(
+        destinationLayerZeroEndpointId,
+        username,
+        gas,
+      ) as Promise<TokenAmount[]>,
+      (e) => {
+        return this.generateError(
+          e,
+          "Unable to call quoteAuthorizeWalletOnDestinationChain()",
+        );
+      },
+    ).map((quotedFee) => {
+      // The quoted fee is returned as fee in [native token, layer zero token]
+      // We only need the native token fee amount
+      return quotedFee[0];
+    });
+  }
+
+  public quoteAuthorizeOperatorGatewayOnDestinationChain(
+    destinationLayerZeroEndpointId: LayerZeroEndpointId,
+    domain: OperatorDomain,
+    gas: bigint,
+  ): ResultAsync<
+    TokenAmount,
+    OperatorGatewayContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.quoteAuthorizeOperatorGatewayOnDestinationChain(
+        destinationLayerZeroEndpointId,
+        domain,
+        gas,
+      ) as Promise<TokenAmount[]>,
+      (e) => {
+        return this.generateError(
+          e,
+          "Unable to call quoteAuthorizeOperatorGatewayOnDestinationChain()",
+        );
+      },
+    ).map((quotedFee) => {
+      // The quoted fee is returned as fee in [native token, layer zero token]
+      // We only need the native token fee amount
+      return quotedFee[0];
+    });
+  }
+
+  public addP256KeysWithP256Keys(
+    evmAccounts: EVMContractAddress[] | EVMAccountAddress[],
+    keyIds: WebauthnCredentialId[],
+    authenticatorDatas: AuthenticatorData[],
+    clientJSONDatas: ClientDataJSONComponents[],
+    newP256KeyIds: WebauthnCredentialId[],
+    newP256Keys: P256PublicKeyComponents[],
+    p256Signatures: P256SignatureComponents[],
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    | BlockchainCommonErrors
+    | OperatorGatewayContractError
+    | InvalidParametersError
+  > {
+    const verificationDatas = new Array<P256VerificationData>();
+    if (authenticatorDatas.length !== clientJSONDatas.length) {
+      return errAsync(
+        new InvalidParametersError(
+          "authenticatorDatas and clientJSONDatas must be the same length",
+        ),
+      );
+    }
+
+    for (let i = 0; i < authenticatorDatas.length; i++) {
+      verificationDatas.push(
+        new P256VerificationData(
+          authenticatorDatas[i],
+          clientJSONDatas[i].clientDataJSONLeft,
+          clientJSONDatas[i].clientDataJSONRight,
+        ),
+      );
+    }
+
+    // Create the P256KeyStruct to match the contract params
+    const newP256KeyStructs = new Array<P256KeyStruct>();
+    for (let i = 0; i < newP256Keys.length; i++) {
+      newP256KeyStructs.push(
+        new P256KeyStruct(newP256Keys[i].x, newP256Keys[i].y, newP256KeyIds[i]),
+      );
+    }
+
+    return this.writeToContract(
+      "addP256KeyWithP256Key",
+      [
+        evmAccounts,
+        keyIds,
+        verificationDatas,
+        newP256KeyStructs,
+        p256Signatures,
+      ],
+      overrides,
+    );
+  }
+
+  public grantRole(
+    role: EOperatorGatewayRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | OperatorGatewayContractError
+  > {
+    return this.writeToContract("grantRole", [role, address], overrides);
+  }
+
+  public revokeRole(
+    role: EOperatorGatewayRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | OperatorGatewayContractError
+  > {
+    return this.writeToContract("revokeRole", [role, address], overrides);
+  }
+
+  public renounceRole(
+    role: EOperatorGatewayRoles,
+    address: EVMAccountAddress,
+    overrides?: ContractOverrides,
+  ): ResultAsync<
+    WrappedTransactionResponse,
+    BlockchainCommonErrors | OperatorGatewayContractError
+  > {
+    return this.writeToContract("renounceRole", [role, address], overrides);
+  }
+
+  public hasRole(
+    role: EOperatorGatewayRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<
+    boolean,
+    OperatorGatewayContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.hasRole(role, address) as Promise<boolean>,
+      (e) => {
+        return this.generateError(e, "Unable to call hasRole()");
+      },
+    );
+  }
+
+  public computeWalletAddresses(
+    userNames: string[],
+  ): ResultAsync<
+    EVMContractAddress[],
+    OperatorGatewayContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.computeWalletAddresses(userNames) as Promise<
+        EVMContractAddress[]
+      >,
+      (e) => {
+        return this.generateError(e, "Unable to call getFactory()");
+      },
+    );
+  }
+
+  public factoryAddress(): ResultAsync<
+    EVMContractAddress,
+    OperatorGatewayContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getFactory() as Promise<EVMContractAddress>,
+      (e) => {
+        return this.generateError(e, "Unable to call getFactory()");
+      },
+    );
+  }
+
+  public domainName(): ResultAsync<
+    string,
+    OperatorGatewayContractError | BlockchainCommonErrors
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getDomainName() as Promise<EVMContractAddress>,
+      (e) => {
+        return this.generateError(e, "Unable to call getDomainName()");
+      },
+    );
+  }
+
+  protected generateContractSpecificError(
+    msg: string,
+    e: IEthersContractError,
+    transaction: ethers.Transaction | null,
+  ): OperatorGatewayContractError {
+    return new OperatorGatewayContractError(msg, e, transaction);
+  }
+}

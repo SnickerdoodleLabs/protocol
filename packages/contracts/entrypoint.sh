@@ -6,7 +6,10 @@ tmux new -d -s hardhat npx hardhat node
 sleep 5
 
 # deploy the scripts to the running instance
-npx hardhat ignition deploy ignition/modules/SnickerdoodleFactory.ts --network hardhat
+npx hardhat ignition deploy ignition/modules/SnickerdoodleFactory.ts --network localhost --reset
+
+# deploy an operator gateway proxy
+npx hardhat run scripts/deployOperatorGatewayProxy.ts --no-compile --network localhost 
 
 # keeps main thread of execution from exiting
 tail -f /dev/null

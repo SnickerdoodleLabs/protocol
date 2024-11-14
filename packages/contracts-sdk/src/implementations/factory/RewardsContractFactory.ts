@@ -23,6 +23,7 @@ import {
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects/index.js";
 
+/** This class is a wrapper around multiple other contract factories */
 @injectable()
 export class RewardsContractFactory
   extends BaseContract<RewardsFactoryError>
