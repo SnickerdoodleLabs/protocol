@@ -678,8 +678,11 @@ export class CryptoUtils implements ICryptoUtils {
   public parseRawP256PublicKey(
     publicKey: P256PublicKey,
   ): Result<P256PublicKeyComponents, InvalidParametersError> {
+    // Prefix the ASN.1 to make it DER encoded
+    const prefixedPublicKey = this.convertWebAuthnToDER(publicKey);
+
     // Convert hex string public key to Uint8Array
-    const pubKeyView = this.hexToUint8Array(publicKey);
+    const pubKeyView = this.hexToUint8Array(prefixedPublicKey);
 
     // Public Key Header Bytes
     const headerByte = pubKeyView[0];
@@ -859,5 +862,10 @@ export class CryptoUtils implements ICryptoUtils {
       array[i / 2] = parseInt(hexString.substring(i, i + 2), 16);
     }
     return array;
+  }
+
+  private convertWebAuthnToDER(rawPublicKey: string): P256PublicKey {
+    const asn1Prefix = "3059301306072a8648ce3d020106082a8648ce3d0301070342";
+    return P256PublicKey(asn1Prefix + rawPublicKey);
   }
 }

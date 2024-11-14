@@ -25,6 +25,10 @@ describe("CryptoUtils Tests 4", () => {
       "3059301306072a8648ce3d020106082a8648ce3d03010703420004599531f2d8ec62b611fd90df572a612e610d2421af8f9c6988d38b94cf3d9f1c27f42bc3e23838b4cdc7facc175eb51519cef0bbf226ff67a008f5b1c7cea227",
     );
 
+    const webAuthnPublicKey = P256PublicKey(
+      "0004599531f2d8ec62b611fd90df572a612e610d2421af8f9c6988d38b94cf3d9f1c27f42bc3e23838b4cdc7facc175eb51519cef0bbf226ff67a008f5b1c7cea227",
+    );
+
     // Act
     const defaultValue = {
       x: P256PublicKeyPointX("0x0"),
@@ -32,7 +36,7 @@ describe("CryptoUtils Tests 4", () => {
     };
 
     const result = utils
-      .parseRawP256PublicKey(mockPublicKey)
+      .parseRawP256PublicKey(webAuthnPublicKey)
       .unwrapOr(defaultValue);
 
     const expectedParsedPublicKey = {
@@ -41,6 +45,52 @@ describe("CryptoUtils Tests 4", () => {
       ),
       y: P256PublicKeyPointY(
         "0x27f42bc3e23838b4cdc7facc175eb51519cef0bbf226ff67a008f5b1c7cea227",
+      ),
+    };
+
+    // Assert
+    expect(result).toEqual(expectedParsedPublicKey);
+  });
+
+  test("parseRawPublicKey() Closed Loop with WebAuth public key", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    // Other formats of the pubkey
+    // const mockPublicKeyUint8Array = new Uint8Array([
+    //   48, 89, 48, 19, 6, 7, 42, 134, 72, 206, 61, 2, 1, 6, 8, 42, 134, 72, 206,
+    //   61, 3, 1, 7, 3, 66, 0, 4, 143, 31, 116, 17, 158, 142, 255, 163, 237, 17,
+    //   34, 234, 9, 164, 127, 199, 210, 151, 33, 206, 139, 54, 247, 23, 25, 139,
+    //   116, 244, 110, 169, 214, 78, 112, 104, 19, 48, 232, 51, 174, 40, 223, 30,
+    //   243, 157, 69, 164, 221, 187, 60, 84, 134, 233, 126, 250, 2, 182, 244, 46,
+    //   79, 209, 196, 128, 240, 208,
+    // ]);
+
+    // const mockPublicKey = P256PublicKey(
+    //   "3059301306072a8648ce3d020106082a8648ce3d030107034200048f1f74119e8effa3ed1122ea09a47fc7d29721ce8b36f717198b74f46ea9d64e70681330e833ae28df1ef39d45a4ddbb3c5486e97efa02b6f42e4fd1c480f0d0",
+    // );
+
+    const webAuthnPublicKey = P256PublicKey(
+      "0004e9472e04f0d697ca205f3af3c49502e9a3caf3cd17ce20d9a89282911cfcafc30bbfc34ded27460c504b0d3fd3523e38336748845f4810ef6ae6059c98ad6ce1",
+    );
+
+    // Act
+    const defaultValue = {
+      x: P256PublicKeyPointX("0x0"),
+      y: P256PublicKeyPointY("0x0"),
+    };
+
+    const result = await utils
+      .parseRawP256PublicKey(webAuthnPublicKey)
+      .unwrapOr(defaultValue);
+
+    const expectedParsedPublicKey = {
+      x: P256PublicKeyPointX(
+        "0xe9472e04f0d697ca205f3af3c49502e9a3caf3cd17ce20d9a89282911cfcafc3",
+      ),
+      y: P256PublicKeyPointY(
+        "0x0bbfc34ded27460c504b0d3fd3523e38336748845f4810ef6ae6059c98ad6ce1",
       ),
     };
 
@@ -193,4 +243,9 @@ function isoBase64fromBuffer(
   to: "base64" | "base64url" = "base64url",
 ): string {
   return base64.fromArrayBuffer(buffer, to === "base64url");
+}
+
+function convertWebAuthnToDER(rawPublicKey: string): P256PublicKey {
+  const asn1Prefix = "3059301306072a8648ce3d020106082a8648ce3d0301070342";
+  return P256PublicKey(asn1Prefix + rawPublicKey);
 }
