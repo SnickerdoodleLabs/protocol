@@ -22,7 +22,10 @@ import {
   WrappedTransactionResponse,
   ISnickerdoodleFactoryContract,
 } from "@contracts-sdk/interfaces/index.js";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/index.js";
+import {
+  ContractsAbis,
+  P256KeyStruct,
+} from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
 export class SnickerdoodleWalletFactoryContract
@@ -106,7 +109,7 @@ export class SnickerdoodleWalletFactoryContract
 
   public deployWalletProxies(
     usernames: SnickerdoodleWalletUsername[],
-    p256Keys: P256PublicKeyComponents[][],
+    p256Keys: P256KeyStruct[][],
     evmAccounts: EVMContractAddress[][] | EVMAccountAddress[][],
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -122,7 +125,7 @@ export class SnickerdoodleWalletFactoryContract
 
   public deployWalletProxy(
     username: SnickerdoodleWalletUsername,
-    p256Keys: P256PublicKeyComponents[],
+    p256Keys: P256KeyStruct[],
     evmAccounts: EVMContractAddress[] | EVMAccountAddress[],
     overrides?: ContractOverrides,
   ): ResultAsync<

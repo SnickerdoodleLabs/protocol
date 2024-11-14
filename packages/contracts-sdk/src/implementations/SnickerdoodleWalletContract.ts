@@ -73,6 +73,7 @@ export class SnickerdoodleWalletContract
     keyId: WebauthnCredentialId,
     authenticatorData: AuthenticatorData,
     clientDataJSON: ClientDataJSONComponents,
+    newP256KeyId: WebauthnCredentialId,
     newP256Key: P256PublicKeyComponents,
     p256Signature: P256SignatureComponents,
     overrides?: ContractOverrides,
@@ -80,6 +81,8 @@ export class SnickerdoodleWalletContract
     WrappedTransactionResponse,
     BlockchainCommonErrors | SnickerdoodleWalletContractError
   > {
+    // Create the P256KeyStruct object to match the contract params
+
     return this.writeToContract(
       "addP256KeyWithP256Key",
       [
@@ -89,7 +92,7 @@ export class SnickerdoodleWalletContract
           clientDataJSON.clientDataJSONLeft,
           clientDataJSON.clientDataJSONRight,
         ),
-        newP256Key,
+        new P256KeyStruct(newP256Key.x, newP256Key.y, newP256KeyId),
         p256Signature,
       ],
       overrides,

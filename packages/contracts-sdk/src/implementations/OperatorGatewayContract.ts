@@ -29,6 +29,7 @@ import {
 import {
   P256VerificationData,
   ContractsAbis,
+  P256KeyStruct,
 } from "@contracts-sdk/interfaces/objects/index.js";
 
 @injectable()
@@ -49,6 +50,7 @@ export class OperatorGatewayContract
 
   public deployWallets(
     usernames: string[],
+    keyIds: WebauthnCredentialId[][],
     p256Keys: P256PublicKeyComponents[][],
     evmAccounts: EVMContractAddress[][] | EVMAccountAddress[][],
     overrides?: ContractOverrides,
@@ -56,9 +58,21 @@ export class OperatorGatewayContract
     WrappedTransactionResponse,
     OperatorGatewayContractError | BlockchainCommonErrors
   > {
+    // Create the P256KeyStruct to match the contract params
+    const p256KeysStructs = new Array<P256KeyStruct[]>();
+    for (let i = 0; i < p256Keys.length; i++) {
+      const newP256KeyStruct = new Array<P256KeyStruct>();
+      for (let j = 0; j < p256Keys[i].length; j++) {
+        newP256KeyStruct.push(
+          new P256KeyStruct(p256Keys[i][j].x, p256Keys[i][j].y, keyIds[i][j]),
+        );
+      }
+      p256KeysStructs.push(newP256KeyStruct);
+    }
+
     return this.writeToContract(
       "deployWallets",
-      [usernames, p256Keys, evmAccounts],
+      [usernames, p256KeysStructs, evmAccounts],
       overrides,
     );
   }
@@ -167,6 +181,7 @@ export class OperatorGatewayContract
     keyIds: WebauthnCredentialId[],
     authenticatorDatas: AuthenticatorData[],
     clientJSONDatas: ClientDataJSONComponents[],
+    newP256KeyIds: WebauthnCredentialId[],
     newP256Keys: P256PublicKeyComponents[],
     p256Signatures: P256SignatureComponents[],
     overrides?: ContractOverrides,
@@ -194,9 +209,24 @@ export class OperatorGatewayContract
         ),
       );
     }
+
+    // Create the P256KeyStruct to match the contract params
+    const newP256KeyStructs = new Array<P256KeyStruct>();
+    for (let i = 0; i < newP256Keys.length; i++) {
+      newP256KeyStructs.push(
+        new P256KeyStruct(newP256Keys[i].x, newP256Keys[i].y, newP256KeyIds[i]),
+      );
+    }
+
     return this.writeToContract(
       "addP256KeyWithP256Key",
-      [evmAccounts, keyIds, verificationDatas, newP256Keys, p256Signatures],
+      [
+        evmAccounts,
+        keyIds,
+        verificationDatas,
+        newP256KeyStructs,
+        p256Signatures,
+      ],
       overrides,
     );
   }

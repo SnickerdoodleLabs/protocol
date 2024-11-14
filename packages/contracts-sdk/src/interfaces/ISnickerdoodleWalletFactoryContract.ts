@@ -6,7 +6,6 @@ import {
   SnickerdoodleFactoryContractError,
   LayerZeroEndpointId,
   InvalidParametersError,
-  P256PublicKeyComponents,
   OperatorDomain,
   SnickerdoodleWalletUsername,
 } from "@snickerdoodlelabs/objects";
@@ -16,6 +15,7 @@ import { ResultAsync } from "neverthrow";
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import {
   ContractOverrides,
+  P256KeyStruct,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
 
@@ -65,7 +65,7 @@ export interface ISnickerdoodleFactoryContract extends IBaseContract {
    */
   deployWalletProxies(
     usernames: SnickerdoodleWalletUsername[],
-    p256Keys: P256PublicKeyComponents[][],
+    p256Keys: P256KeyStruct[][],
     evmAccounts: EVMContractAddress[][] | EVMAccountAddress[][],
     overrides?: ContractOverrides,
   ): ResultAsync<
@@ -78,7 +78,7 @@ export interface ISnickerdoodleFactoryContract extends IBaseContract {
    */
   deployWalletProxy(
     username: SnickerdoodleWalletUsername,
-    p256Keys: P256PublicKeyComponents[],
+    p256Keys: P256KeyStruct[],
     evmAccounts: EVMContractAddress[] | EVMAccountAddress[],
     overrides?: ContractOverrides,
   ): ResultAsync<

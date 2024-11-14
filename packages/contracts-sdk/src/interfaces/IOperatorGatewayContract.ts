@@ -26,6 +26,7 @@ import {
 export interface IOperatorGatewayContract extends IBaseContract {
   deployWallets(
     usernames: SnickerdoodleWalletUsername[],
+    p256KeyIds: WebauthnCredentialId[][],
     p256Keys: P256PublicKeyComponents[][],
     evmAccounts: EVMContractAddress[][] | EVMAccountAddress[][],
     overrides?: ContractOverrides,
@@ -82,6 +83,7 @@ export interface IOperatorGatewayContract extends IBaseContract {
     keyIds: WebauthnCredentialId[],
     authenticatorDatas: AuthenticatorData[],
     clientJSONDatas: ClientDataJSONComponents[],
+    newP256KeyIds: WebauthnCredentialId[],
     newP256Keys: P256PublicKeyComponents[],
     p256Signatures: P256SignatureComponents[],
     overrides?: ContractOverrides,

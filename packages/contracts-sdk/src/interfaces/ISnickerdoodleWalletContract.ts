@@ -4,17 +4,17 @@ import {
   SnickerdoodleWalletContractError,
   EVMAccountAddress,
   WebauthnCredentialId,
-  P256PublicKeyComponents,
   P256SignatureComponents,
-  InvalidParametersError,
   ClientDataJSONComponents,
   AuthenticatorData,
+  P256PublicKeyComponents,
 } from "@snickerdoodlelabs/objects";
 import { Result, ResultAsync } from "neverthrow";
 
 import { IBaseContract } from "@contracts-sdk/interfaces/IBaseContract.js";
 import {
   ContractOverrides,
+  P256KeyStruct,
   WrappedTransactionResponse,
 } from "@contracts-sdk/interfaces/objects";
 
@@ -33,6 +33,7 @@ export interface ISnickerdoodleWalletContract extends IBaseContract {
     keyId: WebauthnCredentialId,
     authenticatorData: AuthenticatorData,
     clientJSONData: ClientDataJSONComponents,
+    newP256KeyId: WebauthnCredentialId,
     newP256Key: P256PublicKeyComponents,
     p256Signature: P256SignatureComponents,
     overrides?: ContractOverrides,
