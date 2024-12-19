@@ -1,6 +1,5 @@
 import {
   EVMContractAddress,
-  IOldUserAgreement,
   IpfsCID,
   IPFSError,
   IUserAgreement,
@@ -40,7 +39,7 @@ export interface IInvitationRepository {
 
   getInvitationMetadataByCID(
     cid: IpfsCID,
-  ): ResultAsync<IOldUserAgreement | IUserAgreement, IPFSError>;
+  ): ResultAsync<IUserAgreement, IPFSError>;
 
   /**
    * Returns a list of consent contract addresses that the user has rejected

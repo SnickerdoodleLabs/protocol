@@ -6,7 +6,6 @@ import {
   ISnickerdoodleCore,
   PageInvitation,
   ISnickerdoodleCoreType,
-  IOldUserAgreement,
   EVMContractAddress,
   IpfsCID,
   HexString32,
@@ -104,7 +103,7 @@ export class InvitationRepository implements IInvitationRepository {
   }
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement | IUserAgreement, SnickerDoodleCoreError> {
+  ): ResultAsync<IUserAgreement, SnickerDoodleCoreError> {
     return this.core.invitation
       .getInvitationMetadataByCID(ipfsCID)
       .mapErr((error) => {

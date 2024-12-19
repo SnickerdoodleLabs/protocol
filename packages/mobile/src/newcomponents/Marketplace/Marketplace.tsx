@@ -1,6 +1,6 @@
 import {
   ETag,
-  IOldUserAgreement,
+  IUserAgreement,
   MarketplaceListing,
   MarketplaceTag,
   PagedResponse,
@@ -40,7 +40,7 @@ export default function Marketplace() {
   const [categoryFilter, setCategoryFilter] = useState<boolean>(false);
   const [listings, setListings] =
     useState<Record<ETag, PagedResponse<MarketplaceListing>>>();
-  const [allListings, setAllListings] = useState<IOldUserAgreement[]>([]);
+  const [allListings, setAllListings] = useState<IUserAgreement[]>([]);
   const [filteredData, setFilteredData] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredByCategory, setFilteredByCategory] = useState(null);

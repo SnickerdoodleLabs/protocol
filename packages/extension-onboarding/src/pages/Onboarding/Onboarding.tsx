@@ -1,22 +1,20 @@
+import { makeStyles } from "@material-ui/core/styles";
+import Toolbar from "@material-ui/core/Toolbar";
+import { SDCheckbox, SDTypography } from "@snickerdoodlelabs/shared-components";
+import React, { FC, useMemo, useEffect, ReactNode, useCallback } from "react";
+
 import Container from "@extension-onboarding/components/v2/Container";
 import {
   PRIVACY_POLICY_URL,
   TERMS_OF_SERVICE_URL,
 } from "@extension-onboarding/constants";
-import { useAppContext } from "@extension-onboarding/context/App";
 import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
 import { useThemeContext } from "@extension-onboarding/context/ThemeContext";
-import { EOnboardingState } from "@extension-onboarding/objects/interfaces/IUState";
 import StepIndicators from "@extension-onboarding/pages/Onboarding//StepIndicators";
 import StepRenderer from "@extension-onboarding/pages/Onboarding//StepRenderer";
-import Toolbar from "@material-ui/core/Toolbar";
-import { makeStyles } from "@material-ui/core/styles";
-import { SDCheckbox, SDTypography } from "@snickerdoodlelabs/shared-components";
-import React, { FC, useMemo, useEffect, ReactNode, useCallback } from "react";
 
 const Onboarding: FC = () => {
   const { sdlDataWallet } = useDataWalletContext();
-  const { onboardingState, uiStateUtils } = useAppContext();
   const { setBackground } = useThemeContext();
   const [currentStepIndex, setCurrentStepIndex] = React.useState(0);
   const [checked, setChecked] = React.useState(false);
@@ -28,12 +26,6 @@ const Onboarding: FC = () => {
       setBackground();
     };
   }, []);
-
-  useEffect(() => {
-    if (onboardingState === EOnboardingState.TOS_PP) {
-      setCurrentStepIndex(INTRO_STEPS.length);
-    }
-  }, [onboardingState]);
 
   const totalSteps = useMemo(() => INTRO_STEPS.length + 1, []);
   const indicator = useMemo(() => {
@@ -49,9 +41,7 @@ const Onboarding: FC = () => {
   }, [currentStepIndex]);
 
   const onCompleted = useCallback(() => {
-    sdlDataWallet.requestOptIn().map(() => {
-      uiStateUtils.setOnboardingState(EOnboardingState.COMPLETED);
-    });
+    sdlDataWallet.requestOptIn().map(() => {});
   }, []);
 
   const renderStep = useMemo(() => {
@@ -112,11 +102,7 @@ const Onboarding: FC = () => {
           image={step.image}
           indicators={indicator}
           onClick={() => {
-            if (currentStepIndex === INTRO_STEPS.length - 1) {
-              uiStateUtils.setOnboardingState(EOnboardingState.TOS_PP);
-            } else {
-              setCurrentStepIndex(currentStepIndex + 1);
-            }
+            setCurrentStepIndex(currentStepIndex + 1);
           }}
           btnText={currentStepIndex === 0 ? "Start" : "Next"}
         />

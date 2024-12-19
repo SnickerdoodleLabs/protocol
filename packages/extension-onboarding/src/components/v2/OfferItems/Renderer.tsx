@@ -1,13 +1,15 @@
-import  Box from "@material-ui/core/Box";
+import Box from "@material-ui/core/Box";
 import { makeStyles } from "@material-ui/core/styles";
-import CallMade  from "@material-ui/icons/CallMade";
+import CallMade from "@material-ui/icons/CallMade";
 import {
   colors,
   shadows,
   useResponsiveValue,
   Image,
   SDTypography,
+  ECustomTypographyVariant,
 } from "@snickerdoodlelabs/shared-components";
+import clsx from "clsx";
 import React from "react";
 
 interface IRenderOfferItemProps {
@@ -17,32 +19,47 @@ interface IRenderOfferItemProps {
   brandImage: string;
   points: number;
   onClick: () => void;
+  padding?: number;
+  disabled?: boolean;
+  mt?: number;
+  mb?: number;
+  nameFontVariant?: `${ECustomTypographyVariant}`;
+  descriptionFontVariant?: `${ECustomTypographyVariant}`;
 }
 
-const RenderOfferItem: React.FC<IRenderOfferItemProps> = ({
+const Renderer: React.FC<IRenderOfferItemProps> = ({
   name,
   icon,
   description,
   onClick,
   brandImage,
   points,
+  mt = 1.5,
+  mb = 0,
+  padding = 3,
+  disabled,
+  nameFontVariant = "titleMd",
+  descriptionFontVariant = "bodyMd",
 }) => {
   const classes = useStyles();
   const getResponsiveValue = useResponsiveValue();
 
   return (
     <Box
-      className={classes.root}
-      mt={1.5}
+      className={clsx(classes.root, { [classes.rootDisabled]: disabled })}
+      mt={mt}
+      mb={mb}
       bgcolor={colors.WHITE}
       alignItems="center"
       border="1px solid"
       borderColor="borderColor"
-      borderRadius={8}
+      borderRadius={12}
       overflow="hidden"
       display="flex"
-      p={3}
-      onClick={onClick}
+      p={padding}
+      onClick={() => {
+        !disabled && onClick();
+      }}
     >
       <Image
         src={icon}
@@ -63,7 +80,7 @@ const RenderOfferItem: React.FC<IRenderOfferItemProps> = ({
           justifyContent="space-between"
         >
           <SDTypography
-            variant="titleMd"
+            variant={nameFontVariant}
             fontWeight="bold"
             hexColor={colors.DARKPURPLE500}
           >
@@ -103,7 +120,7 @@ const RenderOfferItem: React.FC<IRenderOfferItemProps> = ({
         </Box>
         <SDTypography
           mt={1.5}
-          variant="bodyMd"
+          variant={descriptionFontVariant}
           fontWeight="medium"
           hexColor={colors.GREY600}
         >
@@ -121,6 +138,12 @@ const useStyles = makeStyles((theme) => ({
       boxShadow: shadows.lg,
     },
   },
+  rootDisabled: {
+    blur: "blur(2px)",
+    "&:hover": {
+      cursor: "not-allowed",
+    },
+  },
 }));
 
-export default RenderOfferItem;
+export default Renderer;

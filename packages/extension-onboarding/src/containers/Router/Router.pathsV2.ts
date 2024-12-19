@@ -1,5 +1,6 @@
 export enum EPathsV2 {
   HOME = "/",
+  BRAND = "/brand/:consentContractAddress",
   COOKIE_VAULT = "/cookie-vault",
   TRUSTED_BRANDS = "/trusted-brands",
   OFFERS = "/offers",

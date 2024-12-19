@@ -1,8 +1,3 @@
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import RenderOfferItem from "@extension-onboarding/pages/V2/Offers/RenderOfferItem";
 import { ObjectUtils } from "@snickerdoodlelabs/common-utils";
 import {
   EChain,
@@ -20,17 +15,20 @@ import {
 import { okAsync } from "neverthrow";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 
-interface ISingleQuestionnaireOfferProps {
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import { IOfferItemCommonProps } from "@extension-onboarding/components/v2/OfferItems/OfferItemCommon.interface";
+import Renderer from "@extension-onboarding/components/v2/OfferItems/Renderer";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+
+interface ISingleQuestionnaireOfferProps extends IOfferItemCommonProps {
   offer: ISingleQuestionnaireItem;
-  reCalculateOffers: () => void;
-  brandImage?: string;
 }
 
-const SingleQuestionnaireOffer: React.FC<ISingleQuestionnaireOfferProps> = ({
-  offer,
-  reCalculateOffers,
-  brandImage,
-}) => {
+export const SingleQuestionnaireOfferItem: React.FC<
+  ISingleQuestionnaireOfferProps
+> = ({ offer, onProcceed, brandImage, ...props }) => {
   const { setModal } = useLayoutContext();
   const { linkedAccounts, setLinkerModalOpen } = useAppContext();
   const { sdlDataWallet } = useDataWalletContext();
@@ -84,7 +82,7 @@ const SingleQuestionnaireOffer: React.FC<ISingleQuestionnaireOfferProps> = ({
             null,
           )
           .map(() => {
-            reCalculateOffers();
+            onProcceed(offer.queryStatus.queryCID);
           });
       });
   };
@@ -103,7 +101,9 @@ const SingleQuestionnaireOffer: React.FC<ISingleQuestionnaireOfferProps> = ({
       questionnaireData.status === EQuestionnaireStatus.Complete
         ? {
             modalSelector: EModalSelectors.OFFER_MODAL,
-            onPrimaryButtonClick: reCalculateOffers,
+            onPrimaryButtonClick: () => {
+              onProcceed(offer.queryStatus.queryCID);
+            },
             customProps: { offer: offer.queryStatus, brandImage },
           }
         : {
@@ -119,7 +119,8 @@ const SingleQuestionnaireOffer: React.FC<ISingleQuestionnaireOfferProps> = ({
   };
 
   return (
-    <RenderOfferItem
+    <Renderer
+      {...props}
       brandImage={brandImage || ""}
       points={offer.queryStatus.points}
       name={questionnaireData?.title ?? offer.queryStatus.name}
@@ -131,5 +132,3 @@ const SingleQuestionnaireOffer: React.FC<ISingleQuestionnaireOfferProps> = ({
     />
   );
 };
-
-export default SingleQuestionnaireOffer;

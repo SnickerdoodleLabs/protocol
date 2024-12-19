@@ -109,6 +109,7 @@ import {
   GetTransactionsParams,
   ApproveQueryParams,
   GetQueryStatusesByContractAddressParams,
+  GetDefaultContractAddressParams,
 } from "@synamint-extension-sdk/shared";
 import { UpdatableEventEmitterWrapper } from "@synamint-extension-sdk/utils";
 
@@ -480,7 +481,15 @@ export class _DataWalletProxy extends EventEmitter implements ISdlDataWallet {
       _this.emit(resp.type, resp);
     });
   }
-  approveQuery(
+  public getDefaultContractAddress(): ResultAsync<
+    EVMContractAddress | null,
+    ProxyError
+  > {
+    return coreGateway.getDefaultContractAddress(
+      new GetDefaultContractAddressParams(),
+    );
+  }
+  public approveQuery(
     queryCID: IpfsCID,
     parameters: IDynamicRewardParameter[],
     queryPermissions: IQueryPermissions | null,

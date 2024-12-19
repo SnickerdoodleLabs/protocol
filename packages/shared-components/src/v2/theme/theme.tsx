@@ -101,6 +101,7 @@ export enum ECustomTypographyVariant {
   LABELLG = "labelLg",
   LABELMD = "labelMd",
   LABELSM = "labelSm",
+  BODYXL = "bodyXl",
   BODYLG = "bodyLg",
   BODYMD = "bodyMd",
   BODYSM = "bodySm",
@@ -297,6 +298,9 @@ export const generateDynamicTypographyColorClasses = (theme: Theme) => ({
   [ETypographyColorOverrides.TEXTHEADING]: {
     color: theme.palette.textHeading,
   },
+  [ETypographyColorOverrides.TEXTSUBTITLE]: {
+    color: theme.palette.textSubtitle,
+  },
   [ETypographyColorOverrides.TEXTBODY]: {
     color: theme.palette.textBody,
   },
@@ -383,6 +387,10 @@ export const typograpyVariants = {
   labelSm: {
     fontSize: "11px",
     lineHeight: "16px",
+  },
+  bodyXl: {
+    fontSize: "18px",
+    lineHeight: "28px",
   },
   bodyLg: {
     fontSize: "16px",

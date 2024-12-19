@@ -11,7 +11,6 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  IOldUserAgreement,
   IpfsCID,
   LinkedAccount,
   DataWalletAddress,
@@ -157,6 +156,7 @@ import {
   ApproveQueryParams,
   GetQueryStatusesByContractAddressParams,
   LinkAccountRequestParams,
+  GetDefaultContractAddressParams,
 } from "@synamint-extension-sdk/shared";
 import { IExtensionConfig } from "@synamint-extension-sdk/shared/interfaces/IExtensionConfig";
 
@@ -438,6 +438,12 @@ export class ExternalCoreGateway {
     );
   }
 
+  public getDefaultContractAddress(
+    params: GetDefaultContractAddressParams,
+  ): ResultAsync<EVMContractAddress | null, ProxyError> {
+    return this._handler.call(params);
+  }
+
   public getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     ProxyError
@@ -451,7 +457,7 @@ export class ExternalCoreGateway {
 
   public getInvitationMetadataByCID(
     params: GetInvitationMetadataByCIDParams,
-  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError> {
+  ): ResultAsync<IUserAgreement, ProxyError> {
     return this._handler.call(params);
   }
 
@@ -676,7 +682,7 @@ export class ExternalCoreGateway {
 
   public requestLinkAccount = (): ResultAsync<void, ProxyError> => {
     return this._handler.call(new LinkAccountRequestParams());
-  }
+  };
 
   public setUIState(state: JSONString): ResultAsync<void, ProxyError> {
     return this._handler.call(new SetUIStateParams(state));

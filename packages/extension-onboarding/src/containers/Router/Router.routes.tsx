@@ -1,13 +1,15 @@
+import React, { lazy, Suspense } from "react";
+import { Navigate, Route } from "react-router-dom";
+
 import { EPathsV2 } from "@extension-onboarding/containers/Router/Router.pathsV2";
 import AuthFlowLayout from "@extension-onboarding/layouts/AutFlowLayout";
 import DataDashBoardLayout from "@extension-onboarding/layouts/DataDashboardLayout";
 import Onboarding from "@extension-onboarding/pages/Onboarding";
+import BrandPage from "@extension-onboarding/pages/V2/BrandPage";
 import CookieVault from "@extension-onboarding/pages/V2/CookieVault";
 import Home from "@extension-onboarding/pages/V2/Home";
 import Offers from "@extension-onboarding/pages/V2/Offers";
 import TrustedBrands from "@extension-onboarding/pages/V2/TrustedBrands";
-import React, { lazy, Suspense } from "react";
-import { Navigate, Route } from "react-router-dom";
 const LazyTransactions = lazy(
   () => import("@extension-onboarding/pages/V2/Transactions"),
 );
@@ -42,6 +44,7 @@ export const OnboardingRoutes = (
 
 export const AuthFlowRoutes = (
   <Route>
+    <Route path={EPathsV2.BRAND} element={<BrandPage />} />
     <Route element={<AuthFlowLayout />}>
       <Route path={EPathsV2.HOME} element={<Home />} />
       <Route path={EPathsV2.COOKIE_VAULT} element={<CookieVault />} />

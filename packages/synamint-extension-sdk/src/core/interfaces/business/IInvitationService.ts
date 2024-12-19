@@ -5,7 +5,6 @@ import {
   PageInvitation,
   DomainName,
   EVMContractAddress,
-  IOldUserAgreement,
   IpfsCID,
   EWalletDataType,
   MarketplaceListing,
@@ -55,7 +54,7 @@ export interface IInvitationService {
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement | IUserAgreement, SnickerDoodleCoreError>;
+  ): ResultAsync<IUserAgreement, SnickerDoodleCoreError>;
 
   getEarnedRewardsByContractAddress(
     contractAddresses: EVMContractAddress[],

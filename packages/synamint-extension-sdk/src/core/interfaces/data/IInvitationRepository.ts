@@ -4,7 +4,6 @@ import {
   EInvitationStatus,
   PageInvitation,
   EVMContractAddress,
-  IOldUserAgreement,
   IpfsCID,
   HexString32,
   MarketplaceListing,
@@ -43,7 +42,7 @@ export interface IInvitationRepository {
   >;
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement | IUserAgreement, SnickerDoodleCoreError>;
+  ): ResultAsync<IUserAgreement, SnickerDoodleCoreError>;
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError

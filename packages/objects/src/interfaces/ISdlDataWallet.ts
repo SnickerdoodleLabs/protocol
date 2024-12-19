@@ -1,6 +1,8 @@
 import { ResultAsync } from "neverthrow";
 import { FunctionKeys } from "utility-types";
 
+import { IFormFactorInternalEvents } from "./IFormFactorInternalEvents";
+
 import {
   EarnedReward,
   MarketplaceListing,
@@ -26,7 +28,7 @@ import {
 } from "@objects/enum/index.js";
 import { ProxyError } from "@objects/errors/index.js";
 import { IConsentCapacity } from "@objects/interfaces/IConsentCapacity.js";
-import { IOldUserAgreement } from "@objects/interfaces/IOldUserAgreement.js";
+import { IQueryPermissions } from "@objects/interfaces/IQueryPermissions.js";
 import {
   IAccountMethods,
   ICoreDiscordMethods,
@@ -39,7 +41,6 @@ import {
 } from "@objects/interfaces/ISnickerdoodleCore.js";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents.js";
 import { IUserAgreement } from "@objects/interfaces/IUserAgreement.js";
-import { IQueryPermissions } from "@objects/interfaces/IQueryPermissions.js";
 import {
   AccountAddress,
   Age,
@@ -61,7 +62,6 @@ import {
   URLString,
 } from "@objects/primitives/index.js";
 import { GetResultAsyncValueType, PopTuple } from "@objects/types.js";
-import { IFormFactorInternalEvents } from "./IFormFactorInternalEvents";
 
 export type IProxyAccountMethods = {
   [key in FunctionKeys<IAccountMethods>]: (
@@ -278,7 +278,7 @@ export interface ISdlDataWallet {
   >;
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOldUserAgreement | IUserAgreement, ProxyError>;
+  ): ResultAsync<IUserAgreement, ProxyError>;
 
   leaveCohort(
     consentContractAddress: EVMContractAddress,
@@ -348,6 +348,12 @@ export interface ISdlDataWallet {
     Map<EVMContractAddress, Map<IpfsCID, EarnedReward[]>>,
     ProxyError
   >;
+
+  getDefaultContractAddress(): ResultAsync<
+    EVMContractAddress | null,
+    ProxyError
+  >;
+
   // user requests
   requestDashboardView: undefined | (() => ResultAsync<void, ProxyError>);
   requestOptIn(

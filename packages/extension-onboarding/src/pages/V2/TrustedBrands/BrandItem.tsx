@@ -7,7 +7,6 @@ import Skeleton from "@material-ui/lab/Skeleton";
 import {
   EQueryProcessingStatus,
   EVMContractAddress,
-  IOldUserAgreement,
   IUserAgreement,
   IpfsCID,
   PagingRequest,
@@ -29,9 +28,7 @@ const BrandItem: FC<IBrandItemProps> = ({ contractAddress, ipfsCID }) => {
   const classes = useStyles();
   const { sdlDataWallet } = useDataWalletContext();
   const { setModal } = useLayoutContext();
-  const [agreementData, setAgreementData] = useSafeState<
-    IOldUserAgreement | IUserAgreement
-  >();
+  const [agreementData, setAgreementData] = useSafeState<IUserAgreement>();
   const getAgreementData = () => {
     return sdlDataWallet.getInvitationMetadataByCID(ipfsCID).map((data) => {
       setAgreementData(data);
@@ -58,7 +55,7 @@ const BrandItem: FC<IBrandItemProps> = ({ contractAddress, ipfsCID }) => {
       const brandName =
         agreementData["brandInformation"]?.["name"] ?? "Unknown";
       const brandLogo =
-        agreementData["brandInformation"]?.["image"] ??
+        agreementData["brandInformation"]?.["logoImage"] ??
         agreementData.image ??
         "";
       return {
@@ -104,7 +101,7 @@ const BrandItem: FC<IBrandItemProps> = ({ contractAddress, ipfsCID }) => {
             onPrimaryButtonClick: () => {},
             customProps: {
               icon:
-                agreementData["brandInformation"]?.["image"] ??
+                agreementData["brandInformation"]?.["logoImage"] ??
                 agreementData.image ??
                 "",
               brandName:

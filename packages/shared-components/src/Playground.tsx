@@ -1,12 +1,22 @@
+import AppBar from "@material-ui/core/AppBar";
+import Box from "@material-ui/core/Box";
+import CssBaseline from "@material-ui/core/CssBaseline";
 import Grid from "@material-ui/core/Grid";
+import Radio from "@material-ui/core/Radio";
+import { ThemeProvider, makeStyles } from "@material-ui/core/styles";
+import MuiSwitch from "@material-ui/core/Switch";
 import Tab from "@material-ui/core/Tab";
 import Tabs from "@material-ui/core/Tabs";
-import Box from "@material-ui/core/Box";
-import Radio from "@material-ui/core/Radio";
-import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import { ThemeProvider } from "@material-ui/core/styles";
+import Typography from "@material-ui/core/Typography";
+import CancelOutlinedIcon from "@material-ui/icons/CancelOutlined";
+import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
+import { EVMContractAddress, IUserAgreement } from "@snickerdoodlelabs/objects";
+import { right } from "inquirer/lib/utils/readline";
+import { okAsync } from "neverthrow";
+import React, { useState } from "react";
+import ReactDOM from "react-dom";
+
 import {
   createDefaultTheme,
   EColorMode,
@@ -14,14 +24,11 @@ import {
   SDSwitch as Switch,
   SDTypography,
   useMedia,
-  DescriptionWidget,
-  PermissionSelectionWidget,
-  ConsentModal,
+  // DescriptionWidget,
+  // PermissionSelectionWidget,
+  SDCustomSwitch,
+  Consent,
 } from "@shared-components/v2";
-import { IOldUserAgreement } from "@snickerdoodlelabs/objects";
-import { okAsync } from "neverthrow";
-import React from "react";
-import ReactDOM from "react-dom";
 
 const App = () => {
   const [value, setValue] = React.useState(0);
@@ -29,9 +36,94 @@ const App = () => {
 
   return (
     <>
+      {/* <Consent
+        open
+        onClose={() => {}}
+        onTrustClick={() => {}}
+        displayRejectButtons
+        defaultConsentData={
+          {
+            attributes: [
+              {
+                trait_type: "version",
+                value: 1,
+              },
+              {
+                trait_type: "color mode",
+                value: "dark",
+              },
+              {
+                trait_type: "title",
+                value: "hello",
+              },
+            ],
+            brandInformation: { name: "test" },
+          } as IUserAgreement
+        }
+        consentData={
+          {
+            image: "ipfs://QmNhhFLpUAwdG4aGMrJUhdh8qsp8svP1RoSyPXCK4NaUjb",
+            description: "Cornell is the backbone of Web3",
+            name: "Cornell April Orgssss",
+            attributes: [
+              {
+                trait_type: "version",
+                value: 1,
+              },
+              {
+                trait_type: "color mode",
+                value: "dark",
+              },
+              {
+                trait_type: "title",
+                value: "Cornell April Orgdddd",
+              },
+            ],
+            brandInformation: {
+              name: "Cornell April Orgssss",
+              logoImage:
+                "ipfs://QmNhhFLpUAwdG4aGMrJUhdh8qsp8svP1RoSyPXCK4NaUjb",
+              coverImage:
+                "ipfs://QmYwK95Yue1oLksb8qhGkC5xaeUR4FMQ3aXBzGmaAGJcCa",
+              description: "Cornell is the backbone of Web3",
+              links: [
+                {
+                  name: "X",
+                  url: "https://twitter.com/erdogduQA",
+                },
+                {
+                  name: "Discord",
+                  url: "https://discordapp.com/users/moe2178",
+                },
+                {
+                  name: "Farcaster",
+                  url: "@orh",
+                },
+                {
+                  name: "Facebook",
+                  url: "https://www.facebook.com/mustafaorhun.erdogdu/",
+                },
+                {
+                  name: "Telegram",
+                  url: "https://t.me/oerdogdu",
+                },
+              ],
+              tokenReward: {
+                contractAddress: "0xe201FE11771066a6bD4Ad9f500847A9229FF24dD",
+                chainId: 31337,
+                name: "Cornell April Org",
+              },
+            },
+          } as IUserAgreement
+        }
+      /> */}
       <SDTypography align="center" variant="displayLg" color="textSuccess">
         {media}
       </SDTypography>
+      <SDCustomSwitch />
+      <SDCustomSwitch />
+      <SDCustomSwitch />
+      <SDCustomSwitch />
       <Box mb={2} display="flex" justifyContent="center">
         <Tabs value={value} onChange={(_e, newValue) => setValue(newValue)}>
           <Tab label="SDTypography" />
@@ -300,11 +392,11 @@ const App = () => {
       )}
       {value === 2 && (
         <>
-          <DescriptionWidget
+          {/* <DescriptionWidget
             onCancelClick={() => {}}
             onContinueClick={() => {}}
             onSetPermissions={() => {}}
-            invitationData={{} as IOldUserAgreement}
+            invitationData={{} as IUserAgreement}
             onRejectClick={() => {}}
           />
           <Box mb={2} />
@@ -313,7 +405,7 @@ const App = () => {
             onSaveClick={(dataTypes) => {
               console.log(dataTypes);
             }}
-          />
+          /> */}
         </>
       )}
 

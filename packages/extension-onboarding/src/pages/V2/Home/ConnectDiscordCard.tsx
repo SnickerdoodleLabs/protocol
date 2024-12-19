@@ -1,24 +1,20 @@
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import Card from "@extension-onboarding/pages/V2/Home/Card";
-import { getResponsivePopupProperties } from "@extension-onboarding/utils";
 import Collapse from "@material-ui/core/Collapse";
 import {
   EOAuthProvider,
   OAuthAuthorizationCode,
   DiscordProfile,
 } from "@snickerdoodlelabs/objects";
-import {
-  SDButton,
-  colors,
-} from "@snickerdoodlelabs/shared-components";
+import { SDButton, colors } from "@snickerdoodlelabs/shared-components";
 import { errAsync } from "neverthrow";
 import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import { useDataWalletContext } from "@extension-onboarding/context/DataWalletContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
+import Card from "@extension-onboarding/pages/V2/Home/Card";
+import { getResponsivePopupProperties } from "@extension-onboarding/utils";
+
 export default () => {
-  const { uiStateUtils } = useAppContext();
   const { setAlert } = useNotificationContext();
   const connectionWindowRef = React.useRef<Window | null>(null);
   const { sdlDataWallet } = useDataWalletContext();
@@ -65,7 +61,6 @@ export default () => {
     return sdlDataWallet.discord
       .initializeUserWithAuthorizationCode(OAuthAuthorizationCode(code))
       .map(() => {
-        uiStateUtils.onSocialAccountLinked();
         setAlert({
           severity: EAlertSeverity.SUCCESS,
           message: "Your account has successfully been linked. ",

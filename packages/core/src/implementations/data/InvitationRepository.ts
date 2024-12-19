@@ -8,7 +8,6 @@ import {
   ERecordKey,
   EVMContractAddress,
   InvitationForStorage,
-  IOldUserAgreement,
   IpfsCID,
   IPFSError,
   IUserAgreement,
@@ -39,7 +38,7 @@ import {
 
 @injectable()
 export class InvitationRepository implements IInvitationRepository {
-  protected cache = new Map<IpfsCID, IOldUserAgreement | IUserAgreement>();
+  protected cache = new Map<IpfsCID, IUserAgreement>();
 
   public constructor(
     @inject(IDataWalletPersistenceType)
@@ -101,7 +100,7 @@ export class InvitationRepository implements IInvitationRepository {
 
   public getInvitationMetadataByCID(
     cid: IpfsCID,
-  ): ResultAsync<IOldUserAgreement | IUserAgreement, IPFSError> {
+  ): ResultAsync<IUserAgreement, IPFSError> {
     const cached = this.cache.get(cid);
     if (cached != null) {
       return okAsync(cached);
@@ -111,7 +110,7 @@ export class InvitationRepository implements IInvitationRepository {
       .andThen((config) => {
         const ipfsUrl = urlJoin(config.ipfsFetchBaseUrl, cid);
         return this.ajaxUtil
-          .get<IOldUserAgreement | IUserAgreement>(new URL(ipfsUrl))
+          .get<IUserAgreement>(new URL(ipfsUrl))
           .map((metadata) => {
             this.cache.set(cid, metadata);
             return metadata;

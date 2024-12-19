@@ -117,3 +117,5 @@ type LastFromTuple<T extends unknown[]> = T extends [...infer R, infer E]
 
 type LastFromTupleExample = LastFromTuple<[number, string, boolean]>;
 // equals boolean
+
+export const placeholder = -1;

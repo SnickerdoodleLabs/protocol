@@ -6,9 +6,10 @@ import {
   ConsentError,
   DataPermissions,
   DomainName,
+  EColorMode,
   EVMContractAddress,
   HexString32,
-  IOldUserAgreement,
+  IUserAgreement,
   Invitation,
   IpfsCID,
   OptInInfo,
@@ -54,12 +55,31 @@ const newPermissionsHex = HexString32(
   "0x0000000000000000000000000000000000000000000000000000000000000001",
 );
 
-const invitationMetadata: IOldUserAgreement = {
-  title: "Domain Title",
-  description: "Domain Description",
-  image: URLString("Image"),
-  rewardName: "RewardName",
-  nftClaimedImage: URLString("nftClaimedImage"),
+const invitationMetadata: IUserAgreement = {
+  image: URLString("ipfs://QmNhhFLpUAwdG4aGMrJUhdh8qsp8svP1RoSyPXCK4NaUjb"),
+  description:
+    "<p>We believe you deserve control over your own data. Here's why we're offering a new way - a better way:</p><p><br></p><ul><li><strong>Empowerment:</strong> It’s your data. We're here to ensure you retain control and ownership, always.</li><li><strong>Privacy First:</strong> Thanks to our integration with Snickerdoodle, we ensure your data remains anonymous and private by leveraging their proprietary tech and Zero-Knowledge Proofs.</li><li><strong>Enhanced Experience:</strong> Sharing your web3 data, like token balances, NFTs, and transaction history, allows you to access unique experiences tailored just for you.</li><li><strong>Exclusive Rewards:</strong> Unlock exclusive NFTs as rewards for sharing your data. It's our way of saying thanks.</li></ul><p><br></p><p> By clicking \"Continue\" you acknowledge our web3 data permissions policy and terms. Remember, your privacy is paramount to us; we've integrated with Snickerdoodle to ensure it.</p>",
+  name: "Your Data, Your Choice.",
+  attributes: [
+    {
+      trait_type: "version",
+      value: 1,
+    },
+    {
+      trait_type: "color mode",
+      value: EColorMode.dark,
+    },
+    {
+      trait_type: "title",
+      value: "Your Data, Your Choice.",
+    },
+  ],
+  brandInformation: {
+    name: "Cornell Blockchain Conference 2024",
+    description:
+      "Cornell Blockchain Club was founded in 2017 to democratize Web3 awareness and help catalyze real-world use cases of Blockchain technology.",
+    links: [],
+  },
 };
 
 const acceptedInvitation = new OptInInfo(
@@ -233,4 +253,3 @@ describe("InvitationService tests", () => {
     });
   });
 });
-

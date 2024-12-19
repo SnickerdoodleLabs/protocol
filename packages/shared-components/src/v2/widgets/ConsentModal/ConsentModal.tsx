@@ -5,6 +5,24 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { makeStyles, Theme } from "@material-ui/core/styles";
+import {
+  EQuestionnaireStatus,
+  EVMAccountAddress,
+  EVMContractAddress,
+  EWalletDataType,
+  IDynamicRewardParameter,
+  IUserAgreement,
+  IpfsCID,
+  JSONString,
+  NewQuestionnaireAnswer,
+  QueryStatus,
+  Questionnaire,
+  QuestionnaireWithAnswers,
+} from "@snickerdoodlelabs/objects";
+import parse from "html-react-parser";
+import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 
 import {
   SDTypography,
@@ -35,32 +53,13 @@ import {
 } from "@shared-components/v2/utils";
 import { CombinedQuery } from "@shared-components/v2/widgets/ConsentModal/CombinedQueryItem";
 import { FillQuestionnaireModal } from "@shared-components/v2/widgets/FillQuestionnaireModal";
-import {
-  EQuestionnaireStatus,
-  EVMAccountAddress,
-  EVMContractAddress,
-  EWalletDataType,
-  IDynamicRewardParameter,
-  IOldUserAgreement,
-  IUserAgreement,
-  IpfsCID,
-  JSONString,
-  NewQuestionnaireAnswer,
-  QueryStatus,
-  Questionnaire,
-  QuestionnaireWithAnswers,
-} from "@snickerdoodlelabs/objects";
-import parse from "html-react-parser";
-import { ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
 
 interface IConsentModalProps {
   onClose: () => void;
   open: boolean;
   onOptinClicked: (params: IOptInParams) => void;
   consentContractAddress: EVMContractAddress;
-  invitationData: IOldUserAgreement | IUserAgreement;
+  invitationData: IUserAgreement;
   answerQuestionnaire: (
     id: IpfsCID,
     answers: NewQuestionnaireAnswer[],
@@ -713,11 +712,9 @@ export const ConsentModal = ({
   ]);
 
   const agreementPolicy = useMemo(() => {
-    const agreementTitle = invitationData["attributes"]
-      ? (invitationData as IUserAgreement).attributes.find(
-          (attr) => attr.trait_type === "title",
-        )?.value
-      : (invitationData as IOldUserAgreement).title ?? "Your Data, Your Choice";
+    const agreementTitle = (invitationData as IUserAgreement).attributes.find(
+      (attr) => attr.trait_type === "title",
+    )?.value;
     const descriptionText = invitationData.description;
 
     if (!descriptionText) {
