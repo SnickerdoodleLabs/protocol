@@ -1,0 +1,13 @@
+{
+    "i1": {
+        "name": "query_response",
+        "target": "True",
+        "query": "q1"
+    },
+    
+    "i2": {
+        "name": "callback",
+        "target": "True",
+        "returns": "'I am a happy person!'"
+    }
+}
